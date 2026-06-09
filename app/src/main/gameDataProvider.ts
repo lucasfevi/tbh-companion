@@ -5,6 +5,7 @@ import type { GameDataStatus } from "../../shared/types";
 import {
   extractAndEnrichItemsFromHtml,
   indexById,
+  catalogHasGearLevels,
   normalizeGameItem,
   type GameData,
   type GameItem,
@@ -91,16 +92,55 @@ export class GameDataProvider {
   /** Load the best available snapshot. Safe to call once at startup. */
   load(): void {
     const cache = this.cachePath();
+    const bundled = this.bundledPath();
+
     if (existsSync(cache) && this.tryLoad(cache)) {
       this.source = "cache";
+      if (!catalogHasGearLevels(this.index.values()) && this.tryLoadBundledLevelsOverlay(bundled)) {
+        return;
+      }
       return;
     }
-    const bundled = this.bundledPath();
     if (existsSync(bundled) && this.tryLoad(bundled)) {
       this.source = "bundled";
       return;
     }
     this.source = "none";
+  }
+
+  /**
+   * Legacy user caches (pre-level schema) win over bundled on load. Copy levels from
+   * the bundled snapshot by ItemKey so gear rows show Lv without waiting for refresh.
+   */
+  overlayMissingLevelsFromBundled(): boolean {
+    if (catalogHasGearLevels(this.index.values())) return false;
+    return this.tryLoadBundledLevelsOverlay(this.bundledPath());
+  }
+
+  private tryLoadBundledLevelsOverlay(bundledPath: string): boolean {
+    if (!existsSync(bundledPath)) return false;
+    try {
+      const raw = readFileSync(bundledPath, "utf-8").replace(/^\uFEFF/, "");
+      const d = JSON.parse(raw) as { items?: unknown[] };
+      if (!Array.isArray(d.items)) return false;
+
+      let patched = 0;
+      for (const row of d.items) {
+        const bundled = normalizeGameItem(row as Record<string, unknown>);
+        if (!bundled || bundled.level == null) continue;
+        const existing = this.index.get(bundled.id);
+        if (existing && existing.level == null) {
+          existing.level = bundled.level;
+          patched++;
+        }
+      }
+      if (patched > 0 && this.data) {
+        this.data.items = [...this.index.values()];
+      }
+      return patched > 0;
+    } catch {
+      return false;
+    }
   }
 
   private tryLoad(path: string): boolean {
@@ -184,9 +224,11 @@ export class GameDataProvider {
   }
 
   /** Refresh in the background if the snapshot is past its TTL. */
-  refreshIfStale(): void {
+  refreshIfStale(onComplete?: () => void): void {
     if (this.isStale()) {
-      void this.refresh();
+      void this.refresh().then((result) => {
+        if (result.ok) onComplete?.();
+      });
     }
   }
 }

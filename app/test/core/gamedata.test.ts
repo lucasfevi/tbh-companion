@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   buildGameItems,
+  catalogHasGearLevels,
   extractItemsFromHtml,
   extractLevelFromDetailHtml,
   iconTemplateFromPath,
@@ -70,6 +71,11 @@ describe("gamedata", () => {
     const idx = indexById(extractItemsFromHtml(html, new Map([["STAFF_320011", 50]])));
     expect(idx.get(322111)?.name).toBe("Void Staff");
     expect(idx.get(999999)).toBeUndefined();
+  });
+
+  it("detects when a catalog snapshot includes gear levels", () => {
+    expect(catalogHasGearLevels([{ type: "GEAR", level: 50 } as never])).toBe(true);
+    expect(catalogHasGearLevels([{ type: "GEAR", level: null } as never])).toBe(false);
   });
 
   it("throws when no array is present", () => {

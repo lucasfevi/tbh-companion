@@ -164,6 +164,14 @@ export function indexById(items: GameItem[]): Map<number, GameItem> {
   return m;
 }
 
+/** True when at least one gear row carries a resolved item level. */
+export function catalogHasGearLevels(items: Iterable<GameItem>): boolean {
+  for (const item of items) {
+    if (item.type === "GEAR" && item.level != null) return true;
+  }
+  return false;
+}
+
 /** Normalize a catalog row loaded from JSON (tolerates legacy icon/gearId fields). */
 export function normalizeGameItem(raw: Record<string, unknown>): GameItem | null {
   const id = Number(raw.id);
