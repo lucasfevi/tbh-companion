@@ -9,28 +9,29 @@ export interface SteamCurrency {
   code: number; // Steam's numeric currency id
   iso: string; // ISO 4217-ish code we expose in config/UI
   label: string;
+  prefix: string; // display prefix before amounts (e.g. "R$ ", "$")
 }
 
 // Common subset of Steam's wallet currencies. Extend as needed.
 export const STEAM_CURRENCIES: SteamCurrency[] = [
-  { code: 1, iso: "USD", label: "US Dollar" },
-  { code: 2, iso: "GBP", label: "British Pound" },
-  { code: 3, iso: "EUR", label: "Euro" },
-  { code: 4, iso: "CHF", label: "Swiss Franc" },
-  { code: 5, iso: "RUB", label: "Russian Ruble" },
-  { code: 6, iso: "PLN", label: "Polish Zloty" },
-  { code: 7, iso: "BRL", label: "Brazilian Real" },
-  { code: 8, iso: "JPY", label: "Japanese Yen" },
-  { code: 9, iso: "NOK", label: "Norwegian Krone" },
-  { code: 13, iso: "SGD", label: "Singapore Dollar" },
-  { code: 16, iso: "KRW", label: "South Korean Won" },
-  { code: 17, iso: "TRY", label: "Turkish Lira" },
-  { code: 19, iso: "MXN", label: "Mexican Peso" },
-  { code: 20, iso: "CAD", label: "Canadian Dollar" },
-  { code: 21, iso: "AUD", label: "Australian Dollar" },
-  { code: 23, iso: "CNY", label: "Chinese Yuan" },
-  { code: 24, iso: "INR", label: "Indian Rupee" },
-  { code: 29, iso: "HKD", label: "Hong Kong Dollar" },
+  { code: 1, iso: "USD", label: "US Dollar", prefix: "$" },
+  { code: 2, iso: "GBP", label: "British Pound", prefix: "£" },
+  { code: 3, iso: "EUR", label: "Euro", prefix: "€" },
+  { code: 4, iso: "CHF", label: "Swiss Franc", prefix: "CHF " },
+  { code: 5, iso: "RUB", label: "Russian Ruble", prefix: "₽" },
+  { code: 6, iso: "PLN", label: "Polish Zloty", prefix: "" }, // Steam uses "1,23 zł" suffix
+  { code: 7, iso: "BRL", label: "Brazilian Real", prefix: "R$ " },
+  { code: 8, iso: "JPY", label: "Japanese Yen", prefix: "¥" },
+  { code: 9, iso: "NOK", label: "Norwegian Krone", prefix: "kr " },
+  { code: 13, iso: "SGD", label: "Singapore Dollar", prefix: "S$" },
+  { code: 16, iso: "KRW", label: "South Korean Won", prefix: "₩" },
+  { code: 17, iso: "TRY", label: "Turkish Lira", prefix: "₺" },
+  { code: 19, iso: "MXN", label: "Mexican Peso", prefix: "Mex$ " },
+  { code: 20, iso: "CAD", label: "Canadian Dollar", prefix: "C$" },
+  { code: 21, iso: "AUD", label: "Australian Dollar", prefix: "A$" },
+  { code: 23, iso: "CNY", label: "Chinese Yuan", prefix: "¥" },
+  { code: 24, iso: "INR", label: "Indian Rupee", prefix: "₹" },
+  { code: 29, iso: "HKD", label: "Hong Kong Dollar", prefix: "HK$ " },
 ];
 
 const BY_ISO = new Map(STEAM_CURRENCIES.map((c) => [c.iso, c]));
@@ -41,6 +42,29 @@ export function currencyByIso(iso: string): SteamCurrency {
 
 export function currencyCode(iso: string): number {
   return currencyByIso(iso).code;
+}
+
+/** Display prefix for formatted amounts (e.g. BRL -> "R$ "). */
+export function currencyPrefix(iso: string): string {
+  return currencyByIso(iso).prefix;
+}
+
+/** ISO codes that use comma as the decimal separator in display. */
+const COMMA_DECIMAL = new Set(["BRL", "EUR", "PLN", "TRY", "RUB", "NOK"]);
+
+/** ISO codes shown without fractional digits (whole units). */
+const INTEGER_MONEY = new Set(["JPY", "KRW"]);
+
+/** Format a numeric amount for display in the chosen currency. */
+export function formatMoney(amount: number, iso: string): string {
+  const code = iso.toUpperCase();
+  const prefix = currencyPrefix(code);
+  if (INTEGER_MONEY.has(code)) {
+    return `${prefix}${Math.round(amount).toLocaleString("en-US")}`;
+  }
+  const fixed = amount.toFixed(2);
+  const body = COMMA_DECIMAL.has(code) ? fixed.replace(".", ",") : fixed;
+  return `${prefix}${body}`;
 }
 
 /**

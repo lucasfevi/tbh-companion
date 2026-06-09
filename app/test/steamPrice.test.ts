@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseMoney, currencyCode, currencyByIso } from "../src/core/steamPrice";
+import { parseMoney, currencyCode, currencyByIso, currencyPrefix, formatMoney } from "../src/core/steamPrice";
 
 describe("parseMoney", () => {
   it("parses US-format prices", () => {
@@ -34,5 +34,16 @@ describe("currency map", () => {
 
   it("falls back to USD for unknown codes", () => {
     expect(currencyByIso("XYZ").iso).toBe("USD");
+  });
+
+  it("maps ISO to display prefix", () => {
+    expect(currencyPrefix("BRL")).toBe("R$ ");
+    expect(currencyPrefix("USD")).toBe("$");
+  });
+
+  it("formats money with locale-appropriate separators", () => {
+    expect(formatMoney(0.04, "USD")).toBe("$0.04");
+    expect(formatMoney(0.04, "BRL")).toBe("R$ 0,04");
+    expect(formatMoney(120, "JPY")).toBe("¥120");
   });
 });

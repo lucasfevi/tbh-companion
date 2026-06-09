@@ -72,12 +72,14 @@ export interface GameDataRefreshResult {
 // --- Inventory ---
 
 // Raw owned-item instance from itemSaveDatas (the master list of all owned
-// items: inventory + stash + trading + equipped). UniqueId is intentionally
-// omitted: it exceeds JS's safe-integer range, so JSON.parse rounds it and
-// distinct ids can collide (~6/185 observed). We list by array, not by id.
+// items: inventory + stash + trading + equipped).
+export type ItemLocation = "inventory" | "stash" | "trading" | "equipped" | "unknown";
+
 export interface InventoryItemInstance {
   itemKey: number;
   isChaotic: boolean;
+  inUse: boolean;
+  location: ItemLocation;
 }
 
 export interface ChestHolding {
@@ -98,9 +100,23 @@ export interface ResolvedInventoryRow {
   grade: string;
   type: string; // GEAR | MATERIAL | ...
   marketTradable: boolean;
+  marketHashName: string | null;
   count: number;
+  inUseCount: number;
   chaoticCount: number;
   known: boolean;
+  priceRaw: string | null;
+  priceLowest: number | null;
+  value: number | null;
+  priceEstimate: boolean;
+  inventoryCount: number;
+  stashCount: number;
+  tradingCount: number;
+}
+
+export interface InventoryPriceInfo {
+  lowest: number | null;
+  raw: string | null;
 }
 
 export interface InventoryComposition {
@@ -110,6 +126,10 @@ export interface InventoryComposition {
   tradableCount: number;
   unknownCount: number;
   chaoticCount: number;
+  inUseCount: number;
+  priceableCount: number;
+  valuedTotal: number;
+  currency: string | null;
 }
 
 export interface ResolvedInventory {
@@ -118,6 +138,7 @@ export interface ResolvedInventory {
   chests: ChestHolding[];
   saveMtime: number;
   gameDataLoaded: boolean;
+  currency: string | null;
 }
 
 export interface PriceStatus {
@@ -145,6 +166,17 @@ export interface PriceRefreshResult {
   error?: string;
 }
 
+export interface AppConfig {
+  savePath: string;
+  es3Password: string;
+  pollIntervalSeconds: number;
+  rollingWindowMinutes: number;
+  trackCubeExp: boolean;
+  startTopmost: boolean;
+  logHistoryCsv: boolean;
+  currency: string;
+}
+
 // API surface exposed on `window.tbh` by the preload via contextBridge.
 export interface TbhApi {
   onStats(cb: (stats: Stats) => void): () => void;
@@ -162,4 +194,6 @@ export interface TbhApi {
   cancelPrices(): void;
   setCurrency(iso: string): Promise<PriceStatus>;
   onPricesProgress(cb: (p: PriceProgress) => void): () => void;
+  getConfig(): Promise<AppConfig>;
+  saveConfig(patch: Partial<AppConfig>): Promise<AppConfig>;
 }

@@ -49,6 +49,31 @@ export class GameDataProvider {
     return candidates.find((p) => existsSync(p)) ?? candidates[candidates.length - 1];
   }
 
+  private supplementPaths(): string[] {
+    return [
+      join(process.resourcesPath ?? "", "data", "hero_items.json"),
+      join(process.cwd(), "..", "data", "hero_items.json"),
+      join(process.cwd(), "data", "hero_items.json"),
+    ];
+  }
+
+  private mergeSupplements(): void {
+    for (const p of this.supplementPaths()) {
+      if (!existsSync(p)) continue;
+      try {
+        const raw = readFileSync(p, "utf-8").replace(/^\uFEFF/, "");
+        const sup = JSON.parse(raw) as { items?: GameItem[] };
+        if (!Array.isArray(sup.items)) continue;
+        for (const item of sup.items) {
+          if (!this.index.has(item.id)) this.index.set(item.id, item);
+        }
+        break;
+      } catch {
+        // skip malformed supplement
+      }
+    }
+  }
+
   /** Load the best available snapshot. Safe to call once at startup. */
   load(): void {
     const cache = this.cachePath();
@@ -72,6 +97,7 @@ export class GameDataProvider {
       if (!Array.isArray(d.items)) return false;
       this.data = d;
       this.index = indexById(d.items);
+      this.mergeSupplements();
       return true;
     } catch {
       return false;
@@ -121,6 +147,7 @@ export class GameDataProvider {
       writeFileSync(cache, JSON.stringify(data));
       this.data = data;
       this.index = indexById(items);
+      this.mergeSupplements();
       this.source = "cache";
       return { ok: true, count: items.length };
     } catch (err) {
