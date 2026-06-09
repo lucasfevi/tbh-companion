@@ -7,7 +7,7 @@ touching decryption or item mapping.
 
 A companion app for the idle game **TBH: Task Bar Hero**. It reads the game's
 local, encrypted save file (read-only) and shows live stats: XP/hour, gold/hour,
-per-hero rates, session history, and (later) inventory valuation via the Steam
+per-hero rates, session history, and inventory valuation via the Steam
 Market. It never modifies the save and never talks to the game servers.
 
 ## Where things are
@@ -17,9 +17,10 @@ Market. It never modifies the save and never talks to the game servers.
   - `app/src/main/` - Electron main process (Node): file watching, decryption,
     tracking, IPC. Owns all file/network access.
   - `app/src/preload/` - `contextBridge` exposing a typed `window.tbh` API.
-  - `app/src/core/` - framework-free, unit-tested logic (`es3`, `saveReader`,
-    `tracker`, `stages`, `heroes`, `gamedata`, `inventory`, `steamPrice`).
+  - `app/src/core/` - framework-free, unit-tested logic (`es3`, `save/snapshot`,
+    `tracker`, `stages`, `heroes`, `gamedata`, `inventory/*`, `steamPrice`).
   - `app/src/renderer/` - React UI (tabs + mini overlay). Pure UI, no Node APIs.
+    Shared IPC state via `context/TbhProvider.tsx`.
   - `app/shared/types.ts` - types shared across processes.
 - `data/` - bundled catalogs (`gamedata.json`, `hero_items.json`).
 - `docs/` - the knowledge base (see below).
@@ -39,6 +40,8 @@ npm run dev        # electron-vite dev (main + renderer with HMR)
 npm run build      # production bundle (out/)
 npm run typecheck  # tsc --noEmit
 npm test           # vitest (core logic)
+npm run qa         # typecheck + test + build + bundle guards (run before marking done)
+npm run qa:dev     # automated dev smoke when UI is not visible (see tbh-qa skill)
 npm run pack       # electron-builder --dir -> release/win-unpacked (no installer)
 npm run dist       # electron-builder -> Windows NSIS installer
 ```
@@ -83,6 +86,20 @@ button in the tab bar; restore from the overlay's expand button.
 
 - TypeScript everywhere in `app/`. Keep `core/` free of Electron/React imports
   so it stays unit-testable.
+
+## Project skills (required for features & refactors)
+
+Cursor skills live in `.cursor/skills/`. **Read the relevant `SKILL.md` before
+coding** — enforced by `.cursor/rules/project-skills.mdc` (`alwaysApply: true`).
+
+| Skill | Path | When |
+|-------|------|------|
+| **coding-guidelines** | `.cursor/skills/coding-guidelines/SKILL.md` | Every feature, bugfix, refactor |
+| **tbh-qa** | `.cursor/skills/tbh-qa/SKILL.md` | Before marking any `app/` work done |
+| **react-best-practices** | `.cursor/skills/react-best-practices/SKILL.md` | Renderer / React UI changes |
+| **best-practices** | `.cursor/skills/best-practices/SKILL.md` | Main, preload, IPC, CSP, network, security |
+
+Do not skip skills for “small” diffs. Match skill to layer: renderer → **react-best-practices**; main/preload/security → **best-practices**.
 - **Always commit.** When you finish a task (bugfix, feature, refactor, or docs),
   create a git commit before treating the work as done. Do not leave completed
   changes uncommitted in the working tree.
@@ -92,10 +109,29 @@ button in the tab bar; restore from the overlay's expand button.
   Never force-push.
 - Never commit personal save data (`*.es3`, decrypted dumps, `sample/`).
 
+## Architecture & refactor conventions
+
+Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
+
+| Layer | Path | Rules |
+|-------|------|--------|
+| **shared** | `app/shared/` | Types + `ipc.ts` channel names. No runtime logic. |
+| **core** | `app/src/core/` | Pure domain logic. **No** `electron`, **no** `node:fs`, **no** `fetch`, **no** React. |
+| **main** | `app/src/main/` | File I/O, network, windows, IPC. Orchestrates core via `app/appState.ts` and `ipc/`. |
+| **preload** | `app/src/preload/` | Thin `contextBridge` only; import channels from `shared/ipc.ts`. |
+| **renderer** | `app/src/renderer/` | React UI via `window.tbh`. Filter/sort in `renderer/lib/` or `core/` pure helpers. |
+
+**Adding features:** read **coding-guidelines** + **tbh-qa** first; add **react-best-practices** or **best-practices** when touching renderer or main/preload. New IPC → `shared/ipc.ts` + `main/ipc/registerIpc.ts` + preload + `test/ipc/channels.test.ts`. New save fields → parse in `core/`, read bytes in `main/` only.
+
+**Refactor:** move without behavior change first; tests travel with code. No duplicate types (`AppConfig` lives in `shared/types.ts`). No new globals in `main/index.ts` — use `app/appState.ts` or services. Read **coding-guidelines** plus the layer skills above; keep diffs surgical (no drive-by rewrites).
+
+**Testing:** all new `core/` logic needs Vitest; new IPC/config handlers need tests in `test/main/` or `test/ipc/`. Optional local integration: `test/integration/realSave.test.ts`.
+
+**QA before done:** run the **tbh-qa** skill (`.cursor/skills/tbh-qa/SKILL.md`) — `npm run qa`, then `npm run dev` (non-blank window) or `npm run qa:dev` when the UI cannot be seen. Never mark app work complete on tests/build alone.
+
 ## Docs index
 
 - `docs/ARCHITECTURE.md` - processes, IPC boundary, windows, data flow.
 - `docs/SAVE_FORMAT.md` - ES3 decryption scheme + save JSON layout.
 - `docs/DECISIONS.md` - short ADR log of why the stack is what it is.
-- `docs/BACKLOG.md` - future-release ideas we want to remember.
 - `docs/findings/` - research outputs (Steam Market probe, item mapping).

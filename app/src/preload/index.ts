@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
+import { IPC } from "../../shared/ipc";
 import type {
   Stats,
   TbhApi,
@@ -11,64 +12,63 @@ import type {
   AppConfig,
 } from "../../shared/types";
 
-// Narrow, typed bridge. The renderer never touches Node/Electron directly.
 const api: TbhApi = {
   onStats(cb: (stats: Stats) => void): () => void {
     const listener = (_e: unknown, stats: Stats): void => cb(stats);
-    ipcRenderer.on("stats", listener);
-    return () => ipcRenderer.removeListener("stats", listener);
+    ipcRenderer.on(IPC.STATS, listener);
+    return () => ipcRenderer.removeListener(IPC.STATS, listener);
   },
   reset(): void {
-    ipcRenderer.send("reset");
+    ipcRenderer.send(IPC.RESET);
   },
   getStats(): Promise<Stats | null> {
-    return ipcRenderer.invoke("get-stats");
+    return ipcRenderer.invoke(IPC.GET_STATS);
   },
   openOverlay(): void {
-    ipcRenderer.send("open-overlay");
+    ipcRenderer.send(IPC.OPEN_OVERLAY);
   },
   showMain(): void {
-    ipcRenderer.send("show-main");
+    ipcRenderer.send(IPC.SHOW_MAIN);
   },
   closeOverlay(): void {
-    ipcRenderer.send("close-overlay");
+    ipcRenderer.send(IPC.CLOSE_OVERLAY);
   },
   gameDataStatus(): Promise<GameDataStatus> {
-    return ipcRenderer.invoke("gamedata-status");
+    return ipcRenderer.invoke(IPC.GAMEDATA_STATUS);
   },
   refreshGameData(): Promise<GameDataRefreshResult> {
-    return ipcRenderer.invoke("gamedata-refresh");
+    return ipcRenderer.invoke(IPC.GAMEDATA_REFRESH);
   },
   getInventory(): Promise<ResolvedInventory | null> {
-    return ipcRenderer.invoke("get-inventory");
+    return ipcRenderer.invoke(IPC.GET_INVENTORY);
   },
   onInventory(cb: (inv: ResolvedInventory) => void): () => void {
     const listener = (_e: unknown, inv: ResolvedInventory): void => cb(inv);
-    ipcRenderer.on("inventory", listener);
-    return () => ipcRenderer.removeListener("inventory", listener);
+    ipcRenderer.on(IPC.INVENTORY, listener);
+    return () => ipcRenderer.removeListener(IPC.INVENTORY, listener);
   },
   pricesStatus(): Promise<PriceStatus> {
-    return ipcRenderer.invoke("prices-status");
+    return ipcRenderer.invoke(IPC.PRICES_STATUS);
   },
   refreshPrices(force?: boolean): Promise<PriceRefreshResult & { status: PriceStatus }> {
-    return ipcRenderer.invoke("prices-refresh", force);
+    return ipcRenderer.invoke(IPC.PRICES_REFRESH, force);
   },
   cancelPrices(): void {
-    ipcRenderer.send("prices-cancel");
+    ipcRenderer.send(IPC.PRICES_CANCEL);
   },
   setCurrency(iso: string): Promise<PriceStatus> {
-    return ipcRenderer.invoke("set-currency", iso);
+    return ipcRenderer.invoke(IPC.SET_CURRENCY, iso);
   },
   onPricesProgress(cb: (p: PriceProgress) => void): () => void {
     const listener = (_e: unknown, p: PriceProgress): void => cb(p);
-    ipcRenderer.on("prices-progress", listener);
-    return () => ipcRenderer.removeListener("prices-progress", listener);
+    ipcRenderer.on(IPC.PRICES_PROGRESS, listener);
+    return () => ipcRenderer.removeListener(IPC.PRICES_PROGRESS, listener);
   },
   getConfig(): Promise<AppConfig> {
-    return ipcRenderer.invoke("get-config");
+    return ipcRenderer.invoke(IPC.GET_CONFIG);
   },
   saveConfig(patch: Partial<AppConfig>): Promise<AppConfig> {
-    return ipcRenderer.invoke("save-config", patch);
+    return ipcRenderer.invoke(IPC.SAVE_CONFIG, patch);
   },
 };
 

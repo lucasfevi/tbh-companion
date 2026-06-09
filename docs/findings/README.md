@@ -8,8 +8,8 @@ produced them. Keep each file focused and factual.
   implications. Confirmed viable (648 marketable items).
 - `item-mapping.md` - the confirmed `ItemKey -> name/rarity/type` source
   (tbh.city embedded JSON; `record.id == save ItemKey`, verified live), the save
-  data model, the catalog refresh strategy for game updates, and the remaining
-  Steam `market_hash_name` mapping risks (gear variant letter).
+  data model, the catalog refresh strategy for game updates, and remaining gaps
+  (partial aggregate SubKey map, gear variant probing on Steam).
 
 Related data artifacts (repo root `data/`):
 

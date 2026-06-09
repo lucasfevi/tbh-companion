@@ -12,6 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "qa": "node scripts/qa-gate.mjs",
+    "qa:dev": "node scripts/qa-dev.mjs",
     "pack": "electron-vite build && electron-builder --dir",
     "dist": "electron-vite build && electron-builder"
   },
@@ -32,7 +34,8 @@
       }
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "../docs/design/icons/concept-companion-512.png"
     },
     "nsis": {
       "oneClick": false,

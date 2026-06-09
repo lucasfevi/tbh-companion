@@ -1,0 +1,23 @@
+---
+description: Required project skills for features, refactors, and app changes — read SKILL.md files before coding
+alwaysApply: true
+---
+
+# TBH Companion — required skills
+
+Before **implementing** a feature, refactor, or behavior change under `app/`:
+
+1. **Read** (open the file; do not rely on memory):
+   - `.cursor/skills/coding-guidelines/SKILL.md` — always
+   - `.cursor/skills/tbh-qa/SKILL.md` — completion gate (`npm run qa`, dev smoke)
+2. **Also read when the change touches:**
+   - `app/src/renderer/**` → `.cursor/skills/react-best-practices/SKILL.md`
+   - `app/src/main/**`, `app/src/preload/**`, CSP, IPC, network, config → `.cursor/skills/best-practices/SKILL.md`
+
+Apply the skills during the work, not only at the end. No drive-by refactors outside the task.
+
+**Layer rules** (with skills): `AGENTS.md` architecture table + `docs/ARCHITECTURE.md`.
+
+**Refactors:** follow **coding-guidelines** and layer skills; keep diffs surgical — no drive-by rewrites outside the task.
+
+**Done means:** tbh-qa passed and required skills were followed — not just green tests.

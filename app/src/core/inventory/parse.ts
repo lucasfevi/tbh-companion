@@ -1,0 +1,165 @@
+// Parse owned items and chests from decrypted save JSON.
+
+import { unwrapEs3Entry } from "../save/snapshot";
+import { materialStacksFromAggregates, parseAggregateEntries } from "./aggregates";
+import type { InventoryItemInstance, ChestHolding, InventorySnapshot, ItemLocation } from "../../../shared/types";
+
+/** Hero-bound soul gear (9xxxxx) is worn outside bag/stash/trading slot arrays. */
+export function isHeroBoundItemKey(itemKey: number): boolean {
+  return itemKey >= 900_000 && itemKey < 1_000_000;
+}
+
+function toNum(v: unknown, fallback = 0): number {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function sliceJsonArray(text: string, key: string): string {
+  const at = text.indexOf(key);
+  if (at === -1) return "";
+  const open = text.indexOf("[", at);
+  if (open === -1) return "";
+  let depth = 0;
+  let inStr = false;
+  let esc = false;
+  for (let i = open; i < text.length; i++) {
+    const ch = text[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === "\\") esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === "[") depth++;
+    else if (ch === "]") {
+      depth--;
+      if (depth === 0) return text.slice(open, i + 1);
+    }
+  }
+  return "";
+}
+
+function parseEquippedIds(playerStr: string): Set<string> {
+  const equipped = new Set<string>();
+  const re = /"equippedItemIds"\s*:\s*\[([^\]]*)\]/g;
+  for (const m of playerStr.matchAll(re)) {
+    for (const id of m[1].split(",").map((s) => s.trim()).filter(Boolean)) {
+      equipped.add(id);
+    }
+  }
+  return equipped;
+}
+
+const SLOT_ID_RE = /"ItemUniqueId"\s*:\s*(\d+)/g;
+
+function parseSlotUniqueIds(playerStr: string, arrayKey: string): Set<string> {
+  const arr = sliceJsonArray(playerStr, arrayKey);
+  const ids = new Set<string>();
+  for (const m of arr.matchAll(SLOT_ID_RE)) {
+    const id = m[1];
+    if (id !== "0") ids.add(id);
+  }
+  return ids;
+}
+
+const ITEM_TRIPLE_RE =
+  /"ItemKey"\s*:\s*(\d+)\s*,\s*"UniqueId"\s*:\s*(\d+)\s*,\s*"IsChaotic"\s*:\s*(true|false)/g;
+
+function resolveLocation(
+  uniqueId: string,
+  itemKey: number,
+  equipped: Set<string>,
+  inventory: Set<string>,
+  stash: Set<string>,
+  trading: Set<string>,
+): ItemLocation {
+  if (equipped.has(uniqueId)) return "equipped";
+  if (inventory.has(uniqueId)) return "inventory";
+  if (stash.has(uniqueId)) return "stash";
+  if (trading.has(uniqueId)) return "trading";
+  if (isHeroBoundItemKey(itemKey)) return "equipped";
+  return "unknown";
+}
+
+function parseItemsFromPlayerString(playerStr: string): InventoryItemInstance[] {
+  const equipped = parseEquippedIds(playerStr);
+  const inventory = parseSlotUniqueIds(playerStr, '"inventorySaveDatas":');
+  const stash = parseSlotUniqueIds(playerStr, '"stashSaveDatas":');
+  const trading = parseSlotUniqueIds(playerStr, '"tradingStashSaveDatas":');
+  const arr = sliceJsonArray(playerStr, '"itemSaveDatas":');
+  const items: InventoryItemInstance[] = [];
+  for (const m of arr.matchAll(ITEM_TRIPLE_RE)) {
+    const itemKey = Math.trunc(Number(m[1]));
+    if (itemKey <= 0) continue;
+    const uniqueId = m[2];
+    const location = resolveLocation(uniqueId, itemKey, equipped, inventory, stash, trading);
+    items.push({
+      itemKey,
+      isChaotic: m[3] === "true",
+      inUse: equipped.has(uniqueId) || location === "equipped",
+      location,
+    });
+  }
+  return items;
+}
+
+function parseItemsFromPlayerObject(player: Record<string, unknown>): InventoryItemInstance[] {
+  const items: InventoryItemInstance[] = [];
+  const arr = player.itemSaveDatas;
+  if (!Array.isArray(arr)) return items;
+  for (const raw of arr) {
+    if (!raw || typeof raw !== "object") continue;
+    const it = raw as Record<string, unknown>;
+    const itemKey = Math.trunc(toNum(it.ItemKey, 0));
+    if (itemKey <= 0) continue;
+    items.push({
+      itemKey,
+      isChaotic: Boolean(it.IsChaotic),
+      inUse: false,
+      location: "unknown",
+    });
+  }
+  return items;
+}
+
+function parseChests(player: Record<string, unknown> | undefined): ChestHolding[] {
+  const chests: ChestHolding[] = [];
+  if (!player) return chests;
+  const box = player.BoxData as Record<string, unknown> | undefined;
+  if (!box || typeof box !== "object") return chests;
+  const types = Array.isArray(box.BoxTypes) ? (box.BoxTypes as unknown[]) : [];
+  const quantities = Array.isArray(box.BoxQuantity) ? (box.BoxQuantity as unknown[]) : [];
+  for (let i = 0; i < types.length; i++) {
+    const quantity = Math.trunc(toNum(quantities[i], 0));
+    if (quantity <= 0) continue;
+    chests.push({ type: Math.trunc(toNum(types[i], 0)), quantity });
+  }
+  return chests;
+}
+
+export function parseInventory(
+  decryptedText: string,
+  saveMtime = 0,
+  isMaterialItemKey?: (itemKey: number) => boolean,
+): InventorySnapshot {
+  const root = JSON.parse(decryptedText) as Record<string, unknown>;
+  const playerEntry = root?.PlayerSaveData as { value?: unknown } | undefined;
+  const playerStr = typeof playerEntry?.value === "string" ? playerEntry.value : null;
+  const player = unwrapEs3Entry(root?.PlayerSaveData) as Record<string, unknown> | undefined;
+
+  let items: InventoryItemInstance[] = [];
+  if (playerStr) {
+    items = parseItemsFromPlayerString(playerStr);
+  } else if (player && typeof player === "object") {
+    items = parseItemsFromPlayerObject(player);
+  }
+
+  const chests = parseChests(player);
+  let materialStacks: Map<number, number> | undefined;
+  if (isMaterialItemKey) {
+    materialStacks = materialStacksFromAggregates(parseAggregateEntries(player), isMaterialItemKey);
+  }
+
+  return { items, chests, saveMtime, materialStacks };
+}

@@ -585,6 +585,10 @@ body {
 .inv-table tbody tr:hover {
   background: var(--card);
 }
+.inv-table tbody tr.inv-row {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 36px;
+}
 .inv-empty {
   text-align: center;
   padding: 24px 12px !important;

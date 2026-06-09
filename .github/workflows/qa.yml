@@ -1,0 +1,37 @@
+name: QA
+
+on:
+  push:
+    branches: [main, refactor/*]
+    paths:
+      - "app/**"
+      - ".github/workflows/qa.yml"
+  pull_request:
+    paths:
+      - "app/**"
+      - ".github/workflows/qa.yml"
+
+jobs:
+  qa:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Automated QA gate
+        run: npm run qa
+
+      - name: npm audit (high severity)
+        run: npm audit --audit-level=high
+        continue-on-error: true

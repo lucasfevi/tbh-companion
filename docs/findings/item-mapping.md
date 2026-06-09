@@ -27,10 +27,10 @@ Resolution: `inventory/stash slot.ItemUniqueId -> itemSaveDatas[].UniqueId ->
 ItemKey -> gamedata`. Items are **per-instance** (each gear piece is its own
 row with its own enchants), not stacked-with-count.
 
-> Materials (Iron Ingot, etc.) did not appear in this save's `itemSaveDatas`;
-> stackable materials are likely stored elsewhere (`aggregateSaveDatas` /
-> `BoxData` - not yet decoded). Gear valuation works from `itemSaveDatas` today;
-> material quantities are a follow-up.
+> Materials appear in both `itemSaveDatas` (instances) and, for stack counts,
+> `aggregateSaveDatas` Type `0` rows when SubKey maps to a catalog ItemKey (see
+> `core/inventory/aggregates.ts`). Many SubKeys (e.g. `10021`) are still undecoded.
+> Gear is per-instance in `itemSaveDatas`; location comes from slot refs + hero-bound rules.
 
 ## Source for ItemKey -> name/rarity/type: tbh.city (CONFIRMED, machine-readable)
 
@@ -87,8 +87,9 @@ app release:
 Build `market_hash_name` from gamedata fields; `priceoverview` confirms the listing:
 
 - **Materials / resources / soulstones**: `market_hash_name == <name>` exactly.
-- **Gear** (Legendary+ tradable only): `"<Name> (<Rarity>) A"` (variant letter
-  from save not yet decoded; default `A`).
+- **Gear** (Legendary+ tradable only): `"<Name> (<Rarity>) <letter>"` where
+  `<letter>` is `A`–`E`. Pricing probes each variant on Steam and uses the first
+  with a cached price (save letter not decoded yet; display defaults to `A`).
 
 If Steam returns no price for that hash, the row shows no value (exact grade only,
 no cross-grade fallback).
@@ -117,22 +118,21 @@ or Node `fs.writeFileSync` (never `Set-Content -Encoding UTF8` on PS 5.1).
 
 ## Known risks / open questions
 
-- **Gear variant letter** (` A`, ` B`, ...): the trailing token disambiguates
-  variants of the same name+rarity. Its meaning (stat-roll tier? base vs
-  enchanted?) is not yet confirmed, so `(name, rarity)` alone can be ambiguous
-  for gear. Must be resolved from the datamine (likely a per-ItemKey field) in
-  Phase 4/5.
+- **Gear variant letter** (` A`, ` B`, ...): save field not decoded; we probe
+  Steam listings `A`–`E` at price time. Per-instance letter from datamine would
+  improve link accuracy.
+- **aggregateSaveDatas SubKeys**: Type `0` encoding partly mapped; many live-save
+  SubKeys still unknown (see `SAVE_FORMAT.md`).
 - **Duplicate plain names** with different `classid`s appear in the catalog
-  (e.g. `Astral Diamond` twice) - confirm whether these are distinct tradable
+  (e.g. `Astral Diamond` twice) — confirm whether these are distinct tradable
   variants before collapsing by name.
-- Datamine machine-readability not yet verified (no confirmed JSON/API export).
 
-## Valuation pipeline (target)
+## Valuation pipeline (implemented)
 
 ```
-itemSaveDatas (ItemKey, grade, enchants, count)
-  -> gamedata.json: ItemKey -> {name, rarity, type, icon}
-  -> rule: -> market_hash_name
-  -> SteamMarketProvider price map -> unit price
-  -> sum(unit price * count) = inventory value
+itemSaveDatas + aggregateSaveDatas (material stacks)
+  -> parseInventory / resolveInventory (core/inventory/*)
+  -> gamedata.json: ItemKey -> {name, grade, type, icon}
+  -> marketHashCandidates -> SteamMarketProvider price cache
+  -> sum(unit price * count) on Inventory tab
 ```

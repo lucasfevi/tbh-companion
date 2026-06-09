@@ -3,18 +3,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { app } from "electron";
+import type { AppConfig } from "../../shared/types";
 import { DEFAULT_PASSWORD } from "../core/es3";
 
-export interface Config {
-  savePath: string;
-  es3Password: string;
-  pollIntervalSeconds: number;
-  rollingWindowMinutes: number;
-  trackCubeExp: boolean;
-  startTopmost: boolean;
-  logHistoryCsv: boolean;
-  currency: string; // ISO code for Steam Market prices (see core/steamPrice)
-}
+export type { AppConfig };
 
 const DEFAULT_SAVE = join(
   "%USERPROFILE%",
@@ -25,7 +17,7 @@ const DEFAULT_SAVE = join(
   "SaveFile_Live.es3",
 );
 
-const DEFAULTS: Config = {
+const DEFAULTS: AppConfig = {
   savePath: DEFAULT_SAVE,
   es3Password: DEFAULT_PASSWORD,
   pollIntervalSeconds: 5,
@@ -59,11 +51,11 @@ function candidatePaths(): string[] {
   return paths;
 }
 
-export function loadConfig(): Config {
+export function loadConfig(): AppConfig {
   for (const p of candidatePaths()) {
     if (!existsSync(p)) continue;
     try {
-      const raw = JSON.parse(readFileSync(p, "utf-8")) as Partial<Config>;
+      const raw = JSON.parse(readFileSync(p, "utf-8")) as Partial<AppConfig>;
       return { ...DEFAULTS, ...raw };
     } catch {
       // fall through to defaults on malformed config
@@ -74,17 +66,17 @@ export function loadConfig(): Config {
 
 // Persist the live config to the user-writable location (userData/config.json),
 // merging over whatever is on disk. Used by runtime settings like currency.
-export function saveConfig(config: Config): void {
+export function saveConfig(config: AppConfig): void {
   let target: string;
   try {
     target = join(app.getPath("userData"), "config.json");
   } catch {
     target = join(process.cwd(), "config.json");
   }
-  let existing: Partial<Config> = {};
+  let existing: Partial<AppConfig> = {};
   if (existsSync(target)) {
     try {
-      existing = JSON.parse(readFileSync(target, "utf-8")) as Partial<Config>;
+      existing = JSON.parse(readFileSync(target, "utf-8")) as Partial<AppConfig>;
     } catch {
       existing = {};
     }

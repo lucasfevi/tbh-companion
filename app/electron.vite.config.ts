@@ -6,9 +6,10 @@ import react from "@vitejs/plugin-react";
 //   preload -> src/preload/index.ts
 //   renderer-> src/renderer/index.html (root: src/renderer)
 export default defineConfig({
-  main: {},
-  preload: {},
+  main: { build: { sourcemap: false } },
+  preload: { build: { sourcemap: false } },
   renderer: {
     plugins: [react()],
+    build: { sourcemap: false },
   },
 });

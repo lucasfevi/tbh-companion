@@ -91,6 +91,8 @@ export interface InventorySnapshot {
   items: InventoryItemInstance[];
   chests: ChestHolding[];
   saveMtime: number;
+  /** Stack counts from aggregateSaveDatas when decoded (materials only). */
+  materialStacks?: Map<number, number>;
 }
 
 // Owned items grouped by ItemKey and resolved against the game catalog.
