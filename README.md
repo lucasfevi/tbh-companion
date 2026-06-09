@@ -37,12 +37,16 @@ npm run qa:dev   # dev server smoke when UI is not visible
 Pushing a version tag builds the Windows NSIS installer and publishes a GitHub
 Release (see `.github/workflows/release.yml`).
 
-1. Bump `version` in `app/package.json`.
-2. Commit and merge to `main`.
-3. Tag and push: `git tag v0.1.0` then `git push origin v0.1.0`.
+1. Merge fixes to `main`.
+2. Tag and push: `git tag v0.1.1` then `git push origin v0.1.1`.
 
-The tag must match the package version (`v` + semver in `app/package.json`).
-You can also trigger a release manually from the Actions tab (`workflow_dispatch`).
+The **tag** sets the build version at release time (`npm version` in CI), so the
+installer name updates even if `app/package.json` on `main` still says an older
+semver. After shipping, bump `version` in `app/package.json` on `main` so local
+dev matches the latest release.
+
+You can also trigger a release manually from the Actions tab (`workflow_dispatch`)
+with a tag like `v0.1.1`.
 
 ## Features
 
