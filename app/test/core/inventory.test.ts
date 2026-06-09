@@ -31,8 +31,7 @@ const catalog: Record<number, GameItem> = {
     name: "Void Staff",
     grade: "RARE",
     type: "GEAR",
-    icon: "",
-    gearId: "322111",
+    level: 50,
     marketTradable: true,
   },
   141002: {
@@ -40,8 +39,7 @@ const catalog: Record<number, GameItem> = {
     name: "Iron Ingot",
     grade: "UNCOMMON",
     type: "MATERIAL",
-    icon: "",
-    gearId: "",
+    level: null,
     marketTradable: true,
   },
   140002: {
@@ -49,8 +47,7 @@ const catalog: Record<number, GameItem> = {
     name: "Stone",
     grade: "COMMON",
     type: "MATERIAL",
-    icon: "",
-    gearId: "",
+    level: null,
     marketTradable: true,
   },
   303071: {
@@ -58,8 +55,7 @@ const catalog: Record<number, GameItem> = {
     name: "Knight Sword",
     grade: "LEGENDARY",
     type: "GEAR",
-    icon: "",
-    gearId: "303071",
+    level: 30,
     marketTradable: true,
   },
 };
@@ -112,6 +108,7 @@ describe("resolveInventory", () => {
 
     const staff = res.rows.find((r) => r.itemKey === 322111)!;
     expect(staff.name).toBe("Void Staff");
+    expect(staff.level).toBe(50);
     expect(staff.count).toBe(2);
     expect(staff.inUseCount).toBe(1);
     expect(staff.marketHashName).toBeNull();

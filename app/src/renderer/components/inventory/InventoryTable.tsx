@@ -15,9 +15,9 @@ function priceSourceTitle(source: ResolvedInventoryRow["priceSource"]): string |
 export interface InventoryTableProps {
   rows: ResolvedInventoryRow[];
   currency: string;
-  sortKey: "name" | "grade" | "type" | "count" | "inUse" | "price" | "value";
+  sortKey: "name" | "grade" | "level" | "type" | "count" | "inUse" | "price" | "value";
   sortDir: "asc" | "desc";
-  onSort: (key: "name" | "grade" | "type" | "count" | "inUse" | "price" | "value") => void;
+  onSort: (key: "name" | "grade" | "level" | "type" | "count" | "inUse" | "price" | "value") => void;
   onClearFilters: () => void;
 }
 
@@ -47,6 +47,7 @@ const InventoryRow = memo(function InventoryRow({
         )}
       </td>
       <td style={{ color: gradeColor(row.grade) }}>{gradeLabel(row.grade)}</td>
+      <td className="num">{row.level != null ? row.level : <span className="muted">-</span>}</td>
       <td className="muted">{typeLabel(row.type)}</td>
       <td className="num">{row.count}</td>
       <td className="num loc-cell">
@@ -126,6 +127,10 @@ export function InventoryTable({
               Grade
               <SortArrow active={sortKey === "grade"} dir={sortDir} />
             </th>
+            <th className="num" onClick={() => onSort("level")}>
+              Level
+              <SortArrow active={sortKey === "level"} dir={sortDir} />
+            </th>
             <th onClick={() => onSort("type")}>
               Type
               <SortArrow active={sortKey === "type"} dir={sortDir} />
@@ -152,7 +157,7 @@ export function InventoryTable({
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={8} className="inv-empty muted">
+              <td colSpan={9} className="inv-empty muted">
                 No items match these filters.{" "}
                 <button type="button" className="btn small-btn" onClick={onClearFilters}>
                   Clear filters

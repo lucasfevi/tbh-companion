@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "qa": "node scripts/qa-gate.mjs",
     "qa:dev": "node scripts/qa-dev.mjs",
+    "regenerate-gamedata": "vitest run --config vitest.regenerate.config.ts",
     "pack": "electron-vite build && electron-builder --dir",
     "dist": "electron-vite build && electron-builder"
   },

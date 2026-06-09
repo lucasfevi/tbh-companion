@@ -1,15 +1,11 @@
 {
-  "source": "manual supplement for hero-class items absent from tbh.city/items",
-  "fetchedUtc": "2026-06-09T00:00:00.000Z",
-  "count": 5,
   "items": [
     {
       "id": 910151,
       "name": "Knight Soul Gear",
       "grade": "LEGENDARY",
       "type": "GEAR",
-      "icon": "",
-      "gearId": "910151",
+      "level": null,
       "marketTradable": false
     },
     {
@@ -17,8 +13,7 @@
       "name": "Ranger Soul Gear",
       "grade": "LEGENDARY",
       "type": "GEAR",
-      "icon": "",
-      "gearId": "910201",
+      "level": null,
       "marketTradable": false
     },
     {
@@ -26,8 +21,7 @@
       "name": "Sorcerer Soul Gear",
       "grade": "LEGENDARY",
       "type": "GEAR",
-      "icon": "",
-      "gearId": "910301",
+      "level": null,
       "marketTradable": false
     },
     {
@@ -35,8 +29,7 @@
       "name": "Priest Soul Gear",
       "grade": "LEGENDARY",
       "type": "GEAR",
-      "icon": "",
-      "gearId": "910401",
+      "level": null,
       "marketTradable": false
     },
     {
@@ -44,8 +37,7 @@
       "name": "Sorcerer Decoration Core",
       "grade": "IMMORTAL",
       "type": "GEAR",
-      "icon": "",
-      "gearId": "930301",
+      "level": null,
       "marketTradable": false
     }
   ]

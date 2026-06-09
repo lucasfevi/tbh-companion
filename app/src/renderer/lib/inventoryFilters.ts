@@ -2,7 +2,7 @@ import { GRADE_ORDER, GRADE_RANK } from "../../core/grades";
 import { rowMatchesLocation } from "../../core/inventory/location";
 import type { ItemLocation, ResolvedInventory, ResolvedInventoryRow } from "../../../shared/types";
 
-export type SortKey = "name" | "grade" | "type" | "count" | "inUse" | "price" | "value";
+export type SortKey = "name" | "grade" | "level" | "type" | "count" | "inUse" | "price" | "value";
 export type LocationFilter = "ALL" | ItemLocation;
 
 export interface InventoryFilterState {
@@ -45,6 +45,7 @@ export function filterAndSortRows(inv: ResolvedInventory, state: InventoryFilter
     let cmp = 0;
     if (state.sortKey === "name") cmp = a.name.localeCompare(b.name);
     else if (state.sortKey === "type") cmp = a.type.localeCompare(b.type);
+    else if (state.sortKey === "level") cmp = (a.level ?? -1) - (b.level ?? -1);
     else if (state.sortKey === "count") cmp = a.count - b.count;
     else if (state.sortKey === "inUse") cmp = (a.inUseCount ?? 0) - (b.inUseCount ?? 0);
     else if (state.sortKey === "price") cmp = (a.unitPrice ?? -1) - (b.unitPrice ?? -1);
@@ -57,5 +58,5 @@ export function filterAndSortRows(inv: ResolvedInventory, state: InventoryFilter
 }
 
 export function defaultSortDir(key: SortKey): "asc" | "desc" {
-  return key === "name" || key === "type" ? "asc" : "desc";
+  return key === "name" || key === "type" || key === "level" ? "asc" : "desc";
 }

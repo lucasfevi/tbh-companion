@@ -1,18 +1,11 @@
-// Loads the game item catalog and keeps it fresh.
-//
-// Resolution order on load: user cache (if present) -> bundled snapshot. The
-// bundled data/gamedata.json ships with the app so inventory works offline and
-// on first run. refresh() re-scrapes tbh.city and writes the user cache, so a
-// game patch that adds items is picked up without an app update (see
-// docs/findings/item-mapping.md).
-
 import { app } from "electron";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { GameDataStatus } from "../../shared/types";
 import {
-  extractItemsFromHtml,
+  extractAndEnrichItemsFromHtml,
   indexById,
+  normalizeGameItem,
   type GameData,
   type GameItem,
 } from "../core/gamedata";
@@ -33,6 +26,14 @@ export class GameDataProvider {
     }
   }
 
+  private levelCachePath(): string {
+    try {
+      return join(app.getPath("userData"), "gear_levels.json");
+    } catch {
+      return join(process.cwd(), "gear_levels.cache.json");
+    }
+  }
+
   private bundledPath(): string {
     const candidates = [
       join(process.resourcesPath ?? "", "data", "gamedata.json"), // packaged
@@ -50,15 +51,35 @@ export class GameDataProvider {
     ];
   }
 
+  private loadLevelCache(): Map<string, number> {
+    const path = this.levelCachePath();
+    if (!existsSync(path)) return new Map();
+    try {
+      const raw = JSON.parse(readFileSync(path, "utf-8").replace(/^\uFEFF/, "")) as {
+        levels?: Record<string, number>;
+      };
+      return new Map(Object.entries(raw.levels ?? {}));
+    } catch {
+      return new Map();
+    }
+  }
+
+  private saveLevelCache(levels: ReadonlyMap<string, number>): void {
+    const path = this.levelCachePath();
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, JSON.stringify({ levels: Object.fromEntries(levels) }));
+  }
+
   private mergeSupplements(): void {
     for (const p of this.supplementPaths()) {
       if (!existsSync(p)) continue;
       try {
         const raw = readFileSync(p, "utf-8").replace(/^\uFEFF/, "");
-        const sup = JSON.parse(raw) as { items?: GameItem[] };
+        const sup = JSON.parse(raw) as { items?: Record<string, unknown>[] };
         if (!Array.isArray(sup.items)) continue;
-        for (const item of sup.items) {
-          if (!this.index.has(item.id)) this.index.set(item.id, item);
+        for (const row of sup.items) {
+          const item = normalizeGameItem(row);
+          if (item && !this.index.has(item.id)) this.index.set(item.id, item);
         }
         break;
       } catch {
@@ -84,12 +105,24 @@ export class GameDataProvider {
 
   private tryLoad(path: string): boolean {
     try {
-      // Strip a leading UTF-8 BOM; some snapshots were saved with one.
       const raw = readFileSync(path, "utf-8").replace(/^\uFEFF/, "");
-      const d = JSON.parse(raw) as GameData;
+      const d = JSON.parse(raw) as {
+        source?: string;
+        fetchedUtc?: string;
+        count?: number;
+        items?: unknown[];
+      };
       if (!Array.isArray(d.items)) return false;
-      this.data = d;
-      this.index = indexById(d.items);
+      const items = d.items
+        .map((row) => normalizeGameItem(row as Record<string, unknown>))
+        .filter((item): item is GameItem => item != null);
+      this.data = {
+        source: d.source ?? "",
+        fetchedUtc: d.fetchedUtc ?? "",
+        items,
+        count: items.length,
+      };
+      this.index = indexById(items);
       this.mergeSupplements();
       return true;
     } catch {
@@ -126,7 +159,8 @@ export class GameDataProvider {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const html = await res.text();
-      const items = extractItemsFromHtml(html);
+      const existingLevels = this.loadLevelCache();
+      const { items, levelsByTemplate } = await extractAndEnrichItemsFromHtml(html, existingLevels);
       if (items.length === 0) throw new Error("no items extracted");
 
       const data: GameData = {
@@ -138,6 +172,7 @@ export class GameDataProvider {
       const cache = this.cachePath();
       mkdirSync(dirname(cache), { recursive: true });
       writeFileSync(cache, JSON.stringify(data));
+      this.saveLevelCache(levelsByTemplate);
       this.data = data;
       this.index = indexById(items);
       this.mergeSupplements();

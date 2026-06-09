@@ -7,6 +7,7 @@ const row: ResolvedInventoryRow = {
   name: "Test",
   grade: "LEGENDARY",
   type: "GEAR",
+  level: 30,
   marketTradable: true,
   marketHashName: null,
   count: 3,

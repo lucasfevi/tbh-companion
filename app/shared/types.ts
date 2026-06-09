@@ -101,6 +101,7 @@ export interface ResolvedInventoryRow {
   name: string; // "Unknown #<key>" when not in the catalog
   grade: string;
   type: string; // GEAR | MATERIAL | ...
+  level: number | null;
   marketTradable: boolean;
   marketHashName: string | null;
   count: number;

@@ -7,8 +7,7 @@ const mat: GameItem = {
   name: "Iron Ingot",
   grade: "UNCOMMON",
   type: "MATERIAL",
-  icon: "",
-  gearId: "",
+  level: null,
   marketTradable: true,
 };
 
@@ -17,8 +16,7 @@ const gearLeg: GameItem = {
   name: "Knight Sword",
   grade: "LEGENDARY",
   type: "GEAR",
-  icon: "",
-  gearId: "303071",
+  level: 30,
   marketTradable: true,
 };
 
@@ -27,8 +25,7 @@ const gearRare: GameItem = {
   name: "Void Staff",
   grade: "RARE",
   type: "GEAR",
-  icon: "",
-  gearId: "322111",
+  level: 50,
   marketTradable: true,
 };
 
@@ -68,8 +65,7 @@ describe("marketHashName", () => {
       name: "Dusk Bow",
       grade: "IMMORTAL",
       type: "GEAR",
-      icon: "",
-      gearId: "314071",
+      level: 30,
       marketTradable: true,
     };
     expect(marketHashName(dusk)).toBe("Dusk Bow (Immortal) A");
@@ -81,8 +77,7 @@ describe("marketHashName", () => {
       name: "Mystic Boots",
       grade: "LEGENDARY",
       type: "GEAR",
-      icon: "",
-      gearId: "533111",
+      level: 50,
       marketTradable: true,
     };
     expect(marketHashMatch(boots)?.name).toBe("Mystic Boots (Legendary) A");
