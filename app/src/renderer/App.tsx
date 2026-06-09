@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { Live } from "./tabs/Live";
-import { Inventory } from "./tabs/Inventory";
-import { Market } from "./tabs/Market";
-import { Settings } from "./tabs/Settings";
+import { lazy, Suspense, useState } from "react";
 import { useStats } from "./lib/useStats";
 import { fmtAgo } from "./lib/format";
 import { ErrorBoundary } from "./lib/ErrorBoundary";
+
+const Live = lazy(() => import("./tabs/Live").then((m) => ({ default: m.Live })));
+const Inventory = lazy(() => import("./tabs/Inventory").then((m) => ({ default: m.Inventory })));
+const Market = lazy(() => import("./tabs/Market").then((m) => ({ default: m.Market })));
+const Settings = lazy(() => import("./tabs/Settings").then((m) => ({ default: m.Settings })));
 
 const IDLE_THRESHOLD = 120;
 
@@ -18,40 +19,56 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "settings", label: "Settings" },
 ];
 
+function TabFallback() {
+  return (
+    <div className="placeholder">
+      <p className="muted">Loading tab…</p>
+    </div>
+  );
+}
+
 export function App() {
   const [tab, setTab] = useState<TabId>("live");
 
   return (
     <div className="app">
-      <nav className="tabs">
-        {TABS.map((t) => (
+      <header className="savebar-host">
+        <nav className="tabs" aria-label="Main tabs">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={t.id === tab ? "tab active" : "tab"}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
           <button
-            key={t.id}
-            className={t.id === tab ? "tab active" : "tab"}
-            onClick={() => setTab(t.id)}
+            type="button"
+            className="tab overlay-toggle"
+            title="Open mini overlay"
+            onClick={() => window.tbh.openOverlay()}
           >
-            {t.label}
+            {"\u25a3"} Mini
           </button>
-        ))}
-        <button className="tab overlay-toggle" title="Open mini overlay" onClick={() => window.tbh.openOverlay()}>
-          {"\u25a3"} Mini
-        </button>
-      </nav>
-      <SaveStatusBar />
+        </nav>
+        <SaveStatusBar />
+      </header>
       <main className="content">
         <ErrorBoundary title={`${tab} tab crashed`}>
-          {tab === "live" && <Live />}
-          {tab === "inventory" && <Inventory />}
-          {tab === "market" && <Market />}
-          {tab === "settings" && <Settings />}
+          <Suspense fallback={<TabFallback />}>
+            {tab === "live" && <Live />}
+            {tab === "inventory" && <Inventory />}
+            {tab === "market" && <Market />}
+            {tab === "settings" && <Settings />}
+          </Suspense>
         </ErrorBoundary>
       </main>
     </div>
   );
 }
 
-// Save-file freshness shared by all tabs (all tab data comes from one save read).
-// Distinct from the Live tab's "XP updated" line, which tracks XP-change time.
 function SaveStatusBar() {
   const stats = useStats();
   const since = stats?.secondsSinceRead ?? null;
@@ -63,8 +80,8 @@ function SaveStatusBar() {
   else text = `Save written ${fmtAgo(since)}`;
 
   return (
-    <div className={idle ? "savebar warn" : "savebar"}>
-      <span className="savebar-dot" />
+    <div className={idle ? "savebar warn" : "savebar"} role="status">
+      <span className="savebar-dot" aria-hidden />
       <span>{text}</span>
       {idle && <span className="savebar-hint">- is the game running?</span>}
     </div>

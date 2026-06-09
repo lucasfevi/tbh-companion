@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { STEAM_CURRENCIES } from "../../core/steamPrice";
-import type { PriceProgress, PriceStatus } from "../../../shared/types";
+import { usePriceProgress, usePriceStatus, usePriceActions } from "../lib/usePrices";
+import { reportIpcError } from "../lib/reportError";
 
 function fmtAge(iso: string | null): string {
   if (!iso) return "never";
@@ -12,43 +13,36 @@ function fmtAge(iso: string | null): string {
 }
 
 export function Market() {
-  const [status, setStatus] = useState<PriceStatus | null>(null);
-  const [progress, setProgress] = useState<PriceProgress | null>(null);
+  const status = usePriceStatus();
+  const progress = usePriceProgress();
+  const { setPriceStatus, clearPriceProgress } = usePriceActions();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const mounted = useRef(true);
 
-  useEffect(() => {
-    mounted.current = true;
-    void window.tbh.pricesStatus().then((s) => mounted.current && setStatus(s));
-    const off = window.tbh.onPricesProgress((p) => mounted.current && setProgress(p));
-    return () => {
-      mounted.current = false;
-      off();
-    };
-  }, []);
-
   async function onCurrencyChange(iso: string) {
     const s = await window.tbh.setCurrency(iso);
-    setStatus(s);
+    setPriceStatus(s);
     setMessage(null);
-    setProgress(null);
+    clearPriceProgress();
   }
 
   async function onRefresh(force: boolean) {
     setBusy(true);
     setMessage(null);
-    setProgress(null);
-    const res = await window.tbh.refreshPrices(force);
-    if (mounted.current) {
-      setStatus(res.status);
-      setBusy(false);
-      setProgress(null);
-      const stopMsg =
-        res.stopped === "cancelled"
-          ? " (cancelled)"
-          : "";
-      setMessage(`Priced ${res.priced}, skipped ${res.skipped} fresh, ${res.failed} failed${stopMsg}.`);
+    clearPriceProgress();
+    try {
+      const res = await window.tbh.refreshPrices(force);
+      if (mounted.current) {
+        setPriceStatus(res.status);
+        setBusy(false);
+        clearPriceProgress();
+        const stopMsg = res.stopped === "cancelled" ? " (cancelled)" : "";
+        setMessage(`Priced ${res.priced}, skipped ${res.skipped} fresh, ${res.failed} failed${stopMsg}.`);
+      }
+    } catch (err) {
+      reportIpcError(err);
+      if (mounted.current) setBusy(false);
     }
   }
 
@@ -86,15 +80,20 @@ export function Market() {
 
         {!busy ? (
           <>
-            <button className="btn primary" onClick={() => void onRefresh(false)}>
+            <button type="button" className="btn primary" onClick={() => void onRefresh(false)}>
               Refresh prices
             </button>
-            <button className="btn" title="Re-price everything, ignoring the 24h cache" onClick={() => void onRefresh(true)}>
+            <button
+              type="button"
+              className="btn"
+              title="Re-price everything, ignoring the 24h cache"
+              onClick={() => void onRefresh(true)}
+            >
               Force full refresh
             </button>
           </>
         ) : (
-          <button className="btn danger" onClick={onCancel}>
+          <button type="button" className="btn danger" onClick={onCancel}>
             Stop
           </button>
         )}

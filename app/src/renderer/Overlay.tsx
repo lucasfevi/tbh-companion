@@ -1,25 +1,16 @@
-import { useEffect, useState } from "react";
 import { useStats } from "./lib/useStats";
 import { useInventory } from "./lib/useInventory";
+import { usePriceStatus } from "./lib/usePrices";
 import { fmtCompact, fmtAgo } from "./lib/format";
 import { formatMoney } from "../core/steamPrice";
 import { stageName } from "../core/stages";
-import type { PriceStatus } from "../../shared/types";
 
 const IDLE_THRESHOLD = 120;
 
 export function Overlay() {
   const stats = useStats();
   const inv = useInventory();
-  const [priceStatus, setPriceStatus] = useState<PriceStatus | null>(null);
-
-  useEffect(() => {
-    void window.tbh.pricesStatus().then(setPriceStatus).catch(() => {});
-    const off = window.tbh.onPricesProgress(() => {
-      void window.tbh.pricesStatus().then(setPriceStatus).catch(() => {});
-    });
-    return off;
-  }, []);
+  const priceStatus = usePriceStatus();
 
   const currency = inv?.currency ?? priceStatus?.currency ?? "USD";
   const invValue = inv?.composition.valuedTotal ?? null;
@@ -30,13 +21,13 @@ export function Overlay() {
       <div className="overlay-bar">
         <span className="overlay-title">TBH</span>
         <div className="overlay-actions no-drag">
-          <button title="Reset" onClick={() => window.tbh.reset()}>
+          <button type="button" title="Reset" onClick={() => window.tbh.reset()}>
             {"\u21bb"}
           </button>
-          <button title="Open full window" onClick={() => window.tbh.showMain()}>
+          <button type="button" title="Open full window" onClick={() => window.tbh.showMain()}>
             {"\u2922"}
           </button>
-          <button title="Close overlay" onClick={() => window.tbh.closeOverlay()}>
+          <button type="button" title="Close overlay" onClick={() => window.tbh.closeOverlay()}>
             {"\u2715"}
           </button>
         </div>
