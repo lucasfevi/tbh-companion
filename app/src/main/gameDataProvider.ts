@@ -66,7 +66,9 @@ export class GameDataProvider {
 
   private tryLoad(path: string): boolean {
     try {
-      const d = JSON.parse(readFileSync(path, "utf-8")) as GameData;
+      // Strip a leading UTF-8 BOM; some snapshots were saved with one.
+      const raw = readFileSync(path, "utf-8").replace(/^\uFEFF/, "");
+      const d = JSON.parse(raw) as GameData;
       if (!Array.isArray(d.items)) return false;
       this.data = d;
       this.index = indexById(d.items);

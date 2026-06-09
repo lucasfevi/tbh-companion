@@ -64,7 +64,8 @@ export class SteamMarketProvider {
     const path = this.cachePath(currency);
     if (existsSync(path)) {
       try {
-        const c = JSON.parse(readFileSync(path, "utf-8")) as PriceCache;
+        const raw = readFileSync(path, "utf-8").replace(/^\uFEFF/, "");
+        const c = JSON.parse(raw) as PriceCache;
         if (c && typeof c.prices === "object") return c;
       } catch {
         // fall through
@@ -114,7 +115,8 @@ export class SteamMarketProvider {
     const path = candidates.find((p) => existsSync(p));
     if (!path) return [];
     try {
-      const j = JSON.parse(readFileSync(path, "utf-8")) as {
+      const raw = readFileSync(path, "utf-8").replace(/^\uFEFF/, "");
+      const j = JSON.parse(raw) as {
         items: { market_hash_name: string }[];
       };
       return [...new Set(j.items.map((i) => i.market_hash_name))];

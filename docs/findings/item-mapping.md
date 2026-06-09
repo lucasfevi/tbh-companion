@@ -96,6 +96,28 @@ real names in `data/steam_market_catalog.json`:
 Anything that doesn't resolve to a catalog entry is treated as **not
 marketable** (value 0).
 
+## Catalog coverage gap (observed in a live save)
+
+tbh.city/items lists **only GEAR + MATERIAL** (ids ~110001-639192). A live save
+had 5 distinct `ItemKey`s the catalog does NOT cover, all in a `9xxxxx` range:
+`910151, 910201, 910301, 910401, 930301` (9 instances). The middle digit (1-4)
+matches the hero class keys (Knight/Ranger/Sorcerer/Priest = 101/201/301/401),
+so these look like **hero-class-bound items** (relics/soul-gear) that tbh.city
+omits from its market-oriented list. The wiki has more datasets (`/runes`,
+`/pets`, `/offering`, ...) but does not expose the numeric `ItemKey`, so it's not
+a drop-in source. These render as `Unknown #<key>` and a catalog refresh will
+**not** resolve them (a real gap, not a stale snapshot). Acceptable for now;
+revisit if hero-bound item valuation matters.
+
+## Gotcha: JSON files must be BOM-free
+
+`data/gamedata.json` and `data/steam_market_catalog.json` were first written via
+PowerShell `Set-Content -Encoding UTF8`, which prepends a UTF-8 **BOM** that
+breaks `JSON.parse` ("Unexpected token '\uFEFF'"). Both were rewritten BOM-free,
+and the providers now strip a leading BOM defensively. When regenerating these,
+use `[System.IO.File]::WriteAllText($p,$txt,(New-Object System.Text.UTF8Encoding($false)))`
+or Node `fs.writeFileSync` (never `Set-Content -Encoding UTF8` on PS 5.1).
+
 ## Known risks / open questions
 
 - **Gear variant letter** (` A`, ` B`, ...): the trailing token disambiguates
