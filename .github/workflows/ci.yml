@@ -1,15 +1,22 @@
-name: QA
+name: CI
 
 on:
-  push:
-    branches: [main, refactor/*]
-    paths:
-      - "app/**"
-      - ".github/workflows/qa.yml"
   pull_request:
+    branches: [main]
     paths:
       - "app/**"
-      - ".github/workflows/qa.yml"
+      - ".github/workflows/**"
+      - "data/**"
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - ".github/workflows/**"
+      - "data/**"
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   qa:

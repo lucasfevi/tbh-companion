@@ -32,6 +32,18 @@ npm run qa       # typecheck + test + build (run before marking done)
 npm run qa:dev   # dev server smoke when UI is not visible
 ```
 
+## Releases
+
+Pushing a version tag builds the Windows NSIS installer and publishes a GitHub
+Release (see `.github/workflows/release.yml`).
+
+1. Bump `version` in `app/package.json`.
+2. Commit and merge to `main`.
+3. Tag and push: `git tag v0.1.0` then `git push origin v0.1.0`.
+
+The tag must match the package version (`v` + semver in `app/package.json`).
+You can also trigger a release manually from the Actions tab (`workflow_dispatch`).
+
 ## Features
 
 - **Live tab** - big XP/hour (held steady between the game's periodic saves,
