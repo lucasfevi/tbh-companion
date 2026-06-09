@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useInventory } from "../lib/useInventory";
 import { GRADE_ORDER, GRADE_RANK } from "../../core/grades";
 import { gradeLabel, typeLabel } from "../../core/labels";
-import { formatMoney } from "../../core/steamPrice";
+import { formatMoney, steamMarketListingUrl } from "../../core/steamPrice";
 import type { ItemLocation, ResolvedInventoryRow } from "../../../shared/types";
 import type { PriceProgress, PriceStatus } from "../../../shared/types";
 
@@ -24,8 +24,65 @@ function gradeColor(grade: string): string {
   return GRADE_COLORS[grade] ?? GRADE_COLORS.UNKNOWN;
 }
 
+function priceSourceTitle(source: ResolvedInventoryRow["priceSource"]): string | undefined {
+  if (source === "median") return "Recent sale median on Steam Market";
+  if (source === "lowest") return "Lowest listing (no recent sales on Steam)";
+  return undefined;
+}
+
+function MarketListingLink({
+  hash,
+  children,
+  title,
+}: {
+  hash: string;
+  children: ReactNode;
+  title?: string;
+}) {
+  return (
+    <a
+      href={steamMarketListingUrl(hash)}
+      className="market-link"
+      target="_blank"
+      rel="noopener noreferrer"
+      title={title ?? "Open on Steam Market"}
+    >
+      {children}
+    </a>
+  );
+}
+
 type SortKey = "name" | "grade" | "type" | "count" | "inUse" | "price" | "value";
 type LocationFilter = "ALL" | ItemLocation;
+
+function unassignedCount(row: ResolvedInventoryRow): number {
+  const inUse = row.inUseCount ?? 0;
+  return (
+    row.count -
+    (row.inventoryCount ?? 0) -
+    (row.stashCount ?? 0) -
+    (row.tradingCount ?? 0) -
+    inUse
+  );
+}
+
+function rowMatchesLocation(row: ResolvedInventoryRow, filter: ItemLocation): boolean {
+  const inUse = row.inUseCount ?? 0;
+  switch (filter) {
+    case "equipped":
+      return inUse > 0;
+    case "inventory":
+      return (row.inventoryCount ?? 0) > 0;
+    case "stash":
+      return (row.stashCount ?? 0) > 0;
+    case "trading":
+      return (row.tradingCount ?? 0) > 0;
+    case "unknown":
+      return unassignedCount(row) > 0;
+    default:
+      return true;
+  }
+}
 
 export function Inventory() {
   const inv = useInventory();
@@ -48,6 +105,20 @@ export function Inventory() {
     });
     return off;
   }, []);
+
+  // Drop stale filter values when inventory changes (e.g. Unknown location cleared).
+  useEffect(() => {
+    if (!inv) return;
+    if (gradeFilter !== "ALL" && !inv.rows.some((r) => r.grade === gradeFilter)) {
+      setGradeFilter("ALL");
+    }
+    if (typeFilter !== "ALL" && !inv.rows.some((r) => r.type === typeFilter)) {
+      setTypeFilter("ALL");
+    }
+    if (locationFilter !== "ALL" && !inv.rows.some((r) => rowMatchesLocation(r, locationFilter))) {
+      setLocationFilter("ALL");
+    }
+  }, [inv, gradeFilter, typeFilter, locationFilter]);
 
   const gradeOptions = useMemo(() => {
     if (!inv) return [];
@@ -72,19 +143,7 @@ export function Inventory() {
       if (gradeFilter !== "ALL" && row.grade !== gradeFilter) return false;
       if (typeFilter !== "ALL" && row.type !== typeFilter) return false;
       if (locationFilter !== "ALL") {
-        const locOk =
-          (locationFilter === "equipped" && inUse > 0) ||
-          (locationFilter === "inventory" && (row.inventoryCount ?? 0) > 0) ||
-          (locationFilter === "stash" && (row.stashCount ?? 0) > 0) ||
-          (locationFilter === "trading" && (row.tradingCount ?? 0) > 0) ||
-          (locationFilter === "unknown" &&
-            row.count -
-              (row.inventoryCount ?? 0) -
-              (row.stashCount ?? 0) -
-              (row.tradingCount ?? 0) -
-              inUse >
-              0);
-        if (!locOk) return false;
+        if (!rowMatchesLocation(row, locationFilter)) return false;
       }
       if (q && !row.name.toLowerCase().includes(q)) return false;
       return true;
@@ -96,7 +155,7 @@ export function Inventory() {
       else if (sortKey === "type") cmp = a.type.localeCompare(b.type);
       else if (sortKey === "count") cmp = a.count - b.count;
       else if (sortKey === "inUse") cmp = (a.inUseCount ?? 0) - (b.inUseCount ?? 0);
-      else if (sortKey === "price") cmp = (a.priceLowest ?? -1) - (b.priceLowest ?? -1);
+      else if (sortKey === "price") cmp = (a.unitPrice ?? -1) - (b.unitPrice ?? -1);
       else if (sortKey === "value") cmp = (a.value ?? -1) - (b.value ?? -1);
       else cmp = (GRADE_RANK[a.grade] ?? -1) - (GRADE_RANK[b.grade] ?? -1);
       if (cmp === 0) cmp = b.count - a.count;
@@ -126,6 +185,15 @@ export function Inventory() {
       setSortKey(key);
       setSortDir(key === "name" || key === "type" ? "asc" : "desc");
     }
+  }
+
+  function clearFilters() {
+    setQuery("");
+    setTradableOnly(false);
+    setInUseOnly(false);
+    setGradeFilter("ALL");
+    setTypeFilter("ALL");
+    setLocationFilter("ALL");
   }
 
   const arrow = (key: SortKey) => (sortKey === key ? (sortDir === "asc" ? " \u25b2" : " \u25bc") : "");
@@ -276,7 +344,17 @@ export function Inventory() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row: ResolvedInventoryRow) => {
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="inv-empty muted">
+                  No items match these filters.{" "}
+                  <button type="button" className="btn small-btn" onClick={clearFilters}>
+                    Clear filters
+                  </button>
+                </td>
+              </tr>
+            ) : (
+              rows.map((row: ResolvedInventoryRow) => {
               const inUse = row.inUseCount ?? 0;
               return (
                 <tr key={row.itemKey} className={row.known ? "" : "unknown-row"}>
@@ -298,12 +376,7 @@ export function Inventory() {
                     {(row.stashCount ?? 0) > 0 && <span title="Stash">St {row.stashCount}</span>}
                     {(row.tradingCount ?? 0) > 0 && <span title="Trading">Tr {row.tradingCount}</span>}
                     {inUse > 0 && <span title="Equipped">Eq {inUse}</span>}
-                    {row.count -
-                      (row.inventoryCount ?? 0) -
-                      (row.stashCount ?? 0) -
-                      (row.tradingCount ?? 0) -
-                      inUse >
-                      0 && <span title="Unassigned">?</span>}
+                    {unassignedCount(row) > 0 && <span title="Unassigned">?</span>}
                   </td>
                   <td className="num">
                     {inUse > 0 ? (
@@ -317,8 +390,17 @@ export function Inventory() {
                   </td>
                   <td className="num">
                     {row.marketHashName ? (
-                      row.priceRaw ?? (
-                        <span className="muted">{row.priceEstimate ? "est. pending" : "pending"}</span>
+                      row.priceRaw ? (
+                        <MarketListingLink
+                          hash={row.marketHashName}
+                          title={priceSourceTitle(row.priceSource)}
+                        >
+                          {row.priceRaw}
+                        </MarketListingLink>
+                      ) : (
+                        <MarketListingLink hash={row.marketHashName} title="Open on Steam Market">
+                          <span className="muted">pending</span>
+                        </MarketListingLink>
                       )
                     ) : (
                       <span className="muted" title="Not priced (non-tradable or below Legendary gear)">
@@ -327,13 +409,27 @@ export function Inventory() {
                     )}
                   </td>
                   <td className="num">
-                    {row.value != null && Number.isFinite(row.value)
-                      ? `${row.priceEstimate ? "~" : ""}${formatMoney(row.value, currency)}`
-                      : "-"}
+                    {row.marketHashName ? (
+                      <MarketListingLink
+                        hash={row.marketHashName}
+                        title={
+                          row.value != null && Number.isFinite(row.value)
+                            ? `${priceSourceTitle(row.priceSource) ?? "Steam Market"} · stack value`
+                            : "Open on Steam Market"
+                        }
+                      >
+                        {row.value != null && Number.isFinite(row.value)
+                          ? formatMoney(row.value, currency)
+                          : "-"}
+                      </MarketListingLink>
+                    ) : (
+                      "-"
+                    )}
                   </td>
                 </tr>
               );
-            })}
+            })
+            )}
           </tbody>
         </table>
       </div>

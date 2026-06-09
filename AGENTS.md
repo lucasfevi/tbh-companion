@@ -21,7 +21,7 @@ Market. It never modifies the save and never talks to the game servers.
     `tracker`, `stages`, `heroes`, `gamedata`, `inventory`, `steamPrice`).
   - `app/src/renderer/` - React UI (tabs + mini overlay). Pure UI, no Node APIs.
   - `app/shared/types.ts` - types shared across processes.
-- `data/` - bundled catalogs (`gamedata.json`, `steam_market_catalog.json`).
+- `data/` - bundled catalogs (`gamedata.json`, `hero_items.json`).
 - `docs/` - the knowledge base (see below).
 
 The original Python prototype (`tbh_xp/`) has been removed now that the TS core
@@ -83,9 +83,13 @@ button in the tab bar; restore from the overlay's expand button.
 
 - TypeScript everywhere in `app/`. Keep `core/` free of Electron/React imports
   so it stays unit-testable.
+- **Always commit.** When you finish a task (bugfix, feature, refactor, or docs),
+  create a git commit before treating the work as done. Do not leave completed
+  changes uncommitted in the working tree.
 - Commit style: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`,
-  `refactor:`). One focused commit per phase / big change; push to `origin`
-  after each phase. Never force-push.
+  `refactor:`). One focused commit per logical change; split large work into
+  reviewable chunks. Push to `origin` after commits unless the user says otherwise.
+  Never force-push.
 - Never commit personal save data (`*.es3`, decrypted dumps, `sample/`).
 
 ## Docs index
