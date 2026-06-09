@@ -7,7 +7,13 @@ import { makeHistoryLogger } from "./historyLog";
 import { GameDataProvider } from "./gameDataProvider";
 import { SteamMarketProvider } from "./steamMarketProvider";
 import { XpTracker } from "../core/tracker";
-import type { SaveSnapshot, PriceProgress } from "../../shared/types";
+import { resolveInventory } from "../core/inventory";
+import type {
+  SaveSnapshot,
+  InventorySnapshot,
+  ResolvedInventory,
+  PriceProgress,
+} from "../../shared/types";
 
 const isDev = !!process.env.ELECTRON_RENDERER_URL;
 
@@ -17,6 +23,8 @@ const gameData = new GameDataProvider();
 let market: SteamMarketProvider;
 let watcher: SaveWatcher | null = null;
 let lastSnap: SaveSnapshot | null = null;
+let lastInventoryRaw: InventorySnapshot | null = null;
+let lastInventory: ResolvedInventory | null = null;
 let lastError: string | null = null;
 let tickTimer: NodeJS.Timeout | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -34,6 +42,20 @@ function pushStats(): void {
   const stats = buildStats(tracker, lastSnap, lastError);
   for (const win of BrowserWindow.getAllWindows()) {
     if (!win.isDestroyed()) win.webContents.send("stats", stats);
+  }
+}
+
+function onInventory(snap: InventorySnapshot): void {
+  lastInventoryRaw = snap;
+  resolveAndPushInventory();
+}
+
+function resolveAndPushInventory(): void {
+  if (!lastInventoryRaw) return;
+  const status = gameData.status();
+  lastInventory = resolveInventory(lastInventoryRaw, (key) => gameData.get(key), status.loaded);
+  for (const win of BrowserWindow.getAllWindows()) {
+    if (!win.isDestroyed()) win.webContents.send("inventory", lastInventory);
   }
 }
 
@@ -59,6 +81,7 @@ function startTracking(): void {
       lastError = message;
       pushStats();
     },
+    onInventory,
   });
   watcher.start();
 
@@ -89,9 +112,12 @@ function registerIpc(): void {
   });
   ipcMain.on("close-overlay", () => overlayWindow?.close());
 
+  ipcMain.handle("get-inventory", () => lastInventory);
+
   ipcMain.handle("gamedata-status", () => gameData.status());
   ipcMain.handle("gamedata-refresh", async () => {
     const result = await gameData.refresh();
+    if (result.ok) resolveAndPushInventory(); // unknown items may now resolve
     return { ...result, status: gameData.status() };
   });
 

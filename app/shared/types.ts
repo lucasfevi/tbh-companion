@@ -69,6 +69,57 @@ export interface GameDataRefreshResult {
   status: GameDataStatus;
 }
 
+// --- Inventory ---
+
+// Raw owned-item instance from itemSaveDatas (the master list of all owned
+// items: inventory + stash + trading + equipped). UniqueId is intentionally
+// omitted: it exceeds JS's safe-integer range, so JSON.parse rounds it and
+// distinct ids can collide (~6/185 observed). We list by array, not by id.
+export interface InventoryItemInstance {
+  itemKey: number;
+  isChaotic: boolean;
+}
+
+export interface ChestHolding {
+  type: number;
+  quantity: number;
+}
+
+export interface InventorySnapshot {
+  items: InventoryItemInstance[];
+  chests: ChestHolding[];
+  saveMtime: number;
+}
+
+// Owned items grouped by ItemKey and resolved against the game catalog.
+export interface ResolvedInventoryRow {
+  itemKey: number;
+  name: string; // "Unknown #<key>" when not in the catalog
+  grade: string;
+  type: string; // GEAR | MATERIAL | ...
+  marketTradable: boolean;
+  count: number;
+  chaoticCount: number;
+  known: boolean;
+}
+
+export interface InventoryComposition {
+  total: number;
+  byGrade: Record<string, number>;
+  byType: Record<string, number>;
+  tradableCount: number;
+  unknownCount: number;
+  chaoticCount: number;
+}
+
+export interface ResolvedInventory {
+  rows: ResolvedInventoryRow[];
+  composition: InventoryComposition;
+  chests: ChestHolding[];
+  saveMtime: number;
+  gameDataLoaded: boolean;
+}
+
 export interface PriceStatus {
   currency: string;
   count: number;
@@ -104,6 +155,8 @@ export interface TbhApi {
   closeOverlay(): void;
   gameDataStatus(): Promise<GameDataStatus>;
   refreshGameData(): Promise<GameDataRefreshResult>;
+  getInventory(): Promise<ResolvedInventory | null>;
+  onInventory(cb: (inv: ResolvedInventory) => void): () => void;
   pricesStatus(): Promise<PriceStatus>;
   refreshPrices(force?: boolean): Promise<PriceRefreshResult & { status: PriceStatus }>;
   cancelPrices(): void;

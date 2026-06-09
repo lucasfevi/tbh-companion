@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Live } from "./tabs/Live";
+import { Inventory } from "./tabs/Inventory";
 import { Market } from "./tabs/Market";
 
 type TabId = "live" | "inventory" | "market";
@@ -31,18 +32,9 @@ export function App() {
       </nav>
       <main className="content">
         {tab === "live" && <Live />}
-        {tab === "inventory" && <Placeholder title="Inventory" note="Owned items + composition (Phase 4)." />}
+        {tab === "inventory" && <Inventory />}
         {tab === "market" && <Market />}
       </main>
-    </div>
-  );
-}
-
-function Placeholder({ title, note }: { title: string; note: string }) {
-  return (
-    <div className="placeholder">
-      <h1>{title}</h1>
-      <p>{note}</p>
     </div>
   );
 }

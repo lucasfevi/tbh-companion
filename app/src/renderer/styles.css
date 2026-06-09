@@ -468,3 +468,120 @@ body {
   font-size: 13px;
   color: var(--fg);
 }
+
+/* --- Inventory tab --- */
+.inventory {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  box-sizing: border-box;
+}
+.inventory h1 {
+  margin: 0;
+  font-size: 18px;
+}
+.inv-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.grade-bars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.grade-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.grade-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 4px;
+  flex: none;
+}
+.grade-count {
+  color: var(--muted);
+}
+.inv-hint {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.small-btn {
+  padding: 3px 10px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+.inv-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.inv-search {
+  flex: 1;
+  max-width: 320px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+.inv-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  flex: 1;
+  display: block;
+  overflow-y: auto;
+}
+.inv-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+  color: var(--muted);
+  font-weight: 600;
+}
+.inv-table th.num,
+.inv-table td.num {
+  text-align: right;
+}
+.inv-table tbody td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.inv-table tbody tr:hover {
+  background: var(--card);
+}
+.unknown-row {
+  opacity: 0.7;
+}
+.tradable {
+  color: var(--accent);
+  font-size: 12px;
+}
+.chaotic {
+  color: var(--gold);
+}

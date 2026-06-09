@@ -65,8 +65,12 @@ PlayerSaveData.value (nested JSON string) ->
   currenySaveDatas: [ { Key, Quantity }, ... ]   # note: game's spelling
   commonSaveData: { playTime, currentStageKey, currentStageWave,
                     maxCompletedStage, ... }
-  inventorySaveDatas / stashSaveDatas: contain ItemUniqueId references
-  itemSaveDatas: [ { ItemKey, UniqueId, grade, enchants, ... }, ... ]
+  inventorySaveDatas / stashSaveDatas / tradingStashSaveDatas:
+      [ { Index, ItemUniqueId, IsUnlock }, ... ]   # slots, ref items by id
+  itemSaveDatas: [ { ItemKey, UniqueId, IsChaotic, EnchantCount[3],
+                     EnchantData[6], ... }, ... ] # master list of instances
+  BoxData: { BoxTypes[], BoxUniqueId[], BoxQuantity[] }  # held (unopened) chests
+  aggregateSaveDatas: [ { Type, SubKey, Value }, ... ]   # lifetime counters
 ```
 
 ### Key facts
@@ -83,10 +87,24 @@ PlayerSaveData.value (nested JSON string) ->
 
 ## Items (for the inventory/market features)
 
-- Owned items come from `inventorySaveDatas` + `stashSaveDatas` (+ trading),
-  which reference `itemSaveDatas` by unique id.
-- `itemSaveDatas` entries carry `ItemKey` (the item type), grade, and enchants.
-- To value items we need an `ItemKey -> name/grade/type/icon` table
-  (`gamedata.json`, produced in Phase 0) and an `ItemKey -> market_hash_name`
-  mapping for Steam Market lookups (Steam appid **3678970**). See
-  `docs/findings/`.
+- **`itemSaveDatas` is the master list of every owned item instance** -
+  inventory + stash + trading + equipped. Verified: all non-empty
+  `inventorySaveDatas`/`stashSaveDatas`/`tradingStashSaveDatas` slot
+  `ItemUniqueId` refs resolve into it. The slot arrays are mostly capacity
+  (`IsUnlock` flags) and only say *where* an instance sits.
+- The inventory feature reads `itemSaveDatas` directly and groups by `ItemKey`.
+  It does **not** join slots to instances by `UniqueId`.
+- **`UniqueId` precision warning:** `UniqueId` / `ItemUniqueId` (e.g.
+  `514119247889201000`) exceed `Number.MAX_SAFE_INTEGER`. `JSON.parse` rounds
+  them, so distinct ids can collide (~6/185 observed). Any future slot->instance
+  join must parse these as strings/bigints losslessly (the numeric form is
+  unsafe).
+- `ItemKey` itself is small and safe; it equals the `id` in the tbh.city catalog
+  (`data/gamedata.json`), giving `ItemKey -> name/grade/type/icon/marketTradable`.
+- **`BoxData`** holds *unopened* chests as three parallel arrays
+  (`BoxTypes[i]`, `BoxQuantity[i]`). It's a current count, not a drop history.
+- **`aggregateSaveDatas`** are lifetime counters `{ Type, SubKey, Value }` with
+  no timestamps (Type/SubKey meanings not yet decoded).
+- Pricing: an `ItemKey -> market_hash_name` mapping is still needed for Steam
+  Market lookups (appid **3678970**); the gear variant-letter is the open piece.
+  See `docs/findings/`.

@@ -3,8 +3,9 @@
 // robust to the game's atomic rewrites on Windows.
 
 import { statSync } from "node:fs";
-import { readSnapshot, SaveReadError } from "../core/saveReader";
-import type { SaveSnapshot } from "../../shared/types";
+import { readAndDecrypt, parseSnapshot, SaveReadError } from "../core/saveReader";
+import { parseInventory } from "../core/inventory";
+import type { SaveSnapshot, InventorySnapshot } from "../../shared/types";
 
 export interface SaveWatcherOptions {
   path: string; // already expanded/absolute
@@ -12,6 +13,7 @@ export interface SaveWatcherOptions {
   pollMs: number;
   onSnapshot: (snap: SaveSnapshot) => void;
   onError: (message: string) => void;
+  onInventory?: (inv: InventorySnapshot) => void;
 }
 
 export class SaveWatcher {
@@ -49,9 +51,17 @@ export class SaveWatcher {
     }
 
     try {
-      const snap = readSnapshot(this.opts.path, this.opts.password);
+      const { text, mtime } = readAndDecrypt(this.opts.path, this.opts.password);
+      const snap = parseSnapshot(text, mtime);
       this.lastMtimeMs = mtimeMs;
       this.opts.onSnapshot(snap);
+      if (this.opts.onInventory) {
+        try {
+          this.opts.onInventory(parseInventory(text, mtime));
+        } catch {
+          // inventory parse failures shouldn't break XP tracking
+        }
+      }
     } catch (e) {
       // A mid-write read is transient; don't advance lastMtime so we retry.
       const msg = e instanceof SaveReadError ? e.message : String(e);

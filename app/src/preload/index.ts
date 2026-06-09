@@ -4,6 +4,7 @@ import type {
   TbhApi,
   GameDataStatus,
   GameDataRefreshResult,
+  ResolvedInventory,
   PriceStatus,
   PriceProgress,
   PriceRefreshResult,
@@ -36,6 +37,14 @@ const api: TbhApi = {
   },
   refreshGameData(): Promise<GameDataRefreshResult> {
     return ipcRenderer.invoke("gamedata-refresh");
+  },
+  getInventory(): Promise<ResolvedInventory | null> {
+    return ipcRenderer.invoke("get-inventory");
+  },
+  onInventory(cb: (inv: ResolvedInventory) => void): () => void {
+    const listener = (_e: unknown, inv: ResolvedInventory): void => cb(inv);
+    ipcRenderer.on("inventory", listener);
+    return () => ipcRenderer.removeListener("inventory", listener);
   },
   pricesStatus(): Promise<PriceStatus> {
     return ipcRenderer.invoke("prices-status");

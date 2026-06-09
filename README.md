@@ -39,8 +39,15 @@ npm run dist     # Windows NSIS installer into release/
   from the "Mini" button; the overlay's expand button restores the full window.
 - **CSV history** - every XP change is appended to `logs/xp_history.csv` when
   `logHistoryCsv` is enabled.
-- **Planned** - Inventory tab (owned items + composition) and Market tab (Steam
-  Market valuation). See `docs/findings/`.
+- **Inventory tab** - owned items resolved against the game catalog
+  (`data/gamedata.json`, scraped from tbh.city and self-refreshing), grouped by
+  type with composition stats (counts by rarity/type, tradable count, unopened
+  chests), search + sort, and graceful "Unknown #key" handling for items added
+  by a game update.
+- **Market tab** - pick a currency and refresh Steam Market prices via
+  `priceoverview` (rate-limited, incremental, cached per currency).
+- **Planned** - per-item Steam valuation on the inventory (price x count),
+  time-series charts. See `docs/findings/`.
 
 ## Configuration - `config.json`
 

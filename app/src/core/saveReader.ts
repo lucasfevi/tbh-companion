@@ -22,7 +22,7 @@ function toNum(v: unknown, fallback = 0): number {
 
 // ES3 stores each top-level key as { "__type": ..., "value": <data> }, and
 // `value` is frequently a JSON string that must be parsed again.
-function unwrapEs3Entry(entry: unknown): unknown {
+export function unwrapEs3Entry(entry: unknown): unknown {
   if (entry && typeof entry === "object" && "value" in (entry as Record<string, unknown>)) {
     const value = (entry as Record<string, unknown>).value;
     if (typeof value === "string") {
@@ -135,23 +135,32 @@ function readBytesShared(path: string, retries = 4, delayMs = 50): Buffer {
 }
 
 /**
- * Read, decrypt and parse the save into a SaveSnapshot.
+ * Read and decrypt the save once, returning the plaintext JSON and file mtime.
+ * Lets callers run multiple parsers (snapshot + inventory) on a single decrypt.
  * `path` must already be an absolute, expanded path.
  */
-export function readSnapshot(path: string, password: string = es3.DEFAULT_PASSWORD): SaveSnapshot {
+export function readAndDecrypt(
+  path: string,
+  password: string = es3.DEFAULT_PASSWORD,
+): { text: string; mtime: number } {
   if (!existsSync(path)) {
     throw new SaveReadError(`Save file not found: ${path}`);
   }
   const mtime = statSync(path).mtimeMs / 1000;
   const raw = readBytesShared(path);
-
-  let text: string;
   try {
-    text = es3.decryptToText(raw, password);
+    return { text: es3.decryptToText(raw, password), mtime };
   } catch (e) {
     throw new SaveReadError((e as Error).message);
   }
+}
 
+/**
+ * Read, decrypt and parse the save into a SaveSnapshot.
+ * `path` must already be an absolute, expanded path.
+ */
+export function readSnapshot(path: string, password: string = es3.DEFAULT_PASSWORD): SaveSnapshot {
+  const { text, mtime } = readAndDecrypt(path, password);
   try {
     return parseSnapshot(text, mtime);
   } catch (e) {
