@@ -41,10 +41,37 @@ npm run pack       # electron-builder --dir -> release/win-unpacked (no installe
 npm run dist       # electron-builder -> Windows NSIS installer
 ```
 
-Note: if `npm install` doesn't fetch Electron's binary (some sandboxes block
-the postinstall extraction), run `node node_modules/electron/install.js`, or
-download the matching `electron-v<ver>-win32-x64.zip` and extract it into
-`node_modules/electron/dist/` with `path.txt` containing `electron.exe`.
+## Windows environment - check this FIRST
+
+This project is developed and run on **Windows + PowerShell**. When something
+behaves oddly, suspect the environment (encoding, paths, line endings, file
+locking, shell) BEFORE assuming a logic bug - several "bugs" here turned out to
+be Windows/PowerShell quirks. Known ones:
+
+- **JSON must be BOM-free.** PowerShell 5.1 `Set-Content -Encoding UTF8` writes a
+  UTF-8 **BOM** that breaks `JSON.parse` ("Unexpected token '\uFEFF'"). This
+  silently broke the bundled `data/*.json` catalogs. To write JSON use Node
+  `fs.writeFileSync`, or
+  `[System.IO.File]::WriteAllText($p,$txt,(New-Object System.Text.UTF8Encoding($false)))`.
+  Readers strip a leading BOM defensively, but don't rely on it.
+- **Shell is PowerShell, not bash.** Chain commands with `;` (not `&&`); quote
+  paths with spaces (the repo path has one); heredocs don't work - pass commit
+  messages with multiple `-m` flags.
+- **`Invoke-WebRequest` hangs/parses slowly** on large HTML in PS 5.1 (legacy DOM
+  parsing). Always pass `-UseBasicParsing`.
+- **Save file is locked / atomically rewritten** by the game while playing. Reads
+  can hit sharing violations or catch a mid-write (ciphertext length not % 16) -
+  retry briefly and treat as transient (see `readBytesShared`).
+- **Paths use `%USERPROFILE%\AppData\LocalLow\...`** and `userData` is under
+  `%APPDATA%`. Expand env vars (`expandPath`); never hard-code a home dir.
+- **Line endings:** keep files LF; avoid tools that rewrite to CRLF.
+- **Electron binary:** if `npm install` doesn't fetch it (some sandboxes block
+  the postinstall extraction), run `node node_modules/electron/install.js`, or
+  download the matching `electron-v<ver>-win32-x64.zip` and extract it into
+  `node_modules/electron/dist/` with `path.txt` containing `electron.exe`.
+- **Big numbers:** save ids like `UniqueId` exceed JS safe-integer range and
+  collide after `JSON.parse`; parse losslessly (string/bigint) if you must use
+  them. (Not Windows-specific, but a recurring "why don't these match" trap.)
 
 The app has two windows sharing one bundle: the full tabbed companion (`#main`)
 and a frameless always-on-top mini overlay (`#overlay`). Toggle from the "Mini"
