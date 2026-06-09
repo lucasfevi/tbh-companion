@@ -39,6 +39,7 @@ npm run dev        # electron-vite dev (main + renderer with HMR)
 npm run build      # production bundle (out/)
 npm run typecheck  # tsc --noEmit
 npm test           # vitest (core logic)
+npm run qa         # typecheck + test + build + bundle guards (run before marking done)
 npm run pack       # electron-builder --dir -> release/win-unpacked (no installer)
 npm run dist       # electron-builder -> Windows NSIS installer
 ```
@@ -109,6 +110,8 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 **Refactor:** move without behavior change first; tests travel with code. No duplicate types (`AppConfig` lives in `shared/types.ts`). No new globals in `main/index.ts` — use `app/appState.ts` or services.
 
 **Testing:** all new `core/` logic needs Vitest; new IPC/config handlers need tests in `test/main/` or `test/ipc/`. Optional local integration: `test/realSave.test.ts`.
+
+**QA before done:** run the **tbh-qa** skill (`.cursor/skills/tbh-qa/SKILL.md`) — `npm run qa` plus `npm run dev` with a non-blank main window. Never mark app work complete on tests/build alone.
 
 ## Docs index
 
