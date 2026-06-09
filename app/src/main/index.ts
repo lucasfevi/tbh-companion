@@ -4,6 +4,7 @@ import { loadConfig, expandPath, type Config } from "./config";
 import { SaveWatcher } from "./saveWatcher";
 import { buildStats } from "./stats";
 import { makeHistoryLogger } from "./historyLog";
+import { GameDataProvider } from "./gameDataProvider";
 import { XpTracker } from "../core/tracker";
 import type { SaveSnapshot } from "../../shared/types";
 
@@ -11,6 +12,7 @@ const isDev = !!process.env.ELECTRON_RENDERER_URL;
 
 let config: Config;
 let tracker: XpTracker;
+const gameData = new GameDataProvider();
 let watcher: SaveWatcher | null = null;
 let lastSnap: SaveSnapshot | null = null;
 let lastError: string | null = null;
@@ -60,6 +62,11 @@ function startTracking(): void {
   // Push every second so time-based fields (elapsed, "last updated") tick even
   // when the save itself hasn't changed.
   tickTimer = setInterval(pushStats, 1000);
+
+  // Item catalog: load the bundled/cached snapshot now, refresh in the
+  // background if it's past its TTL (handles game patches adding new items).
+  gameData.load();
+  gameData.refreshIfStale();
 }
 
 function registerIpc(): void {
@@ -78,6 +85,12 @@ function registerIpc(): void {
     overlayWindow?.close();
   });
   ipcMain.on("close-overlay", () => overlayWindow?.close());
+
+  ipcMain.handle("gamedata-status", () => gameData.status());
+  ipcMain.handle("gamedata-refresh", async () => {
+    const result = await gameData.refresh();
+    return { ...result, status: gameData.status() };
+  });
 }
 
 function loadInto(win: BrowserWindow, hash: string): void {

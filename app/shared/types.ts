@@ -54,6 +54,21 @@ export interface Stats {
   history: HistoryEntry[];
 }
 
+export interface GameDataStatus {
+  loaded: boolean;
+  count: number;
+  fetchedUtc: string | null;
+  source: "cache" | "bundled" | "none";
+  stale: boolean;
+}
+
+export interface GameDataRefreshResult {
+  ok: boolean;
+  count?: number;
+  error?: string;
+  status: GameDataStatus;
+}
+
 // API surface exposed on `window.tbh` by the preload via contextBridge.
 export interface TbhApi {
   onStats(cb: (stats: Stats) => void): () => void;
@@ -62,4 +77,6 @@ export interface TbhApi {
   openOverlay(): void;
   showMain(): void;
   closeOverlay(): void;
+  gameDataStatus(): Promise<GameDataStatus>;
+  refreshGameData(): Promise<GameDataRefreshResult>;
 }

@@ -1,5 +1,10 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { Stats, TbhApi } from "../../shared/types";
+import type {
+  Stats,
+  TbhApi,
+  GameDataStatus,
+  GameDataRefreshResult,
+} from "../../shared/types";
 
 // Narrow, typed bridge. The renderer never touches Node/Electron directly.
 const api: TbhApi = {
@@ -22,6 +27,12 @@ const api: TbhApi = {
   },
   closeOverlay(): void {
     ipcRenderer.send("close-overlay");
+  },
+  gameDataStatus(): Promise<GameDataStatus> {
+    return ipcRenderer.invoke("gamedata-status");
+  },
+  refreshGameData(): Promise<GameDataRefreshResult> {
+    return ipcRenderer.invoke("gamedata-refresh");
   },
 };
 
