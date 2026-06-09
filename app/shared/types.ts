@@ -159,6 +159,8 @@ export interface PriceProgress {
   current: string;
   priced: number;
   failed: number;
+  /** Main sends this when a background price run ends or is cancelled. */
+  finished?: boolean;
 }
 
 export interface PriceRefreshResult {

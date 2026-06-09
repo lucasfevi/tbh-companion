@@ -18,6 +18,15 @@ const MAX_DELAY_MS = 60000;
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
+async function sleepUntil(ms: number, isCancelled: () => boolean): Promise<void> {
+  const step = 100;
+  let left = ms;
+  while (left > 0 && !isCancelled()) {
+    await sleep(Math.min(step, left));
+    left -= step;
+  }
+}
+
 export class SteamMarketProvider {
   private currency: string;
   private cache: PriceCache;
@@ -70,6 +79,7 @@ export class SteamMarketProvider {
       force?: boolean;
       onProgress?: (p: PriceProgress) => void;
       onPriced?: (name: string) => void;
+      onFinished?: () => void;
     } = {},
   ): Promise<PriceRefreshResult> {
     if (this.running) {
@@ -132,7 +142,7 @@ export class SteamMarketProvider {
               priced,
               failed,
             });
-            await sleep(delay);
+            await sleepUntil(delay, () => this.cancelled);
             continue;
           }
 
@@ -150,7 +160,7 @@ export class SteamMarketProvider {
 
         opts.onProgress?.({ done: i + 1, total: allTargets.length, current: name, priced, failed });
         if (priced > 0 && priced % 5 === 0) persistPriceCache(this.cache);
-        await sleep(delay);
+        await sleepUntil(delay, () => this.cancelled);
       }
 
       if (priced > 0) this.cache.fetchedUtc = new Date().toISOString();
@@ -169,6 +179,7 @@ export class SteamMarketProvider {
       };
     } finally {
       this.running = false;
+      opts.onFinished?.();
     }
   }
 }

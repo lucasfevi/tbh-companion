@@ -56,7 +56,10 @@ export class InventoryService {
 
   async refreshGameData(): Promise<GameDataRefreshResult & { status: GameDataStatus }> {
     const result = await this.gameData.refresh();
-    if (result.ok) this.resolveAndPushInventory();
+    if (result.ok) {
+      this.gameData.overlayMissingLevelsFromBundled();
+      this.resolveAndPushInventory();
+    }
     return { ...result, status: this.gameData.status() };
   }
 
@@ -84,11 +87,7 @@ export class InventoryService {
             (key) => this.excludeFromInventoryListing(key),
           )
         : undefined,
-      {
-        force: Boolean(force),
-        onProgress: (p) => this.broadcastPriceProgress(p),
-        onPriced: () => this.resolveAndPushInventory(),
-      },
+      this.priceRefreshCallbacks(Boolean(force)),
     );
     this.resolveAndPushInventory();
     return { ...result, status: this.market!.status() };
@@ -131,9 +130,7 @@ export class InventoryService {
     if (pending.length === 0) return;
 
     await this.market.refresh(names, {
-      force,
-      onProgress: (p) => this.broadcastPriceProgress(p),
-      onPriced: () => this.resolveAndPushInventory(),
+      ...this.priceRefreshCallbacks(force),
     });
 
     this.resolveAndPushInventory();
@@ -161,5 +158,27 @@ export class InventoryService {
 
   private broadcastPriceProgress(p: PriceProgress): void {
     broadcast(IPC.PRICES_PROGRESS, p);
+  }
+
+  private priceRefreshCallbacks(force = false): {
+    force: boolean;
+    onProgress: (p: PriceProgress) => void;
+    onPriced: () => void;
+    onFinished: () => void;
+  } {
+    return {
+      force,
+      onProgress: (p) => this.broadcastPriceProgress(p),
+      onPriced: () => this.resolveAndPushInventory(),
+      onFinished: () =>
+        this.broadcastPriceProgress({
+          done: 0,
+          total: 0,
+          current: "",
+          priced: 0,
+          failed: 0,
+          finished: true,
+        }),
+    };
   }
 }

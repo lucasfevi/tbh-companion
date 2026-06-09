@@ -51,6 +51,16 @@ export function TbhProvider({ children }: { children: ReactNode }) {
     const offStats = window.tbh.onStats((s) => setStats(s));
     const offInventory = window.tbh.onInventory((inv) => setInventory(inv));
     const offProgress = window.tbh.onPricesProgress((p) => {
+      if (p.finished) {
+        startTransition(() => setPriceProgress(null));
+        void window.tbh
+          .pricesStatus()
+          .then((ps) => {
+            if (mounted) setPriceStatus(ps);
+          })
+          .catch(reportIpcError);
+        return;
+      }
       startTransition(() => setPriceProgress(p));
       void window.tbh
         .pricesStatus()
