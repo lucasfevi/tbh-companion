@@ -1,10 +1,16 @@
 # Refactor plan
 
-Maintainability, testability, performance, and security — aligned with project architecture (`AGENTS.md`), **react-best-practices**, and **best-practices** skills.
+Maintainability, testability, performance, security, and code discipline — aligned with project architecture (`AGENTS.md`) and project skills.
 
 **Branch:** `refactor/maintainability`  
-**Skills:** `.cursor/skills/react-best-practices/SKILL.md`, `.cursor/skills/best-practices/SKILL.md`  
-**QA gate:** `.cursor/skills/tbh-qa/SKILL.md` — every phase ends with `npm run qa` + dev smoke.
+**Skills:**
+
+| Skill | Role in plan |
+|-------|----------------|
+| [coding-guidelines](../.cursor/skills/coding-guidelines/SKILL.md) | Simplicity, surgical diffs, verifiable goals — **every phase** |
+| [react-best-practices](../.cursor/skills/react-best-practices/SKILL.md) | Phases 5–7 (renderer perf & data) |
+| [best-practices](../.cursor/skills/best-practices/SKILL.md) | Phase 8 (security & quality) |
+| [tbh-qa](../.cursor/skills/tbh-qa/SKILL.md) | **Completion gate** — every phase |
 
 ---
 
@@ -17,9 +23,25 @@ Maintainability, testability, performance, and security — aligned with project
 | **6** | Bundle & tab loading — lazy tabs, direct imports | Planned |
 | **7** | Re-render & list rendering — Inventory/Live perf | Planned |
 | **8** | Security & quality — CSP, audit, errors, semantics | Planned |
-| **9** | Main/process polish — DI, remaining domain bugs | Planned |
+| **9** | Domain backlog — materials, gear variant, locations | Planned |
+| **10** | **Cleanup** — dead code, shims, docs sync, merge readiness | Planned **(last)** |
 
-Phases 5–8 map directly to skill rule categories. Phase 9 catches backlog items that are product fixes, not perf/security patterns.
+**Execution order:** 5 → 6 → 7 → 8 → 9 (as prioritized) → **10 cleanup before merge to `main`**.
+
+---
+
+## Coding guidelines (cross-cutting)
+
+Apply [.cursor/skills/coding-guidelines/SKILL.md](../.cursor/skills/coding-guidelines/SKILL.md) in **every** phase:
+
+| Principle | How it applies here |
+|-----------|---------------------|
+| **Think before coding** | State assumptions in PR/commit; spike unknown save fields (Phase 9) before large parsers |
+| **Simplicity first** | Prefer one `TbhProvider` over a generic store framework; no DI container unless tests need it |
+| **Surgical changes** | Each phase touches only its files; no drive-by refactors in unrelated tabs |
+| **Goal-driven execution** | Every phase has exit criteria + tbh-qa; tests before/after for behavior changes |
+
+**During Phases 5–9:** remove imports/orphans **your** changes create, but **do not** delete pre-existing dead code — list it for Phase 10.
 
 ---
 
@@ -38,233 +60,212 @@ Phases 5–8 map directly to skill rule categories. Phase 9 catches backlog item
 
 **Exit criteria met:** no `node:fs` in `core/`, bundle path guards, 58+ tests, typecheck + build green.
 
+**Known deferrals → Phase 10:** back-compat shims (`core/saveReader.ts`, `core/inventory.ts`), possible duplicate `GameDataStatus` export, docs drift.
+
 ---
 
 ## Phase 5 — Renderer data layer (react: `async-*`, `client-*`)
 
-**Problem today:** Each tab/hook opens its own IPC subscription. `useStats()` runs in both `App` (`SaveStatusBar`) and `Live` — duplicate listeners and duplicate React state. Same pattern for inventory vs Market price listeners.
+**Problem:** Duplicate IPC subscriptions — `useStats()` in `App` (`SaveStatusBar`) and `Live`; separate inventory/price listeners in Market and Inventory.
 
-**Skill rules applied:**
+**Guidelines:** One context provider, not a state library. Thin hook wrappers only if they reduce churn.
+
+**Skill rules:**
 
 | Rule | Application |
 |------|-------------|
-| `async-parallel` | Initial mount: `getStats` + `getInventory` in parallel where both needed |
-| `client-swr-dedup` / `client-event-listeners` | Single subscription per channel, shared context |
-| `rerender-derived-state-no-effect` | Derive idle/warn flags in render, not extra effects |
+| `async-parallel` | Parallel `getStats` + `getInventory` on provider mount |
+| `client-event-listeners` | Single `onStats` / `onInventory` / `onPricesProgress` per app |
+| `rerender-derived-state-no-effect` | Derive idle/warn in render |
 
 **Work:**
 
-1. Add `renderer/context/TbhProvider.tsx` (or `lib/tbhStore.ts`):
-   - One `onStats` / `getStats` pair for the whole app
-   - One `onInventory` / `getInventory` pair
-   - Optional: `onPricesProgress` + status for Market/Inventory
-2. Replace direct `useStats()` / `useInventory()` in tabs with `useTbhStats()`, `useTbhInventory()` reading from context.
-3. Keep hooks as thin wrappers for backward compatibility during migration.
+1. `renderer/context/TbhProvider.tsx` — subscribe once, expose hooks.
+2. Migrate `App`, `Live`, `Overlay`, `Inventory`, `Market` to context hooks.
+3. Verify: grep renderer for duplicate `onStats(` registrations.
 
-**Files:** `App.tsx`, `Live.tsx`, `Overlay.tsx`, `lib/useStats.ts`, `lib/useInventory.ts`, new `context/*`.
-
-**Tests:** Renderer hook tests with mocked `window.tbh` (optional Vitest + happy-dom).
-
-**Exit criteria:**
-
-- [ ] At most one IPC listener per channel in renderer
-- [ ] SaveStatusBar + Live share one stats state (no double fetch on mount)
-- [ ] tbh-qa pass
+**Verify:** tbh-qa pass; one listener per channel.
 
 ---
 
 ## Phase 6 — Bundle & tab loading (react: `bundle-*`)
 
-**Problem today:** `App.tsx` statically imports all four tabs (~600 kB renderer chunk). User spends most time on Live; Inventory/Market/Settings load eagerly.
+**Problem:** All tabs eagerly imported in `App.tsx` (~600 kB chunk).
 
-**Skill rules applied:**
+**Guidelines:** Lazy tabs only — no speculative route framework.
 
-| Rule | Application |
-|------|-------------|
-| `bundle-dynamic-imports` | `React.lazy` + `Suspense` per tab |
-| `bundle-conditional` | Load tab module only when selected |
-| `bundle-barrel-imports` | Import from `core/grades`, `core/steamPrice` directly — avoid new barrel files in hot paths; keep `core/inventory/index.ts` for main/tests only, not renderer |
+**Skill rules:** `bundle-dynamic-imports`, `bundle-conditional`, `bundle-barrel-imports` (direct `core/*` imports in renderer; barrels for main/tests only).
 
 **Work:**
 
-1. Split tabs into lazy routes:
+1. `React.lazy` + `Suspense` per tab; eager shell (nav + save bar).
+2. Audit renderer `core/` imports for accidental heavy pulls.
+3. Record bundle sizes before/after in PR.
 
-   ```tsx
-   const Live = lazy(() => import("./tabs/Live").then(m => ({ default: m.Live })));
-   ```
-
-2. Tab shell: keep `nav` + `SaveStatusBar` eager; wrap tab body in `<Suspense fallback={…}>`.
-3. Audit renderer imports from `core/` — ensure tree-shakeable (no accidental `gamedata` pull).
-4. Measure: compare `out/renderer/assets/*.js` size before/after (document in PR).
-
-**Files:** `App.tsx`, `electron.vite.config.ts` (manual chunks if needed).
-
-**Exit criteria:**
-
-- [ ] Initial JS payload smaller or split into separate chunks
-- [ ] Switching tabs loads without blank crash
-- [ ] tbh-qa pass
+**Verify:** tbh-qa pass; tab switch works; chunk split or smaller initial load.
 
 ---
 
 ## Phase 7 — Re-render & list rendering (react: `rerender-*`, `rendering-*`, `js-*`)
 
-**Problem today:** `Inventory.tsx` holds many `useState` filters + `useMemo`; large tables re-render fully on every price push. `Live` hero list grows with unlocked heroes.
+**Problem:** Full Inventory table re-renders on price ticks; large filter state in one component.
 
-**Skill rules applied:**
+**Guidelines:** Split components only where profiling/measurement justifies it — no deep component trees for aesthetics.
 
-| Rule | Application |
-|------|-------------|
-| `rerender-memo` | Extract `InventoryRow`, filter controls as memoized components |
-| `rerender-functional-setstate` | Stable filter handlers |
-| `rendering-content-visibility` | CSS `content-visibility: auto` on table rows / hero rows |
-| `rendering-hoist-jsx` | Static labels, grade legend outside row render |
-| `js-index-maps` / `js-set-map-lookups` | Pre-index filter options once per inventory snapshot |
-| `rerender-transitions` | Price refresh progress via `startTransition` (non-blocking UI) |
+**Skill rules:** `rerender-memo`, `rendering-content-visibility`, `js-index-maps`, `rerender-transitions` for price progress.
 
 **Work:**
 
-1. Split `Inventory.tsx`:
-   - `components/inventory/InventoryTable.tsx`
-   - `components/inventory/InventoryFilters.tsx`
-   - `components/inventory/InventorySummary.tsx` (cards + grade bars)
-2. Move filter state reducer optional (`useReducer`) if prop drilling grows.
-3. Add `content-visibility` + `contain-intrinsic-size` in `styles.css` for long tables.
-4. Market/Inventory: wrap price progress updates in `startTransition`.
+1. Extract `InventoryTable`, `InventoryFilters`, `InventorySummary`.
+2. CSS `content-visibility` on long lists.
+3. `startTransition` for non-urgent price UI updates.
 
-**Files:** `Inventory.tsx`, `styles.css`, `Market.tsx`.
-
-**Tests:** Extend `test/renderer/inventoryFilters.test.ts`; snapshot or row memo behavior if useful.
-
-**Exit criteria:**
-
-- [ ] Inventory table scroll smooth with 100+ rows (manual)
-- [ ] No redundant filter recompute on unrelated state changes
-- [ ] tbh-qa pass
+**Verify:** tbh-qa pass; manual scroll with large inventory.
 
 ---
 
 ## Phase 8 — Security & quality (best-practices)
 
-**Problem today:** Partial CSP; `sandbox: false`; swallowed errors in hooks; duplicate tab semantics; no `npm audit` in CI.
+**Problem:** Partial CSP; silent hook catches; no audit in CI; root-level error handling gaps.
 
-**Skill rules applied:**
+**Guidelines:** Document security tradeoffs in `DECISIONS.md`; minimal CSP changes that don't break dev.
 
-| Area | Rule / checklist item |
-|------|------------------------|
-| Security | CSP complete for Electron renderer; no mixed content |
-| Security | `npm audit` in CI; document Electron `sandbox` tradeoff |
-| Errors | Error boundaries at app root + tab level; no silent `.catch(() => {})` without dev log |
-| Compatibility | Valid doctype, charset, viewport (already in `index.html`) |
-| Code quality | Semantic HTML: `<nav>`, `<main>`, `<header>` for save bar |
-| Code quality | Cleanup: all `useEffect` return unsubscribe (audit Market/Inventory) |
-| Production | Source maps: hidden or off in production build |
+**Work:** Complete CSP, `npm audit` in CI, root `ErrorBoundary`, dev-only error logging, prod source maps off, semantic HTML for shell, IPC cleanup audit.
 
-**Work:**
-
-1. **CSP** (`index.html` + `mainWindow` webPreferences if needed):
-   - `script-src 'self'`
-   - `connect-src 'self'` (Vite dev exception documented)
-   - Keep Steam CDN on `img-src` only (external links via `shell.openExternal`, not iframe)
-2. **CI:** add `npm audit --audit-level=high` step to `.github/workflows/qa.yml` (allow documented exceptions).
-3. **ErrorBoundary:** wrap full `<App />` in `main.tsx`; log to console in dev, user-friendly fallback.
-4. **Hooks:** replace empty catches with optional `reportError` helper (dev-only `console.error`).
-5. **electron.vite.config.ts:** `build.sourcemap: false` for production renderer/main.
-6. **Document** in `docs/ARCHITECTURE.md`: why `sandbox: false` (preload bridge), mitigations (contextIsolation, no nodeIntegration).
-
-**Exit criteria:**
-
-- [ ] CSP documented and enforced for prod build
-- [ ] `npm audit` clean or waivers listed in `docs/DECISIONS.md`
-- [ ] Root ErrorBoundary catches preload/API failures gracefully
-- [ ] tbh-qa pass
+**Verify:** tbh-qa pass; audit clean or waivers documented.
 
 ---
 
-## Phase 9 — Domain & main polish (backlog + architecture)
+## Phase 9 — Domain backlog (product fixes)
 
-**Not skill-driven — product/fix items deferred from playtest:**
+**Guidelines:** One bug per PR; write a failing test first when format is known (`Goal-driven execution`).
 
 | Item | Notes |
 |------|--------|
-| Materials parsing | `aggregateSaveDatas` spike |
-| Gear variant | Decode save variant; stop hardcoding ` A` |
+| Materials parsing | `aggregateSaveDatas` — spike then implement |
+| Gear variant | Stop hardcoding ` A` in `marketName.ts` |
 | Unknown location `?` | Slot mapping edge cases |
-| Optional DI | Factory for services in tests (`AppState` injection) |
-| Branding | Wire icon from `docs/design/icons/` into electron-builder |
+| Optional DI | Only if test pain remains after Phase 5 |
+| Branding | Icon in electron-builder |
 
-**Work:** one item per PR; each runs full tbh-qa.
+**Verify:** tbh-qa + targeted test/realSave where applicable.
+
+---
+
+## Phase 10 — Cleanup (last step before merge)
+
+**Purpose:** Consolidate the refactor branch into a shippable, readable tree. This is the **only** phase that intentionally deletes legacy indirection and syncs docs — not drive-by cleanup during 5–9.
+
+**Guidelines applied:**
+
+| Principle | Cleanup action |
+|-----------|----------------|
+| **Surgical → deliberate** | Remove orphans **created by Phases 1–9**, not speculative rewrites |
+| **Simplicity first** | Delete shims once imports updated; collapse redundant layers |
+| **Goal-driven** | Checklist below must be all ✅ before merge to `main` |
+
+### 10.1 — Code removal
+
+- [ ] Remove back-compat re-exports if unused: `core/saveReader.ts`, `core/inventory.ts` (update imports to `core/save/snapshot`, `core/inventory/*`)
+- [ ] Remove duplicate type exports (`GameDataStatus` — single source in `shared/types.ts`)
+- [ ] Remove unused exports (run `tsc --noEmit` + grep for orphaned files)
+- [ ] Remove migration-only hook aliases after context migration (Phase 5)
+- [ ] Delete commented-out code and stale TODOs introduced during refactor
+- [ ] Confirm no `../../preload` or wrong paths outside `main/paths.ts`
+
+### 10.2 — Structure & imports
+
+- [ ] Renderer: no imports from `main/` or `node:fs`
+- [ ] Core: no Electron/React/fetch
+- [ ] IPC: all channels in `shared/ipc.ts`; `test/ipc/channels.test.ts` green
+- [ ] Consistent file naming under `renderer/components/`, `main/services/`, `main/ipc/handlers/`
+
+### 10.3 — Tests & QA
+
+- [ ] `npm run qa` green
+- [ ] `npm run dev` — non-blank window, all tabs once
+- [ ] Test layout mirrors source: `test/core/`, `test/main/`, `test/ipc/`, `test/renderer/`
+- [ ] No skipped tests without comment
+
+### 10.4 — Documentation sync
+
+- [ ] `AGENTS.md` — architecture table matches final folders
+- [ ] `docs/ARCHITECTURE.md` — update process diagram (services, paths, context)
+- [ ] `docs/DECISIONS.md` — ADR entries for CSP, sandbox, context provider, cleanup removals
+- [ ] `docs/plans/refactor-plan.md` — mark Phases 5–10 done with dates
+- [ ] `README.md` — `npm run qa` / dev instructions
+- [ ] Mark fixed items in `docs/reviews/playtest-bugs.md`; leave open bugs explicit
+
+### 10.5 — Repo hygiene
+
+- [ ] No personal save data staged (`.es3`, decrypted dumps)
+- [ ] Untracked review/design docs either committed or `.gitignore`d intentionally
+- [ ] LF line endings; no accidental CRLF-only noise commits
+- [ ] `npm audit` — no unwaived high/critical
+
+### 10.6 — Merge readiness
+
+- [ ] Rebase or merge `main`; resolve conflicts with tbh-qa after
+- [ ] Single squashed or phased commit history per team preference
+- [ ] PR description: what changed, QA evidence, known deferred bugs
+
+**Exit criteria:** All 10.x checkboxes ✅ + tbh-qa + user sign-off on remaining playtest bugs.
 
 ---
 
 ## Cross-cutting requirements (every phase)
 
-### Architecture (unchanged)
+### Architecture
 
-See `AGENTS.md` — four layers, no `node:fs` in `core/`, IPC in `shared/ipc.ts`, paths via `main/paths.ts`.
+See `AGENTS.md` — four layers, `main/paths.ts`, `app/appState.ts` + services.
 
-### React skill adaptation notes
+### React skill (Electron notes)
 
-This app is **Electron + Vite**, not Next.js. Ignore or defer:
-
-- `server-*` rules (RSC, React.cache on server)
-- `next/dynamic` → use `React.lazy` instead
-- `async-suspense-boundaries` for SSR streaming → use Suspense around lazy tabs only
-
-Prioritize for desktop companion:
-
-1. **Eliminating waterfalls** (Phase 5)
-2. **Bundle size** (Phase 6) — single large chunk hurts cold start
-3. **Re-render / long lists** (Phase 7) — inventory valuation table
-4. **Client listeners** (Phase 5) — IPC dedup
-
-### Best-practices priority
-
-1. **Security:** CSP, audit, external links via main process (already partially done)
-2. **Console & errors:** ErrorBoundary + visible Settings API errors (pattern exists)
-3. **Memory:** effect cleanup on all IPC subscriptions (Phase 5 helps centrally)
-4. **Semantic HTML:** low risk, incremental in Phase 8
+Skip `server-*` / Next.js-only rules. Use `React.lazy` not `next/dynamic`.
 
 ### QA (mandatory)
 
 ```powershell
 cd app
-npm run qa          # always
-npm run qa:dev      # when agent cannot see UI
-npm run dev         # visual smoke before merge
+npm run qa
+npm run dev   # or npm run qa:dev when UI not visible
 ```
 
-Phase is **not done** until required steps in tbh-qa skill pass.
+Phase **not done** until tbh-qa required steps pass.
 
 ---
 
-## Suggested execution order
+## Suggested timeline
 
 ```
-Done: Phases 1–4
-Next: Phase 5 → 6 → 7 → 8 (skill-driven, low product risk)
-Then: Phase 9 items (one PR each, user prioritization)
-Merge refactor/maintainability after Phase 5 or 6 if scope grows — split PRs by phase.
+Done:     Phases 1–4
+Build:    5 → 6 → 7 → 8        (skill-driven, low product risk)
+Product:  9                    (prioritized backlog, one PR each)
+Ship:     10                   (cleanup — LAST, then merge main)
 ```
+
+Split PRs by phase where possible; **never merge without Phase 10**.
 
 ---
 
-## Metrics to track (optional)
+## Metrics (optional)
 
 | Metric | How |
 |--------|-----|
-| Renderer bundle size | `out/renderer/assets/*.js` after build |
-| IPC listeners | Count `onStats` / `onInventory` registrations (should → 1 each) |
-| Test count | `npm test` summary |
-| Audit | `npm audit` high/critical count |
+| Renderer bundle | `out/renderer/assets/*.js` |
+| IPC listeners | one `onStats` / `onInventory` in renderer |
+| Tests | `npm test` count |
+| Audit | `npm audit` high/critical |
+| Dead code | shim files removed in Phase 10 |
 
 ---
 
 ## References
 
-- `AGENTS.md` — architecture & conventions
-- `docs/ARCHITECTURE.md` — process diagram
-- `docs/reviews/playtest-bugs.md` — domain bugs for Phase 9
-- `.cursor/skills/react-best-practices/` — rule files under `rules/`
-- `.cursor/skills/best-practices/SKILL.md` — security & quality checklist
-- `.cursor/skills/tbh-qa/SKILL.md` — completion gate
+- `AGENTS.md`
+- `docs/ARCHITECTURE.md`
+- `docs/reviews/playtest-bugs.md`
+- `.cursor/skills/coding-guidelines/SKILL.md`
+- `.cursor/skills/react-best-practices/`
+- `.cursor/skills/best-practices/SKILL.md`
+- `.cursor/skills/tbh-qa/SKILL.md`

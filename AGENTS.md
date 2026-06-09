@@ -108,7 +108,7 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 
 **Adding features:** new IPC → `shared/ipc.ts` + `main/ipc/registerIpc.ts` + preload + `test/ipc/channels.test.ts`. New save fields → parse in `core/`, read bytes in `main/` only.
 
-**Refactor:** move without behavior change first; tests travel with code. No duplicate types (`AppConfig` lives in `shared/types.ts`). No new globals in `main/index.ts` — use `app/appState.ts` or services.
+**Refactor:** move without behavior change first; tests travel with code. No duplicate types (`AppConfig` lives in `shared/types.ts`). No new globals in `main/index.ts` — use `app/appState.ts` or services. Follow `coding-guidelines` during phases; **cleanup dead code only in Phase 10** of `docs/plans/refactor-plan.md`.
 
 **Testing:** all new `core/` logic needs Vitest; new IPC/config handlers need tests in `test/main/` or `test/ipc/`. Optional local integration: `test/realSave.test.ts`.
 
@@ -122,6 +122,6 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 - `docs/BACKLOG.md` - future-release ideas we want to remember.
 - `docs/findings/` - research outputs (Steam Market probe, item mapping).
 - `docs/reviews/` - playtest bugs, feature ideas, community research.
-- `docs/plans/refactor-plan.md` - phased refactor (Phases 1–4 done; 5–9 react + best-practices roadmap).
+- `docs/plans/refactor-plan.md` - phased refactor (1–4 done; 5–10 roadmap: react, best-practices, coding-guidelines, cleanup last).
 - `docs/business/monetization.md` - donations, legal, store options.
 - `docs/design/branding.md` - naming, visual direction, icon concepts.
