@@ -20,8 +20,8 @@ let overlayWindow: BrowserWindow | null = null;
 export function startTracking(): void {
   config = loadConfig();
   inventory.initMarket(config.currency);
-  tracking.start(config);
   inventory.loadGameData();
+  tracking.start(config);
 }
 
 export function stopTracking(): void {

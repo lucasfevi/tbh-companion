@@ -27,9 +27,8 @@ export class InventoryService {
 
   loadGameData(): void {
     this.gameData.load();
-    if (this.gameData.overlayMissingLevelsFromBundled()) {
-      this.resolveAndPushInventory();
-    }
+    this.gameData.overlayMissingLevelsFromBundled();
+    this.resolveAndPushInventory();
     this.gameData.refreshIfStale(() => this.resolveAndPushInventory());
   }
 
