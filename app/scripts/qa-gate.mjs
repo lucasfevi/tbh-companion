@@ -34,7 +34,7 @@ const badPatterns = [
 for (const { re, label } of badPatterns) {
   if (re.test(main)) {
     console.error(`FAIL: bundled main contains ${label}`);
-    console.error("See app/src/main/paths.ts and .cursor/skills/tbh-qa/checklist.md");
+    console.error("See app/src/main/paths.ts and .cursor/skills/tbh-qa/references/checklist.md");
     process.exit(1);
   }
 }

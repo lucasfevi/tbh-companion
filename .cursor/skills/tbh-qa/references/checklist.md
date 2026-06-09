@@ -8,8 +8,8 @@ Use with `.cursor/skills/tbh-qa/SKILL.md`. Check only what your change touches.
 |---------|--------|
 | `npm run typecheck` | exit 0 |
 | `npm test` | all files green (includes `test/main/paths.test.ts`, `test/ipc/channels.test.ts`) |
-| `npm run build` | main + preload + renderer bundles |
 | `npm run qa` | above + no `../../preload` in `out/main/index.js` |
+| `npm run qa:dev` | dev starts, Vite responds, no build errors in log (when UI not visible) |
 
 ## Dev smoke (Steps 2–3)
 

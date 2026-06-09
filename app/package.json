@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "qa": "node scripts/qa-gate.mjs",
+    "qa:dev": "node scripts/qa-dev.mjs",
     "pack": "electron-vite build && electron-builder --dir",
     "dist": "electron-vite build && electron-builder"
   },
