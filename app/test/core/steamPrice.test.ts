@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseMoney, currencyCode, currencyByIso, currencyPrefix, formatMoney, pickMarketUnit } from "../src/core/steamPrice";
+import { parseMoney, currencyCode, currencyByIso, currencyPrefix, formatMoney, pickMarketUnit } from "../../src/core/steamPrice";
 
 describe("parseMoney", () => {
   it("parses US-format prices", () => {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import crypto from "node:crypto";
-import { decrypt, decryptToText, Es3Error, DEFAULT_PASSWORD } from "../src/core/es3";
+import { decrypt, decryptToText, Es3Error, DEFAULT_PASSWORD } from "../../src/core/es3";
 
 // Encrypt with the exact ES3 scheme so we validate decryption against a known
 // encryption (PBKDF2-SHA1 100 iters, AES-128-CBC, PKCS7, IV prepended).

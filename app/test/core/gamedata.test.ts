@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { extractItemsFromHtml, indexById } from "../src/core/gamedata";
+import { extractItemsFromHtml, indexById } from "../../src/core/gamedata";
 
 // Mimic the escaped-JSON form the data appears in inside the tbh.city RSC page.
 const sampleArray = [

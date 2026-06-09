@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { XpTracker } from "../src/core/tracker";
-import type { SaveSnapshot } from "../../app/shared/types";
+import { XpTracker } from "../../src/core/tracker";
+import type { SaveSnapshot } from "../../shared/types";
 
 function snap(mtime: number, heroExp: number, gold = 0): SaveSnapshot {
   return {

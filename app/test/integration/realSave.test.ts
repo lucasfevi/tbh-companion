@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { readSnapshot, readAndDecrypt } from "../src/main/io/saveFile";
-import { parseInventory, resolveInventory } from "../src/core/inventory";
-import { indexById, type GameData } from "../src/core/gamedata";
+import { readSnapshot, readAndDecrypt } from "../../src/main/io/saveFile";
+import { parseInventory, resolveInventory } from "../../src/core/inventory";
+import { indexById, type GameData } from "../../src/core/gamedata";
 
 // Integration test against the actual local save. Skipped automatically when
 // the file isn't present (e.g. CI), so the suite stays deterministic.
@@ -16,7 +16,7 @@ const savePath = join(
   "SaveFile_Live.es3",
 );
 
-const bundledGameData = join(__dirname, "../../data/gamedata.json");
+const bundledGameData = join(__dirname, "../../../data/gamedata.json");
 
 function loadCatalogLookup(): (key: number) => ReturnType<typeof indexById> extends Map<number, infer V> ? V : never {
   const data = JSON.parse(readFileSync(bundledGameData, "utf-8")) as GameData;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { stageName } from "../src/core/stages";
+import { stageName } from "../../src/core/stages";
 
 describe("stageName", () => {
   it("decodes difficulty/act/stage", () => {

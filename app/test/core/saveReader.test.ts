@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseSnapshot, GOLD_KEY } from "../src/core/save/snapshot";
+import { parseSnapshot, GOLD_KEY } from "../../src/core/save/snapshot";
 
 function wrap(player: unknown): string {
   // Mirror the ES3 layout: PlayerSaveData.value is a JSON *string*.
