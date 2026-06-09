@@ -3,6 +3,11 @@ import { useInventory } from "../lib/useInventory";
 import { GRADE_ORDER, GRADE_RANK } from "../../core/grades";
 import { gradeLabel, typeLabel } from "../../core/labels";
 import { formatMoney, steamMarketListingUrl } from "../../core/steamPrice";
+import {
+  unassignedCount,
+  rowMatchesLocation,
+  rowMatchesAnyLocation,
+} from "../../core/inventory/location";
 import type { ItemLocation, ResolvedInventoryRow } from "../../../shared/types";
 import type { PriceProgress, PriceStatus } from "../../../shared/types";
 
@@ -55,35 +60,6 @@ function MarketListingLink({
 type SortKey = "name" | "grade" | "type" | "count" | "inUse" | "price" | "value";
 type LocationFilter = "ALL" | ItemLocation;
 
-function unassignedCount(row: ResolvedInventoryRow): number {
-  const inUse = row.inUseCount ?? 0;
-  return (
-    row.count -
-    (row.inventoryCount ?? 0) -
-    (row.stashCount ?? 0) -
-    (row.tradingCount ?? 0) -
-    inUse
-  );
-}
-
-function rowMatchesLocation(row: ResolvedInventoryRow, filter: ItemLocation): boolean {
-  const inUse = row.inUseCount ?? 0;
-  switch (filter) {
-    case "equipped":
-      return inUse > 0;
-    case "inventory":
-      return (row.inventoryCount ?? 0) > 0;
-    case "stash":
-      return (row.stashCount ?? 0) > 0;
-    case "trading":
-      return (row.tradingCount ?? 0) > 0;
-    case "unknown":
-      return unassignedCount(row) > 0;
-    default:
-      return true;
-  }
-}
-
 export function Inventory() {
   const inv = useInventory();
   const [query, setQuery] = useState("");
@@ -115,7 +91,7 @@ export function Inventory() {
     if (typeFilter !== "ALL" && !inv.rows.some((r) => r.type === typeFilter)) {
       setTypeFilter("ALL");
     }
-    if (locationFilter !== "ALL" && !inv.rows.some((r) => rowMatchesLocation(r, locationFilter))) {
+    if (locationFilter !== "ALL" && !rowMatchesAnyLocation(inv.rows, locationFilter)) {
       setLocationFilter("ALL");
     }
   }, [inv, gradeFilter, typeFilter, locationFilter]);

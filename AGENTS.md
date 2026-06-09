@@ -92,6 +92,24 @@ button in the tab bar; restore from the overlay's expand button.
   Never force-push.
 - Never commit personal save data (`*.es3`, decrypted dumps, `sample/`).
 
+## Architecture & refactor conventions
+
+Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
+
+| Layer | Path | Rules |
+|-------|------|--------|
+| **shared** | `app/shared/` | Types + `ipc.ts` channel names. No runtime logic. |
+| **core** | `app/src/core/` | Pure domain logic. **No** `electron`, **no** `node:fs`, **no** `fetch`, **no** React. |
+| **main** | `app/src/main/` | File I/O, network, windows, IPC. Orchestrates core via `app/appState.ts` and `ipc/`. |
+| **preload** | `app/src/preload/` | Thin `contextBridge` only; import channels from `shared/ipc.ts`. |
+| **renderer** | `app/src/renderer/` | React UI via `window.tbh`. Filter/sort in `renderer/lib/` or `core/` pure helpers. |
+
+**Adding features:** new IPC → `shared/ipc.ts` + `main/ipc/registerIpc.ts` + preload + `test/ipc/channels.test.ts`. New save fields → parse in `core/`, read bytes in `main/` only.
+
+**Refactor:** move without behavior change first; tests travel with code. No duplicate types (`AppConfig` lives in `shared/types.ts`). No new globals in `main/index.ts` — use `app/appState.ts` or services.
+
+**Testing:** all new `core/` logic needs Vitest; new IPC/config handlers need tests in `test/main/` or `test/ipc/`. Optional local integration: `test/realSave.test.ts`.
+
 ## Docs index
 
 - `docs/ARCHITECTURE.md` - processes, IPC boundary, windows, data flow.
@@ -99,3 +117,7 @@ button in the tab bar; restore from the overlay's expand button.
 - `docs/DECISIONS.md` - short ADR log of why the stack is what it is.
 - `docs/BACKLOG.md` - future-release ideas we want to remember.
 - `docs/findings/` - research outputs (Steam Market probe, item mapping).
+- `docs/reviews/` - playtest bugs, feature ideas, community research.
+- `docs/plans/refactor-plan.md` - phased maintainability refactor.
+- `docs/business/monetization.md` - donations, legal, store options.
+- `docs/design/branding.md` - naming, visual direction, icon concepts.
