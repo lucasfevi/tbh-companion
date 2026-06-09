@@ -3,24 +3,27 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { GameDataStatus } from "../../shared/types";
 import {
+  CATALOG_SOURCE,
   extractAndEnrichItemsFromHtml,
-  fetchItemFromDetailPage,
   indexById,
   catalogHasGearLevels,
   normalizeGameItem,
   type GameData,
   type GameItem,
 } from "../core/gamedata";
+import {
+  buildStageBoxCatalog,
+  isStageBoxItemKey,
+  stageBoxIdSet,
+} from "../core/stageBoxes";
 
-const SOURCE_URL = "https://tbh.city/items";
-const DISCOVERED_SOURCE = "https://tbh.city/items/{id}";
+const CATALOG_FETCH_URL = "https://tbh.city/items";
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000; // a week
 
 export class GameDataProvider {
   private data: GameData | null = null;
   private index = new Map<number, GameItem>();
-  /** ItemKeys resolved from tbh.city detail pages (not in the bulk list). */
-  private discovered = new Map<number, GameItem>();
+  private stageBoxIds = stageBoxIdSet();
   private source: "cache" | "bundled" | "none" = "none";
 
   private cachePath(): string {
@@ -28,14 +31,6 @@ export class GameDataProvider {
       return join(app.getPath("userData"), "gamedata.json");
     } catch {
       return join(process.cwd(), "gamedata.cache.json");
-    }
-  }
-
-  private discoveredPath(): string {
-    try {
-      return join(app.getPath("userData"), "discovered_items.json");
-    } catch {
-      return join(process.cwd(), "discovered_items.cache.json");
     }
   }
 
@@ -47,11 +42,11 @@ export class GameDataProvider {
     }
   }
 
-  private bundledPath(): string {
+  private bundledDataPath(filename: string): string {
     const candidates = [
-      join(process.resourcesPath ?? "", "data", "gamedata.json"),
-      join(process.cwd(), "..", "data", "gamedata.json"),
-      join(process.cwd(), "data", "gamedata.json"),
+      join(process.resourcesPath ?? "", "data", filename),
+      join(process.cwd(), "..", "data", filename),
+      join(process.cwd(), "data", filename),
     ];
     return candidates.find((p) => existsSync(p)) ?? candidates[candidates.length - 1];
   }
@@ -75,62 +70,60 @@ export class GameDataProvider {
     writeFileSync(path, JSON.stringify({ levels: Object.fromEntries(levels) }));
   }
 
-  private loadDiscoveredCache(): void {
-    const path = this.discoveredPath();
-    if (!existsSync(path)) return;
-    try {
-      const raw = JSON.parse(readFileSync(path, "utf-8").replace(/^\uFEFF/, "")) as {
-        items?: unknown[];
-      };
-      if (!Array.isArray(raw.items)) return;
-      for (const row of raw.items) {
-        const item = normalizeGameItem(row as Record<string, unknown>);
-        if (item) this.discovered.set(item.id, item);
-      }
-    } catch {
-      // ignore corrupt cache
-    }
+  private mergeStageBoxes(items: GameItem[]): void {
+    this.stageBoxIds = stageBoxIdSet(items);
+    for (const item of items) this.index.set(item.id, item);
   }
 
-  private saveDiscoveredCache(): void {
-    const path = this.discoveredPath();
-    mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(
-      path,
-      JSON.stringify({
-        source: DISCOVERED_SOURCE,
-        fetchedUtc: new Date().toISOString(),
-        items: [...this.discovered.values()],
-      }),
-    );
+  private loadStageBoxes(): void {
+    const path = this.bundledDataPath("stage_boxes.json");
+    if (existsSync(path)) {
+      try {
+        const raw = JSON.parse(readFileSync(path, "utf-8").replace(/^\uFEFF/, "")) as {
+          items?: unknown[];
+        };
+        if (Array.isArray(raw.items)) {
+          const items = raw.items
+            .map((row) => normalizeGameItem(row as Record<string, unknown>))
+            .filter((item): item is GameItem => item != null);
+          if (items.length > 0) {
+            this.mergeStageBoxes(items);
+            return;
+          }
+        }
+      } catch {
+        // fall through to in-code catalog
+      }
+    }
+    this.mergeStageBoxes(buildStageBoxCatalog().items);
   }
 
   /** Load the best available snapshot. Safe to call once at startup. */
   load(): void {
     const cache = this.cachePath();
-    const bundled = this.bundledPath();
+    const bundled = this.bundledDataPath("gamedata.json");
 
     if (existsSync(cache) && this.tryLoad(cache)) {
       this.source = "cache";
       if (!catalogHasGearLevels(this.index.values()) && this.tryLoadBundledLevelsOverlay(bundled)) {
-        this.loadDiscoveredCache();
+        this.loadStageBoxes();
         return;
       }
-      this.loadDiscoveredCache();
+      this.loadStageBoxes();
       return;
     }
     if (existsSync(bundled) && this.tryLoad(bundled)) {
       this.source = "bundled";
-      this.loadDiscoveredCache();
+      this.loadStageBoxes();
       return;
     }
     this.source = "none";
-    this.loadDiscoveredCache();
+    this.loadStageBoxes();
   }
 
   overlayMissingLevelsFromBundled(): boolean {
     if (catalogHasGearLevels(this.index.values())) return false;
-    return this.tryLoadBundledLevelsOverlay(this.bundledPath());
+    return this.tryLoadBundledLevelsOverlay(this.bundledDataPath("gamedata.json"));
   }
 
   private tryLoadBundledLevelsOverlay(bundledPath: string): boolean {
@@ -151,7 +144,7 @@ export class GameDataProvider {
         }
       }
       if (patched > 0 && this.data) {
-        this.data.items = [...this.index.values()];
+        this.data.items = [...this.index.values()].filter((item) => !this.isStageBox(item.id));
       }
       return patched > 0;
     } catch {
@@ -173,7 +166,7 @@ export class GameDataProvider {
         .map((row) => normalizeGameItem(row as Record<string, unknown>))
         .filter((item): item is GameItem => item != null);
       this.data = {
-        source: d.source ?? "",
+        source: d.source ?? CATALOG_SOURCE,
         fetchedUtc: d.fetchedUtc ?? "",
         items,
         count: items.length,
@@ -186,30 +179,17 @@ export class GameDataProvider {
   }
 
   get(itemKey: number): GameItem | undefined {
-    return this.index.get(itemKey) ?? this.discovered.get(itemKey);
+    return this.index.get(itemKey);
   }
 
-  /** Fetch tbh.city detail pages for ItemKeys missing from the main catalog. */
-  async discoverMissingItems(itemKeys: Iterable<number>): Promise<number> {
-    const pending = [...new Set(itemKeys)].filter((id) => id > 0 && !this.get(id));
-    if (pending.length === 0) return 0;
-
-    let added = 0;
-    for (const id of pending) {
-      const item = await fetchItemFromDetailPage(id);
-      if (item) {
-        this.discovered.set(id, item);
-        added++;
-      }
-    }
-    if (added > 0) this.saveDiscoveredCache();
-    return added;
+  isStageBox(itemKey: number): boolean {
+    return isStageBoxItemKey(itemKey, this.stageBoxIds);
   }
 
   status(): GameDataStatus {
     return {
       loaded: this.data !== null,
-      count: (this.data?.count ?? 0) + this.discovered.size,
+      count: this.index.size,
       fetchedUtc: this.data?.fetchedUtc ?? null,
       source: this.source,
       stale: this.isStale(),
@@ -225,7 +205,7 @@ export class GameDataProvider {
 
   async refresh(): Promise<{ ok: boolean; count?: number; error?: string }> {
     try {
-      const res = await fetch(SOURCE_URL, {
+      const res = await fetch(CATALOG_FETCH_URL, {
         headers: { "User-Agent": "Mozilla/5.0 (TBH Companion)" },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -235,7 +215,7 @@ export class GameDataProvider {
       if (items.length === 0) throw new Error("no items extracted");
 
       const data: GameData = {
-        source: SOURCE_URL,
+        source: CATALOG_SOURCE,
         fetchedUtc: new Date().toISOString(),
         count: items.length,
         items,
@@ -246,8 +226,9 @@ export class GameDataProvider {
       this.saveLevelCache(levelsByTemplate);
       this.data = data;
       this.index = indexById(items);
+      this.loadStageBoxes();
       this.source = "cache";
-      return { ok: true, count: items.length };
+      return { ok: true, count: this.index.size };
     } catch (err) {
       return { ok: false, error: (err as Error).message };
     }

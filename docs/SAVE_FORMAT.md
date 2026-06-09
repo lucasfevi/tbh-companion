@@ -99,14 +99,17 @@ PlayerSaveData.value (nested JSON string) ->
   them, so distinct ids can collide (~6/185 observed). Any future slot->instance
   join must parse these as strings/bigints losslessly (the numeric form is
   unsafe).
-- `ItemKey` itself is small and safe; it equals the `id` in the tbh.city catalog
-  (`data/gamedata.json`), giving `ItemKey -> name/grade/type/icon/marketTradable`.
+- `ItemKey` itself is small and safe; it equals the `id` in the bundled catalogs
+  (`data/gamedata.json` for GEAR/MATERIAL, `data/stage_boxes.json` for STAGEBOX).
 - **`BoxData`** holds *unopened* chests as three parallel arrays
-  (`BoxTypes[i]`, `BoxQuantity[i]`). It's a current count, not a drop history.
+  (`BoxTypes[i]`, `BoxQuantity[i]`). Opened stage-box instances also appear in
+  `itemSaveDatas` at `910xxx` / `920xxx` / `930xxx` ItemKeys (see
+  `docs/findings/item-mapping.md`).
 - **`aggregateSaveDatas`** are lifetime counters `{ Type, SubKey, Value }`.
   Type `0` rows with mappable SubKeys supplement **material stack counts** (see
   `core/inventory/aggregates.ts`). Many SubKeys (e.g. `10021`) are still undecoded.
-- **Hero-bound items (`910xxx`–`930xxx`)** not in bag/stash/trading slots are
-  treated as equipped in the app (see `core/inventory/parse.ts`).
+- **`9xxxxx` ItemKeys** in `itemSaveDatas` are **stage boxes** (STAGEBOX), not
+  hero soul gear. When absent from bag/stash/trading slots the app labels them
+  `equipped` as a location fallback (`core/inventory/parse.ts`).
 - Steam pricing uses `ItemKey -> market_hash_name` rules in `core/marketName.ts`
   (gear probes variant letters `A`–`E`). See `docs/findings/item-mapping.md`.

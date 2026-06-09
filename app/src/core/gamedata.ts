@@ -1,8 +1,10 @@
 // Game item catalog: maps the save's numeric ItemKey to name/grade/type/level.
 //
-// Source: tbh.city/items embeds a complete item dataset as JSON inside its
-// server-rendered page. Gear level comes from tbh.city item detail pages
-// (one lookup per unique icon template). See docs/findings/item-mapping.md.
+// Bundled snapshots use CATALOG_SOURCE. Refresh scrapes a public item list page
+// and enriches gear levels from per-item detail pages (see item-mapping docs).
+
+/** Neutral label stored in bundled/cache JSON (no external URLs). */
+export const CATALOG_SOURCE = "companion-item-catalog";
 
 export interface GameItem {
   id: number; // == save itemSaveDatas[].ItemKey
@@ -78,14 +80,6 @@ export function extractItemFromDetailHtml(html: string, itemId: number): GameIte
     level,
     marketTradable,
   };
-}
-
-export async function fetchItemFromDetailPage(itemId: number): Promise<GameItem | null> {
-  const res = await fetch(`${TBH_ITEM_BASE}/${itemId}`, {
-    headers: { "User-Agent": "Mozilla/5.0 (TBH Companion)" },
-  });
-  if (!res.ok) return null;
-  return extractItemFromDetailHtml(await res.text(), itemId);
 }
 
 export function iconTemplateFromPath(iconPath: string): string {

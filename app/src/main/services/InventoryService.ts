@@ -36,15 +36,11 @@ export class InventoryService {
   onInventory(snap: InventorySnapshot): void {
     this.lastInventoryRaw = snap;
     this.resolveAndPushInventory();
-    void this.discoverCatalogGaps();
     void this.ensureOwnedPrices();
   }
 
-  private async discoverCatalogGaps(): Promise<void> {
-    if (!this.lastInventoryRaw) return;
-    const keys = this.lastInventoryRaw.items.map((i) => i.itemKey);
-    const added = await this.gameData.discoverMissingItems(keys);
-    if (added > 0) this.resolveAndPushInventory();
+  private excludeFromInventoryListing(itemKey: number): boolean {
+    return this.gameData.isStageBox(itemKey);
   }
 
   parseFromSave(text: string, mtime: number): InventorySnapshot {
@@ -83,7 +79,11 @@ export class InventoryService {
   async refreshPrices(force?: boolean): Promise<PriceRefreshResult & { status: PriceStatus }> {
     const result = await this.market!.refresh(
       this.lastInventoryRaw
-        ? ownedMarketNames(this.lastInventoryRaw, (key) => this.gameData.get(key))
+        ? ownedMarketNames(
+            this.lastInventoryRaw,
+            (key) => this.gameData.get(key),
+            (key) => this.excludeFromInventoryListing(key),
+          )
         : undefined,
       {
         force: Boolean(force),
@@ -105,6 +105,7 @@ export class InventoryService {
         (key) => this.gameData.get(key),
         status.loaded,
         (name) => this.priceLookup(name),
+        { excludeItemKey: (key) => this.excludeFromInventoryListing(key) },
       );
       this.lastInventory.currency = currency;
       this.lastInventory.composition.currency = currency;
@@ -122,7 +123,11 @@ export class InventoryService {
       return;
     }
 
-    const names = ownedMarketNames(this.lastInventoryRaw, (key) => this.gameData.get(key));
+    const names = ownedMarketNames(
+      this.lastInventoryRaw,
+      (key) => this.gameData.get(key),
+      (key) => this.excludeFromInventoryListing(key),
+    );
     const pending = this.market.pendingNames(names, force);
     if (pending.length === 0) return;
 

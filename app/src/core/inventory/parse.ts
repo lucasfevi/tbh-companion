@@ -4,7 +4,7 @@ import { unwrapEs3Entry } from "../save/snapshot";
 import { materialStacksFromAggregates, parseAggregateEntries } from "./aggregates";
 import type { InventoryItemInstance, ChestHolding, InventorySnapshot, ItemLocation } from "../../../shared/types";
 
-/** Hero-bound soul gear (9xxxxx) is worn outside bag/stash/trading slot arrays. */
+/** ItemKeys in 900000–999999 (stage boxes in saves) outside slot arrays → equipped. */
 export function isHeroBoundItemKey(itemKey: number): boolean {
   return itemKey >= 900_000 && itemKey < 1_000_000;
 }

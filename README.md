@@ -57,9 +57,9 @@ You can also trigger a release manually from the Actions tab (`workflow_dispatch
   priced inventory total, and pricing status. Toggle from **Mini** in the tab bar.
 - **CSV history** - every XP change is appended to `logs/xp_history.csv` when
   `logHistoryCsv` is enabled.
-- **Inventory tab** - owned items from the save resolved against the game catalog
-  (`data/gamedata.json` + `data/hero_items.json`, self-refreshing from tbh.city),
-  grouped by type with composition stats, search/filter/sort (grade, type,
+- **Inventory tab** - owned items from the save resolved against bundled catalogs
+  (`data/gamedata.json` + `data/stage_boxes.json`, main list self-refreshing on a
+  TTL), grouped by type with composition stats, search/filter/sort (grade, type,
   location, tradable, in-use), Steam price + value columns (materials + Legendary+
   gear), location breakdown (inventory / stash / trading / equipped), and graceful
   handling of unknown items after game updates.
@@ -101,7 +101,7 @@ app/                     # the companion app (Electron + React + TS)
   test/renderer/         # UI helpers
   test/integration/      # optional local save tests
 config.json              # default settings (overridden by userData copy)
-data/                    # bundled catalogs (gamedata.json, hero_items.json)
+data/                    # bundled catalogs (gamedata.json, stage_boxes.json)
 docs/                    # architecture, save format, decisions, findings
 ```
 

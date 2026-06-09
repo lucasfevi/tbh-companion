@@ -22,7 +22,7 @@ Market. It never modifies the save and never talks to the game servers.
   - `app/src/renderer/` - React UI (tabs + mini overlay). Pure UI, no Node APIs.
     Shared IPC state via `context/TbhProvider.tsx`.
   - `app/shared/types.ts` - types shared across processes.
-- `data/` - bundled catalogs (`gamedata.json`, `hero_items.json`).
+- `data/` - bundled catalogs (`gamedata.json`, `stage_boxes.json`).
 - `docs/` - the knowledge base (see below).
 
 The original Python prototype (`tbh_xp/`) has been removed now that the TS core

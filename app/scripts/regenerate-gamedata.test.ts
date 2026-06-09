@@ -2,18 +2,19 @@ import { describe, it, expect } from "vitest";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  CATALOG_SOURCE,
   extractAndEnrichItemsFromHtml,
   parseRawItemsFromHtml,
 } from "../src/core/gamedata";
 
-const SOURCE_URL = "https://tbh.city/items";
+const CATALOG_FETCH_URL = "https://tbh.city/items";
 const outPath = join(__dirname, "../../data/gamedata.json");
 
 describe("regenerate bundled gamedata", () => {
   it(
-    "scrapes tbh.city and writes cleaned catalog with gear levels",
+    "scrapes item catalog and writes cleaned snapshot with gear levels",
     async () => {
-      const res = await fetch(SOURCE_URL, {
+      const res = await fetch(CATALOG_FETCH_URL, {
         headers: { "User-Agent": "Mozilla/5.0 (TBH Companion regenerate)" },
       });
       expect(res.ok).toBe(true);
@@ -33,7 +34,7 @@ describe("regenerate bundled gamedata", () => {
       expect(ingot?.level).toBeNull();
 
       const payload = {
-        source: SOURCE_URL,
+        source: CATALOG_SOURCE,
         fetchedUtc: new Date().toISOString(),
         count: items.length,
         items,

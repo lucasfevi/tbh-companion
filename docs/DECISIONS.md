@@ -2,10 +2,20 @@
 
 Terse record of architectural decisions. Newest first.
 
+## 2026-06-09 - Stage boxes in the `9xxxxx` ItemKey range
+
+The main scraped catalog lists GEAR + MATERIAL only. Saves also reference
+**STAGEBOX** loot chests at `910xxx` (Normal Monster Box), `920xxx` (Stage Boss
+Box), and `930xxx` (Act Boss Box). These were previously mistaken for hero soul
+gear because some ids echo hero digits (`910151`, …); wiki stage-box data
+confirms all 59 ids. We ship `data/stage_boxes.json`, merge at load, and **omit
+stage boxes from the Inventory tab** (unopened counts remain in `BoxData`).
+
 ## 2026-06-09 - Phase 9 inventory improvements
 
-- **Hero-bound items (910xxx–930xxx):** treated as `equipped` when absent from
-  bag/stash/trading slot arrays (fixes `?` location for soul gear).
+- **`9xxxxx` location heuristic:** ItemKeys in `900000–999999` outside
+  bag/stash/trading slot arrays are labeled `equipped` in parse (covers stage-box
+  instances in `itemSaveDatas`; not a soul-gear claim).
 - **Gear Steam variants:** pricing probes hash suffixes `A`–`E` and uses the
   first variant with a cached Steam price (save letter not decoded yet).
 - **Material stacks:** `aggregateSaveDatas` Type `0` rows merge when SubKey
@@ -38,14 +48,13 @@ them and distinct ids collide (observed ~6 collisions in 185 items). A
 per-location split (inventory vs stash vs trading) would need a lossless
 big-int id parse and is deferred until there's a reason to build it.
 
-## 2026-06 - Item catalog scraped from tbh.city, with a self-refresh path
+## 2026-06 - Item catalog with bundled stage boxes and self-refresh
 
-`tbh.city/items` server-renders a complete JSON item catalog whose record `id`
-equals the save's `ItemKey` (verified live). We extract + bundle it as
-`data/gamedata.json` (offline fallback), cache refreshes in `userData`, and
-re-scrape on a TTL so game patches add items without an app release. Unknown
-`ItemKey`s degrade to `Unknown #<key>` with a refresh hint. See
-`docs/findings/item-mapping.md`.
+The main item list scrape yields GEAR + MATERIAL whose record `id` equals the
+save's `ItemKey`. We bundle it as `data/gamedata.json` (offline fallback), cache
+refreshes in `userData`, and re-scrape on a TTL. **Stage boxes** (`910`/`920`/`930`
+prefixes) ship separately in `data/stage_boxes.json`. Unknown `ItemKey`s degrade
+to `Unknown #<key>` with a refresh hint. See `docs/findings/item-mapping.md`.
 
 ## 2026-06 - Steam prices via `priceoverview` in a configurable currency
 
@@ -66,11 +75,13 @@ skipped (low value + ambiguous Steam variant mapping). Gear hashes use
 price. Background refresh runs on save load, backs off on HTTP 429 until the
 queue finishes, and re-pushes inventory rows as prices arrive.
 
-## 2026-06 - Hero-class items via bundled supplement catalog
+## 2026-06 - ~~Hero-class items via bundled supplement catalog~~ (superseded)
 
-tbh.city/items omits hero-bound `ItemKey`s in the `9xxxxx` range. We ship
+~~tbh.city/items omits hero-bound `ItemKey`s in the `9xxxxx` range. We ship
 `data/hero_items.json` merged into the catalog at load time (names only; not on
-Steam). Refreshing game data from tbh.city does not remove these entries.
+Steam).~~ **Superseded 2026-06-09:** the `9xxxxx` gap is **stage boxes**
+(STAGEBOX), not hero gear. See `data/stage_boxes.json` and the stage-box ADR above.
+`hero_items.json` was removed after incorrect manual entries.
 
 ## 2026-06 - Gear Steam mapping (exact match only)
 
@@ -83,8 +94,8 @@ Legendary is not priced. Valuation uses `median_price` when available, otherwise
 
 Bag/stash/trading counts come from slot `ItemUniqueId`s matched against
 `itemSaveDatas` via string parsing (big-int safe). Equipped gear uses
-`equippedItemIds`. Hero-bound items (`910xxx`–`930xxx`) outside slot arrays
-count as equipped.
+`equippedItemIds`. ItemKeys in `900000–999999` outside slot arrays are labeled
+`equipped` as a location heuristic (mostly opened **stage boxes** in saves).
 
 The in-game Records tab (per-stage clear times, chest-drop log) is NOT written
 to the save — only progress (`maxCompletedStage`), current chest holdings

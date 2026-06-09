@@ -30,38 +30,39 @@ row with its own enchants), not stacked-with-count.
 > Materials appear in both `itemSaveDatas` (instances) and, for stack counts,
 > `aggregateSaveDatas` Type `0` rows when SubKey maps to a catalog ItemKey (see
 > `core/inventory/aggregates.ts`). Many SubKeys (e.g. `10021`) are still undecoded.
-> Gear is per-instance in `itemSaveDatas`; location comes from slot refs + hero-bound rules.
+> Gear is per-instance in `itemSaveDatas`; location comes from slot refs + a
+> fallback for `9xxxxx` ItemKeys outside slot arrays (see **Stage boxes** below).
 
-## Source for ItemKey -> name/rarity/type: tbh.city (CONFIRMED, machine-readable)
+## Source for ItemKey -> name/rarity/type/level
 
-`https://tbh.city/items` server-renders a **complete JSON item catalog** inside
-its Next.js RSC stream. Scraped 2026-06: **5,875 items** (5,760 GEAR + 115
-MATERIAL). Each record:
+The bundled main catalog (`data/gamedata.json`, source label
+`companion-item-catalog`) is scraped from a public item list page whose embedded
+JSON matches the save's `ItemKey` ids. Scraped 2026-06: **5,875 items** (5,760
+GEAR + 115 MATERIAL). Each normalized row:
 
 ```json
-{ "id": 322111, "name": { "en": "Void Staff" }, "grade": "RARE",
-  "type": "GEAR", "icon": "sprites/sharedassets0/SWORD_322111.png",
-  "gear_id": "322111", "is_market_tradable": false }
+{ "id": 322111, "name": "Void Staff", "grade": "RARE", "type": "GEAR",
+  "level": 50, "marketTradable": false }
 ```
 
 **The join is `record.id === save ItemKey`.** Verified against a live save:
 `322111 -> Void Staff (RARE GEAR)`, `601111 -> Emerald Amulet (UNCOMMON GEAR)`,
-`141002 -> Iron Ingot (UNCOMMON MATERIAL)`. The record also carries
-`is_market_tradable`, so we know offline which items can ever have a price
-(3,593 of 5,875 are tradable).
+`141002 -> Iron Ingot (UNCOMMON MATERIAL)`. Gear **level** comes from per-icon
+detail lookups during catalog regeneration (not from digits in the ItemKey).
 
 How we consume it:
 
-- `app/src/core/gamedata.ts` - `extractItemsFromHtml()` unescapes the page,
-  bracket-matches the `[{"id":...}]` array, and normalizes to
-  `{ id, name, grade, type, icon, gearId, marketTradable }`. Pure + unit-tested.
-- `app/src/main/gameDataProvider.ts` - loads a snapshot, indexes by `id`, and
-  can re-scrape.
-- `data/gamedata.json` - bundled snapshot (5,875 items, ~900 KB) shipped with
-  the app so inventory resolves offline and on first run.
+- `app/src/core/gamedata.ts` - parse embedded list JSON, enrich gear levels,
+  normalize to `{ id, name, grade, type, level, marketTradable }`.
+- `app/src/main/gameDataProvider.ts` - loads main catalog + stage boxes, indexes
+  by `id`, can re-scrape the main list on a TTL.
+- `data/gamedata.json` - bundled GEAR + MATERIAL snapshot (~900 KB) for offline
+  first run.
+- `data/stage_boxes.json` - bundled **59 STAGEBOX** entries (see below).
 
-> The wiki (`taskbarhero.wiki/gear`, an 8.4 MB server-rendered table) is a viable
-> backup source but is heavier and not as cleanly structured as tbh.city's JSON.
+> The wiki ([taskbarhero.wiki/stage-boxes](https://taskbarhero.wiki/stage-boxes),
+> `/gear`) is the authoritative reference for stage boxes and a viable backup for
+> gear tables; the main list scrape remains the primary GEAR + MATERIAL source.
 
 ## Refresh strategy (game updates / new items)
 
@@ -79,8 +80,31 @@ app release:
    `Unknown #<key>` and the UI surfaces a "N unknown items - refresh game data?"
    hint rather than crashing or hiding the item.
 5. Refresh is **validated before commit**: a fetch yielding zero items is
-   rejected and the previous snapshot is kept, so a layout change on tbh.city
-   can't wipe the catalog.
+   rejected and the previous snapshot is kept, so a layout change on the scrape
+   source can't wipe the catalog.
+
+## Stage boxes (`910xxx`–`930xxx`) — confirmed STAGEBOX, not hero gear
+
+The main GEAR + MATERIAL list **omits STAGEBOX** types. Live saves still carry
+opened stage-box instances in `itemSaveDatas` with ItemKeys in the `9xxxxx`
+range. These were previously misread as hero-class soul gear because some ids
+embed hero digits (`910151`, `910201`, …) — that correlation was **wrong**.
+
+Confirmed mapping (59 entries, [taskbarhero.wiki/stage-boxes](https://taskbarhero.wiki/stage-boxes)):
+
+| Prefix | Type | Grade | Examples |
+| --- | --- | --- | --- |
+| `910xxx` | Normal Monster Box | COMMON | `910151` → Normal Monster Box Lv15 |
+| `920xxx` | Stage Boss Box | RARE | `920501` → Stage Boss Box Lv50 |
+| `930xxx` | Act Boss Box | LEGENDARY | `930301` → Act Boss Box Lv30 |
+
+Bundled in `data/stage_boxes.json` (`app/src/core/stageBoxes.ts`). Merged into
+the lookup index at load; **excluded from the Inventory tab** (not gear/materials
+to value). Unopened chest counts stay in `BoxData` (`BoxTypes` / `BoxQuantity`).
+
+Location parsing still treats `9xxxxx` rows outside bag/stash/trading slots as
+`equipped` (`isHeroBoundItemKey` in `parse.ts`) — a location heuristic, not a
+claim that the item is worn gear.
 
 ## Mapping rule
 
@@ -93,19 +117,6 @@ Build `market_hash_name` from gamedata fields; `priceoverview` confirms the list
 
 If Steam returns no price for that hash, the row shows no value (exact grade only,
 no cross-grade fallback).
-
-## Catalog coverage gap (observed in a live save)
-
-tbh.city/items lists **only GEAR + MATERIAL** (ids ~110001-639192). A live save
-had 5 distinct `ItemKey`s the catalog does NOT cover, all in a `9xxxxx` range:
-`910151, 910201, 910301, 910401, 930301` (9 instances). The middle digit (1-4)
-matches the hero class keys (Knight/Ranger/Sorcerer/Priest = 101/201/301/401),
-so these look like **hero-class-bound items** (relics/soul-gear) that tbh.city
-omits from its market-oriented list. The wiki has more datasets (`/runes`,
-`/pets`, `/offering`, ...) but does not expose the numeric `ItemKey`, so it's not
-a drop-in source. These render as `Unknown #<key>` and a catalog refresh will
-**not** resolve them (a real gap, not a stale snapshot). Acceptable for now;
-revisit if hero-bound item valuation matters.
 
 ## Gotcha: JSON files must be BOM-free
 
@@ -132,7 +143,8 @@ or Node `fs.writeFileSync` (never `Set-Content -Encoding UTF8` on PS 5.1).
 ```
 itemSaveDatas + aggregateSaveDatas (material stacks)
   -> parseInventory / resolveInventory (core/inventory/*)
-  -> gamedata.json: ItemKey -> {name, grade, type, icon}
+  -> gamedata.json + stage_boxes.json: ItemKey -> {name, grade, type, level}
+  -> (stage boxes filtered out of inventory rows)
   -> marketHashCandidates -> SteamMarketProvider price cache
   -> sum(unit price * count) on Inventory tab
 ```

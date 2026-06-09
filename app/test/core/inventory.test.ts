@@ -75,7 +75,7 @@ describe("parseInventory", () => {
     expect(snap.saveMtime).toBe(123);
   });
 
-  it("classifies hero-bound items as equipped (not unknown)", () => {
+  it("classifies 9xxxxx stage-box keys outside slots as equipped (location heuristic)", () => {
     const snap = parseInventory(wrapPlayer(playerInner), 0);
     const hero = snap.items.find((i) => i.itemKey === 910151);
     expect(hero?.location).toBe("equipped");
@@ -128,6 +128,28 @@ describe("resolveInventory", () => {
     expect(res.composition.inUseCount).toBe(2);
     expect(res.composition.priceableCount).toBe(7);
     expect(res.composition.valuedTotal).toBeCloseTo(0.05);
+  });
+
+  it("excludes stage boxes from rows and composition when requested", () => {
+    const snap = parseInventory(wrapPlayer(playerInner), 0, isMaterial);
+    const stageBoxCatalog: Record<number, GameItem> = {
+      ...catalog,
+      910151: {
+        id: 910151,
+        name: "Normal Monster Box Lv15",
+        grade: "COMMON",
+        type: "STAGEBOX",
+        level: 15,
+        marketTradable: false,
+      },
+    };
+    const withBox = (key: number) => stageBoxCatalog[key];
+    const res = resolveInventory(snap, withBox, true, undefined, {
+      excludeItemKey: (key) => key === 910151,
+    });
+    expect(res.rows.find((r) => r.itemKey === 910151)).toBeUndefined();
+    expect(res.composition.inUseCount).toBe(1);
+    expect(res.composition.total).toBe(10);
   });
 
   it("picks the gear variant letter that has a Steam price", () => {
