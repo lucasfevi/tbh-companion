@@ -3,11 +3,15 @@
 Research outputs, written as we learn them and committed with the phase that
 produced them. Keep each file focused and factual.
 
-Planned:
+- `steam-market.md` - Phase 0 probe of the Steam Market for appid `3678970`:
+  endpoints, page-size cap, currency handling, catalog shape, and provider
+  implications. Confirmed viable (648 marketable items).
+- `item-mapping.md` - Phase 0 rule for `ItemKey -> name/rarity/type -> Steam
+  market_hash_name`, the datamine source, and the open risks (gear variant
+  letter, datamine machine-readability).
 
-- `steam-market.md` - results of probing the Steam Market for appid `3678970`:
-  whether `market/search/render` works, the `market_hash_name` format, the
-  marketable subset of items, currency handling, and rate limits.
-- `item-mapping.md` - how `ItemKey` (from `itemSaveDatas`) maps to a display
-  name/grade/type/icon and to a Steam `market_hash_name`; the rule and its
-  edge cases (non-marketable items, grades/enchants).
+Related data artifacts (repo root `data/`):
+
+- `data/steam_market_catalog.json` - snapshot of the 648 marketable item
+  names/types/colors/icons (no prices). Seeds the mapping + lets us detect
+  non-marketable items offline.
