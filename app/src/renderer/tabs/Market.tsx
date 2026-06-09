@@ -45,11 +45,9 @@ export function Market() {
       setBusy(false);
       setProgress(null);
       const stopMsg =
-        res.stopped === "rate-limited"
-          ? " (stopped: Steam rate-limited us - try again later)"
-          : res.stopped === "cancelled"
-            ? " (cancelled)"
-            : "";
+        res.stopped === "cancelled"
+          ? " (cancelled)"
+          : "";
       setMessage(`Priced ${res.priced}, skipped ${res.skipped} fresh, ${res.failed} failed${stopMsg}.`);
     }
   }
@@ -65,9 +63,9 @@ export function Market() {
       <h1>Market prices</h1>
       <p className="muted">
         Prices come from the Steam Community Market (<code>priceoverview</code>) in your chosen
-        currency. Fetching is per-item and rate-limited, so it runs on demand and skips items priced
-        in the last 24h. Currently seeding the full marketable catalog; once the Inventory tab lands
-        this targets the items you actually own.
+        currency. The app automatically refreshes prices for items you own (materials + Legendary+
+        gear) in the background, backing off on rate limits until done. Manual refresh re-prices
+        stale entries (skips items priced in the last 24h unless forced).
       </p>
 
       <div className="market-controls">

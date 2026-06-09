@@ -65,6 +65,7 @@ body {
   flex: 1;
   overflow: auto;
   padding: 20px;
+  min-height: 0;
 }
 
 .placeholder h1 {
@@ -352,6 +353,11 @@ body {
   color: var(--gold);
 }
 
+.overlay-inv {
+  font-size: 12px;
+  color: var(--muted);
+}
+
 .overlay-foot {
   margin-top: auto;
   display: flex;
@@ -471,11 +477,10 @@ body {
 
 /* --- Inventory tab --- */
 .inventory {
-  padding: 16px 20px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  height: 100%;
   box-sizing: border-box;
 }
 .inventory h1 {
@@ -544,17 +549,22 @@ body {
   font-size: 13px;
   color: var(--muted);
 }
+.inv-table-wrap {
+  flex: 1;
+  min-height: 200px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
 .inv-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  flex: 1;
-  display: block;
-  overflow-y: auto;
 }
 .inv-table thead th {
   position: sticky;
   top: 0;
+  z-index: 1;
   background: var(--panel);
   text-align: left;
   padding: 7px 10px;
@@ -584,4 +594,95 @@ body {
 }
 .chaotic {
   color: var(--gold);
+}
+.in-use {
+  color: var(--accent);
+}
+.inv-filter {
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+/* --- Global save-status bar (all tabs) --- */
+.savebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+.savebar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+.savebar.warn {
+  color: var(--gold);
+}
+.savebar.warn .savebar-dot {
+  background: var(--gold);
+}
+.savebar-hint {
+  color: var(--gold);
+}
+
+/* --- Settings tab --- */
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 640px;
+}
+.settings h1 {
+  margin: 0;
+  font-size: 18px;
+}
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.settings-grid .field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.settings-grid .field.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.settings-grid input[type="text"],
+.settings-grid input[type="number"],
+.settings-grid select {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+.settings-actions {
+  display: flex;
+  gap: 10px;
+}
+.settings-message {
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.loc-cell span {
+  display: inline-block;
+  margin-right: 6px;
+  font-size: 11px;
+  color: var(--muted);
 }

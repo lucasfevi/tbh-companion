@@ -1,13 +1,29 @@
+import { useEffect, useState } from "react";
 import { useStats } from "./lib/useStats";
+import { useInventory } from "./lib/useInventory";
 import { fmtCompact, fmtAgo } from "./lib/format";
+import { formatMoney } from "../core/steamPrice";
 import { stageName } from "../core/stages";
+import type { PriceStatus } from "../../shared/types";
 
 const IDLE_THRESHOLD = 120;
 
-// Compact always-on-top overlay. The whole card is draggable except the
-// buttons (see .no-drag in styles.css).
 export function Overlay() {
   const stats = useStats();
+  const inv = useInventory();
+  const [priceStatus, setPriceStatus] = useState<PriceStatus | null>(null);
+
+  useEffect(() => {
+    void window.tbh.pricesStatus().then(setPriceStatus).catch(() => {});
+    const off = window.tbh.onPricesProgress(() => {
+      void window.tbh.pricesStatus().then(setPriceStatus).catch(() => {});
+    });
+    return off;
+  }, []);
+
+  const currency = inv?.currency ?? priceStatus?.currency ?? "USD";
+  const invValue = inv?.composition.valuedTotal ?? null;
+  const pricing = priceStatus?.running ?? false;
 
   return (
     <div className="overlay">
@@ -35,6 +51,12 @@ export function Overlay() {
             <span className="overlay-unit">XP / hr</span>
           </div>
           <div className="overlay-gold">{fmtCompact(stats.goldRate)} gold / hr</div>
+          {inv && (
+            <div className="overlay-inv">
+              Inv: {invValue !== null ? formatMoney(invValue, currency) : "-"}
+              {pricing && <span className="muted"> (pricing…)</span>}
+            </div>
+          )}
           <div className="overlay-foot">
             <span>{stageName(stats.stageKey, stats.stageWave)}</span>
             <span

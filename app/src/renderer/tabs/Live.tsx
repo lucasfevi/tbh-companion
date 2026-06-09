@@ -38,7 +38,7 @@ export function Live() {
 
       <div className="lastupdated">
         <span>
-          Last updated: <b>{fmtAgo(stats.secondsSinceGain)}</b>
+          XP updated: <b>{fmtAgo(stats.secondsSinceGain)}</b>
         </span>
         <button className="reset" onClick={() => window.tbh.reset()}>
           {"\u21bb"} Reset

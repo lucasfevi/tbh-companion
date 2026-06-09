@@ -1,23 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useInventory } from "../lib/useInventory";
-import type { ResolvedInventoryRow } from "../../../shared/types";
+import { GRADE_ORDER, GRADE_RANK } from "../../core/grades";
+import { gradeLabel, typeLabel } from "../../core/labels";
+import { formatMoney } from "../../core/steamPrice";
+import type { ItemLocation, ResolvedInventoryRow } from "../../../shared/types";
+import type { PriceProgress, PriceStatus } from "../../../shared/types";
 
-// Rarity order (low -> high) for sorting + a color per grade.
-const GRADE_ORDER = [
-  "COMMON",
-  "UNCOMMON",
-  "RARE",
-  "LEGENDARY",
-  "IMMORTAL",
-  "ARCANA",
-  "BEYOND",
-  "CELESTIAL",
-  "DIVINE",
-  "COSMIC",
-];
-const GRADE_RANK: Record<string, number> = Object.fromEntries(
-  GRADE_ORDER.map((g, i) => [g, i]),
-);
 const GRADE_COLORS: Record<string, string> = {
   COMMON: "#9aa3b2",
   UNCOMMON: "#5ad17a",
@@ -36,20 +24,68 @@ function gradeColor(grade: string): string {
   return GRADE_COLORS[grade] ?? GRADE_COLORS.UNKNOWN;
 }
 
-type SortKey = "name" | "grade" | "type" | "count";
+type SortKey = "name" | "grade" | "type" | "count" | "inUse" | "price" | "value";
+type LocationFilter = "ALL" | ItemLocation;
 
 export function Inventory() {
   const inv = useInventory();
   const [query, setQuery] = useState("");
   const [tradableOnly, setTradableOnly] = useState(false);
-  const [sortKey, setSortKey] = useState<SortKey>("grade");
+  const [inUseOnly, setInUseOnly] = useState(false);
+  const [gradeFilter, setGradeFilter] = useState("ALL");
+  const [typeFilter, setTypeFilter] = useState("ALL");
+  const [locationFilter, setLocationFilter] = useState<LocationFilter>("ALL");
+  const [sortKey, setSortKey] = useState<SortKey>("value");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [priceStatus, setPriceStatus] = useState<PriceStatus | null>(null);
+  const [priceProgress, setPriceProgress] = useState<PriceProgress | null>(null);
+
+  useEffect(() => {
+    void window.tbh.pricesStatus().then(setPriceStatus).catch(() => {});
+    const off = window.tbh.onPricesProgress((p) => {
+      setPriceProgress(p);
+      void window.tbh.pricesStatus().then(setPriceStatus).catch(() => {});
+    });
+    return off;
+  }, []);
+
+  const gradeOptions = useMemo(() => {
+    if (!inv) return [];
+    const present = new Set(inv.rows.map((r) => r.grade));
+    const ordered = GRADE_ORDER.filter((g) => present.has(g));
+    const extras = [...present].filter((g) => GRADE_RANK[g] === undefined).sort();
+    return [...ordered, ...extras.filter((g) => !(ordered as readonly string[]).includes(g))];
+  }, [inv]);
+
+  const typeOptions = useMemo(() => {
+    if (!inv) return [];
+    return [...new Set(inv.rows.map((r) => r.type))].sort();
+  }, [inv]);
 
   const rows = useMemo(() => {
     if (!inv) return [];
     const q = query.trim().toLowerCase();
     let r = inv.rows.filter((row) => {
+      const inUse = row.inUseCount ?? 0;
       if (tradableOnly && !row.marketTradable) return false;
+      if (inUseOnly && inUse <= 0) return false;
+      if (gradeFilter !== "ALL" && row.grade !== gradeFilter) return false;
+      if (typeFilter !== "ALL" && row.type !== typeFilter) return false;
+      if (locationFilter !== "ALL") {
+        const locOk =
+          (locationFilter === "equipped" && inUse > 0) ||
+          (locationFilter === "inventory" && (row.inventoryCount ?? 0) > 0) ||
+          (locationFilter === "stash" && (row.stashCount ?? 0) > 0) ||
+          (locationFilter === "trading" && (row.tradingCount ?? 0) > 0) ||
+          (locationFilter === "unknown" &&
+            row.count -
+              (row.inventoryCount ?? 0) -
+              (row.stashCount ?? 0) -
+              (row.tradingCount ?? 0) -
+              inUse >
+              0);
+        if (!locOk) return false;
+      }
       if (q && !row.name.toLowerCase().includes(q)) return false;
       return true;
     });
@@ -59,12 +95,15 @@ export function Inventory() {
       if (sortKey === "name") cmp = a.name.localeCompare(b.name);
       else if (sortKey === "type") cmp = a.type.localeCompare(b.type);
       else if (sortKey === "count") cmp = a.count - b.count;
+      else if (sortKey === "inUse") cmp = (a.inUseCount ?? 0) - (b.inUseCount ?? 0);
+      else if (sortKey === "price") cmp = (a.priceLowest ?? -1) - (b.priceLowest ?? -1);
+      else if (sortKey === "value") cmp = (a.value ?? -1) - (b.value ?? -1);
       else cmp = (GRADE_RANK[a.grade] ?? -1) - (GRADE_RANK[b.grade] ?? -1);
-      if (cmp === 0) cmp = b.count - a.count; // stable-ish tiebreak
+      if (cmp === 0) cmp = b.count - a.count;
       return cmp * dir;
     });
     return r;
-  }, [inv, query, tradableOnly, sortKey, sortDir]);
+  }, [inv, query, tradableOnly, inUseOnly, gradeFilter, typeFilter, locationFilter, sortKey, sortDir]);
 
   if (!inv) {
     return (
@@ -77,6 +116,8 @@ export function Inventory() {
 
   const c = inv.composition;
   const chestTotal = inv.chests.reduce((s, x) => s + x.quantity, 0);
+  const currency = inv.currency ?? "USD";
+  const pricing = priceStatus?.running ?? false;
 
   function toggleSort(key: SortKey) {
     if (key === sortKey) {
@@ -95,7 +136,7 @@ export function Inventory() {
 
       <div className="inv-cards">
         <div className="stat">
-          <div className="stat-value">{c.total.toLocaleString()}</div>
+          <div className="stat-value">{(c.total ?? 0).toLocaleString()}</div>
           <div className="stat-label">items owned</div>
         </div>
         <div className="stat">
@@ -103,8 +144,12 @@ export function Inventory() {
           <div className="stat-label">distinct</div>
         </div>
         <div className="stat">
-          <div className="stat-value">{c.tradableCount.toLocaleString()}</div>
-          <div className="stat-label">market-tradable</div>
+          <div className="stat-value">
+            {c.valuedTotal != null && Number.isFinite(c.valuedTotal)
+              ? formatMoney(c.valuedTotal, currency)
+              : "-"}
+          </div>
+          <div className="stat-label">Steam value (priced)</div>
         </div>
         <div className="stat">
           <div className="stat-value">{chestTotal.toLocaleString()}</div>
@@ -112,19 +157,32 @@ export function Inventory() {
         </div>
       </div>
 
+      {pricing && (
+        <div className="inv-hint">
+          Updating Steam prices in the background
+          {priceProgress
+            ? `: ${priceProgress.done}/${priceProgress.total} (${priceProgress.priced} priced)`
+            : "..."}
+          .{" "}
+          <button className="btn small-btn danger" onClick={() => window.tbh.cancelPrices()}>
+            Stop
+          </button>
+        </div>
+      )}
+
       <div className="grade-bars">
         {GRADE_ORDER.filter((g) => c.byGrade[g]).map((g) => (
           <div key={g} className="grade-bar" title={`${g}: ${c.byGrade[g]}`}>
             <span className="grade-dot" style={{ background: gradeColor(g) }} />
             <span className="grade-name" style={{ color: gradeColor(g) }}>
-              {g[0] + g.slice(1).toLowerCase()}
+              {gradeLabel(g)}
             </span>
             <span className="grade-count">{c.byGrade[g]}</span>
           </div>
         ))}
       </div>
 
-      {c.unknownCount > 0 && (
+      {(c.unknownCount ?? 0) > 0 && (
         <div className="inv-hint">
           {c.unknownCount} item(s) aren&apos;t in the catalog{" "}
           {inv.gameDataLoaded ? "(possibly added by a game update)" : "(catalog not loaded)"}.{" "}
@@ -141,6 +199,45 @@ export function Inventory() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+        <select
+          className="inv-filter"
+          value={gradeFilter}
+          onChange={(e) => setGradeFilter(e.target.value)}
+          title="Filter by grade"
+        >
+          <option value="ALL">All grades</option>
+          {gradeOptions.map((g) => (
+            <option key={g} value={g}>
+              {gradeLabel(g)}
+            </option>
+          ))}
+        </select>
+        <select
+          className="inv-filter"
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          title="Filter by type"
+        >
+          <option value="ALL">All types</option>
+          {typeOptions.map((t) => (
+            <option key={t} value={t}>
+              {typeLabel(t)}
+            </option>
+          ))}
+        </select>
+        <select
+          className="inv-filter"
+          value={locationFilter}
+          onChange={(e) => setLocationFilter(e.target.value as LocationFilter)}
+          title="Filter by storage location"
+        >
+          <option value="ALL">All locations</option>
+          <option value="inventory">Inventory</option>
+          <option value="stash">Stash</option>
+          <option value="trading">Trading</option>
+          <option value="equipped">Equipped</option>
+          <option value="unknown">Unknown</option>
+        </select>
         <label className="inv-toggle">
           <input
             type="checkbox"
@@ -149,39 +246,97 @@ export function Inventory() {
           />
           Tradable only
         </label>
+        <label className="inv-toggle">
+          <input type="checkbox" checked={inUseOnly} onChange={(e) => setInUseOnly(e.target.checked)} />
+          In use only
+        </label>
         <span className="muted small">{rows.length} shown</span>
       </div>
 
-      <table className="inv-table">
-        <thead>
-          <tr>
-            <th onClick={() => toggleSort("name")}>Name{arrow("name")}</th>
-            <th onClick={() => toggleSort("grade")}>Grade{arrow("grade")}</th>
-            <th onClick={() => toggleSort("type")}>Type{arrow("type")}</th>
-            <th className="num" onClick={() => toggleSort("count")}>
-              Count{arrow("count")}
-            </th>
-            <th>Market</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row: ResolvedInventoryRow) => (
-            <tr key={row.itemKey} className={row.known ? "" : "unknown-row"}>
-              <td>
-                <span className="grade-dot" style={{ background: gradeColor(row.grade) }} />
-                {row.name}
-                {row.chaoticCount > 0 && <span className="chaotic" title="Chaotic"> &#9670;</span>}
-              </td>
-              <td style={{ color: gradeColor(row.grade) }}>
-                {row.grade[0] + row.grade.slice(1).toLowerCase()}
-              </td>
-              <td className="muted">{row.type}</td>
-              <td className="num">{row.count}</td>
-              <td>{row.marketTradable ? <span className="tradable">tradable</span> : <span className="muted">-</span>}</td>
+      <div className="inv-table-wrap">
+        <table className="inv-table">
+          <thead>
+            <tr>
+              <th onClick={() => toggleSort("name")}>Name{arrow("name")}</th>
+              <th onClick={() => toggleSort("grade")}>Grade{arrow("grade")}</th>
+              <th onClick={() => toggleSort("type")}>Type{arrow("type")}</th>
+              <th className="num" onClick={() => toggleSort("count")}>
+                Count{arrow("count")}
+              </th>
+              <th className="num">Location</th>
+              <th className="num" onClick={() => toggleSort("inUse")}>
+                In use{arrow("inUse")}
+              </th>
+              <th className="num" onClick={() => toggleSort("price")}>
+                Price{arrow("price")}
+              </th>
+              <th className="num" onClick={() => toggleSort("value")}>
+                Value{arrow("value")}
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row: ResolvedInventoryRow) => {
+              const inUse = row.inUseCount ?? 0;
+              return (
+                <tr key={row.itemKey} className={row.known ? "" : "unknown-row"}>
+                  <td>
+                    <span className="grade-dot" style={{ background: gradeColor(row.grade) }} />
+                    {row.name}
+                    {row.chaoticCount > 0 && (
+                      <span className="chaotic" title="Chaotic">
+                        {" "}
+                        &#9670;
+                      </span>
+                    )}
+                  </td>
+                  <td style={{ color: gradeColor(row.grade) }}>{gradeLabel(row.grade)}</td>
+                  <td className="muted">{typeLabel(row.type)}</td>
+                  <td className="num">{row.count}</td>
+                  <td className="num loc-cell">
+                    {(row.inventoryCount ?? 0) > 0 && <span title="Inventory">Inv {row.inventoryCount}</span>}
+                    {(row.stashCount ?? 0) > 0 && <span title="Stash">St {row.stashCount}</span>}
+                    {(row.tradingCount ?? 0) > 0 && <span title="Trading">Tr {row.tradingCount}</span>}
+                    {inUse > 0 && <span title="Equipped">Eq {inUse}</span>}
+                    {row.count -
+                      (row.inventoryCount ?? 0) -
+                      (row.stashCount ?? 0) -
+                      (row.tradingCount ?? 0) -
+                      inUse >
+                      0 && <span title="Unassigned">?</span>}
+                  </td>
+                  <td className="num">
+                    {inUse > 0 ? (
+                      <span className="in-use">
+                        {inUse}
+                        {inUse < row.count ? `/${row.count}` : ""}
+                      </span>
+                    ) : (
+                      <span className="muted">-</span>
+                    )}
+                  </td>
+                  <td className="num">
+                    {row.marketHashName ? (
+                      row.priceRaw ?? (
+                        <span className="muted">{row.priceEstimate ? "est. pending" : "pending"}</span>
+                      )
+                    ) : (
+                      <span className="muted" title="Not priced (non-tradable or below Legendary gear)">
+                        -
+                      </span>
+                    )}
+                  </td>
+                  <td className="num">
+                    {row.value != null && Number.isFinite(row.value)
+                      ? `${row.priceEstimate ? "~" : ""}${formatMoney(row.value, currency)}`
+                      : "-"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
