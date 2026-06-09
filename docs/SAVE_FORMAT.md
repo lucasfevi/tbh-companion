@@ -103,8 +103,10 @@ PlayerSaveData.value (nested JSON string) ->
   (`data/gamedata.json`), giving `ItemKey -> name/grade/type/icon/marketTradable`.
 - **`BoxData`** holds *unopened* chests as three parallel arrays
   (`BoxTypes[i]`, `BoxQuantity[i]`). It's a current count, not a drop history.
-- **`aggregateSaveDatas`** are lifetime counters `{ Type, SubKey, Value }` with
-  no timestamps (Type/SubKey meanings not yet decoded).
-- Pricing: an `ItemKey -> market_hash_name` mapping is still needed for Steam
-  Market lookups (appid **3678970**); the gear variant-letter is the open piece.
-  See `docs/findings/`.
+- **`aggregateSaveDatas`** are lifetime counters `{ Type, SubKey, Value }`.
+  Type `0` rows with mappable SubKeys supplement **material stack counts** (see
+  `core/inventory/aggregates.ts`). Many SubKeys (e.g. `10021`) are still undecoded.
+- **Hero-bound items (`910xxx`–`930xxx`)** not in bag/stash/trading slots are
+  treated as equipped in the app (see `core/inventory/parse.ts`).
+- Steam pricing uses `ItemKey -> market_hash_name` rules in `core/marketName.ts`
+  (gear probes variant letters `A`–`E`). See `docs/findings/item-mapping.md`.

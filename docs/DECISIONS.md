@@ -2,6 +2,16 @@
 
 Terse record of architectural decisions. Newest first.
 
+## 2026-06-09 - Phase 9 inventory improvements
+
+- **Hero-bound items (910xxx–930xxx):** treated as `equipped` when absent from
+  bag/stash/trading slot arrays (fixes `?` location for soul gear).
+- **Gear Steam variants:** pricing probes hash suffixes `A`–`E` and uses the
+  first variant with a cached Steam price (save letter not decoded yet).
+- **Material stacks:** `aggregateSaveDatas` Type `0` rows merge when SubKey
+  maps to a catalog ItemKey (direct id or `140000 + SubKey % 10000`). Many
+  live-save SubKeys (e.g. `10021`) remain unmapped.
+
 ## 2026-06-09 - Renderer IPC via `TbhProvider` context
 
 Stats, inventory, and price-progress IPC channels register once in
@@ -14,12 +24,6 @@ of each subscribing to `window.tbh.onStats` / `onInventory` independently.
 `index.html` adds explicit `script-src 'self'`, `connect-src` for Steam market
 hosts, and keeps `style-src 'unsafe-inline'` (required for inline styles).
 Dev uses the same policy via electron-vite; prod builds disable source maps.
-
-## 2026-06-09 - Phase 9 domain deferrals (materials, gear variant, location `?`)
-
-Materials via `aggregateSaveDatas`, gear Steam suffix ` A`, and unknown location
-`?` slot mapping remain open — need save-format spikes before parser changes.
-Win icon wired from `docs/design/icons/concept-companion-512.png`.
 
 ## 2026-06 - Inventory reads `itemSaveDatas` directly, not a slot->item id join
 
@@ -46,22 +50,21 @@ re-scrape on a TTL so game patches add items without an app release. Unknown
 ## 2026-06 - Steam prices via `priceoverview` in a configurable currency
 
 `priceoverview` reliably honors the `currency` param; `search/render` does not
-(it returns a region-fixed currency, verified). So pricing uses `priceoverview`
-in `config.currency` (ISO, default USD, also selectable from the Market tab),
-cached per-currency. Refresh is manual (a button) because per-item pricing is
-slow + rate-limited; it's incremental (skips items priced <24h ago) and backs
-off on HTTP 429. See `docs/findings/steam-market.md`.
+(it returns a region-fixed currency, verified). Pricing uses `priceoverview`
+in `config.currency` (ISO, default USD, also selectable from Settings or Market),
+cached per-currency. Background refresh runs on save load (incremental, skips
+items priced <24h ago, backs off on HTTP 429). Market tab also has a manual
+refresh button. See `docs/findings/steam-market.md`.
 
 ## 2026-06 - Inventory valuation: materials + Legendary+ gear only
 
 Steam prices on the Inventory tab target **owned** items only (not the full
 ~650-item catalog). **Materials** are priced at any grade (1:1 on display name).
 **Gear** is priced only at **Legendary and above**; Rare or lower gear is
-skipped (low value + ambiguous Steam variant mapping). Gear maps to
-`<name> (<Grade>) A` on the Steam market; when the catalog grade has no
-matching listing (grade mismatch), the row shows no price. Background refresh
-runs automatically on save load, backs off on HTTP 429 until the queue finishes,
-and re-pushes inventory rows as prices arrive.
+skipped (low value + ambiguous Steam variant mapping). Gear hashes use
+`<name> (<Grade>) <A–E>`; the app probes Steam for the first variant with a
+price. Background refresh runs on save load, backs off on HTTP 429 until the
+queue finishes, and re-pushes inventory rows as prices arrive.
 
 ## 2026-06 - Hero-class items via bundled supplement catalog
 
@@ -71,31 +74,32 @@ Steam). Refreshing game data from tbh.city does not remove these entries.
 
 ## 2026-06 - Gear Steam mapping (exact match only)
 
-Gear prices use `<name> (<Grade>) A`; materials map 1:1 by name. Gear below
-Legendary is not priced. No bundled Steam catalog — `priceoverview` confirms listings.
-Valuation uses `median_price` (recent sale median) when available, otherwise `lowest_price`.
+Gear prices use `<name> (<Grade>) <letter>` with letters `A`–`E` probed on
+Steam at price time (2026-06-09 update). Materials map 1:1 by name. Gear below
+Legendary is not priced. Valuation uses `median_price` when available, otherwise
+`lowest_price`.
 
 ## 2026-06 - Inventory location from slot refs (lossless UniqueId)
 
-Bag/stash/trading counts come from `inventorySaveDatas` / `stashSaveDatas` /
-`tradingStashSaveDatas` slot `ItemUniqueId`s matched against `itemSaveDatas`
-via string parsing (big-int safe). Equipped items use `equippedItemIds`.
+Bag/stash/trading counts come from slot `ItemUniqueId`s matched against
+`itemSaveDatas` via string parsing (big-int safe). Equipped gear uses
+`equippedItemIds`. Hero-bound items (`910xxx`–`930xxx`) outside slot arrays
+count as equipped.
 
 The in-game Records tab (per-stage clear times, chest-drop log) is NOT written
-to the save - only progress (`maxCompletedStage`), current chest holdings
-(`BoxData`), and lifetime aggregate counters (`aggregateSaveDatas`, no
-timestamps) persist. We could derive our own durable log from save deltas, but
-the save only rewrites ~every 2 min, so chest drops can be opened before we
-observe the `BoxData` delta -> lossy. Parked until a reliable design exists.
+to the save — only progress (`maxCompletedStage`), current chest holdings
+(`BoxData`), and lifetime aggregate counters (`aggregateSaveDatas`) persist.
+Deriving a durable drop log from save deltas is lossy (save rewrites ~every 2 min;
+chests can be opened before `BoxData` updates). **Time-series charts** (XP/hr,
+inventory value in SQLite) are also deferred — see `docs/ARCHITECTURE.md`.
 
 ## 2026-06 - All-TypeScript (Electron + React) over Python + web UI
 
 The hard part (ES3 decryption + save reverse-engineering) is solved and the
 scheme is fully known. Node's built-in `crypto` reproduces it
-(PBKDF2-SHA1 + AES-128-CBC) with no native deps, so the only reason to stay on
-Python is gone. Going single-language removes the Python venv + FastAPI/
-WebSocket bridge and ships one runtime. Decision: port `core/` to TypeScript;
-keep `tbh_xp/` as a reference until parity, then remove it.
+(PBKDF2-SHA1 + AES-128-CBC) with no native deps. Going single-language removed
+the Python venv + FastAPI/WebSocket bridge. The Python prototype (`tbh_xp/`) has
+been removed after TS parity; see git history.
 
 ## 2026-06 - Electron over Tauri for the desktop shell
 

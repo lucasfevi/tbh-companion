@@ -7,7 +7,7 @@ touching decryption or item mapping.
 
 A companion app for the idle game **TBH: Task Bar Hero**. It reads the game's
 local, encrypted save file (read-only) and shows live stats: XP/hour, gold/hour,
-per-hero rates, session history, and (later) inventory valuation via the Steam
+per-hero rates, session history, and inventory valuation via the Steam
 Market. It never modifies the save and never talks to the game servers.
 
 ## Where things are
@@ -126,7 +126,7 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 
 **Refactor:** move without behavior change first; tests travel with code. No duplicate types (`AppConfig` lives in `shared/types.ts`). No new globals in `main/index.ts` — use `app/appState.ts` or services. Read **coding-guidelines** and phase-mapped skills in `docs/plans/refactor-plan.md`; **cleanup dead code only in an explicit cleanup phase** (see refactor plan Phase 10).
 
-**Testing:** all new `core/` logic needs Vitest; new IPC/config handlers need tests in `test/main/` or `test/ipc/`. Optional local integration: `test/realSave.test.ts`.
+**Testing:** all new `core/` logic needs Vitest; new IPC/config handlers need tests in `test/main/` or `test/ipc/`. Optional local integration: `test/integration/realSave.test.ts`.
 
 **QA before done:** run the **tbh-qa** skill (`.cursor/skills/tbh-qa/SKILL.md`) — `npm run qa`, then `npm run dev` (non-blank window) or `npm run qa:dev` when the UI cannot be seen. Never mark app work complete on tests/build alone.
 
@@ -135,9 +135,5 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 - `docs/ARCHITECTURE.md` - processes, IPC boundary, windows, data flow.
 - `docs/SAVE_FORMAT.md` - ES3 decryption scheme + save JSON layout.
 - `docs/DECISIONS.md` - short ADR log of why the stack is what it is.
-- `docs/BACKLOG.md` - future-release ideas we want to remember.
 - `docs/findings/` - research outputs (Steam Market probe, item mapping).
-- `docs/reviews/` - playtest bugs, feature ideas, community research.
-- `docs/plans/refactor-plan.md` - phased refactor; skills per phase (coding-guidelines, react, best-practices, tbh-qa).
-- `docs/business/monetization.md` - donations, legal, store options.
-- `docs/design/branding.md` - naming, visual direction, icon concepts.
+- `docs/plans/refactor-plan.md` - completed maintainability refactor (historical; Phases 1–10 done).

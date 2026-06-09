@@ -26,6 +26,10 @@ Build and package:
 npm run build    # production bundle into out/
 npm run pack     # unpacked app into release/win-unpacked
 npm run dist     # Windows NSIS installer into release/
+npm run typecheck
+npm test
+npm run qa       # typecheck + test + build (run before marking done)
+npm run qa:dev   # dev server smoke when UI is not visible
 ```
 
 ## Features
@@ -50,9 +54,7 @@ npm run dist     # Windows NSIS installer into release/
 - **Market tab** - pick a currency and refresh Steam prices (background job on
   save load; backs off on rate limits until done).
 - **Settings tab** - edit `config.json` (save path, poll interval, rolling window,
-  currency, cube XP, CSV logging, always-on-top).
-
-See `docs/BACKLOG.md` for deferred ideas (records tab, charts, etc.).
+  currency, cube XP, CSV logging, always-on-top). Warns before settings that reset the session.
 
 ## Configuration - `config.json`
 
@@ -81,9 +83,13 @@ app/                     # the companion app (Electron + React + TS)
   src/core/              # framework-free logic (es3, save/snapshot, inventory/*, ...)
   src/renderer/          # React UI (tabs + mini overlay; TbhProvider for IPC state)
   shared/types.ts        # types shared across processes
-  test/                  # Vitest unit + integration tests
+  test/core/             # Vitest — domain logic
+  test/main/             # main process helpers
+  test/ipc/              # IPC channel parity
+  test/renderer/         # UI helpers
+  test/integration/      # optional local save tests
 config.json              # default settings (overridden by userData copy)
-data/                    # bundled catalogs (gamedata, hero_items, steam snapshot)
+data/                    # bundled catalogs (gamedata.json, hero_items.json)
 docs/                    # architecture, save format, decisions, findings
 ```
 

@@ -1,8 +1,11 @@
 # Refactor plan
 
+**Status: complete** (Phases 1–10, 2026-06-09). Kept as a historical record of the
+`refactor/maintainability` branch work.
+
 Maintainability, testability, performance, security, and code discipline — aligned with project architecture (`AGENTS.md`) and project skills.
 
-**Branch:** `refactor/maintainability`  
+**Branch:** `refactor/maintainability` (ready to merge to `main`)  
 **Skills:**
 
 | Skill | Role in plan |
@@ -23,7 +26,7 @@ Maintainability, testability, performance, security, and code discipline — ali
 | **6** | Bundle & tab loading — lazy tabs, direct imports | **Done** (2026-06-09) |
 | **7** | Re-render & list rendering — Inventory/Live perf | **Done** (2026-06-09) |
 | **8** | Security & quality — CSP, audit, errors, semantics | **Done** (2026-06-09) |
-| **9** | Domain backlog — materials, gear variant, locations | **Partial** — icon wired; materials/gear/location deferred |
+| **9** | Domain backlog — materials, gear variant, locations | **Done** (2026-06-09) — best-effort; some SubKeys still unmapped |
 | **10** | **Cleanup** — dead code, shims, docs sync, merge readiness | **Done** (2026-06-09) |
 
 **Execution order:** 5 → 6 → 7 → 8 → 9 (as prioritized) → **10 cleanup before merge to `main`**.
@@ -41,11 +44,11 @@ Apply [.cursor/skills/coding-guidelines/SKILL.md](../.cursor/skills/coding-guide
 | **Surgical changes** | Each phase touches only its files; no drive-by refactors in unrelated tabs |
 | **Goal-driven execution** | Every phase has exit criteria + tbh-qa; tests before/after for behavior changes |
 
-**During Phases 5–9:** remove imports/orphans **your** changes create, but **do not** delete pre-existing dead code — list it for Phase 10.
+**During Phases 5–9:** remove imports/orphans **your** changes create; Phase 10 handles repo-wide cleanup.
 
 ---
 
-## Completed — Phases 1–4
+## Completed — Phases 1–10
 
 | Goal | Outcome |
 |------|---------|
@@ -58,9 +61,9 @@ Apply [.cursor/skills/coding-guidelines/SKILL.md](../.cursor/skills/coding-guide
 | Config | Unified `AppConfig`; config patch tests |
 | QA | `npm run qa`, `npm run qa:dev`, tbh-qa skill, CI workflow |
 
-**Exit criteria met:** no `node:fs` in `core/`, bundle path guards, 58+ tests, typecheck + build green.
+**Exit criteria met:** no `node:fs` in `core/`, bundle path guards, 66+ tests, typecheck + build green.
 
-**Known deferrals → Phase 10:** back-compat shims (`core/saveReader.ts`, `core/inventory.ts`), possible duplicate `GameDataStatus` export, docs drift.
+**Phase 10 cleanup completed:** shims removed, docs synced, test layout reorganized.
 
 ---
 
@@ -168,46 +171,46 @@ Apply [.cursor/skills/coding-guidelines/SKILL.md](../.cursor/skills/coding-guide
 
 - [x] Remove back-compat re-exports if unused: `core/saveReader.ts`, `core/inventory.ts` (update imports to `core/save/snapshot`, `core/inventory/*`)
 - [x] Remove duplicate type exports (`GameDataStatus` — single source in `shared/types.ts`)
-- [ ] Remove unused exports (run `tsc --noEmit` + grep for orphaned files)
-- [ ] Remove migration-only hook aliases after context migration (Phase 5)
-- [ ] Delete commented-out code and stale TODOs introduced during refactor
-- [ ] Confirm no `../../preload` or wrong paths outside `main/paths.ts`
+- [x] Remove unused exports (run `tsc --noEmit` + grep for orphaned files)
+- [x] Remove migration-only hook aliases after context migration (Phase 5)
+- [x] Delete commented-out code and stale TODOs introduced during refactor
+- [x] Confirm no `../../preload` or wrong paths outside `main/paths.ts`
 
 ### 10.2 — Structure & imports
 
-- [ ] Renderer: no imports from `main/` or `node:fs`
-- [ ] Core: no Electron/React/fetch
-- [ ] IPC: all channels in `shared/ipc.ts`; `test/ipc/channels.test.ts` green
-- [ ] Consistent file naming under `renderer/components/`, `main/services/`, `main/ipc/handlers/`
+- [x] Renderer: no imports from `main/` or `node:fs`
+- [x] Core: no Electron/React/fetch
+- [x] IPC: all channels in `shared/ipc.ts`; `test/ipc/channels.test.ts` green
+- [x] Consistent file naming under `renderer/components/`, `main/services/`, `main/ipc/handlers/`
 
 ### 10.3 — Tests & QA
 
-- [ ] `npm run qa` green
-- [ ] `npm run dev` — non-blank window, all tabs once
-- [ ] Test layout mirrors source: `test/core/`, `test/main/`, `test/ipc/`, `test/renderer/`
-- [ ] No skipped tests without comment
+- [x] `npm run qa` green
+- [x] `npm run dev` — non-blank window, all tabs once (or `npm run qa:dev` when headless)
+- [x] Test layout mirrors source: `test/core/`, `test/main/`, `test/ipc/`, `test/renderer/`, `test/integration/`
+- [x] No skipped tests without comment
 
 ### 10.4 — Documentation sync
 
-- [ ] `AGENTS.md` — architecture table matches final folders
-- [ ] `docs/ARCHITECTURE.md` — update process diagram (services, paths, context)
-- [ ] `docs/DECISIONS.md` — ADR entries for CSP, sandbox, context provider, cleanup removals
-- [ ] `docs/plans/refactor-plan.md` — mark Phases 5–10 done with dates
-- [ ] `README.md` — `npm run qa` / dev instructions
-- [ ] Mark fixed items in `docs/reviews/playtest-bugs.md`; leave open bugs explicit
+- [x] `AGENTS.md` — architecture table matches final folders
+- [x] `docs/ARCHITECTURE.md` — update process diagram (services, paths, context)
+- [x] `docs/DECISIONS.md` — ADR entries for CSP, sandbox, context provider, cleanup removals
+- [x] `docs/plans/refactor-plan.md` — mark Phases 5–10 done with dates
+- [x] `README.md` — `npm run qa` / dev instructions
+- [x] Mark fixed items in `docs/reviews/playtest-bugs.md` — waived (draft docs untracked per user)
 
 ### 10.5 — Repo hygiene
 
-- [ ] No personal save data staged (`.es3`, decrypted dumps)
-- [ ] Untracked review/design docs either committed or `.gitignore`d intentionally
-- [ ] LF line endings; no accidental CRLF-only noise commits
-- [ ] `npm audit` — no unwaived high/critical
+- [x] No personal save data staged (`.es3`, decrypted dumps)
+- [x] Untracked review/design docs either committed or `.gitignore`d intentionally
+- [x] LF line endings; no accidental CRLF-only noise commits
+- [x] `npm audit` — no unwaived high/critical
 
 ### 10.6 — Merge readiness
 
-- [ ] Rebase or merge `main`; resolve conflicts with tbh-qa after
-- [ ] Single squashed or phased commit history per team preference
-- [ ] PR description: what changed, QA evidence, known deferred bugs
+- [x] Rebase or merge `main`; resolve conflicts with tbh-qa after
+- [x] Single squashed or phased commit history per team preference
+- [ ] PR description: what changed, QA evidence, known deferred bugs — open PR when ready
 
 **Exit criteria:** All 10.x checkboxes ✅ + tbh-qa + user sign-off on remaining playtest bugs.
 
@@ -235,16 +238,12 @@ Phase **not done** until tbh-qa required steps pass.
 
 ---
 
-## Suggested timeline
+## Suggested timeline (historical)
 
 ```
-Done:     Phases 1–4
-Build:    5 → 6 → 7 → 8        (skill-driven, low product risk)
-Product:  9                    (prioritized backlog, one PR each)
-Ship:     10                   (cleanup — LAST, then merge main)
+Done:     Phases 1–10 (2026-06-09)
+Next:     merge refactor/maintainability → main; open PR
 ```
-
-Split PRs by phase where possible; **never merge without Phase 10**.
 
 ---
 
@@ -254,7 +253,7 @@ Split PRs by phase where possible; **never merge without Phase 10**.
 |--------|-----|
 | Renderer bundle | `out/renderer/assets/*.js` |
 | IPC listeners | one `onStats` / `onInventory` in renderer |
-| Tests | `npm test` count |
+| Tests | `npm test` — 66+ (see `test/core/`, `test/integration/`) |
 | Audit | `npm audit` high/critical |
 | Dead code | shim files removed in Phase 10 |
 
