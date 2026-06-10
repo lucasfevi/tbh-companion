@@ -48,3 +48,12 @@ export function runeCapacityBonus(
   }
   return bonus;
 }
+
+/** Purchased chest-cap rune nodes (level > 0) that contribute to a chest slot bonus. */
+export function purchasedCapRuneNodes(
+  purchases: RunePurchase[],
+  capCatalog: { runeKeys: number[] },
+): RunePurchase[] {
+  const capSet = new Set(capCatalog.runeKeys);
+  return purchases.filter((p) => p.level > 0 && capSet.has(p.runeKey));
+}

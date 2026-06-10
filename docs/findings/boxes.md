@@ -20,32 +20,33 @@ The companion already parses non-zero quantities in
 
 | BoxType | Category | Notes |
 |---------|----------|-------|
-| `0` | **common** (gray) | All slots in a live save with only commons used type `0` |
-| `5` | **rare** (blue) | Present in test fixture; stage-boss held slots |
-| `9` | **act** (red) | Present in test fixture; act-boss held slots |
+| `0` | **common** (gray) | Default stockpile slots (5 base before runes) |
+| `1` | **rare** (blue) | Stage boss held slots (5 base before runes) |
+| `2` | **act** (red) | Act boss held slots (5 base before runes) |
 
-Additional type ids may appear in other saves — unmapped types show as
-`Type N` until confirmed.
+These are **slot category ids** in `BoxData`, not stage-box item ids (`910xxx` /
+`920xxx` / `930xxx`).
 
-**Important:** `BoxData` counts are *held chest slots*, separate from
-`910xxx` / `920xxx` / `930xxx` **STAGEBOX** ItemKeys in `itemSaveDatas`
-(opened box items used for gear).
+### Capacity by chest type
 
-### Common capacity
+Each type has its own base cap and rune chain (from
+[taskbarhero.wiki runes.json](https://www.taskbarhero.wiki/data/runes.json)
+`IconPath` keys):
 
-Players stockpile **common (gray)** chests because opening one shares a
-cooldown with **blue** stage-boss chests. Community baseline: **5** common
-slots before rune bonuses.
+| Chest type | Base cap | Rune effect | Bundled rune keys |
+|------------|----------|-------------|-------------------|
+| Common (gray) | 5 | Rune of Containment (`MaxAmountNormalChest`) | `rune_box_cap.json` → `common` |
+| Stage boss (blue) | 5 | Rune of the Vault (`MaxAmountStageBossChest`) | `rune_box_cap.json` → `stageBoss` |
+| Act boss (red) | 5 | Rune of Infinity (`MaxAmountActBossChest`) | `rune_box_cap.json` → `actBoss` |
 
-Capacity formula used by the companion:
+Each purchased rune node adds **+1** slot (max level 1 on capacity nodes).
+
+All three types start at **5 base slots**. Capacity formula per type:
 
 ```
 capacity = baseCapacity (5)
-         + sum(level for each purchased rune in rune_box_cap.json)
-         + settings.extraCommonBoxSlots
+         + sum(level for each purchased capacity rune of that type)
 ```
-
-`isFull` when aggregated common quantity ≥ capacity.
 
 ## RuneSaveData (purchased runes)
 
@@ -53,21 +54,23 @@ Purchased rune nodes live in `PlayerSaveData.RuneSaveData`:
 
 ```json
 "RuneSaveData": [
-  { "RuneKey": 11, "Level": 3 },
-  { "RuneKey": 12, "Level": 3 }
+  { "RuneKey": 1031, "Level": 1 },
+  { "RuneKey": 11002, "Level": 1 }
 ]
 ```
 
 - `RuneKey` — node id (matches [taskbarhero.org rune database](https://taskbarhero.org/en/runes/))
 - `Level` — current upgrade level (`0` = not purchased)
 
-North-East **chest capacity** chain (Rune of Expansion): nodes `11`–`16`, plus
-extension nodes `1801`–`1808` and `1901`–`1908`. Bundled ids in
-[`data/rune_box_cap.json`](../../data/rune_box_cap.json); each level adds **+1**
-slot per catalog entry.
+**Common chest capacity** comes from **Rune of Containment** nodes
+(`MaxAmountNormalChest`). **Stage boss** capacity uses **Rune of the Vault**
+(`MaxAmountStageBossChest`). **Act boss** capacity uses **Rune of Infinity**
+(`MaxAmountActBossChest`). Bundled ids in
+[`data/rune_box_cap.json`](../../data/rune_box_cap.json) under `common`,
+`stageBoss`, and `actBoss`.
 
-Inventory/stash runes (`22`–`23`, `13001`, etc.) are **not** chest-capacity
-nodes and are excluded from the cap catalog.
+**Rune of Expansion** nodes increase **inventory** slots, not chest capacity.
+Inventory/stash runes are excluded from the cap catalog.
 
 ## Rare boss box farming (920xxx)
 
@@ -78,8 +81,3 @@ The box-tracker overlay uses manual **Dropped** buttons with local persistence
 
 Ideal farming stages are bundled in [`data/rare_box_routes.json`](../../data/rare_box_routes.json)
 (community/wiki curated, no runtime fetch).
-
-## Settings fallback
-
-`extraCommonBoxSlots` in Settings (Advanced) adds manual bonus slots when rune
-decode or catalog ids are incomplete.

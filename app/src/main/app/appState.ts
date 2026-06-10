@@ -30,7 +30,6 @@ let boxTrackerWindow: BrowserWindow | null = null;
 
 export function startTracking(): void {
   config = loadConfig();
-  chests.setExtraCommonBoxSlots(config.extraCommonBoxSlots ?? 0);
   inventory.initMarket(config.currency);
   inventory.loadGameData();
   tracking.start(config);
@@ -80,6 +79,7 @@ export function getAppServices() {
     getBoxTimers: () => boxTimers.getState(),
     markBoxDropped: (boxId: number) => boxTimers.markDropped(boxId),
     clearBoxTimer: (boxId: number) => boxTimers.clearTimer(boxId),
+    setBoxTrackerBoxes: (boxIds: number[]) => boxTimers.setEnabledBoxIds(boxIds),
     gameDataStatus: () => inventory.gameDataStatus(),
     refreshGameData: () => inventory.refreshGameData(),
     pricesStatus: () => inventory.pricesStatus(),
@@ -98,7 +98,6 @@ export function getAppServices() {
           setConfig: (c) => {
             config = c;
             tracking.updateConfig(c);
-            chests.setExtraCommonBoxSlots(c.extraCommonBoxSlots ?? 0);
           },
           saveConfig,
           getTracker: () => tracking.getTracker(),

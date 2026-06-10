@@ -77,6 +77,9 @@ const api: TbhApi = {
   clearBoxTimer(boxId: number): Promise<BoxTimerState> {
     return ipcRenderer.invoke(IPC.CLEAR_BOX_TIMER, boxId);
   },
+  setBoxTrackerBoxes(boxIds: number[]): Promise<BoxTimerState> {
+    return ipcRenderer.invoke(IPC.SET_BOX_TRACKER_BOXES, boxIds);
+  },
   pricesStatus(): Promise<PriceStatus> {
     return ipcRenderer.invoke(IPC.PRICES_STATUS);
   },

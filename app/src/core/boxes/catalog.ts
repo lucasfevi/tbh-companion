@@ -14,10 +14,19 @@ export interface BoxTypeCatalog {
   types: BoxTypeEntry[];
 }
 
-export interface RuneBoxCapCatalog {
+export interface ChestCapDefinition {
+  boxType: number;
   baseCapacity: number;
   bonusPerLevel: number;
+  runeLabel: string;
   runeKeys: number[];
+}
+
+export interface RuneBoxCapCatalog {
+  common: ChestCapDefinition;
+  stageBoss: ChestCapDefinition;
+  actBoss: ChestCapDefinition;
+  note?: string;
 }
 
 export interface RareBoxRoute {

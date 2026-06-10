@@ -180,8 +180,6 @@ export interface AppConfig {
   startTopmost: boolean;
   logHistoryCsv: boolean;
   currency: string;
-  /** Manual +N common chest slots when rune decode/catalog is incomplete. */
-  extraCommonBoxSlots: number;
 }
 
 // --- Chests (BoxData holdings) ---
@@ -193,18 +191,40 @@ export interface ResolvedChestRow {
   quantity: number;
 }
 
-export interface CommonBoxStatus {
+export interface BoxSlotStatus {
   quantity: number;
   capacity: number;
   isFull: boolean;
   slotsRemaining: number;
 }
 
+/** @deprecated use BoxSlotStatus */
+export type CommonBoxStatus = BoxSlotStatus;
+
+export interface ChestCapacityBreakdown {
+  base: number;
+  runeBonus: number;
+  purchasedCapRuneNodes: number;
+  runeLabel: string;
+}
+
+/** @deprecated use ChestCapacityBreakdown */
+export type CommonCapacityBreakdown = ChestCapacityBreakdown;
+
 export interface ChestState {
   rows: ResolvedChestRow[];
-  common: CommonBoxStatus;
+  common: BoxSlotStatus;
+  stageBoss: BoxSlotStatus;
+  actBoss: BoxSlotStatus;
+  capacity: {
+    common: ChestCapacityBreakdown;
+    stageBoss: ChestCapacityBreakdown;
+    actBoss: ChestCapacityBreakdown;
+    totalRunePurchases: number;
+  };
   totalHeld: number;
   saveMtime: number;
+  /** @deprecated use capacity.common.runeBonus */
   runeBonusSlots: number;
 }
 
@@ -220,10 +240,24 @@ export interface BoxTimerRow {
   active: boolean;
   remainingSeconds: number;
   progress: number;
+  status: "ready" | "cooldown";
+  atIdealStage: boolean;
+}
+
+export interface BoxTimerCatalogEntry {
+  boxId: number;
+  name: string;
+  level: number | null;
+  idealStageLabel: string;
+  enabled: boolean;
 }
 
 export interface BoxTimerState {
   rows: BoxTimerRow[];
+  catalog: BoxTimerCatalogEntry[];
+  enabledCount: number;
+  readyCount: number;
+  cooldownCount: number;
   currentStageKey: number;
   disclaimer?: string;
 }
@@ -255,4 +289,5 @@ export interface TbhApi {
   onBoxTimers(cb: (state: BoxTimerState) => void): () => void;
   markBoxDropped(boxId: number): Promise<BoxTimerState>;
   clearBoxTimer(boxId: number): Promise<BoxTimerState>;
+  setBoxTrackerBoxes(boxIds: number[]): Promise<BoxTimerState>;
 }

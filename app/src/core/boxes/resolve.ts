@@ -1,10 +1,28 @@
-import type { ChestHolding, CommonBoxStatus, ResolvedChestRow, ChestState } from "../../../shared/types";
-import type { BoxTypeCatalog, RuneBoxCapCatalog } from "./catalog";
+import type {
+  ChestHolding,
+  BoxSlotStatus,
+  ChestCapacityBreakdown,
+  ResolvedChestRow,
+  ChestState,
+} from "../../../shared/types";
+import type { BoxCategory, BoxTypeCatalog, ChestCapDefinition, RuneBoxCapCatalog } from "./catalog";
 import { boxTypeIndex } from "./catalog";
-import type { RunePurchase } from "./runes";
-import { commonBoxCapacity, commonBoxState } from "./capacity";
+import { purchasedCapRuneNodes, runeCapacityBonus, type RunePurchase } from "./runes";
+import {
+  actBossBoxCapacity,
+  boxSlotState,
+  commonBoxCapacity,
+  stageBossBoxCapacity,
+} from "./capacity";
 
-export { commonBoxCapacity, commonBoxState } from "./capacity";
+export {
+  boxCapacity,
+  commonBoxCapacity,
+  stageBossBoxCapacity,
+  actBossBoxCapacity,
+  boxSlotState,
+  commonBoxState,
+} from "./capacity";
 
 function aggregateHoldings(chests: ChestHolding[]): Map<number, number> {
   const byType = new Map<number, number>();
@@ -40,31 +58,69 @@ export function resolveChestHoldings(
   return rows;
 }
 
+function quantityForCategory(rows: ResolvedChestRow[], category: BoxCategory): number {
+  return rows.filter((r) => r.category === category).reduce((s, r) => s + r.quantity, 0);
+}
+
+function buildCapacityBreakdown(
+  purchases: RunePurchase[],
+  def: ChestCapDefinition,
+): ChestCapacityBreakdown {
+  const capRunes = purchasedCapRuneNodes(purchases, def);
+  return {
+    base: def.baseCapacity,
+    runeBonus: runeCapacityBonus(purchases, def),
+    purchasedCapRuneNodes: capRunes.length,
+    runeLabel: def.runeLabel,
+  };
+}
+
+function buildCategoryState(
+  rows: ResolvedChestRow[],
+  category: BoxCategory,
+  capacityTotal: number,
+): BoxSlotStatus {
+  return boxSlotState(quantityForCategory(rows, category), capacityTotal);
+}
+
 export function buildChestState(
   chests: ChestHolding[],
   purchases: RunePurchase[],
   saveMtime: number,
   boxTypeCatalog: BoxTypeCatalog,
   runeCapCatalog: RuneBoxCapCatalog,
-  settingsOverride = 0,
 ): ChestState {
   const rows = resolveChestHoldings(chests, boxTypeCatalog);
-  const commonQty = rows.filter((r) => r.category === "common").reduce((s, r) => s + r.quantity, 0);
-  const capacity = commonBoxCapacity(purchases, runeCapCatalog, settingsOverride);
-  const common = commonBoxState(commonQty, capacity);
-  const totalHeld = rows.reduce((s, r) => s + r.quantity, 0);
+
+  const commonCapTotal = commonBoxCapacity(purchases, runeCapCatalog);
+  const stageCapTotal = stageBossBoxCapacity(purchases, runeCapCatalog);
+  const actCapTotal = actBossBoxCapacity(purchases, runeCapCatalog);
+
+  const common = buildCategoryState(rows, "common", commonCapTotal);
+  const stageBoss = buildCategoryState(rows, "rare", stageCapTotal);
+  const actBoss = buildCategoryState(rows, "act", actCapTotal);
+
+  const capacity = {
+    common: buildCapacityBreakdown(purchases, runeCapCatalog.common),
+    stageBoss: buildCapacityBreakdown(purchases, runeCapCatalog.stageBoss),
+    actBoss: buildCapacityBreakdown(purchases, runeCapCatalog.actBoss),
+    totalRunePurchases: purchases.length,
+  };
 
   return {
     rows,
     common,
-    totalHeld,
+    stageBoss,
+    actBoss,
+    capacity,
+    totalHeld: rows.reduce((s, r) => s + r.quantity, 0),
     saveMtime,
-    runeBonusSlots: capacity - runeCapCatalog.baseCapacity - settingsOverride,
+    runeBonusSlots: capacity.common.runeBonus,
   };
 }
 
 export function commonQuantityFromRows(rows: ResolvedChestRow[]): number {
-  return rows.filter((r) => r.category === "common").reduce((s, r) => s + r.quantity, 0);
+  return quantityForCategory(rows, "common");
 }
 
-export type { CommonBoxStatus };
+export type { BoxSlotStatus };

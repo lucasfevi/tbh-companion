@@ -63,5 +63,13 @@ run("real save (local only)", () => {
     expect(chestState.totalHeld).toBeGreaterThan(0);
     expect(chestState.common.capacity).toBeGreaterThanOrEqual(5);
     expect(chestState.common.quantity).toBeGreaterThan(0);
+    expect(chestState.capacity.totalRunePurchases).toBeGreaterThan(0);
+    expect(chestState.capacity.common.purchasedCapRuneNodes).toBe(2);
+    expect(chestState.capacity.common.runeBonus).toBe(2);
+    expect(chestState.common.capacity).toBe(7);
+    expect(chestState.stageBoss.capacity).toBe(7);
+    expect(chestState.capacity.stageBoss.runeBonus).toBe(2);
+    expect(chestState.actBoss.capacity).toBe(7);
+    expect(chestState.capacity.actBoss.runeBonus).toBe(2);
   });
 });

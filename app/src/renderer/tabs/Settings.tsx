@@ -175,27 +175,6 @@ export function Settings() {
           />
           <span>Log XP history to CSV</span>
         </label>
-
-        <details className="settings-advanced">
-          <summary>Advanced</summary>
-          <label className="field">
-            <span>Extra common chest slots (+N)</span>
-            <input
-              type="number"
-              min={0}
-              value={draft.extraCommonBoxSlots ?? 0}
-              onChange={(e) =>
-                setDraft({
-                  ...draft,
-                  extraCommonBoxSlots: Math.max(0, Number(e.target.value) || 0),
-                })
-              }
-            />
-            <span className="muted small">
-              Added to the rune-based common cap when auto-detect is incomplete.
-            </span>
-          </label>
-        </details>
       </div>
 
       <div className="settings-actions">

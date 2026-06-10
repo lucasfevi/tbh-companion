@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { buildStageBoxCatalog } from "../../core/stageBoxes";
 import { loadRareBoxRoutesCatalog, rareRoutesById } from "../../core/boxes";
-import type { BoxTimerRow, BoxTimerState } from "../../../shared/types";
+import type { BoxTimerCatalogEntry, BoxTimerRow, BoxTimerState } from "../../../shared/types";
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
 
@@ -14,18 +14,24 @@ interface PersistedTimer {
 
 interface PersistedFile {
   timers: PersistedTimer[];
+  enabledBoxIds?: number[];
 }
 
 export class BoxTimerService {
   private readonly routes = loadRareBoxRoutesCatalog();
   private readonly routeById = rareRoutesById(this.routes);
-  private readonly stageBoxes = buildStageBoxCatalog().items.filter((i) => i.id >= 920000 && i.id < 930000);
+  private readonly boxById = new Map(buildStageBoxCatalog().items.map((b) => [b.id, b]));
+  private readonly routeBoxIds: number[];
   private timers = new Map<number, number>();
+  private enabledBoxIds = new Set<number>();
   private tickTimer: NodeJS.Timeout | null = null;
   private subscribers = 0;
   private currentStageKey = 0;
 
   constructor() {
+    this.routeBoxIds = [...this.routeById.keys()].sort(
+      (a, b) => (this.boxById.get(a)?.level ?? 0) - (this.boxById.get(b)?.level ?? 0) || a - b,
+    );
     this.load();
   }
 
@@ -53,7 +59,7 @@ export class BoxTimerService {
   }
 
   markDropped(boxId: number): BoxTimerState {
-    if (!this.routeById.has(boxId)) return this.buildState();
+    if (!this.enabledBoxIds.has(boxId) || !this.routeById.has(boxId)) return this.buildState();
     this.timers.set(boxId, Date.now());
     this.persist();
     const state = this.buildState();
@@ -69,51 +75,112 @@ export class BoxTimerService {
     return state;
   }
 
+  /** Replace the visible timer set (e.g. preset chips). */
+  setEnabledBoxIds(boxIds: number[]): BoxTimerState {
+    const valid = boxIds.filter((id) => this.routeById.has(id));
+    this.enabledBoxIds = new Set(valid);
+    for (const boxId of [...this.timers.keys()]) {
+      if (!this.enabledBoxIds.has(boxId)) this.timers.delete(boxId);
+    }
+    return this.commitState();
+  }
+
+  private commitState(): BoxTimerState {
+    this.persist();
+    const state = this.buildState();
+    broadcast(IPC.BOX_TIMERS, state);
+    return state;
+  }
+
   push(): void {
     broadcast(IPC.BOX_TIMERS, this.buildState());
   }
 
-  private buildState(): BoxTimerState {
-    const now = Date.now();
-    const rows: BoxTimerRow[] = this.stageBoxes.map((box) => {
-      const route = this.routeById.get(box.id);
-      const cooldownSeconds = route ? this.routes.cooldownSeconds : this.routes.cooldownSeconds;
-      const droppedAt = this.timers.get(box.id);
-      let remainingSeconds = 0;
-      let active = false;
-      let progress = 0;
-
-      if (droppedAt !== undefined) {
-        const elapsed = (now - droppedAt) / 1000;
-        remainingSeconds = Math.max(0, Math.ceil(cooldownSeconds - elapsed));
-        active = remainingSeconds > 0;
-        progress = Math.min(1, elapsed / cooldownSeconds);
-        if (!active) {
-          this.timers.delete(box.id);
-          this.persist();
-        }
-      }
-
+  private buildCatalog(): BoxTimerCatalogEntry[] {
+    return this.routeBoxIds.map((boxId) => {
+      const box = this.boxById.get(boxId);
+      const route = this.routeById.get(boxId);
       return {
-        boxId: box.id,
-        name: box.name,
-        level: box.level,
-        idealStageKey: route?.idealStageKey ?? 0,
+        boxId,
+        name: box?.name ?? `Box ${boxId}`,
+        level: box?.level ?? null,
         idealStageLabel: route?.idealStageLabel ?? "—",
-        cooldownSeconds,
-        active,
-        remainingSeconds,
-        progress,
+        enabled: this.enabledBoxIds.has(boxId),
       };
     });
+  }
 
-    rows.sort((a, b) => (a.level ?? 0) - (b.level ?? 0) || a.boxId - b.boxId);
+  private buildRow(boxId: number, now: number): BoxTimerRow {
+    const box = this.boxById.get(boxId);
+    const route = this.routeById.get(boxId);
+    const cooldownSeconds = this.routes.cooldownSeconds;
+    const droppedAt = this.timers.get(boxId);
+    let remainingSeconds = 0;
+    let active = false;
+    let progress = 0;
+
+    if (droppedAt !== undefined) {
+      const elapsed = (now - droppedAt) / 1000;
+      remainingSeconds = Math.max(0, Math.ceil(cooldownSeconds - elapsed));
+      active = remainingSeconds > 0;
+      progress = Math.min(1, elapsed / cooldownSeconds);
+      if (!active) {
+        this.timers.delete(boxId);
+        this.persist();
+      }
+    }
+
+    const idealStageKey = route?.idealStageKey ?? 0;
+    const atIdealStage = idealStageKey > 0 && this.currentStageKey === idealStageKey;
+
+    return {
+      boxId,
+      name: box?.name ?? `Box ${boxId}`,
+      level: box?.level ?? null,
+      idealStageKey,
+      idealStageLabel: route?.idealStageLabel ?? "—",
+      cooldownSeconds,
+      active,
+      remainingSeconds,
+      progress,
+      status: active ? "cooldown" : "ready",
+      atIdealStage,
+    };
+  }
+
+  private buildState(): BoxTimerState {
+    const now = Date.now();
+    const rows: BoxTimerRow[] = [];
+
+    for (const boxId of this.routeBoxIds) {
+      if (!this.enabledBoxIds.has(boxId)) continue;
+      rows.push(this.buildRow(boxId, now));
+    }
+
+    rows.sort((a, b) => {
+      if (a.status !== b.status) return a.status === "cooldown" ? -1 : 1;
+      if (a.status === "cooldown") return a.remainingSeconds - b.remainingSeconds;
+      return (a.level ?? 0) - (b.level ?? 0) || a.boxId - b.boxId;
+    });
+
+    const readyCount = rows.filter((r) => r.status === "ready").length;
+    const cooldownCount = rows.filter((r) => r.status === "cooldown").length;
 
     return {
       rows,
+      catalog: this.buildCatalog(),
+      enabledCount: this.enabledBoxIds.size,
+      readyCount,
+      cooldownCount,
       currentStageKey: this.currentStageKey,
       disclaimer: this.routes.disclaimer,
     };
+  }
+
+  private defaultEnabledIds(): number[] {
+    const preferred = [920151, 920201, 920301, 920401];
+    const picked = preferred.filter((id) => this.routeById.has(id));
+    return picked.length > 0 ? picked : this.routeBoxIds.slice(0, 4);
   }
 
   private persistPath(): string {
@@ -126,14 +193,23 @@ export class BoxTimerService {
 
   private load(): void {
     const path = this.persistPath();
-    if (!existsSync(path)) return;
+    if (!existsSync(path)) {
+      for (const id of this.defaultEnabledIds()) this.enabledBoxIds.add(id);
+      return;
+    }
     try {
       const raw = JSON.parse(readFileSync(path, "utf-8")) as PersistedFile;
       for (const t of raw.timers ?? []) {
         if (t.boxId && t.droppedAtMs) this.timers.set(t.boxId, t.droppedAtMs);
       }
+      const enabled = raw.enabledBoxIds?.filter((id) => this.routeById.has(id)) ?? [];
+      if (enabled.length > 0) {
+        for (const id of enabled) this.enabledBoxIds.add(id);
+      } else {
+        for (const id of this.defaultEnabledIds()) this.enabledBoxIds.add(id);
+      }
     } catch {
-      // ignore corrupt file
+      for (const id of this.defaultEnabledIds()) this.enabledBoxIds.add(id);
     }
   }
 
@@ -144,6 +220,9 @@ export class BoxTimerService {
       boxId,
       droppedAtMs,
     }));
-    writeFileSync(path, JSON.stringify({ timers }, null, 2));
+    writeFileSync(
+      path,
+      JSON.stringify({ timers, enabledBoxIds: [...this.enabledBoxIds] }, null, 2),
+    );
   }
 }

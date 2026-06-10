@@ -1,10 +1,31 @@
 {
-  "baseCapacity": 5,
-  "bonusPerLevel": 1,
-  "runeKeys": [
-    11, 12, 13, 14, 15, 16,
-    1801, 1802, 1803, 1804, 1805, 1806, 1807, 1808,
-    1901, 1902, 1903, 1904, 1905, 1906, 1907, 1908
-  ],
-  "note": "North-East Rune of Expansion chain — +1 common chest slot per level (taskbarhero.org rune tree)"
+  "common": {
+    "boxType": 0,
+    "baseCapacity": 5,
+    "bonusPerLevel": 1,
+    "runeLabel": "Rune of Containment",
+    "runeKeys": [
+      1031, 1052, 1061, 1072, 1091, 1101, 1121, 1131, 1142, 1161,
+      1191, 1201, 1241, 11002, 11611
+    ]
+  },
+  "stageBoss": {
+    "boxType": 1,
+    "baseCapacity": 5,
+    "bonusPerLevel": 1,
+    "runeLabel": "Rune of the Vault",
+    "runeKeys": [
+      1071, 1102, 1111, 1132, 1141, 1172, 1181, 1202, 1221, 1251, 1261, 1281, 11003
+    ]
+  },
+  "actBoss": {
+    "boxType": 2,
+    "baseCapacity": 5,
+    "bonusPerLevel": 1,
+    "runeLabel": "Rune of Infinity",
+    "runeKeys": [
+      1056, 1133, 1182, 1203, 1222, 1252, 1262, 1282, 12821, 11004
+    ]
+  },
+  "note": "BoxData BoxTypes 0/1/2 map to common/stage boss/act boss slots. Rune keys from taskbarhero.wiki runes.json IconPath (MaxAmount*Chest)."
 }
