@@ -16,6 +16,7 @@ import {
   isStageBoxItemKey,
   stageBoxIdSet,
 } from "../core/stageBoxes";
+import { bundledDataCandidates } from "../core/bundledData";
 
 const CATALOG_FETCH_URL = "https://tbh.city/items";
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000; // a week
@@ -43,11 +44,7 @@ export class GameDataProvider {
   }
 
   private bundledDataPath(filename: string): string {
-    const candidates = [
-      join(process.resourcesPath ?? "", "data", filename),
-      join(process.cwd(), "..", "data", filename),
-      join(process.cwd(), "data", filename),
-    ];
+    const candidates = bundledDataCandidates(filename);
     return candidates.find((p) => existsSync(p)) ?? candidates[candidates.length - 1];
   }
 

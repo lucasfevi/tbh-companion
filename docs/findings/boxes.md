@@ -3,6 +3,12 @@
 Research spike against a live `SaveFile_Live.es3` (2026-06). See also
 [`SAVE_FORMAT.md`](../SAVE_FORMAT.md) for the raw field layout.
 
+Bundled JSON lives in repo `data/` and ships in releases via electron-builder
+`extraResources` → `resources/data/`. Runtime resolution is centralized in
+`app/src/core/bundledData.ts` (`process.resourcesPath` first, then dev paths).
+Never resolve bundled files with `process.cwd()` alone — packaged installs use
+a different working directory.
+
 ## BoxData (held unopened chests)
 
 `PlayerSaveData.BoxData` is three parallel arrays:

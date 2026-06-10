@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to release (e.g. v0.1.1)"
+        description: "Tag to release (must match app/package.json, e.g. v1.0.1)"
         required: true
 
 permissions:
@@ -19,17 +19,17 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: app/package-lock.json
 
-      - name: Set version from release tag
+      - name: Verify tag matches package.json
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -39,7 +39,7 @@ jobs:
           fi
 
           if [ -z "$TAG" ]; then
-            echo "Release tag is required (e.g. v0.1.1)"
+            echo "Release tag is required (e.g. v1.0.1)"
             exit 1
           fi
 
@@ -48,11 +48,16 @@ jobs:
             exit 1
           fi
 
-          VERSION="${TAG#v}"
-          echo "Building release ${TAG} (package version ${VERSION})"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "v${PKG_VERSION}" != "${TAG}" ]; then
+            echo "::error::Release tag ${TAG} does not match app/package.json version ${PKG_VERSION}."
+            echo "Bump version in app/package.json on main, commit, then tag v${PKG_VERSION}."
+            exit 1
+          fi
+
           echo "RELEASE_TAG=${TAG}" >> "$GITHUB_ENV"
-          echo "RELEASE_VERSION=${VERSION}" >> "$GITHUB_ENV"
-          npm version "${VERSION}" --no-git-tag-version --allow-same-version
+          echo "RELEASE_VERSION=${PKG_VERSION}" >> "$GITHUB_ENV"
+          echo "Building release ${TAG} from package.json"
 
       - name: Install dependencies
         run: npm ci
@@ -63,8 +68,29 @@ jobs:
       - name: Build Windows installer
         run: npm run dist
 
+      - name: Verify bundled data ships in packaged resources
+        shell: pwsh
+        run: |
+          $resourcesData = Join-Path $PWD "release/win-unpacked/resources/data"
+          if (-not (Test-Path $resourcesData)) {
+            throw "Expected bundled data at release/win-unpacked/resources/data"
+          }
+          $required = @(
+            "box_types.json",
+            "rune_box_cap.json",
+            "rare_box_routes.json",
+            "gamedata.json",
+            "stage_boxes.json"
+          )
+          foreach ($file in $required) {
+            $path = Join-Path $resourcesData $file
+            if (-not (Test-Path $path)) {
+              throw "Missing bundled data file: $path"
+            }
+          }
+
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: tbh-companion-windows-${{ env.RELEASE_VERSION }}
           path: app/release/**

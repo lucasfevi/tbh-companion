@@ -43,15 +43,16 @@ Pushing a version tag builds the Windows NSIS installer and publishes a GitHub
 Release (see `.github/workflows/release.yml`).
 
 1. Merge fixes to `main`.
-2. Tag and push: `git tag v0.1.1` then `git push origin v0.1.1`.
+2. Bump `version` in `app/package.json` (and run `npm install` in `app/` so
+   `package-lock.json` stays in sync).
+3. Commit, then tag and push: `git tag v1.0.1` and `git push origin v1.0.1`.
 
-The **tag** sets the build version at release time (`npm version` in CI), so the
-installer name updates even if `app/package.json` on `main` still says an older
-semver. After shipping, bump `version` in `app/package.json` on `main` so local
-dev matches the latest release.
+The release tag **must match** `app/package.json` exactly (e.g. package `1.0.1`
+→ tag `v1.0.1`). CI fails if they differ, so the repo version is the single
+source of truth for local dev, PR preview builds, and shipped installers.
 
 You can also trigger a release manually from the Actions tab (`workflow_dispatch`)
-with a tag like `v0.1.1`.
+with a tag that matches `app/package.json`.
 
 ## Features
 

@@ -44,5 +44,49 @@ if (!main.includes("../preload/index.js")) {
   process.exit(1);
 }
 
+const dataDir = join(appRoot, "..", "data");
+const requiredDataFiles = [
+  "gamedata.json",
+  "stage_boxes.json",
+  "box_types.json",
+  "rune_box_cap.json",
+  "rare_box_routes.json",
+];
+for (const file of requiredDataFiles) {
+  const path = join(dataDir, file);
+  if (!existsSync(path)) {
+    console.error(`FAIL: missing bundled data file data/${file} (required for release extraResources)`);
+    process.exit(1);
+  }
+}
+
+const pkg = JSON.parse(readFileSync(join(appRoot, "package.json"), "utf8"));
+if (!/^\d+\.\d+\.\d+/.test(pkg.version ?? "")) {
+  console.error(`FAIL: app/package.json version must be semver (got ${pkg.version ?? "missing"})`);
+  process.exit(1);
+}
+const extraResources = pkg.build?.extraResources ?? [];
+const shipsDataDir = extraResources.some(
+  (entry) =>
+    (typeof entry === "string" && entry.includes("data")) ||
+    (entry && typeof entry === "object" && String(entry.from ?? "").includes("data")),
+);
+if (!shipsDataDir) {
+  console.error("FAIL: electron-builder extraResources must ship ../data for packaged installs");
+  process.exit(1);
+}
+
+const bundledDataModule = readFileSync(join(appRoot, "src/core/bundledData.ts"), "utf8");
+if (!bundledDataModule.includes("process.resourcesPath")) {
+  console.error("FAIL: bundledData.ts must resolve process.resourcesPath for packaged installs");
+  process.exit(1);
+}
+
+const catalogSource = readFileSync(join(appRoot, "src/core/boxes/catalog.ts"), "utf8");
+if (catalogSource.includes("process.cwd()")) {
+  console.error("FAIL: boxes/catalog.ts must use core/bundledData.ts, not process.cwd() paths");
+  process.exit(1);
+}
+
 console.log("\nQA gate passed (typecheck + tests + build + bundle path checks).");
 console.log("Still required: npm run dev — confirm the window is NOT blank (see tbh-qa skill).");
