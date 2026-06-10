@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="TBH Companion — live XP, gold, and Steam inventory value from your save. Read-only, unofficial companion for Task Bar Hero players."
+    />
+    <title>TBH Companion — unofficial Task Bar Hero companion</title>
+    <link rel="icon" href="assets/icon.png" type="image/png" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top">
+        <img src="assets/icon.png" alt="" width="32" height="32" />
+        <span>TBH Companion</span>
+      </a>
+      <nav class="site-nav" aria-label="Page sections">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#faq">FAQ</a>
+        <a href="#download" class="nav-cta">Download</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-content">
+          <img
+            class="hero-icon"
+            src="assets/icon.png"
+            alt="TBH Companion app icon"
+            width="96"
+            height="96"
+          />
+          <h1 id="hero-title">TBH Companion</h1>
+          <p class="tagline">
+            Live XP, gold, and Steam inventory value from your save — read-only, unofficial.
+          </p>
+          <div class="hero-actions">
+            <a
+              id="hero-download"
+              class="btn btn-primary"
+              href="https://github.com/lucasfevi/tbh-companion/releases/latest"
+              rel="noopener noreferrer"
+            >
+              Download for Windows
+            </a>
+            <a
+              class="btn btn-secondary"
+              href="https://github.com/lucasfevi/tbh-companion"
+              rel="noopener noreferrer"
+            >
+              View on GitHub
+            </a>
+          </div>
+          <p id="release-meta" class="release-meta muted" hidden>
+            <span id="release-version"></span>
+            <span id="release-size"></span>
+          </p>
+        </div>
+      </section>
+
+      <section id="features" class="section" aria-labelledby="features-title">
+        <div class="container">
+          <h2 id="features-title">Features</h2>
+          <p class="section-lead">
+            Everything in the desktop app — from live rates to chest capacity and Steam pricing.
+          </p>
+          <div class="feature-grid">
+            <article class="feature-card">
+              <h3>Live</h3>
+              <p>
+                Big XP/hour (held steady between game saves), gold/hour, session totals, and
+                current map. Per-hero level and XP/hour breakdown, an XP-updated counter, scrollable
+                history of every XP change, session reset, and an idle warning after two minutes.
+              </p>
+            </article>
+
+            <article class="feature-card">
+              <h3>Inventory</h3>
+              <p>
+                Owned items resolved against bundled catalogs, grouped by type with composition
+                stats. Search, filter, and sort by grade, type, location, tradable, and in-use.
+                Steam price and value columns, location breakdown (inventory, stash, trading,
+                equipped), and graceful handling of unknown items after game updates.
+              </p>
+            </article>
+
+            <article class="feature-card">
+              <h3>Chests</h3>
+              <p>
+                Unopened chest slots from your save: common (gray), stage boss (blue), and act boss
+                (red). Capacity from base slots plus purchased rune nodes and settings bonuses. Full
+                badges, progress bars, and remaining-slot counts for each category.
+              </p>
+            </article>
+
+            <article class="feature-card">
+              <h3>Market</h3>
+              <p>
+                Pick a currency and refresh Steam Market prices. Background job runs on save load and
+                backs off on rate limits until complete.
+              </p>
+            </article>
+
+            <article class="feature-card">
+              <h3>Mini overlay</h3>
+              <p>
+                Frameless, always-on-top readout with XP and gold rates, current map, priced
+                inventory total, and pricing status. Toggle from <strong>Mini</strong> in the tab bar.
+              </p>
+            </article>
+
+            <article class="feature-card">
+              <h3>Box tracker overlay</h3>
+              <p>
+                Track rare boss box drops with 12-minute timers and community ideal-stage routes.
+                Mark drops, clear timers, and see which stage you're on — open from the tab bar or
+                Chests tab.
+              </p>
+            </article>
+
+            <article class="feature-card feature-card-wide">
+              <h3>Settings</h3>
+              <p>
+                Edit <code>config.json</code> from the app: save path, poll interval, rolling window,
+                currency, cube XP tracking, CSV history logging, and always-on-top. Warns before
+                changes that reset your session.
+              </p>
+              <ul class="settings-list muted">
+                <li><strong>savePath</strong> — path to <code>SaveFile_Live.es3</code></li>
+                <li><strong>es3Password</strong> — ES3 decryption password</li>
+                <li><strong>pollIntervalSeconds</strong> — how often to re-read the save</li>
+                <li><strong>rollingWindowMinutes</strong> — window for XP/hour</li>
+                <li><strong>currency</strong> — ISO code for Steam prices (USD, EUR, BRL, …)</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="how-it-works" class="section section-alt" aria-labelledby="how-title">
+        <div class="container">
+          <h2 id="how-title">How it works</h2>
+          <div class="steps">
+            <div class="step">
+              <span class="step-num" aria-hidden="true">1</span>
+              <h3>Reads your local save</h3>
+              <p>
+                The app watches <code>SaveFile_Live.es3</code> on disk and decrypts it locally. No
+                connection to game servers.
+              </p>
+            </div>
+            <div class="step">
+              <span class="step-num" aria-hidden="true">2</span>
+              <h3>Never modifies anything</h3>
+              <p>
+                Read-only access. Your save file is never written to, and the companion does not
+                inject or automate gameplay.
+              </p>
+            </div>
+            <div class="step">
+              <span class="step-num" aria-hidden="true">3</span>
+              <h3>Windows for now</h3>
+              <p>
+                Official builds are Windows NSIS installers. macOS and Linux are not packaged yet.
+              </p>
+            </div>
+          </div>
+          <p class="disclaimer">
+            Fan-made tool. Not affiliated with Tesseract Studio. Does not modify your save or
+            connect to game servers.
+          </p>
+        </div>
+      </section>
+
+      <section id="faq" class="section" aria-labelledby="faq-title">
+        <div class="container">
+          <h2 id="faq-title">FAQ</h2>
+          <dl class="faq-list">
+            <div class="faq-item">
+              <dt>Is it safe? Does it modify my save?</dt>
+              <dd>
+                No. TBH Companion only <strong>reads</strong> your encrypted save file. It never
+                writes to the save, never talks to game servers, and never automates the game.
+              </dd>
+            </div>
+            <div class="faq-item">
+              <dt>Where is my save file?</dt>
+              <dd>
+                By default the app looks for
+                <code>%USERPROFILE%\AppData\LocalLow\TesseractStudio\TBH\SaveFile_Live.es3</code>.
+                You can override the path in Settings or <code>config.json</code>.
+              </dd>
+            </div>
+            <div class="faq-item">
+              <dt>Decryption stopped working after a game update</dt>
+              <dd>
+                The developer may have rotated the ES3 password. Update <code>es3Password</code> in
+                Settings (or <code>config.json</code>) and restart the app. See the project docs on
+                save format for details.
+              </dd>
+            </div>
+            <div class="faq-item">
+              <dt>How does Steam pricing work? Will I hit rate limits?</dt>
+              <dd>
+                Prices are fetched from the public Steam Market API when you open the Market tab or
+                load a save. The app backs off automatically if Steam rate-limits requests and retries
+                until done. Pricing is best-effort — some items may show as unknown.
+              </dd>
+            </div>
+            <div class="faq-item">
+              <dt>Is this an official TBH / Task Bar Hero product?</dt>
+              <dd>
+                No. TBH Companion is a fan-made, unofficial tool. It is not affiliated with or
+                endorsed by Tesseract Studio or the TBH: Task Bar Hero developers.
+              </dd>
+            </div>
+            <div class="faq-item">
+              <dt>Do I need Windows?</dt>
+              <dd>
+                Yes, for the pre-built installer. Releases are Windows NSIS installers. You can build
+                from source on other platforms, but packaged builds are Windows-only for now.
+              </dd>
+            </div>
+            <div class="faq-item">
+              <dt>How are chest capacities calculated?</dt>
+              <dd>
+                Each chest type (common, stage boss, act boss) starts at 5 base slots. Purchased
+                capacity runes in <code>RuneSaveData</code> add +1 slot per node (Rune of
+                Containment, Vault, and Infinity). Common chests can also get bonus slots from
+                settings. The Chests tab shows the full breakdown from your save.
+              </dd>
+            </div>
+            <div class="faq-item">
+              <dt>How do I clear cache or reset app data?</dt>
+              <dd>
+                Quit the app, then delete its user-data folder. Development builds use
+                <code>%APPDATA%\tbh-companion</code>; the NSIS installer uses
+                <code>%APPDATA%\TBH Companion</code>. That removes config, logs, and cached prices.
+                Your game save is untouched.
+              </dd>
+            </div>
+            <div class="faq-item">
+              <dt>Why does XP/hour look different from in-game?</dt>
+              <dd>
+                The companion computes rates from save snapshots over a rolling window (default 5
+                minutes). XP/hour is held steady between periodic game saves instead of decaying, so
+                short dips in the game UI may not match.
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section id="download" class="section section-download" aria-labelledby="download-title">
+        <div class="container download-box">
+          <h2 id="download-title">Download</h2>
+          <p class="section-lead">
+            Get the latest Windows installer from GitHub Releases.
+          </p>
+          <a
+            id="footer-download"
+            class="btn btn-primary btn-large"
+            href="https://github.com/lucasfevi/tbh-companion/releases/latest"
+            rel="noopener noreferrer"
+          >
+            Download for Windows
+          </a>
+          <p id="download-meta" class="release-meta muted" hidden>
+            <span id="download-version"></span>
+            <span id="download-size"></span>
+          </p>
+          <p class="muted small">
+            Requires Windows 10 or later. Unsigned open-source build — SmartScreen may prompt on
+            first run.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>
+          Fan-made, read-only companion for
+          <span class="nowrap">TBH: Task Bar Hero</span> players.
+        </p>
+        <p class="muted small">
+          <a href="https://github.com/lucasfevi/tbh-companion" rel="noopener noreferrer">Source</a>
+          ·
+          <a href="https://github.com/lucasfevi/tbh-companion/releases" rel="noopener noreferrer"
+            >Releases</a
+          >
+        </p>
+      </div>
+    </footer>
+
+    <script src="js/main.js" defer></script>
+  </body>
+</html>
