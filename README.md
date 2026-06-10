@@ -9,6 +9,11 @@ Built with **Electron + React + TypeScript**. It only **reads** your own local
 save to display statistics; it never modifies the save or talks to the game or
 its servers.
 
+## Website
+
+Landing page with features, FAQ, and a direct download link for the latest
+Windows release: **https://lucasfevi.github.io/tbh-companion/**
+
 ## Quick start
 
 ```
