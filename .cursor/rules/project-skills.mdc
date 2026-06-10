@@ -13,6 +13,7 @@ Before **implementing** a feature, refactor, or behavior change under `app/`:
 2. **Also read when the change touches:**
    - `app/src/renderer/**` → `.cursor/skills/react-best-practices/SKILL.md` and `.cursor/skills/tbh-ux/SKILL.md` (tabs, chrome, overlays, layout)
    - `app/src/main/**`, `app/src/preload/**`, CSP, IPC, network, config → `.cursor/skills/best-practices/SKILL.md`
+   - Release, `CHANGELOG.md`, or semver / version bump → `.cursor/skills/tbh-changelog/SKILL.md`
 
 Apply the skills during the work, not only at the end. No drive-by refactors outside the task.
 

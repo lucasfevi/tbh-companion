@@ -98,8 +98,9 @@ coding** — enforced by `.cursor/rules/project-skills.mdc` (`alwaysApply: true`
 | **tbh-qa** | `.cursor/skills/tbh-qa/SKILL.md` | Before marking any `app/` work done |
 | **react-best-practices** | `.cursor/skills/react-best-practices/SKILL.md` | Renderer / React UI changes |
 | **best-practices** | `.cursor/skills/best-practices/SKILL.md` | Main, preload, IPC, CSP, network, security |
+| **tbh-changelog** | `.cursor/skills/tbh-changelog/SKILL.md` | CHANGELOG updates, semver bump advice, release prep |
 
-Do not skip skills for “small” diffs. Match skill to layer: renderer → **react-best-practices**; main/preload/security → **best-practices**.
+Do not skip skills for “small” diffs. Match skill to layer: renderer → **react-best-practices**; main/preload/security → **best-practices**; release/changelog → **tbh-changelog**.
 - **Always commit.** When you finish a task (bugfix, feature, refactor, or docs),
   create a git commit before treating the work as done. Do not leave completed
   changes uncommitted in the working tree.
