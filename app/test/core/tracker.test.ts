@@ -87,6 +87,20 @@ describe("XpTracker", () => {
     expect(t.update(snap(2000, 999))).toBe(0); // re-inits
   });
 
+  it("round-trips captureSnapshot and applySnapshot", () => {
+    const t = new XpTracker(300, false);
+    t.update(snap(1000, 0));
+    t.update(snap(1060, 600));
+    const copy = new XpTracker(300, false);
+    copy.applySnapshot(t.captureSnapshot());
+    expect(copy.cumulativeGained).toBe(600);
+    expect(copy.rollingRate).toBeCloseTo(t.rollingRate, 5);
+    expect(copy.history).toHaveLength(1);
+    const gain = copy.update(snap(1120, 900));
+    expect(gain).toBe(300);
+    expect(copy.cumulativeGained).toBe(900);
+  });
+
   it("secondsSinceGain uses save mtime and ignores reads without XP change", () => {
     const t = new XpTracker(300, false);
     t.update(snap(1000, 0));

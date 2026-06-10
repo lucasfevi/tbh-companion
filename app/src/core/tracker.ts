@@ -8,7 +8,13 @@
 // Absolute values are never trusted to be monotonic (HeroExp resets on
 // level-up, gold is spent) - only positive deltas are accumulated.
 
-import type { SaveSnapshot, HeroSnapshot, HistoryEntry } from "../../shared/types";
+import type {
+  SaveSnapshot,
+  HeroSnapshot,
+  HistoryEntry,
+  TrackerRateMeterSnapshot,
+  TrackerSnapshot,
+} from "../../shared/types";
 
 const HISTORY_LIMIT = 500;
 
@@ -43,6 +49,23 @@ class RateMeter {
       const dt = t1 - t0;
       if (dt > 0) this.rolling = ((g1 - g0) / dt) * 3600;
     }
+  }
+
+  toSnapshot(): TrackerRateMeterSnapshot {
+    return {
+      window: this.window,
+      gained: this.gained,
+      rolling: this.rolling,
+      samples: this.samples.map(([t, g]) => [t, g] as [number, number]),
+    };
+  }
+
+  static fromSnapshot(data: TrackerRateMeterSnapshot): RateMeter {
+    const meter = new RateMeter(data.window);
+    meter.gained = data.gained;
+    meter.rolling = data.rolling;
+    meter.samples = data.samples.map(([t, g]) => [t, g] as [number, number]);
+    return meter;
   }
 }
 
@@ -245,6 +268,10 @@ export class XpTracker {
     }
   }
 
+  get isInitialized(): boolean {
+    return this.initialized;
+  }
+
   get elapsed(): number {
     return nowSeconds() - this.sessionStart;
   }
@@ -274,5 +301,69 @@ export class XpTracker {
   get secondsSinceGain(): number | null {
     if (this.lastGainMtime === null) return null;
     return nowSeconds() - this.lastGainMtime;
+  }
+
+  /** Capture tracker internals for session persistence. */
+  captureSnapshot(): TrackerSnapshot {
+    const heroMeters: Record<string, TrackerRateMeterSnapshot> = {};
+    for (const [key, meter] of this.heroMeters) {
+      heroMeters[key] = meter.toSnapshot();
+    }
+    return {
+      sessionStart: this.sessionStart,
+      cumulativeGained: this.cumulativeGained,
+      currentTotalXp: this.currentTotalXp,
+      currentGold: this.currentGold,
+      goldGained: this.goldGained,
+      heroes: this.heroes.map((h) => ({ ...h })),
+      history: this.history.map((e) => ({ ...e })),
+      lastGainMtime: this.lastGainMtime,
+      prevHero: Object.fromEntries(this.prevHero),
+      heroMeters,
+      prevCube: this.prevCube,
+      samples: this.samples.map(([t, g]) => [t, g] as [number, number]),
+      initialized: this.initialized,
+      firstMtime: this.firstMtime,
+      lastChangeMtime: this.lastChangeMtime,
+      rollingRateValue: this.rollingRateValue,
+      sessionRateValue: this.sessionRateValue,
+      prevGold: this.prevGold,
+      goldSamples: this.goldSamples.map(([t, g]) => [t, g] as [number, number]),
+      goldFirstMtime: this.goldFirstMtime,
+      goldLastChangeMtime: this.goldLastChangeMtime,
+      goldRollingRateValue: this.goldRollingRateValue,
+      goldSessionRateValue: this.goldSessionRateValue,
+    };
+  }
+
+  /** Restore tracker internals from a captured snapshot (expects matching rollingWindow/trackCube). */
+  applySnapshot(snapshot: TrackerSnapshot): void {
+    this.sessionStart = snapshot.sessionStart;
+    this.cumulativeGained = snapshot.cumulativeGained;
+    this.currentTotalXp = snapshot.currentTotalXp;
+    this.currentGold = snapshot.currentGold;
+    this.goldGained = snapshot.goldGained;
+    this.heroes = snapshot.heroes.map((h) => ({ ...h }));
+    this.history = snapshot.history.map((e) => ({ ...e }));
+    this.lastGainMtime = snapshot.lastGainMtime;
+    this.prevHero = new Map(Object.entries(snapshot.prevHero).map(([k, v]) => [k, v]));
+    this.heroMeters = new Map(
+      Object.entries(snapshot.heroMeters).map(
+        ([key, data]) => [key, RateMeter.fromSnapshot(data)] as const,
+      ),
+    );
+    this.prevCube = snapshot.prevCube;
+    this.samples = snapshot.samples.map(([t, g]) => [t, g] as [number, number]);
+    this.initialized = snapshot.initialized;
+    this.firstMtime = snapshot.firstMtime;
+    this.lastChangeMtime = snapshot.lastChangeMtime;
+    this.rollingRateValue = snapshot.rollingRateValue;
+    this.sessionRateValue = snapshot.sessionRateValue;
+    this.prevGold = snapshot.prevGold;
+    this.goldSamples = snapshot.goldSamples.map(([t, g]) => [t, g] as [number, number]);
+    this.goldFirstMtime = snapshot.goldFirstMtime;
+    this.goldLastChangeMtime = snapshot.goldLastChangeMtime;
+    this.goldRollingRateValue = snapshot.goldRollingRateValue;
+    this.goldSessionRateValue = snapshot.goldSessionRateValue;
   }
 }

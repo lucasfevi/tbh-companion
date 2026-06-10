@@ -1,5 +1,6 @@
 import type { AppConfig } from "../../../shared/types";
 import type { XpTracker } from "../../core/tracker";
+import { expandPath } from "../config";
 import { createLogger } from "../log";
 
 const configLog = createLogger("config");
@@ -19,6 +20,7 @@ export interface ConfigPatchDeps {
   pushStats: () => void;
   resolveAndPushInventory: () => void;
   ensureOwnedPrices: (force?: boolean) => void | Promise<void>;
+  onSavePathChange?: () => void;
 }
 
 /** Apply settings patch and run side effects. */
@@ -31,9 +33,17 @@ export function applyConfigPatch(deps: ConfigPatchDeps, patch: Partial<AppConfig
     patch.rollingWindowMinutes !== undefined || patch.trackCubeExp !== undefined;
   const csvToggled = patch.logHistoryCsv !== undefined;
 
-  const next = { ...deps.getConfig(), ...patch };
+  const prev = deps.getConfig();
+  const next = { ...prev, ...patch };
   deps.setConfig(next);
   deps.saveConfig(next);
+
+  if (
+    patch.savePath !== undefined &&
+    expandPath(patch.savePath) !== expandPath(prev.savePath)
+  ) {
+    deps.onSavePathChange?.();
+  }
 
   const changedKeys = (Object.keys(patch) as (keyof AppConfig)[]).filter(
     (key) => patch[key] !== undefined,

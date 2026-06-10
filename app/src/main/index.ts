@@ -4,7 +4,12 @@ import { join } from "node:path";
 
 import { attachExternalLinkHandlers } from "./app/lifecycle";
 import { createLogger, initDiagnosticLog } from "./log";
-import { getAppServices, openMainWindow, startTracking, stopTracking } from "./app/appState";
+import {
+  getAppServices,
+  restoreSessionWindows,
+  startTracking,
+  stopTracking,
+} from "./app/appState";
 import { registerIpc } from "./ipc/registerIpc";
 import { createTray, destroyTray, isAppQuitting, setAppQuitting } from "./tray/trayService";
 
@@ -27,20 +32,21 @@ app.whenReady().then(() => {
   initDiagnosticLog();
   const appLog = createLogger("app");
   appLog.info(`TBH Companion v${appVersion()} ready`);
-  startTracking();
+  const sessionUi = startTracking();
   const services = getAppServices();
   registerIpc(services);
   createTray(services);
-  openMainWindow();
+  restoreSessionWindows(sessionUi);
 
   app.on("activate", () => {
-    openMainWindow();
+    getAppServices().showMain();
   });
 });
 
 app.on("before-quit", () => {
   createLogger("app").info("App quitting");
   setAppQuitting(true);
+  getAppServices().flushSession();
   destroyTray();
 });
 

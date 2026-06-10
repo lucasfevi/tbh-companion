@@ -32,6 +32,8 @@ export function buildStats(
 
   lastError: string | null,
 
+  statusOverride: string | null = null,
+
 ): Stats {
 
   const sourceHeroes = lastSnap?.heroes ?? tracker.heroes;
@@ -64,7 +66,11 @@ export function buildStats(
 
   let status: string;
 
-  if (lastError) {
+  if (statusOverride) {
+
+    status = statusOverride;
+
+  } else if (lastError) {
 
     status = lastError;
 

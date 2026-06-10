@@ -5,17 +5,20 @@ import { TrackingService } from "../services/TrackingService";
 import { InventoryService } from "../services/InventoryService";
 import { ChestService } from "../services/ChestService";
 import { BoxTimerService } from "../services/BoxTimerService";
+import { SessionStateService } from "../services/SessionStateService";
 import { applyConfigPatch } from "../ipc/configPatch";
 import { clearDiagnosticLogs, createLogger, logRendererError } from "../log";
 import { clearAppDataFiles, getAppDataPaths } from "../services/appData";
-import type { AppDataClearTarget, RendererLogPayload } from "../../../shared/types";
+import type { AppDataClearTarget, RendererLogPayload, SessionUiSnapshot } from "../../../shared/types";
 
 const appDataLog = createLogger("appData");
 import { createMainWindow as buildMainWindow } from "../windows/mainWindow";
 import { createOverlayWindow as buildOverlayWindow } from "../windows/overlayWindow";
 import { createBoxTrackerWindow as buildBoxTrackerWindow } from "../windows/boxTrackerWindow";
+import { isAppQuitting } from "../tray/trayService";
 
 let config: AppConfig;
+const sessionState = new SessionStateService();
 const inventory = new InventoryService();
 const chests = new ChestService();
 const boxTimers = new BoxTimerService();
@@ -27,20 +30,39 @@ const tracking = new TrackingService(
     return inv;
   },
   (stageKey) => boxTimers.setCurrentStageKey(stageKey),
+  sessionState,
 );
 
 let mainWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
 let boxTrackerWindow: BrowserWindow | null = null;
 
-export function startTracking(): void {
+export function startTracking(): SessionUiSnapshot {
   config = loadConfig();
   inventory.initMarket(config.currency);
   inventory.loadGameData();
+  const ui = sessionState.load(config);
   tracking.start(config);
+  return ui;
+}
+
+/** Reopen Mini overlay / Stage chest tracker from persisted UI flags. */
+export function restoreSessionWindows(ui: SessionUiSnapshot): void {
+  if (ui.miniOverlayOpen) {
+    openOverlayWindow();
+    mainWindow?.hide();
+    sessionState.setMiniOverlayOpen(true);
+  } else {
+    openMainWindow();
+  }
+  if (ui.boxTrackerOpen) {
+    openBoxTrackerWindow();
+    sessionState.setBoxTrackerOpen(true);
+  }
 }
 
 export function stopTracking(): void {
+  tracking.flushSession();
   tracking.stop();
   boxTimers.stopTick();
 }
@@ -61,6 +83,11 @@ export function openOverlayWindow(): BrowserWindow {
     (w) => {
       overlayWindow = w;
     },
+    () => {
+      if (isAppQuitting()) return;
+      sessionState.setMiniOverlayOpen(false);
+      tracking.flushSession();
+    },
   );
 }
 
@@ -71,7 +98,12 @@ export function openBoxTrackerWindow(): BrowserWindow {
       boxTrackerWindow = w;
     },
     () => boxTimers.startTick(),
-    () => boxTimers.stopTick(),
+    () => {
+      boxTimers.stopTick();
+      if (isAppQuitting()) return;
+      sessionState.setBoxTrackerOpen(false);
+      tracking.flushSession();
+    },
   );
 }
 
@@ -115,6 +147,7 @@ export function getAppServices() {
           pushStats: () => tracking.pushStats(),
           resolveAndPushInventory: () => inventory.resolveAndPushInventory(),
           ensureOwnedPrices: (force) => inventory.ensureOwnedPrices(force),
+          onSavePathChange: () => tracking.onSavePathChanged(),
         },
         patch,
       ),
@@ -138,7 +171,10 @@ export function getAppServices() {
       if (reloadCatalog) inventory.reloadGameData();
       if (reloadPrices) inventory.reloadPriceCache();
       if (reloadTimers) boxTimers.resetStorage();
-      if (reloadSession) tracking.reset();
+      if (reloadSession) {
+        tracking.onSessionFileDeleted();
+        tracking.reset();
+      }
 
       return result;
     },
@@ -155,19 +191,26 @@ export function getAppServices() {
     openOverlay: () => {
       openOverlayWindow();
       mainWindow?.hide();
+      sessionState.setMiniOverlayOpen(true);
+      tracking.flushSession();
     },
     openBoxTracker: () => {
       openBoxTrackerWindow();
+      sessionState.setBoxTrackerOpen(true);
+      tracking.flushSession();
     },
     closeBoxTracker: () => boxTrackerWindow?.close(),
     showMain: () => {
       openMainWindow();
       mainWindow?.show();
       overlayWindow?.close();
+      sessionState.setMiniOverlayOpen(false);
+      tracking.flushSession();
     },
     closeOverlay: () => {
       overlayWindow?.close();
     },
+    flushSession: () => tracking.flushSession(),
   };
 }
 

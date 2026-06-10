@@ -54,6 +54,56 @@ export interface Stats {
   history: HistoryEntry[];
 }
 
+/** Serialized XP tracker internals for session_state.json restore. */
+export interface TrackerRateMeterSnapshot {
+  window: number;
+  gained: number;
+  rolling: number;
+  samples: Array<[number, number]>;
+}
+
+export interface TrackerSnapshot {
+  sessionStart: number;
+  cumulativeGained: number;
+  currentTotalXp: number;
+  currentGold: number;
+  goldGained: number;
+  heroes: HeroSnapshot[];
+  history: HistoryEntry[];
+  lastGainMtime: number | null;
+  prevHero: Record<string, number>;
+  heroMeters: Record<string, TrackerRateMeterSnapshot>;
+  prevCube: number | null;
+  samples: Array<[number, number]>;
+  initialized: boolean;
+  firstMtime: number | null;
+  lastChangeMtime: number | null;
+  rollingRateValue: number;
+  sessionRateValue: number;
+  prevGold: number | null;
+  goldSamples: Array<[number, number]>;
+  goldFirstMtime: number | null;
+  goldLastChangeMtime: number | null;
+  goldRollingRateValue: number;
+  goldSessionRateValue: number;
+}
+
+export interface SessionUiSnapshot {
+  miniOverlayOpen: boolean;
+  boxTrackerOpen: boolean;
+}
+
+/** On-disk session_state.json shape (tracker + overlay flags). */
+export interface PersistedSessionState {
+  version: 1;
+  savePath: string;
+  lastSaveMtime: number;
+  rollingWindowMinutes: number;
+  trackCubeExp: boolean;
+  tracker: TrackerSnapshot;
+  ui: SessionUiSnapshot;
+}
+
 export interface GameDataStatus {
   loaded: boolean;
   count: number;
