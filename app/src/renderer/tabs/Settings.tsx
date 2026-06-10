@@ -91,95 +91,122 @@ export function Settings() {
   return (
     <div className="settings">
       <h1>Settings</h1>
-      <p className="muted">Stored in your app user-data folder as <code>config.json</code>.</p>
+      <p className="muted">
+        Configure save polling, session tracking, and defaults. Changes are stored as{" "}
+        <code>config.json</code> in your app user-data folder.
+      </p>
       <p className="muted small">
         Closing the main window keeps TBH Companion running in the system tray. Use{" "}
         <strong>Quit</strong> from the tray menu to exit fully.
       </p>
 
-      <div className="settings-grid">
-        <label className="field">
-          <span>Save file path</span>
-          <input
-            value={draft.savePath}
-            onChange={(e) => setDraft({ ...draft, savePath: e.target.value })}
-          />
-        </label>
+      <section className="settings-section">
+        <h2>Game save</h2>
+        <div className="settings-grid">
+          <label className="field">
+            <span>Save file path</span>
+            <input
+              value={draft.savePath}
+              onChange={(e) => setDraft({ ...draft, savePath: e.target.value })}
+            />
+          </label>
 
-        <label className="field">
-          <span>ES3 password</span>
-          <input
-            value={draft.es3Password}
-            onChange={(e) => setDraft({ ...draft, es3Password: e.target.value })}
-          />
-        </label>
+          <label className="field">
+            <span>ES3 password</span>
+            <input
+              value={draft.es3Password}
+              onChange={(e) => setDraft({ ...draft, es3Password: e.target.value })}
+            />
+          </label>
+        </div>
+      </section>
 
-        <label className="field">
-          <span>Poll interval (seconds)</span>
-          <input
-            type="number"
-            min={1}
-            value={draft.pollIntervalSeconds}
-            onChange={(e) =>
-              setDraft({ ...draft, pollIntervalSeconds: Math.max(1, Number(e.target.value) || 1) })
-            }
-          />
-        </label>
+      <section className="settings-section">
+        <h2>Tracking</h2>
+        <div className="settings-grid">
+          <label className="field">
+            <span>Poll interval (seconds)</span>
+            <input
+              type="number"
+              min={1}
+              value={draft.pollIntervalSeconds}
+              onChange={(e) =>
+                setDraft({ ...draft, pollIntervalSeconds: Math.max(1, Number(e.target.value) || 1) })
+              }
+            />
+          </label>
 
-        <label className="field">
-          <span>Rolling window (minutes)</span>
-          <input
-            type="number"
-            min={1}
-            value={draft.rollingWindowMinutes}
-            onChange={(e) =>
-              setDraft({ ...draft, rollingWindowMinutes: Math.max(1, Number(e.target.value) || 1) })
-            }
-          />
-          <span className="muted small">Changing this resets the current session.</span>
-        </label>
+          <label className="field">
+            <span>Rolling window (minutes)</span>
+            <input
+              type="number"
+              min={1}
+              value={draft.rollingWindowMinutes}
+              onChange={(e) =>
+                setDraft({ ...draft, rollingWindowMinutes: Math.max(1, Number(e.target.value) || 1) })
+              }
+            />
+            <span className="muted small">Changing this resets the current session.</span>
+          </label>
 
-        <label className="field">
-          <span>Market currency</span>
-          <select
-            value={draft.currency}
-            onChange={(e) => setDraft({ ...draft, currency: e.target.value })}
-          >
-            {STEAM_CURRENCIES.map((c) => (
-              <option key={c.iso} value={c.iso}>
-                {c.iso} - {c.label}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label className="field">
+            <span>Market currency</span>
+            <select
+              value={draft.currency}
+              onChange={(e) => setDraft({ ...draft, currency: e.target.value })}
+            >
+              {STEAM_CURRENCIES.map((c) => (
+                <option key={c.iso} value={c.iso}>
+                  {c.iso} - {c.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="field checkbox">
-          <input
-            type="checkbox"
-            checked={draft.trackCubeExp}
-            onChange={(e) => setDraft({ ...draft, trackCubeExp: e.target.checked })}
-          />
-          <span>Include Hero-dric Cube XP in totals (resets session when toggled)</span>
-        </label>
+          <label className="field checkbox">
+            <input
+              type="checkbox"
+              checked={draft.trackCubeExp}
+              onChange={(e) => setDraft({ ...draft, trackCubeExp: e.target.checked })}
+            />
+            <span>Include Hero-dric Cube XP in totals (resets session when toggled)</span>
+          </label>
 
-        <label className="field checkbox">
-          <input
-            type="checkbox"
-            checked={draft.startTopmost}
-            onChange={(e) => setDraft({ ...draft, startTopmost: e.target.checked })}
-          />
-          <span>Keep main window on top</span>
-        </label>
+          <label className="field checkbox">
+            <input
+              type="checkbox"
+              checked={draft.startTopmost}
+              onChange={(e) => setDraft({ ...draft, startTopmost: e.target.checked })}
+            />
+            <span>Keep main window on top</span>
+          </label>
 
-        <label className="field checkbox">
-          <input
-            type="checkbox"
-            checked={draft.logHistoryCsv}
-            onChange={(e) => setDraft({ ...draft, logHistoryCsv: e.target.checked })}
-          />
-          <span>Log XP history to CSV</span>
-        </label>
-      </div>
+          <label className="field checkbox">
+            <input
+              type="checkbox"
+              checked={draft.logHistoryCsv}
+              onChange={(e) => setDraft({ ...draft, logHistoryCsv: e.target.checked })}
+            />
+            <span>Log XP history to CSV</span>
+          </label>
+        </div>
+      </section>
+
+      <section className="settings-section">
+        <h2>Data &amp; cache</h2>
+        <p className="muted small">
+          Catalog, price, and timer caches also live in your user-data folder. Clear-cache controls
+          will appear here in a future update.
+        </p>
+      </section>
+
+      <section className="settings-section">
+        <h2>About</h2>
+        <p className="muted small">
+          TBH Companion — unofficial fan tool for Task Bar Hero players. Not affiliated with
+          Tesseract Studio. Does not modify your save or connect to game servers.
+        </p>
+      </section>
 
       <div className="settings-actions">
         <button className="btn primary" disabled={busy} onClick={() => void onSave()}>

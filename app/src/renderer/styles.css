@@ -137,6 +137,28 @@ body {
   gap: 14px;
 }
 
+.live h1 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.tab-tips {
+  margin: 0 0 4px;
+  padding-left: 18px;
+}
+
+.tab-tips li {
+  margin-bottom: 4px;
+}
+
+.empty-hint {
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
 .rate-card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -701,6 +723,18 @@ body {
   flex-direction: column;
   gap: 14px;
   max-width: 640px;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-section h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
 }
 .settings h1 {
   margin: 0;

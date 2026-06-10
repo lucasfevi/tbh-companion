@@ -52,15 +52,28 @@ export function Market() {
 
   const pct = progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0;
 
+  const cachedCount = status?.count ?? 0;
+
   return (
     <div className="market">
       <h1>Market prices</h1>
       <p className="muted">
-        Prices come from the Steam Community Market (<code>priceoverview</code>) in your chosen
-        currency. The app automatically refreshes prices for items you own (materials + Legendary+
-        gear) in the background, backing off on rate limits until done. Manual refresh re-prices
-        stale entries (skips items priced in the last 24h unless forced).
+        Steam Community Market prices in your chosen currency. The app refreshes owned items in the
+        background and backs off on rate limits until done.
       </p>
+
+      <ul className="tab-tips muted">
+        <li>Use when Inventory value columns show dashes or prices look stale.</li>
+        <li>Change currency here or in Settings — both stay in sync.</li>
+        <li>Force full refresh re-prices everything, ignoring the 24-hour cache.</li>
+      </ul>
+
+      {cachedCount === 0 && !busy && (
+        <p className="muted empty-hint">
+          No prices cached yet. Open Inventory while the game is running, or refresh here once you
+          own tradable materials or Legendary+ gear.
+        </p>
+      )}
 
       <div className="market-controls">
         <label className="field">
@@ -101,7 +114,7 @@ export function Market() {
 
       <div className="market-status">
         <span>
-          <strong>{status?.count ?? 0}</strong> prices cached
+          <strong>{cachedCount}</strong> prices cached
         </span>
         <span className="muted">currency {status?.currency ?? "-"}</span>
         <span className="muted">updated {fmtAge(status?.fetchedUtc ?? null)}</span>

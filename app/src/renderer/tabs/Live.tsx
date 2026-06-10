@@ -16,7 +16,8 @@ export function Live() {
 
   if (!stats) {
     return (
-      <div className="live">
+      <div className="placeholder">
+        <h1>Live stats</h1>
         <p className="muted">Connecting to the save file...</p>
       </div>
     );
@@ -26,6 +27,12 @@ export function Live() {
 
   return (
     <div className="live">
+      <h1>Live stats</h1>
+      <p className="muted">
+        Reads your save on a timer. XP and gold rates update when the game writes new progress—usually
+        every one to two minutes.
+      </p>
+
       <section className="rate-card">
         <div className="rate-main" title={RATE_TIP}>
           <span className="rate-num">{fmtCompact(stats.rollingRate)}</span>
