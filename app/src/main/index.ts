@@ -3,6 +3,7 @@ import { app } from "electron";
 import { attachExternalLinkHandlers } from "./app/lifecycle";
 import { getAppServices, openMainWindow, startTracking, stopTracking } from "./app/appState";
 import { registerIpc } from "./ipc/registerIpc";
+import { createTray, destroyTray, isAppQuitting, setAppQuitting } from "./tray/trayService";
 
 app.on("web-contents-created", (_event, contents) => {
   attachExternalLinkHandlers(contents);
@@ -10,7 +11,9 @@ app.on("web-contents-created", (_event, contents) => {
 
 app.whenReady().then(() => {
   startTracking();
-  registerIpc(getAppServices());
+  const services = getAppServices();
+  registerIpc(services);
+  createTray(services);
   openMainWindow();
 
   app.on("activate", () => {
@@ -18,7 +21,14 @@ app.whenReady().then(() => {
   });
 });
 
+app.on("before-quit", () => {
+  setAppQuitting(true);
+  destroyTray();
+});
+
 app.on("window-all-closed", () => {
-  stopTracking();
-  if (process.platform !== "darwin") app.quit();
+  if (isAppQuitting()) {
+    stopTracking();
+    if (process.platform !== "darwin") app.quit();
+  }
 });

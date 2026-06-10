@@ -5,6 +5,7 @@ import { loadRenderer } from "./loadRenderer";
 export function createOverlayWindow(
   getExisting: () => BrowserWindow | null,
   setWindow: (w: BrowserWindow | null) => void,
+  onClosed?: () => void,
 ): BrowserWindow {
   const existing = getExisting();
   if (existing && !existing.isDestroyed()) {
@@ -30,7 +31,10 @@ export function createOverlayWindow(
 
   win.setAlwaysOnTop(true, "screen-saver");
   win.on("ready-to-show", () => win.show());
-  win.on("closed", () => setWindow(null));
+  win.on("closed", () => {
+    setWindow(null);
+    onClosed?.();
+  });
 
   loadRenderer(win, "overlay");
   setWindow(win);

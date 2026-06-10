@@ -1,5 +1,6 @@
 import { BrowserWindow } from "electron";
 import { PRELOAD_SCRIPT } from "../paths";
+import { isAppQuitting } from "../tray/trayService";
 import { loadRenderer } from "./loadRenderer";
 
 export function createMainWindow(
@@ -30,6 +31,13 @@ export function createMainWindow(
   win.on("ready-to-show", () => {
     win.setAlwaysOnTop(startTopmost());
     win.show();
+  });
+
+  win.on("close", (event) => {
+    if (!isAppQuitting()) {
+      event.preventDefault();
+      win.hide();
+    }
   });
 
   win.on("closed", () => setWindow(null));

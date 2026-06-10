@@ -92,6 +92,10 @@ export function Settings() {
     <div className="settings">
       <h1>Settings</h1>
       <p className="muted">Stored in your app user-data folder as <code>config.json</code>.</p>
+      <p className="muted small">
+        Closing the main window keeps TBH Companion running in the system tray. Use{" "}
+        <strong>Quit</strong> from the tray menu to exit fully.
+      </p>
 
       <div className="settings-grid">
         <label className="field">

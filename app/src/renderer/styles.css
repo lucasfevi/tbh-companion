@@ -61,6 +61,54 @@ body {
   background: var(--card);
 }
 
+.app-chrome {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 8px 0;
+}
+
+.app-chrome .tabs {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border-bottom: none;
+  padding: 0;
+}
+
+.overlay-toolbar {
+  display: flex;
+  gap: 4px;
+  padding-bottom: 6px;
+  flex-shrink: 0;
+}
+
+.toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.toolbar-btn:hover {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
+.toolbar-icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
 .content {
   flex: 1;
   overflow: auto;
@@ -274,10 +322,6 @@ body {
 
 .status.warn {
   color: #e0a64a;
-}
-
-.overlay-toggle {
-  margin-left: auto;
 }
 
 /* --- Mini overlay window --- */
@@ -717,12 +761,68 @@ body {
 .chests-tab {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 720px;
+  gap: 14px;
 }
 
 .chests-header h1 {
   margin: 0 0 6px;
+}
+
+.chests-header-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  margin-top: 10px;
+}
+
+.chest-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .chest-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chest-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.chest-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.chest-card-head h2 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.chest-card-count {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.chest-card-remaining {
+  margin: 6px 0 0;
+}
+
+.chest-card-details {
+  margin-top: 8px;
+}
+
+.chest-card-details summary {
+  cursor: pointer;
 }
 
 .chest-section {

@@ -31,6 +31,10 @@
       {
         "from": "../data",
         "to": "data"
+      },
+      {
+        "from": "../docs/design/icons/concept-companion-512.png",
+        "to": "tray-icon.png"
       }
     ],
     "win": {

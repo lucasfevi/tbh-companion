@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from "react";
 import { useStats } from "./lib/useStats";
 import { fmtAgo } from "./lib/format";
 import { ErrorBoundary } from "./lib/ErrorBoundary";
+import { AppToolbar } from "./components/AppToolbar";
 
 const Live = lazy(() => import("./tabs/Live").then((m) => ({ default: m.Live })));
 const Inventory = lazy(() => import("./tabs/Inventory").then((m) => ({ default: m.Inventory })));
@@ -35,34 +36,21 @@ export function App() {
   return (
     <div className="app">
       <header className="savebar-host">
-        <nav className="tabs" aria-label="Main tabs">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              className={t.id === tab ? "tab active" : "tab"}
-              onClick={() => setTab(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-          <button
-            type="button"
-            className="tab overlay-toggle"
-            title="Open box tracker overlay"
-            onClick={() => window.tbh.openBoxTracker()}
-          >
-            {"\u25a1"} Boxes
-          </button>
-          <button
-            type="button"
-            className="tab overlay-toggle"
-            title="Open mini overlay"
-            onClick={() => window.tbh.openOverlay()}
-          >
-            {"\u25a3"} Mini
-          </button>
-        </nav>
+        <div className="app-chrome">
+          <nav className="tabs" aria-label="Main tabs">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={t.id === tab ? "tab active" : "tab"}
+                onClick={() => setTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </nav>
+          <AppToolbar />
+        </div>
         <SaveStatusBar />
       </header>
       <main className="content">

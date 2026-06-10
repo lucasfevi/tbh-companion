@@ -39,20 +39,16 @@ npm run qa:dev   # dev server smoke when UI is not visible
 
 ## Releases
 
-Pushing a version tag builds the Windows NSIS installer and publishes a GitHub
-Release (see `.github/workflows/release.yml`).
+Shipping a Windows build is two Actions steps (see `.github/workflows/`):
 
-1. Merge fixes to `main`.
-2. Bump `version` in `app/package.json` (and run `npm install` in `app/` so
-   `package-lock.json` stays in sync).
-3. Commit, then tag and push: `git tag v1.0.1` and `git push origin v1.0.1`.
+1. **Release prepare** (`release-prepare.yml`) — Actions → **Release prepare** → Run workflow → enter semver **without** `v` (e.g. `1.0.2`). This bumps `app/package.json`, syncs the lockfile, commits to `main`, and pushes tag `v1.0.2`.
+2. **Release** (`release.yml`) — runs automatically when a `v*` tag is pushed. It runs QA, builds the NSIS installer, and publishes a GitHub Release with install/upgrade notes.
 
-The release tag **must match** `app/package.json` exactly (e.g. package `1.0.1`
-→ tag `v1.0.1`). CI fails if they differ, so the repo version is the single
-source of truth for local dev, PR preview builds, and shipped installers.
+The release tag **must match** `app/package.json` exactly (package `1.0.2` → tag `v1.0.2`). CI fails if they differ.
 
-You can also trigger a release manually from the Actions tab (`workflow_dispatch`)
-with a tag that matches `app/package.json`.
+**Advanced (manual):** merge to `main`, bump `app/package.json`, run `npm install` in `app/`, commit, then `git tag vX.Y.Z` and `git push origin vX.Y.Z`.
+
+**Rebuild an existing tag:** Actions → **Release** → Run workflow → enter the tag (e.g. `v1.0.1`).
 
 ## Features
 
@@ -64,7 +60,7 @@ with a tag that matches `app/package.json`.
 - **Global save bar** - "Save written X ago" shared by all tabs (distinct from
   the Live tab's XP timer).
 - **Mini overlay** - frameless always-on-top readout with XP/gold rates, map,
-  priced inventory total, and pricing status. Toggle from **Mini** in the tab bar.
+  priced inventory total, and pricing status. Open from the **Mini** toolbar button or tray menu.
 - **CSV history** - every XP change is appended to `logs/xp_history.csv` when
   `logHistoryCsv` is enabled.
 - **Inventory tab** - owned items from the save resolved against bundled catalogs
