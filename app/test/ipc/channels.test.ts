@@ -19,6 +19,8 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.PRICES_REFRESH");
     expect(preload).toContain("IPC.GET_DATA_PATHS");
     expect(preload).toContain("IPC.CLEAR_APP_DATA");
+    expect(preload).toContain("IPC.CLEAR_DIAGNOSTIC_LOGS");
+    expect(preload).toContain("IPC.LOG_RENDERER_ERROR");
   });
 
   it("IPC handlers wire invoke and send channels", () => {
@@ -31,6 +33,12 @@ describe("IPC channel registry", () => {
     expect(market).toContain("IPC.PRICES_REFRESH");
     expect(data).toContain("IPC.GET_DATA_PATHS");
     expect(data).toContain("IPC.CLEAR_APP_DATA");
+    const logHandler = readFileSync(
+      join(__dirname, "../../src/main/ipc/handlers/log.ts"),
+      "utf-8",
+    );
+    expect(logHandler).toContain("IPC.CLEAR_DIAGNOSTIC_LOGS");
+    expect(logHandler).toContain("IPC.LOG_RENDERER_ERROR");
   });
 
   it("services broadcast on IPC push constants", () => {

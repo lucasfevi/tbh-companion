@@ -1,4 +1,8 @@
-import type { AppConfig } from "../../../shared/types";import type { XpTracker } from "../../core/tracker";
+import type { AppConfig } from "../../../shared/types";
+import type { XpTracker } from "../../core/tracker";
+import { createLogger } from "../log";
+
+const configLog = createLogger("config");
 import type { SteamMarketProvider } from "../steamMarketProvider";
 import { makeHistoryLogger } from "../historyLog";
 import { XpTracker as TrackerCtor } from "../../core/tracker";
@@ -30,6 +34,16 @@ export function applyConfigPatch(deps: ConfigPatchDeps, patch: Partial<AppConfig
   const next = { ...deps.getConfig(), ...patch };
   deps.setConfig(next);
   deps.saveConfig(next);
+
+  const changedKeys = (Object.keys(patch) as (keyof AppConfig)[]).filter(
+    (key) => patch[key] !== undefined,
+  );
+  if (changedKeys.length > 0) {
+    const safe = changedKeys.map((key) =>
+      key === "es3Password" ? "es3Password (redacted)" : key,
+    );
+    configLog.info(`Config updated: ${safe.join(", ")}`);
+  }
 
   const market = deps.getMarket();
 

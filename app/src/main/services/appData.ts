@@ -7,6 +7,11 @@ import type {
   AppDataPaths,
   ClearAppDataResult,
 } from "../../../shared/types";
+import {
+  DIAGNOSTIC_LOG_FILE,
+  getDiagnosticLogPath,
+  listDiagnosticLogFiles,
+} from "../log";
 
 export const CATALOG_FILES = ["gamedata.json", "gear_levels.json"] as const;
 export const BOX_TIMERS_FILE = "box_timers.json";
@@ -37,6 +42,7 @@ function entryExists(userDataDir: string, files: string[]): boolean {
 export function getAppDataPaths(userDataDir = resolveUserDataDir()): AppDataPaths {
   const priceFiles = listPriceCacheFiles(userDataDir);
   const configPath = join(userDataDir, CONFIG_FILE);
+  const diagnosticFiles = listDiagnosticLogFiles(userDataDir);
 
   const entries: AppDataPathEntry[] = [
     {
@@ -69,9 +75,15 @@ export function getAppDataPaths(userDataDir = resolveUserDataDir()): AppDataPath
       files: [CONFIG_FILE],
       exists: existsSync(configPath),
     },
+    {
+      id: "diagnostic-log",
+      label: "Diagnostic log",
+      files: diagnosticFiles.length > 0 ? diagnosticFiles : [`logs/${DIAGNOSTIC_LOG_FILE}`],
+      exists: diagnosticFiles.length > 0,
+    },
   ];
 
-  return { userDataDir, configPath, entries };
+  return { userDataDir, configPath, entries, diagnosticLogPath: getDiagnosticLogPath(userDataDir) };
 }
 
 export function filesForClearTarget(

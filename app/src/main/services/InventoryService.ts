@@ -13,6 +13,9 @@ import type {
 } from "../../../shared/types";
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
+import { createLogger } from "../log";
+
+const log = createLogger("inventory");
 
 export class InventoryService {
   private readonly gameData = new GameDataProvider();
@@ -70,6 +73,9 @@ export class InventoryService {
     if (result.ok) {
       this.gameData.overlayMissingLevelsFromBundled();
       this.resolveAndPushInventory();
+      log.info(`Game data refreshed (${result.count ?? 0} items)`);
+    } else {
+      log.warn(`Game data refresh failed: ${result.error ?? "unknown"}`);
     }
     return { ...result, status: this.gameData.status() };
   }
@@ -101,7 +107,15 @@ export class InventoryService {
       this.priceRefreshCallbacks(Boolean(force)),
     );
     this.resolveAndPushInventory();
-    return { ...result, status: this.market!.status() };
+    const status = this.market!.status();
+    if (result.ok) {
+      log.info(
+        `Price refresh ${result.stopped}: priced=${result.priced} failed=${result.failed} skipped=${result.skipped}`,
+      );
+    } else {
+      log.warn(`Price refresh failed: ${result.error ?? "unknown"}`);
+    }
+    return { ...result, status };
   }
 
   resolveAndPushInventory(): void {
@@ -120,7 +134,7 @@ export class InventoryService {
       this.lastInventory.composition.currency = currency;
       broadcast(IPC.INVENTORY, this.lastInventory);
     } catch (err) {
-      console.error("resolveAndPushInventory failed:", err);
+      log.error(`resolveAndPushInventory failed: ${String(err)}`);
     }
   }
 

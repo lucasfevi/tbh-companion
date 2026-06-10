@@ -121,7 +121,7 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 | **preload** | `app/src/preload/` | Thin `contextBridge` only; import channels from `shared/ipc.ts`. |
 | **renderer** | `app/src/renderer/` | React UI via `window.tbh`. Filter/sort in `renderer/lib/` or `core/` pure helpers. |
 
-**Adding features:** read **coding-guidelines** + **tbh-qa** first; add **react-best-practices** or **best-practices** when touching renderer or main/preload. New IPC → `shared/ipc.ts` + `main/ipc/registerIpc.ts` + preload + `test/ipc/channels.test.ts`. New save fields → parse in `core/`, read bytes in `main/` only.
+**Adding features:** read **coding-guidelines** + **tbh-qa** first; add **react-best-practices** or **best-practices** when touching renderer or main/preload. New IPC → `shared/ipc.ts` + `main/ipc/registerIpc.ts` + preload + `test/ipc/channels.test.ts`. New save fields → parse in `core/`, read bytes in `main/` only. New main services → log lifecycle/errors per `docs/DIAGNOSTIC_LOGGING.md` (`createLogger` in main only; renderer uses `reportIpcError`).
 
 **Refactor:** move without behavior change first; tests travel with code. No duplicate types (`AppConfig` lives in `shared/types.ts`). No new globals in `main/index.ts` — use `app/appState.ts` or services. Read **coding-guidelines** plus the layer skills above; keep diffs surgical (no drive-by rewrites).
 
@@ -132,6 +132,7 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 ## Docs index
 
 - `docs/ARCHITECTURE.md` - processes, IPC boundary, windows, data flow.
+- `docs/DIAGNOSTIC_LOGGING.md` - how to add support logs (main/renderer rules, what to log).
 - `docs/SAVE_FORMAT.md` - ES3 decryption scheme + save JSON layout.
 - `docs/DECISIONS.md` - short ADR log of why the stack is what it is.
 - `docs/findings/` - research outputs (Steam Market probe, item mapping).
