@@ -24,6 +24,12 @@ export function fmtAgo(seconds: number | null): string {
   return `${fmtDuration(seconds)} ago`;
 }
 
+/** Live tab: last XP change, or reassurance when connected but the game has not saved XP yet. */
+export function fmtXpUpdated(seconds: number | null): string {
+  if (seconds === null) return "Waiting for game save…";
+  return `XP updated ${fmtAgo(seconds)}`;
+}
+
 export function fmtClock(epochSeconds: number): string {
   const d = new Date(epochSeconds * 1000);
   const h24 = d.getHours();

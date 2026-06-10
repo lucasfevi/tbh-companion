@@ -70,7 +70,7 @@ export function buildStats(
 
   } else if (sinceGain === null) {
 
-    status = "Waiting for first XP change...";
+    status = "Tracking";
 
   } else if (sinceGain > IDLE_THRESHOLD_SECONDS) {
 

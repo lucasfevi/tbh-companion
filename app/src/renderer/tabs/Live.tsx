@@ -1,5 +1,5 @@
 import { useStats } from "../lib/useStats";
-import { fmtCompact, fmtDuration, fmtAgo, fmtClock } from "../lib/format";
+import { fmtCompact, fmtDuration, fmtXpUpdated, fmtClock } from "../lib/format";
 import { stageName } from "../../core/stages";
 
 const IDLE_THRESHOLD = 120;
@@ -48,8 +48,14 @@ export function Live() {
             <span>
               Map <b>{stageName(stats.stageKey, stats.stageWave)}</b>
             </span>
-            <span title="When XP last changed in your save">
-              XP updated <b>{fmtAgo(stats.secondsSinceGain)}</b>
+            <span
+              title={
+                stats.secondsSinceGain === null
+                  ? "Connected and reading your save. Rates update when the game writes progress."
+                  : "When XP last changed in your save"
+              }
+            >
+              <b>{fmtXpUpdated(stats.secondsSinceGain)}</b>
             </span>
           </div>
         </div>
