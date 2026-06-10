@@ -2,6 +2,14 @@ import { BrowserWindow } from "electron";
 import { PRELOAD_SCRIPT } from "../paths";
 import { loadRenderer } from "./loadRenderer";
 
+/** Mini overlay — keep in sync with `.overlay` padding and readout rows in styles.css */
+export const OVERLAY_WIDTH = 280;
+export const OVERLAY_HEIGHT = 92;
+
+function applyOverlaySize(win: BrowserWindow): void {
+  win.setSize(OVERLAY_WIDTH, OVERLAY_HEIGHT);
+}
+
 export function createOverlayWindow(
   getExisting: () => BrowserWindow | null,
   setWindow: (w: BrowserWindow | null) => void,
@@ -9,14 +17,16 @@ export function createOverlayWindow(
 ): BrowserWindow {
   const existing = getExisting();
   if (existing && !existing.isDestroyed()) {
+    applyOverlaySize(existing);
     existing.show();
     existing.focus();
     return existing;
   }
 
   const win = new BrowserWindow({
-    width: 288,
-    height: 118,
+    width: OVERLAY_WIDTH,
+    height: OVERLAY_HEIGHT,
+    useContentSize: true,
     show: false,
     frame: false,
     resizable: false,

@@ -63,15 +63,18 @@ export function Overlay() {
               ·
             </span>
             <span className={idle ? "warn" : undefined}>XP + {fmtAgo(stats.secondsSinceGain)}</span>
+            {inv && (
+              <>
+                <span className="overlay-sep" aria-hidden>
+                  ·
+                </span>
+                <span>
+                  Inv {invValue !== null ? formatMoney(invValue, currency) : "—"}
+                  {pricing && <span className="muted"> (pricing…)</span>}
+                </span>
+              </>
+            )}
           </p>
-
-          {inv && (
-            <p className="overlay-detail">
-              Inv{" "}
-              {invValue !== null ? formatMoney(invValue, currency) : "—"}
-              {pricing && <span className="muted"> (pricing…)</span>}
-            </p>
-          )}
         </div>
       )}
     </div>

@@ -363,13 +363,16 @@ body {
 /* --- Mini overlay window --- */
 .overlay {
   -webkit-app-region: drag;
-  height: 100vh;
-  padding: 7px 10px 8px;
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  padding: 6px 10px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   background: var(--bg);
   border: 1px solid var(--border);
+  overflow: hidden;
 }
 
 .no-drag {
@@ -412,7 +415,7 @@ body {
 .overlay-readout {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 3px;
 }
 
 .overlay-metrics {
