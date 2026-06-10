@@ -98,9 +98,9 @@ jobs:
 
       - name: Write release notes
         shell: bash
+        working-directory: ${{ github.workspace }}
         run: |
-          chmod +x .github/scripts/write-release-notes.sh
-          .github/scripts/write-release-notes.sh "${{ env.RELEASE_VERSION }}" "${{ env.RELEASE_TAG }}" release_body.md
+          bash .github/scripts/write-release-notes.sh "${{ env.RELEASE_VERSION }}" "${{ env.RELEASE_TAG }}" release_body.md
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
