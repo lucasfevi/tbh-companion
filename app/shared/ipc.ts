@@ -24,6 +24,8 @@ export const IPC = {
   SET_CURRENCY: "set-currency",
   GET_DATA_PATHS: "get-data-paths",
   CLEAR_APP_DATA: "clear-app-data",
+  CLEAR_DIAGNOSTIC_LOGS: "clear-diagnostic-logs",
+  LOG_RENDERER_ERROR: "log-renderer-error",
 
   // Send (renderer → main, no response)
   RESET: "reset",
@@ -55,6 +57,8 @@ export const IPC_INVOKE_CHANNELS = [
   IPC.SET_CURRENCY,
   IPC.GET_DATA_PATHS,
   IPC.CLEAR_APP_DATA,
+  IPC.CLEAR_DIAGNOSTIC_LOGS,
+  IPC.LOG_RENDERER_ERROR,
 ] as const;
 
 export const IPC_SEND_CHANNELS = [

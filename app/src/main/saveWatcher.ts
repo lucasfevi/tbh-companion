@@ -7,6 +7,9 @@ import { readAndDecrypt } from "./io/saveFile";
 import { parseSnapshot, SaveReadError } from "../core/save/snapshot";
 import { parseInventory } from "../core/inventory/parse";
 import type { SaveSnapshot, InventorySnapshot } from "../../shared/types";
+import { createLogger } from "./log";
+
+const log = createLogger("saveWatcher");
 
 export interface SaveWatcherOptions {
   path: string; // already expanded/absolute
@@ -22,6 +25,7 @@ export class SaveWatcher {
   private readonly opts: SaveWatcherOptions;
   private timer: NodeJS.Timeout | null = null;
   private lastMtimeMs: number | null = null;
+  private loggedFirstRead = false;
 
   constructor(opts: SaveWatcherOptions) {
     this.opts = opts;
@@ -44,7 +48,9 @@ export class SaveWatcher {
     try {
       mtimeMs = statSync(this.opts.path).mtimeMs;
     } catch {
-      this.opts.onError(`Save file not found: ${this.opts.path}`);
+      const msg = `Save file not found: ${this.opts.path}`;
+      log.warn(msg);
+      this.opts.onError(msg);
       return;
     }
 
@@ -56,18 +62,23 @@ export class SaveWatcher {
       const { text, mtime } = readAndDecrypt(this.opts.path, this.opts.password);
       const snap = parseSnapshot(text, mtime);
       this.lastMtimeMs = mtimeMs;
+      if (!this.loggedFirstRead) {
+        log.info(`First save read OK (stage ${snap.stageKey})`);
+        this.loggedFirstRead = true;
+      }
       this.opts.onSnapshot(snap);
       if (this.opts.onInventory) {
         try {
           const parse = this.opts.parseInventorySnapshot ?? parseInventory;
           this.opts.onInventory(parse(text, mtime));
         } catch (err) {
-          console.error("inventory parse failed:", err);
+          log.error(`Inventory parse failed: ${String(err)}`);
         }
       }
     } catch (e) {
       // A mid-write read is transient; don't advance lastMtime so we retry.
       const msg = e instanceof SaveReadError ? e.message : String(e);
+      log.warn(msg);
       this.opts.onError(msg);
     }
   }

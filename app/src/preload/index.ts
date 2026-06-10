@@ -15,6 +15,8 @@ import type {
   AppDataClearTarget,
   AppDataPaths,
   ClearAppDataResult,
+  ClearDiagnosticLogResult,
+  RendererLogPayload,
 } from "../../shared/types";
 
 const api: TbhApi = {
@@ -111,6 +113,12 @@ const api: TbhApi = {
   },
   clearAppData(target: AppDataClearTarget): Promise<ClearAppDataResult> {
     return ipcRenderer.invoke(IPC.CLEAR_APP_DATA, target);
+  },
+  clearDiagnosticLogs(): Promise<ClearDiagnosticLogResult> {
+    return ipcRenderer.invoke(IPC.CLEAR_DIAGNOSTIC_LOGS);
+  },
+  logRendererError(payload: RendererLogPayload): Promise<void> {
+    return ipcRenderer.invoke(IPC.LOG_RENDERER_ERROR, payload);
   },
 };
 

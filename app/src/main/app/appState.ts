@@ -6,8 +6,11 @@ import { InventoryService } from "../services/InventoryService";
 import { ChestService } from "../services/ChestService";
 import { BoxTimerService } from "../services/BoxTimerService";
 import { applyConfigPatch } from "../ipc/configPatch";
+import { clearDiagnosticLogs, createLogger, logRendererError } from "../log";
 import { clearAppDataFiles, getAppDataPaths } from "../services/appData";
-import type { AppDataClearTarget } from "../../../shared/types";
+import type { AppDataClearTarget, RendererLogPayload } from "../../../shared/types";
+
+const appDataLog = createLogger("appData");
 import { createMainWindow as buildMainWindow } from "../windows/mainWindow";
 import { createOverlayWindow as buildOverlayWindow } from "../windows/overlayWindow";
 import { createBoxTrackerWindow as buildBoxTrackerWindow } from "../windows/boxTrackerWindow";
@@ -118,7 +121,13 @@ export function getAppServices() {
     getDataPaths: () => getAppDataPaths(),
     clearAppData: (target: AppDataClearTarget) => {
       const result = clearAppDataFiles(target);
-      if (!result.ok) return result;
+      if (!result.ok) {
+        appDataLog.warn(`Cache clear failed (${target}): ${result.error ?? "unknown"}`);
+        return result;
+      }
+      if (result.cleared.length > 0) {
+        appDataLog.info(`Cache cleared (${target}): ${result.cleared.join(", ")}`);
+      }
 
       const reloadCatalog =
         target === "catalog" || target === "all-except-config";
@@ -132,6 +141,16 @@ export function getAppServices() {
       if (reloadSession) tracking.reset();
 
       return result;
+    },
+    clearDiagnosticLogs: () => {
+      const result = clearDiagnosticLogs();
+      if (result.ok && result.cleared.length > 0) {
+        appDataLog.info(`Diagnostic logs cleared: ${result.cleared.join(", ")}`);
+      }
+      return result;
+    },
+    logRendererError: (payload: RendererLogPayload) => {
+      logRendererError(payload);
     },
     openOverlay: () => {
       openOverlayWindow();

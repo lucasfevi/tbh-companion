@@ -54,6 +54,7 @@ export function Settings() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [clearBusy, setClearBusy] = useState<AppDataClearTarget | null>(null);
+  const [clearLogsBusy, setClearLogsBusy] = useState(false);
 
   async function refreshDataPaths(): Promise<void> {
     if (typeof window.tbh?.getDataPaths !== "function") return;
@@ -141,6 +142,42 @@ export function Settings() {
   function onReset() {
     if (cfg) setDraft({ ...cfg });
     setMessage(null);
+  }
+
+  async function onClearDiagnosticLogs() {
+    if (typeof window.tbh?.clearDiagnosticLogs !== "function") {
+      setMessage("Diagnostics API is not loaded. Restart the app and try again.");
+      return;
+    }
+    if (
+      !window.confirm(
+        "Delete diagnostic log files? Use this if logs grow large. XP history CSV is not removed.",
+      )
+    ) {
+      return;
+    }
+
+    setClearLogsBusy(true);
+    setMessage(null);
+    try {
+      const result = await window.tbh.clearDiagnosticLogs();
+      if (!result.ok) {
+        setMessage(result.error ?? "Could not clear diagnostic logs.");
+        return;
+      }
+      await refreshDataPaths();
+      const count = result.cleared.length;
+      setMessage(
+        count > 0
+          ? `Cleared ${count} log file${count === 1 ? "" : "s"}.`
+          : "Nothing to clear — log files were already missing.",
+      );
+    } catch (err) {
+      reportIpcError(err, "settings-clear-logs");
+      setMessage("Could not clear diagnostic logs.");
+    } finally {
+      setClearLogsBusy(false);
+    }
   }
 
   async function onClearCache(target: AppDataClearTarget, confirmText: string) {
@@ -285,6 +322,34 @@ export function Settings() {
             />
             <span>Log XP history to CSV</span>
           </label>
+        </div>
+      </section>
+
+      <section className="settings-section">
+        <h2>Diagnostics</h2>
+        <p className="muted small">
+          When reporting an issue, you can send the diagnostic log file from Settings.
+        </p>
+        {dataPaths ? (
+          <p className="muted small cache-path">
+            <span>Log file:</span> <code>{dataPaths.diagnosticLogPath}</code>
+          </p>
+        ) : (
+          <p className="muted small">Loading log path…</p>
+        )}
+        <div className="cache-action-row">
+          <div className="cache-action-copy">
+            <strong>Clear diagnostic logs</strong>
+            <span className="muted small">logs/app.log and rotated archives</span>
+          </div>
+          <button
+            type="button"
+            className="btn"
+            disabled={clearLogsBusy || Boolean(clearBusy) || !dataPaths?.entries.find((e) => e.id === "diagnostic-log")?.exists}
+            onClick={() => void onClearDiagnosticLogs()}
+          >
+            {clearLogsBusy ? "Clearing…" : "Clear"}
+          </button>
         </div>
       </section>
 

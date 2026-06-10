@@ -18,7 +18,16 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error(error, info.componentStack);
+    if (import.meta.env.DEV) {
+      console.error(error, info.componentStack);
+    }
+    void window.tbh?.logRendererError?.({
+      source: "ErrorBoundary",
+      message: error.message,
+      stack: info.componentStack ?? error.stack,
+    }).catch(() => {
+      // Preload may be unavailable during early boot.
+    });
   }
 
   render(): ReactNode {

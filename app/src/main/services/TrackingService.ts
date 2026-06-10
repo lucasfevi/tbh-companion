@@ -6,6 +6,9 @@ import { XpTracker } from "../../core/tracker";
 import type { AppConfig, InventorySnapshot, SaveSnapshot } from "../../../shared/types";
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
+import { createLogger } from "../log";
+
+const log = createLogger("tracking");
 
 export class TrackingService {
   private tracker!: XpTracker;
@@ -76,10 +79,13 @@ export class TrackingService {
   }
 
   private createWatcher(): SaveWatcher {
+    const savePath = expandPath(this.config.savePath);
+    const pollMs = Math.max(1, this.config.pollIntervalSeconds) * 1000;
+    log.info(`Save watcher started (poll ${pollMs / 1000}s, path ${savePath})`);
     return new SaveWatcher({
-      path: expandPath(this.config.savePath),
+      path: savePath,
       password: this.config.es3Password,
-      pollMs: Math.max(1, this.config.pollIntervalSeconds) * 1000,
+      pollMs,
       onSnapshot: (snap) => {
         this.lastSnap = snap;
         this.lastError = null;

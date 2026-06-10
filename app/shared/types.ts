@@ -193,15 +193,28 @@ export type AppDataClearTarget =
   | "all-except-config";
 
 export interface AppDataPathEntry {
-  id: AppDataClearTarget | "config";
+  id: AppDataClearTarget | "config" | "diagnostic-log";
   label: string;
   files: string[];
   exists: boolean;
 }
 
+export interface ClearDiagnosticLogResult {
+  ok: boolean;
+  cleared: string[];
+  error?: string;
+}
+
+export interface RendererLogPayload {
+  source: string;
+  message: string;
+  stack?: string;
+}
+
 export interface AppDataPaths {
   userDataDir: string;
   configPath: string;
+  diagnosticLogPath: string;
   entries: AppDataPathEntry[];
 }
 
@@ -312,6 +325,8 @@ export interface TbhApi {
   saveConfig(patch: Partial<AppConfig>): Promise<AppConfig>;
   getDataPaths(): Promise<AppDataPaths>;
   clearAppData(target: AppDataClearTarget): Promise<ClearAppDataResult>;
+  clearDiagnosticLogs(): Promise<ClearDiagnosticLogResult>;
+  logRendererError(payload: RendererLogPayload): Promise<void>;
   getChests(): Promise<ChestState | null>;
   onChests(cb: (state: ChestState) => void): () => void;
   openBoxTracker(): void;

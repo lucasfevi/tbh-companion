@@ -7,6 +7,9 @@ import {
 import type { ChestHolding, ChestState } from "../../../shared/types";
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
+import { createLogger } from "../log";
+
+const log = createLogger("chests");
 
 export class ChestService {
   private readonly boxTypes = loadBoxTypeCatalog();
@@ -27,7 +30,7 @@ export class ChestService {
       this.lastChests = buildChestState(chests, purchases, mtime, this.boxTypes, this.runeCap);
       broadcast(IPC.CHESTS, this.lastChests);
     } catch (err) {
-      console.error("resolveAndPush chests failed:", err);
+      log.error(`resolveAndPush chests failed: ${String(err)}`);
     }
   }
 }

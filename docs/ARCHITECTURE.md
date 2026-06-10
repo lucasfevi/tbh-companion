@@ -55,6 +55,13 @@ Entry bootstrap: `app/src/main/index.ts` (~25 lines) → `app/appState.ts` wires
 
 No local HTTP server: main ↔ renderer communicate over Electron IPC.
 
+## Diagnostic logging
+
+Main process writes support logs to `userData/logs/app.log` via `app/src/main/log.ts`
+(`electron-log`, 1 MB rotation). Renderer errors are forwarded through IPC
+(`LOG_RENDERER_ERROR`) so users send a single file. **core/** never imports the
+logger. See `docs/DIAGNOSTIC_LOGGING.md` for how agents should add logs to new features.
+
 ## Windows
 
 Two `BrowserWindow`s load the same Vite bundle on different routes:

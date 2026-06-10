@@ -2,6 +2,15 @@
 
 Terse record of architectural decisions. Newest first.
 
+## 2026-06-10 - Diagnostic logging (`electron-log`, main-only writes)
+
+Support logs go to `userData/logs/app.log` (1 MB rotation → `app.old.log`), separate
+from optional XP CSV export. **main** uses `createLogger(module)` in `app/src/main/log.ts`;
+**core** stays log-free; **renderer** forwards errors via `LOG_RENDERER_ERROR` IPC.
+Identical warn/error lines are throttled (5 min) so a bad save path does not flood the
+file on every poll. Secrets are redacted before write. Users clear logs from Settings →
+Diagnostics. Agent how-to: `docs/DIAGNOSTIC_LOGGING.md`.
+
 ## 2026-06-09 - Stage boxes in the `9xxxxx` ItemKey range
 
 The main scraped catalog lists GEAR + MATERIAL only. Saves also reference

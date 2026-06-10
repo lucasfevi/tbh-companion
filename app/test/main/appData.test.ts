@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, writeFileSync, existsSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
@@ -77,5 +77,15 @@ describe("appData", () => {
     const result = clearAppDataFiles("prices", userDataDir);
     expect(result.ok).toBe(true);
     expect(result.cleared).toEqual([]);
+  });
+
+  it("includes diagnostic log path entry", () => {
+    const logDir = join(userDataDir, "logs");
+    mkdirSync(logDir, { recursive: true });
+    writeFileSync(join(logDir, "app.log"), "startup\n");
+
+    const paths = getAppDataPaths(userDataDir);
+    expect(paths.diagnosticLogPath).toBe(join(userDataDir, "logs", "app.log"));
+    expect(paths.entries.find((e) => e.id === "diagnostic-log")?.exists).toBe(true);
   });
 });
