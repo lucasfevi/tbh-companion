@@ -42,3 +42,56 @@ jobs:
       - name: npm audit (high severity)
         run: npm audit --audit-level=high
         continue-on-error: true
+
+  release-preview:
+    needs: qa
+    if: github.event_name == 'pull_request'
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows installer (release layout)
+        run: npm run dist
+
+      - name: Verify bundled data ships in packaged resources
+        shell: pwsh
+        run: |
+          $resourcesData = Join-Path $PWD "release/win-unpacked/resources/data"
+          if (-not (Test-Path $resourcesData)) {
+            throw "Expected bundled data at release/win-unpacked/resources/data"
+          }
+          $required = @(
+            "box_types.json",
+            "rune_box_cap.json",
+            "rare_box_routes.json",
+            "gamedata.json",
+            "stage_boxes.json"
+          )
+          foreach ($file in $required) {
+            $path = Join-Path $resourcesData $file
+            if (-not (Test-Path $path)) {
+              throw "Missing bundled data file: $path"
+            }
+          }
+
+      - name: Upload Windows release preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: tbh-companion-windows-pr-${{ github.event.pull_request.number }}
+          path: |
+            app/release/*.exe
+            app/release/win-unpacked/**
+          if-no-files-found: error
+          retention-days: 14
