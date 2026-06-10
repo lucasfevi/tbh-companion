@@ -68,6 +68,27 @@ jobs:
       - name: Build Windows installer
         run: npm run dist
 
+      - name: Verify bundled data ships in packaged resources
+        shell: pwsh
+        run: |
+          $resourcesData = Join-Path $PWD "release/win-unpacked/resources/data"
+          if (-not (Test-Path $resourcesData)) {
+            throw "Expected bundled data at release/win-unpacked/resources/data"
+          }
+          $required = @(
+            "box_types.json",
+            "rune_box_cap.json",
+            "rare_box_routes.json",
+            "gamedata.json",
+            "stage_boxes.json"
+          )
+          foreach ($file in $required) {
+            $path = Join-Path $resourcesData $file
+            if (-not (Test-Path $path)) {
+              throw "Missing bundled data file: $path"
+            }
+          }
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v5
         with:
