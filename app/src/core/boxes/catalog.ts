@@ -1,5 +1,4 @@
-import { readFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { readBundledJson } from "../bundledData";
 
 export type BoxCategory = "common" | "rare" | "act" | "unknown";
 
@@ -40,19 +39,6 @@ export interface RareBoxRoutesCatalog {
   cooldownSeconds: number;
   disclaimer?: string;
   routes: RareBoxRoute[];
-}
-
-function bundledPath(filename: string): string {
-  const candidates = [
-    join(process.cwd(), "..", "data", filename),
-    join(process.cwd(), "data", filename),
-  ];
-  return candidates.find((p) => existsSync(p)) ?? candidates[0];
-}
-
-function readBundledJson<T>(filename: string): T {
-  const raw = readFileSync(bundledPath(filename), "utf-8").replace(/^\uFEFF/, "");
-  return JSON.parse(raw) as T;
 }
 
 export function loadBoxTypeCatalog(): BoxTypeCatalog {

@@ -92,6 +92,7 @@ Quit dev when done (close Electron + stop terminal).
 | `main/paths.ts`, `main/windows/` | bundle check + dev not blank |
 | `renderer/` only | dev smoke + no console errors |
 | research spike / new `data/` or save parsing | remove `probe-*`, `spike-*`, scratch dumps; findings in tests, `data/`, or `docs/findings/` |
+| new bundled JSON under `data/` | add to `REQUIRED_BUNDLED_DATA_FILES` in `core/bundledData.ts`; load via `readBundledJson` / `bundledDataCandidates` — never `process.cwd()` alone |
 
 Full checklist: [references/checklist.md](references/checklist.md) — read when debugging failures or testing Settings/Inventory/overlay.
 
