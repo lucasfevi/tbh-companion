@@ -328,8 +328,7 @@ export function Settings() {
       <section className="settings-section">
         <h2>Diagnostics</h2>
         <p className="muted small">
-          When reporting an issue, you can send the diagnostic log file from Settings. It does not
-          include your save password.
+          When reporting an issue, you can send the diagnostic log file from Settings.
         </p>
         {dataPaths ? (
           <p className="muted small cache-path">
