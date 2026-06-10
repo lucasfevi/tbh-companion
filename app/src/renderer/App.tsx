@@ -5,16 +5,18 @@ import { ErrorBoundary } from "./lib/ErrorBoundary";
 
 const Live = lazy(() => import("./tabs/Live").then((m) => ({ default: m.Live })));
 const Inventory = lazy(() => import("./tabs/Inventory").then((m) => ({ default: m.Inventory })));
+const Chests = lazy(() => import("./tabs/Chests").then((m) => ({ default: m.Chests })));
 const Market = lazy(() => import("./tabs/Market").then((m) => ({ default: m.Market })));
 const Settings = lazy(() => import("./tabs/Settings").then((m) => ({ default: m.Settings })));
 
 const IDLE_THRESHOLD = 120;
 
-type TabId = "live" | "inventory" | "market" | "settings";
+type TabId = "live" | "inventory" | "chests" | "market" | "settings";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "live", label: "Live" },
   { id: "inventory", label: "Inventory" },
+  { id: "chests", label: "Chests" },
   { id: "market", label: "Market" },
   { id: "settings", label: "Settings" },
 ];
@@ -47,6 +49,14 @@ export function App() {
           <button
             type="button"
             className="tab overlay-toggle"
+            title="Open box tracker overlay"
+            onClick={() => window.tbh.openBoxTracker()}
+          >
+            {"\u25a1"} Boxes
+          </button>
+          <button
+            type="button"
+            className="tab overlay-toggle"
             title="Open mini overlay"
             onClick={() => window.tbh.openOverlay()}
           >
@@ -59,7 +69,8 @@ export function App() {
         <ErrorBoundary title={`${tab} tab crashed`}>
           <Suspense fallback={<TabFallback />}>
             {tab === "live" && <Live />}
-            {tab === "inventory" && <Inventory />}
+            {tab === "inventory" && <Inventory onOpenChests={() => setTab("chests")} />}
+            {tab === "chests" && <Chests />}
             {tab === "market" && <Market />}
             {tab === "settings" && <Settings />}
           </Suspense>

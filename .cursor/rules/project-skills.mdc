@@ -20,4 +20,4 @@ Apply the skills during the work, not only at the end. No drive-by refactors out
 
 **Refactors:** follow **coding-guidelines** and layer skills; keep diffs surgical — no drive-by rewrites outside the task.
 
-**Done means:** tbh-qa passed and required skills were followed — not just green tests.
+**Done means:** tbh-qa passed, spike/probe scripts removed when applicable, and required skills were followed — not just green tests.

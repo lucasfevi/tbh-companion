@@ -2,16 +2,24 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
 import { Overlay } from "./Overlay";
+import { BoxTracker } from "./BoxTracker";
 import { TbhProvider } from "./context/TbhProvider";
 import { ErrorBoundary } from "./lib/ErrorBoundary";
 import "./styles.css";
 
-const isOverlay = window.location.hash.replace("#", "") === "overlay";
+const hash = window.location.hash.replace("#", "");
+const isOverlay = hash === "overlay";
+const isBoxTracker = hash === "box-tracker";
 
 function Root() {
+  let content;
+  if (isOverlay) content = <Overlay />;
+  else if (isBoxTracker) content = <BoxTracker />;
+  else content = <App />;
+
   return (
     <ErrorBoundary title="TBH Companion failed to start">
-      <TbhProvider>{isOverlay ? <Overlay /> : <App />}</TbhProvider>
+      <TbhProvider>{content}</TbhProvider>
     </ErrorBoundary>
   );
 }

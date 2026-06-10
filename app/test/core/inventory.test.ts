@@ -22,7 +22,7 @@ const playerInner = `{
     {"ItemKey":0}
   ],
   "aggregateSaveDatas":[{"Type":0,"SubKey":10002,"Value":5}],
-  "BoxData":{"BoxTypes":[0,5,9],"BoxUniqueId":[1,2,3],"BoxQuantity":[4,0,3]}
+  "BoxData":{"BoxTypes":[0,1,2],"BoxUniqueId":[1,2,3],"BoxQuantity":[4,0,3]}
 }`;
 
 const catalog: Record<number, GameItem> = {
@@ -70,7 +70,7 @@ describe("parseInventory", () => {
     expect(snap.items.filter((i) => i.inUse)).toHaveLength(1);
     expect(snap.chests).toEqual([
       { type: 0, quantity: 4 },
-      { type: 9, quantity: 3 },
+      { type: 2, quantity: 3 },
     ]);
     expect(snap.saveMtime).toBe(123);
   });

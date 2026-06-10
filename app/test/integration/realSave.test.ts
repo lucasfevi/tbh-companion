@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { readSnapshot, readAndDecrypt } from "../../src/main/io/saveFile";
 import { parseInventory, resolveInventory } from "../../src/core/inventory";
+import { buildChestState, loadBoxTypeCatalog, loadRuneBoxCapCatalog, parseRuneSaveData } from "../../src/core/boxes";
 import { indexById, type GameData } from "../../src/core/gamedata";
 
 // Integration test against the actual local save. Skipped automatically when
@@ -42,5 +43,33 @@ run("real save (local only)", () => {
     const resolved = resolveInventory(raw, lookup, true);
     expect(resolved.rows.length).toBeGreaterThan(0);
     expect(resolved.composition.total).toBeGreaterThan(0);
+  });
+
+  it("parses BoxData and common capacity from live save", () => {
+    const { text, mtime } = readAndDecrypt(savePath);
+    const raw = parseInventory(text, mtime);
+    expect(raw.chests.length).toBeGreaterThan(0);
+
+    const purchases = parseRuneSaveData(text);
+    expect(purchases.length).toBeGreaterThan(0);
+
+    const chestState = buildChestState(
+      raw.chests,
+      purchases,
+      mtime,
+      loadBoxTypeCatalog(),
+      loadRuneBoxCapCatalog(),
+    );
+    expect(chestState.totalHeld).toBeGreaterThan(0);
+    expect(chestState.common.capacity).toBeGreaterThanOrEqual(5);
+    expect(chestState.common.quantity).toBeGreaterThan(0);
+    expect(chestState.capacity.totalRunePurchases).toBeGreaterThan(0);
+    expect(chestState.capacity.common.purchasedCapRuneNodes).toBe(2);
+    expect(chestState.capacity.common.runeBonus).toBe(2);
+    expect(chestState.common.capacity).toBe(7);
+    expect(chestState.stageBoss.capacity).toBe(7);
+    expect(chestState.capacity.stageBoss.runeBonus).toBe(2);
+    expect(chestState.actBoss.capacity).toBe(7);
+    expect(chestState.capacity.actBoss.runeBonus).toBe(2);
   });
 });

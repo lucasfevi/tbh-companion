@@ -3,19 +3,30 @@ import { BrowserWindow } from "electron";
 import { loadConfig, saveConfig, type AppConfig } from "../config";
 import { TrackingService } from "../services/TrackingService";
 import { InventoryService } from "../services/InventoryService";
+import { ChestService } from "../services/ChestService";
+import { BoxTimerService } from "../services/BoxTimerService";
 import { applyConfigPatch } from "../ipc/configPatch";
 import { createMainWindow as buildMainWindow } from "../windows/mainWindow";
 import { createOverlayWindow as buildOverlayWindow } from "../windows/overlayWindow";
+import { createBoxTrackerWindow as buildBoxTrackerWindow } from "../windows/boxTrackerWindow";
 
 let config: AppConfig;
 const inventory = new InventoryService();
+const chests = new ChestService();
+const boxTimers = new BoxTimerService();
 const tracking = new TrackingService(
   (snap) => inventory.onInventory(snap),
-  (text, mtime) => inventory.parseFromSave(text, mtime),
+  (text, mtime) => {
+    const inv = inventory.parseFromSave(text, mtime);
+    chests.onSave(text, mtime, inv.chests);
+    return inv;
+  },
+  (stageKey) => boxTimers.setCurrentStageKey(stageKey),
 );
 
 let mainWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
+let boxTrackerWindow: BrowserWindow | null = null;
 
 export function startTracking(): void {
   config = loadConfig();
@@ -26,6 +37,7 @@ export function startTracking(): void {
 
 export function stopTracking(): void {
   tracking.stop();
+  boxTimers.stopTick();
 }
 
 export function openMainWindow(): BrowserWindow {
@@ -47,11 +59,27 @@ export function openOverlayWindow(): BrowserWindow {
   );
 }
 
+export function openBoxTrackerWindow(): BrowserWindow {
+  return buildBoxTrackerWindow(
+    () => boxTrackerWindow,
+    (w) => {
+      boxTrackerWindow = w;
+    },
+    () => boxTimers.startTick(),
+    () => boxTimers.stopTick(),
+  );
+}
+
 export function getAppServices() {
   return {
     getStats: () => tracking.getStats(),
     resetTracker: () => tracking.reset(),
     getInventory: () => inventory.getInventory(),
+    getChests: () => chests.getChests(),
+    getBoxTimers: () => boxTimers.getState(),
+    markBoxDropped: (boxId: number) => boxTimers.markDropped(boxId),
+    clearBoxTimer: (boxId: number) => boxTimers.clearTimer(boxId),
+    setBoxTrackerBoxes: (boxIds: number[]) => boxTimers.setEnabledBoxIds(boxIds),
     gameDataStatus: () => inventory.gameDataStatus(),
     refreshGameData: () => inventory.refreshGameData(),
     pricesStatus: () => inventory.pricesStatus(),
@@ -89,6 +117,10 @@ export function getAppServices() {
       openOverlayWindow();
       mainWindow?.hide();
     },
+    openBoxTracker: () => {
+      openBoxTrackerWindow();
+    },
+    closeBoxTracker: () => boxTrackerWindow?.close(),
     showMain: () => {
       openMainWindow();
       mainWindow?.show();

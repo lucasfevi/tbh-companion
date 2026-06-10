@@ -8,10 +8,12 @@ export function InventorySummary({
   inv,
   chestTotal,
   currency,
+  onViewChests,
 }: {
   inv: ResolvedInventory;
   chestTotal: number;
   currency: string;
+  onViewChests?: () => void;
 }) {
   const c = inv.composition;
   const [catalogBusy, setCatalogBusy] = useState(false);
@@ -63,7 +65,17 @@ export function InventorySummary({
         </div>
         <div className="stat">
           <div className="stat-value">{chestTotal.toLocaleString()}</div>
-          <div className="stat-label">unopened chests</div>
+          <div className="stat-label">
+            unopened chests
+            {onViewChests && (
+              <>
+                {" "}
+                <button type="button" className="linkish" onClick={onViewChests}>
+                  View chests →
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
       <GradeBars composition={c} />

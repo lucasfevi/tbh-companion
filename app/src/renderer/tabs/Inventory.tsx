@@ -14,7 +14,7 @@ import { InventorySummary } from "../components/inventory/InventorySummary";
 import { InventoryFilters } from "../components/inventory/InventoryFilters";
 import { InventoryTable } from "../components/inventory/InventoryTable";
 
-export function Inventory() {
+export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
   const inv = useInventory();
   const priceStatus = usePriceStatus();
   const priceProgress = usePriceProgress();
@@ -92,7 +92,12 @@ export function Inventory() {
     <div className="inventory">
       <h1>Inventory</h1>
 
-      <InventorySummary inv={inv} chestTotal={chestTotal} currency={currency} />
+      <InventorySummary
+        inv={inv}
+        chestTotal={chestTotal}
+        currency={currency}
+        onViewChests={chestTotal > 0 ? onOpenChests : undefined}
+      />
 
       {pricing && (
         <div className="inv-hint">

@@ -184,6 +184,86 @@ export interface AppConfig {
   currency: string;
 }
 
+// --- Chests (BoxData holdings) ---
+
+export interface ResolvedChestRow {
+  boxType: number;
+  label: string;
+  category: string;
+  quantity: number;
+}
+
+export interface BoxSlotStatus {
+  quantity: number;
+  capacity: number;
+  isFull: boolean;
+  slotsRemaining: number;
+}
+
+/** @deprecated use BoxSlotStatus */
+export type CommonBoxStatus = BoxSlotStatus;
+
+export interface ChestCapacityBreakdown {
+  base: number;
+  runeBonus: number;
+  purchasedCapRuneNodes: number;
+  runeLabel: string;
+}
+
+/** @deprecated use ChestCapacityBreakdown */
+export type CommonCapacityBreakdown = ChestCapacityBreakdown;
+
+export interface ChestState {
+  rows: ResolvedChestRow[];
+  common: BoxSlotStatus;
+  stageBoss: BoxSlotStatus;
+  actBoss: BoxSlotStatus;
+  capacity: {
+    common: ChestCapacityBreakdown;
+    stageBoss: ChestCapacityBreakdown;
+    actBoss: ChestCapacityBreakdown;
+    totalRunePurchases: number;
+  };
+  totalHeld: number;
+  saveMtime: number;
+  /** @deprecated use capacity.common.runeBonus */
+  runeBonusSlots: number;
+}
+
+// --- Box tracker (manual rare boss box timers) ---
+
+export interface BoxTimerRow {
+  boxId: number;
+  name: string;
+  level: number | null;
+  idealStageKey: number;
+  idealStageLabel: string;
+  cooldownSeconds: number;
+  active: boolean;
+  remainingSeconds: number;
+  progress: number;
+  status: "ready" | "cooldown";
+  atIdealStage: boolean;
+}
+
+export interface BoxTimerCatalogEntry {
+  boxId: number;
+  name: string;
+  level: number | null;
+  idealStageLabel: string;
+  enabled: boolean;
+}
+
+export interface BoxTimerState {
+  rows: BoxTimerRow[];
+  catalog: BoxTimerCatalogEntry[];
+  enabledCount: number;
+  readyCount: number;
+  cooldownCount: number;
+  currentStageKey: number;
+  disclaimer?: string;
+}
+
 // API surface exposed on `window.tbh` by the preload via contextBridge.
 export interface TbhApi {
   onStats(cb: (stats: Stats) => void): () => void;
@@ -203,4 +283,13 @@ export interface TbhApi {
   onPricesProgress(cb: (p: PriceProgress) => void): () => void;
   getConfig(): Promise<AppConfig>;
   saveConfig(patch: Partial<AppConfig>): Promise<AppConfig>;
+  getChests(): Promise<ChestState | null>;
+  onChests(cb: (state: ChestState) => void): () => void;
+  openBoxTracker(): void;
+  closeBoxTracker(): void;
+  getBoxTimers(): Promise<BoxTimerState>;
+  onBoxTimers(cb: (state: BoxTimerState) => void): () => void;
+  markBoxDropped(boxId: number): Promise<BoxTimerState>;
+  clearBoxTimer(boxId: number): Promise<BoxTimerState>;
+  setBoxTrackerBoxes(boxIds: number[]): Promise<BoxTimerState>;
 }

@@ -6,6 +6,8 @@ import type {
   GameDataStatus,
   GameDataRefreshResult,
   ResolvedInventory,
+  ChestState,
+  BoxTimerState,
   PriceStatus,
   PriceProgress,
   PriceRefreshResult,
@@ -27,6 +29,12 @@ const api: TbhApi = {
   openOverlay(): void {
     ipcRenderer.send(IPC.OPEN_OVERLAY);
   },
+  openBoxTracker(): void {
+    ipcRenderer.send(IPC.OPEN_BOX_TRACKER);
+  },
+  closeBoxTracker(): void {
+    ipcRenderer.send(IPC.CLOSE_BOX_TRACKER);
+  },
   showMain(): void {
     ipcRenderer.send(IPC.SHOW_MAIN);
   },
@@ -46,6 +54,31 @@ const api: TbhApi = {
     const listener = (_e: unknown, inv: ResolvedInventory): void => cb(inv);
     ipcRenderer.on(IPC.INVENTORY, listener);
     return () => ipcRenderer.removeListener(IPC.INVENTORY, listener);
+  },
+  getChests(): Promise<ChestState | null> {
+    return ipcRenderer.invoke(IPC.GET_CHESTS);
+  },
+  onChests(cb: (state: ChestState) => void): () => void {
+    const listener = (_e: unknown, state: ChestState): void => cb(state);
+    ipcRenderer.on(IPC.CHESTS, listener);
+    return () => ipcRenderer.removeListener(IPC.CHESTS, listener);
+  },
+  getBoxTimers(): Promise<BoxTimerState> {
+    return ipcRenderer.invoke(IPC.GET_BOX_TIMERS);
+  },
+  onBoxTimers(cb: (state: BoxTimerState) => void): () => void {
+    const listener = (_e: unknown, state: BoxTimerState): void => cb(state);
+    ipcRenderer.on(IPC.BOX_TIMERS, listener);
+    return () => ipcRenderer.removeListener(IPC.BOX_TIMERS, listener);
+  },
+  markBoxDropped(boxId: number): Promise<BoxTimerState> {
+    return ipcRenderer.invoke(IPC.MARK_BOX_DROPPED, boxId);
+  },
+  clearBoxTimer(boxId: number): Promise<BoxTimerState> {
+    return ipcRenderer.invoke(IPC.CLEAR_BOX_TIMER, boxId);
+  },
+  setBoxTrackerBoxes(boxIds: number[]): Promise<BoxTimerState> {
+    return ipcRenderer.invoke(IPC.SET_BOX_TRACKER_BOXES, boxIds);
   },
   pricesStatus(): Promise<PriceStatus> {
     return ipcRenderer.invoke(IPC.PRICES_STATUS);

@@ -1,0 +1,22 @@
+---
+description: Remove temporary spike/probe scripts before marking app features complete or opening a PR
+globs: app/**/*
+alwaysApply: false
+---
+
+# Spike and probe scripts — delete when done
+
+Temporary research scripts (`probe-*.ts`, `spike-*.ts`, scratch runners under `app/scripts/`) exist only to explore save formats, APIs, or data shapes during development.
+
+**Before marking a feature complete, merging, or opening a PR:**
+
+1. **Delete** spike/probe scripts and their scratch outputs (dump JSON, `.tmp`, local-only fixtures) unless the user explicitly asked to keep them.
+2. **Promote** durable results into the real codebase:
+   - behavior → `app/src/core/` + tests
+   - bundled catalog data → `data/`
+   - research notes → `docs/findings/`
+3. **Do not commit** new spike scripts unless actively mid-investigation on the same branch; if committed, remove them in the same PR before merge.
+
+**Keep** scripts that are part of the product toolchain (`qa-gate.mjs`, `qa-dev.mjs`, documented `npm run` scripts, CI).
+
+When finishing work under `app/`, include spike cleanup in the tbh-qa completion checklist (`.cursor/skills/tbh-qa/SKILL.md`).

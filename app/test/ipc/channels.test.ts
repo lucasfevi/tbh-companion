@@ -12,6 +12,9 @@ describe("IPC channel registry", () => {
     const preload = readFileSync(join(__dirname, "../../src/preload/index.ts"), "utf-8");
     expect(preload).toContain("IPC.GET_STATS");
     expect(preload).toContain("IPC.GET_INVENTORY");
+    expect(preload).toContain("IPC.GET_CHESTS");
+    expect(preload).toContain("IPC.GET_BOX_TIMERS");
+    expect(preload).toContain("IPC.SET_BOX_TRACKER_BOXES");
     expect(preload).toContain("IPC.SAVE_CONFIG");
     expect(preload).toContain("IPC.PRICES_REFRESH");
   });
@@ -28,9 +31,13 @@ describe("IPC channel registry", () => {
   it("services broadcast on IPC push constants", () => {
     const tracking = readFileSync(join(__dirname, "../../src/main/services/TrackingService.ts"), "utf-8");
     const inventory = readFileSync(join(__dirname, "../../src/main/services/InventoryService.ts"), "utf-8");
+    const chests = readFileSync(join(__dirname, "../../src/main/services/ChestService.ts"), "utf-8");
+    const boxTimers = readFileSync(join(__dirname, "../../src/main/services/BoxTimerService.ts"), "utf-8");
     expect(tracking).toContain("IPC.STATS");
     expect(inventory).toContain("IPC.INVENTORY");
     expect(inventory).toContain("IPC.PRICES_PROGRESS");
+    expect(chests).toContain("IPC.CHESTS");
+    expect(boxTimers).toContain("IPC.BOX_TIMERS");
   });
 
   it("preload uses send channels via IPC constants", () => {

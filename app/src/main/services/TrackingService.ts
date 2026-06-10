@@ -20,6 +20,7 @@ export class TrackingService {
   constructor(
     onInventory: (snap: InventorySnapshot) => void,
     parseInventorySnapshot?: (text: string, mtime: number) => InventorySnapshot,
+    private readonly onStageKey?: (stageKey: number) => void,
   ) {
     this.onInventory = onInventory;
     this.parseInventorySnapshot = parseInventorySnapshot;
@@ -83,6 +84,7 @@ export class TrackingService {
         this.lastSnap = snap;
         this.lastError = null;
         this.tracker.update(snap);
+        this.onStageKey?.(snap.stageKey);
         this.pushStats();
       },
       onError: (message) => {
