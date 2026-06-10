@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { isPriceableItem, marketHashName, marketHashMatch, marketHashCandidates } from "../../src/core/marketName";
+import {
+  isPriceableItem,
+  marketHashName,
+  marketHashMatch,
+  marketHashCandidates,
+} from "../../src/core/marketName";
 import type { GameItem } from "../../src/core/gamedata";
 
 const mat: GameItem = {

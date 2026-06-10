@@ -4,12 +4,7 @@ import { join } from "node:path";
 
 import { attachExternalLinkHandlers } from "./app/lifecycle";
 import { createLogger, initDiagnosticLog } from "./log";
-import {
-  getAppServices,
-  restoreSessionWindows,
-  startTracking,
-  stopTracking,
-} from "./app/appState";
+import { getAppServices, restoreSessionWindows, startTracking, stopTracking } from "./app/appState";
 import { registerIpc } from "./ipc/registerIpc";
 import { createTray, destroyTray, isAppQuitting, setAppQuitting } from "./tray/trayService";
 
@@ -19,9 +14,9 @@ app.on("web-contents-created", (_event, contents) => {
 
 function appVersion(): string {
   try {
-    const pkg = JSON.parse(
-      readFileSync(join(__dirname, "../../package.json"), "utf-8"),
-    ) as { version?: string };
+    const pkg = JSON.parse(readFileSync(join(__dirname, "../../package.json"), "utf-8")) as {
+      version?: string;
+    };
     return pkg.version ?? "unknown";
   } catch {
     return "unknown";

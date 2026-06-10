@@ -11,11 +11,7 @@ import {
   type GameData,
   type GameItem,
 } from "../core/gamedata";
-import {
-  buildStageBoxCatalog,
-  isStageBoxItemKey,
-  stageBoxIdSet,
-} from "../core/stageBoxes";
+import { buildStageBoxCatalog, isStageBoxItemKey, stageBoxIdSet } from "../core/stageBoxes";
 import { bundledDataCandidates } from "../core/bundledData";
 
 const CATALOG_FETCH_URL = "https://tbh.city/items";

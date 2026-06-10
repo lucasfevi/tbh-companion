@@ -92,7 +92,11 @@ export function InventoryFilters({
         Tradable only
       </label>
       <label className="inv-toggle">
-        <input type="checkbox" checked={inUseOnly} onChange={(e) => onInUseOnlyChange(e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={inUseOnly}
+          onChange={(e) => onInUseOnlyChange(e.target.checked)}
+        />
         In use only
       </label>
       <span className="muted small">{shownCount} shown</span>

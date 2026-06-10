@@ -60,7 +60,12 @@ export function Live() {
           </div>
         </div>
 
-        <button type="button" className="reset" title="Reset session stats" onClick={() => window.tbh.reset()}>
+        <button
+          type="button"
+          className="reset"
+          title="Reset session stats"
+          onClick={() => window.tbh.reset()}
+        >
           {"\u21bb"} Reset
         </button>
       </section>
@@ -109,9 +114,7 @@ export function Live() {
         )}
       </section>
 
-      {showStatus && (
-        <footer className={idle ? "status warn" : "status"}>{stats.status}</footer>
-      )}
+      {showStatus && <footer className={idle ? "status warn" : "status"}>{stats.status}</footer>}
     </div>
   );
 }

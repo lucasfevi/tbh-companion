@@ -12,7 +12,10 @@ export function commonBoxCapacity(purchases: RunePurchase[], catalog: RuneBoxCap
   return boxCapacity(purchases, catalog.common);
 }
 
-export function stageBossBoxCapacity(purchases: RunePurchase[], catalog: RuneBoxCapCatalog): number {
+export function stageBossBoxCapacity(
+  purchases: RunePurchase[],
+  catalog: RuneBoxCapCatalog,
+): number {
   return boxCapacity(purchases, catalog.stageBoss);
 }
 

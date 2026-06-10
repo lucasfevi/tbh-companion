@@ -2,7 +2,12 @@
 
 import { unwrapEs3Entry } from "../save/snapshot";
 import { materialStacksFromAggregates, parseAggregateEntries } from "./aggregates";
-import type { InventoryItemInstance, ChestHolding, InventorySnapshot, ItemLocation } from "../../../shared/types";
+import type {
+  InventoryItemInstance,
+  ChestHolding,
+  InventorySnapshot,
+  ItemLocation,
+} from "../../../shared/types";
 
 function toNum(v: unknown, fallback = 0): number {
   const n = Number(v);
@@ -39,7 +44,10 @@ function parseEquippedIds(playerStr: string): Set<string> {
   const equipped = new Set<string>();
   const re = /"equippedItemIds"\s*:\s*\[([^\]]*)\]/g;
   for (const m of playerStr.matchAll(re)) {
-    for (const id of m[1].split(",").map((s) => s.trim()).filter(Boolean)) {
+    for (const id of m[1]
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)) {
       equipped.add(id);
     }
   }

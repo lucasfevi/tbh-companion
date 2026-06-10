@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { unassignedCount, rowMatchesLocation, rowMatchesAnyLocation } from "../../src/core/inventory/location";
+import {
+  unassignedCount,
+  rowMatchesLocation,
+  rowMatchesAnyLocation,
+} from "../../src/core/inventory/location";
 import type { ResolvedInventoryRow } from "../../shared/types";
 
 const row: ResolvedInventoryRow = {

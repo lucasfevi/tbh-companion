@@ -43,9 +43,7 @@ describe("diagnosticLog", () => {
 
   it("getDiagnosticLogPath resolves under userData logs folder", () => {
     userDataDir = mkdtempSync(join(tmpdir(), "tbh-log-"));
-    expect(getDiagnosticLogPath(userDataDir)).toBe(
-      join(userDataDir, "logs", DIAGNOSTIC_LOG_FILE),
-    );
+    expect(getDiagnosticLogPath(userDataDir)).toBe(join(userDataDir, "logs", DIAGNOSTIC_LOG_FILE));
     expect(resolveDiagnosticLogDir(userDataDir)).toBe(join(userDataDir, "logs"));
   });
 

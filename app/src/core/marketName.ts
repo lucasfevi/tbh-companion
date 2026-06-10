@@ -20,7 +20,11 @@ export function isPriceableItem(type: string, grade: string, marketTradable: boo
 
 const GEAR_VARIANT_LETTERS = ["A", "B", "C", "D", "E"] as const;
 
-export function gearMarketHash(itemName: string, catalogGrade: string, variantLetter = "A"): string {
+export function gearMarketHash(
+  itemName: string,
+  catalogGrade: string,
+  variantLetter = "A",
+): string {
   return `${itemName} (${gradeTitle(catalogGrade)}) ${variantLetter}`;
 }
 

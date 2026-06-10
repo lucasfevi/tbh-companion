@@ -1,4 +1,4 @@
-import { BrowserWindow } from "electron";
+import { type BrowserWindow } from "electron";
 
 import { loadConfig, saveConfig, type AppConfig } from "../config";
 import { TrackingService } from "../services/TrackingService";
@@ -9,7 +9,11 @@ import { SessionStateService } from "../services/SessionStateService";
 import { applyConfigPatch } from "../ipc/configPatch";
 import { clearDiagnosticLogs, createLogger, logRendererError } from "../log";
 import { clearAppDataFiles, getAppDataPaths } from "../services/appData";
-import type { AppDataClearTarget, RendererLogPayload, SessionUiSnapshot } from "../../../shared/types";
+import type {
+  AppDataClearTarget,
+  RendererLogPayload,
+  SessionUiSnapshot,
+} from "../../../shared/types";
 
 const appDataLog = createLogger("appData");
 import { createMainWindow as buildMainWindow } from "../windows/mainWindow";
@@ -162,8 +166,7 @@ export function getAppServices() {
         appDataLog.info(`Cache cleared (${target}): ${result.cleared.join(", ")}`);
       }
 
-      const reloadCatalog =
-        target === "catalog" || target === "all-except-config";
+      const reloadCatalog = target === "catalog" || target === "all-except-config";
       const reloadPrices = target === "prices" || target === "all-except-config";
       const reloadTimers = target === "box-timers" || target === "all-except-config";
       const reloadSession = target === "session" || target === "all-except-config";

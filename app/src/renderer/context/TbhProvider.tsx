@@ -7,12 +7,7 @@ import {
   startTransition,
   type ReactNode,
 } from "react";
-import type {
-  Stats,
-  ResolvedInventory,
-  PriceStatus,
-  PriceProgress,
-} from "../../../shared/types";
+import type { Stats, ResolvedInventory, PriceStatus, PriceProgress } from "../../../shared/types";
 import { reportIpcError } from "../lib/reportError";
 
 export interface TbhContextValue {
@@ -35,11 +30,7 @@ export function TbhProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    void Promise.all([
-      window.tbh.getStats(),
-      window.tbh.getInventory(),
-      window.tbh.pricesStatus(),
-    ])
+    void Promise.all([window.tbh.getStats(), window.tbh.getInventory(), window.tbh.pricesStatus()])
       .then(([s, inv, ps]) => {
         if (!mounted) return;
         if (s) setStats(s);

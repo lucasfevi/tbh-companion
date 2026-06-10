@@ -1,31 +1,20 @@
 // Builds the Stats payload pushed to the renderer from tracker + last snapshot.
 
-
-
 import type { Stats, SaveSnapshot } from "../../shared/types";
 
 import type { XpTracker } from "../core/tracker";
 
 import { heroName } from "../core/heroes";
 
-
-
 const IDLE_THRESHOLD_SECONDS = 120;
 
 const HISTORY_VISIBLE = 50;
 
-
-
 function nowSeconds(): number {
-
   return Date.now() / 1000;
-
 }
 
-
-
 export function buildStats(
-
   tracker: XpTracker,
 
   lastSnap: SaveSnapshot | null,
@@ -33,9 +22,7 @@ export function buildStats(
   lastError: string | null,
 
   statusOverride: string | null = null,
-
 ): Stats {
-
   const sourceHeroes = lastSnap?.heroes ?? tracker.heroes;
 
   const heroes = sourceHeroes
@@ -43,7 +30,6 @@ export function buildStats(
     .filter((h) => h.unlocked || h.exp > 0)
 
     .map((h) => ({
-
       key: h.key,
 
       name: heroName(h.key),
@@ -51,10 +37,7 @@ export function buildStats(
       level: h.level,
 
       rate: tracker.heroRate(h.key),
-
     }));
-
-
 
   const sinceGain = tracker.secondsSinceGain;
 
@@ -62,36 +45,21 @@ export function buildStats(
 
   const sinceRead = lastSnap ? nowSeconds() - lastSnap.saveMtime : null;
 
-
-
   let status: string;
 
   if (statusOverride) {
-
     status = statusOverride;
-
   } else if (lastError) {
-
     status = lastError;
-
   } else if (sinceGain === null) {
-
     status = "Tracking";
-
   } else if (sinceGain > IDLE_THRESHOLD_SECONDS) {
-
     status = `No XP gained for ${Math.round(sinceGain)}s - is the game running?`;
-
   } else {
-
     status = "Tracking";
-
   }
 
-
-
   return {
-
     connected: lastError === null,
 
     status,
@@ -119,9 +87,5 @@ export function buildStats(
     heroes,
 
     history: tracker.history.slice(-HISTORY_VISIBLE).reverse(),
-
   };
-
 }
-
-

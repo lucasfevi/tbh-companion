@@ -3,11 +3,7 @@ import type { ItemLocation, ResolvedInventoryRow } from "../../../shared/types";
 export function unassignedCount(row: ResolvedInventoryRow): number {
   const inUse = row.inUseCount ?? 0;
   return (
-    row.count -
-    (row.inventoryCount ?? 0) -
-    (row.stashCount ?? 0) -
-    (row.tradingCount ?? 0) -
-    inUse
+    row.count - (row.inventoryCount ?? 0) - (row.stashCount ?? 0) - (row.tradingCount ?? 0) - inUse
   );
 }
 

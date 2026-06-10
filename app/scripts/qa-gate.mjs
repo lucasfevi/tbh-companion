@@ -16,6 +16,8 @@ function run(cmd) {
 }
 
 run("npm run typecheck");
+run("npm run lint");
+run("npm run format:check");
 run("npm test");
 run("npm run build");
 
@@ -28,7 +30,10 @@ if (!existsSync(mainBundle)) {
 const main = readFileSync(mainBundle, "utf8");
 const badPatterns = [
   { re: /\.\.\/\.\.\/preload/g, label: "../../preload (must be ../preload from out/main/)" },
-  { re: /\.\.\/\.\.\/renderer\/index\.html/g, label: "../../renderer (must be ../renderer from out/main/)" },
+  {
+    re: /\.\.\/\.\.\/renderer\/index\.html/g,
+    label: "../../renderer (must be ../renderer from out/main/)",
+  },
 ];
 
 for (const { re, label } of badPatterns) {
@@ -55,7 +60,9 @@ const requiredDataFiles = [
 for (const file of requiredDataFiles) {
   const path = join(dataDir, file);
   if (!existsSync(path)) {
-    console.error(`FAIL: missing bundled data file data/${file} (required for release extraResources)`);
+    console.error(
+      `FAIL: missing bundled data file data/${file} (required for release extraResources)`,
+    );
     process.exit(1);
   }
 }
@@ -88,5 +95,5 @@ if (catalogSource.includes("process.cwd()")) {
   process.exit(1);
 }
 
-console.log("\nQA gate passed (typecheck + tests + build + bundle path checks).");
+console.log("\nQA gate passed (typecheck + lint + format + tests + build + bundle path checks).");
 console.log("Still required: npm run dev — confirm the window is NOT blank (see tbh-qa skill).");

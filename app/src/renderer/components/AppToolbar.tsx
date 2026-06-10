@@ -1,8 +1,22 @@
 function MiniOverlayIcon() {
   return (
     <svg className="toolbar-icon" viewBox="0 0 16 16" aria-hidden="true">
-      <rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M5 11V8h2v3M9 11V6h2v5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <rect
+        x="2"
+        y="3"
+        width="12"
+        height="10"
+        rx="1.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.2"
+      />
+      <path
+        d="M5 11V8h2v3M9 11V6h2v5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -17,7 +31,12 @@ function BoxTrackerIcon() {
         strokeWidth="1.2"
         strokeLinejoin="round"
       />
-      <path d="M8 3v10M3 5.5l5 2.5 5-2.5" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path
+        d="M8 3v10M3 5.5l5 2.5 5-2.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

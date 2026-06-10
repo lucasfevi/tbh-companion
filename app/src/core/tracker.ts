@@ -231,10 +231,7 @@ export class XpTracker {
     this.goldGained += gain;
     this.goldLastChangeMtime = mtime;
     this.goldSamples.push([mtime, this.goldGained]);
-    while (
-      this.goldSamples.length > 2 &&
-      mtime - this.goldSamples[0][0] > this.rollingWindow
-    ) {
+    while (this.goldSamples.length > 2 && mtime - this.goldSamples[0][0] > this.rollingWindow) {
       this.goldSamples.shift();
     }
     if (this.goldSamples.length >= 2) {

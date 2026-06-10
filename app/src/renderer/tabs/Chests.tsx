@@ -96,7 +96,12 @@ export function Chests() {
           breakdown={chests.capacity.stageBoss}
           fillClass="blue"
         />
-        <ChestCategoryCard title="Act boss" slot={actBoss} breakdown={chests.capacity.actBoss} fillClass="red" />
+        <ChestCategoryCard
+          title="Act boss"
+          slot={actBoss}
+          breakdown={chests.capacity.actBoss}
+          fillClass="red"
+        />
       </div>
     </div>
   );

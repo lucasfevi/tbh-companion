@@ -99,7 +99,7 @@ try {
   console.log("Visual tab smoke still recommended — run npm run dev and confirm UI is not blank.");
   exitCode = 0;
 } catch (err) {
-  console.error(`\nqa:dev FAILED: ${(err).message}`);
+  console.error(`\nqa:dev FAILED: ${err.message}`);
   const tail = scanLog(log);
   if (tail) console.error(`Matched log pattern: ${tail}`);
   exitCode = 1;

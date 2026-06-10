@@ -7,11 +7,7 @@ import type {
   AppDataPaths,
   ClearAppDataResult,
 } from "../../../shared/types";
-import {
-  DIAGNOSTIC_LOG_FILE,
-  getDiagnosticLogPath,
-  listDiagnosticLogFiles,
-} from "../log";
+import { DIAGNOSTIC_LOG_FILE, getDiagnosticLogPath, listDiagnosticLogFiles } from "../log";
 
 export const CATALOG_FILES = ["gamedata.json", "gear_levels.json"] as const;
 export const BOX_TIMERS_FILE = "box_timers.json";
@@ -54,7 +50,10 @@ export function getAppDataPaths(userDataDir = resolveUserDataDir()): AppDataPath
     {
       id: "prices",
       label: "Steam Market prices",
-      files: priceFiles.length > 0 ? priceFiles : [`${PRICE_CACHE_PREFIX}<currency>${PRICE_CACHE_SUFFIX}`],
+      files:
+        priceFiles.length > 0
+          ? priceFiles
+          : [`${PRICE_CACHE_PREFIX}<currency>${PRICE_CACHE_SUFFIX}`],
       exists: priceFiles.length > 0,
     },
     {

@@ -38,7 +38,9 @@ export function Market() {
         setBusy(false);
         clearPriceProgress();
         const stopMsg = res.stopped === "cancelled" ? " (cancelled)" : "";
-        setMessage(`Priced ${res.priced}, skipped ${res.skipped} fresh, ${res.failed} failed${stopMsg}.`);
+        setMessage(
+          `Priced ${res.priced}, skipped ${res.skipped} fresh, ${res.failed} failed${stopMsg}.`,
+        );
       }
     } catch (err) {
       reportIpcError(err);
@@ -50,7 +52,8 @@ export function Market() {
     window.tbh.cancelPrices();
   }
 
-  const pct = progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0;
+  const pct =
+    progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0;
 
   const cachedCount = status?.count ?? 0;
 

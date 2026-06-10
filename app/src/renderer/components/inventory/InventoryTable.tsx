@@ -17,7 +17,9 @@ export interface InventoryTableProps {
   currency: string;
   sortKey: "name" | "grade" | "level" | "type" | "count" | "inUse" | "price" | "value";
   sortDir: "asc" | "desc";
-  onSort: (key: "name" | "grade" | "level" | "type" | "count" | "inUse" | "price" | "value") => void;
+  onSort: (
+    key: "name" | "grade" | "level" | "type" | "count" | "inUse" | "price" | "value",
+  ) => void;
   onClearFilters: () => void;
 }
 

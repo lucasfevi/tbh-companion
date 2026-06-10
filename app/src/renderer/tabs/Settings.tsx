@@ -264,7 +264,10 @@ export function Settings() {
               min={1}
               value={draft.pollIntervalSeconds}
               onChange={(e) =>
-                setDraft({ ...draft, pollIntervalSeconds: Math.max(1, Number(e.target.value) || 1) })
+                setDraft({
+                  ...draft,
+                  pollIntervalSeconds: Math.max(1, Number(e.target.value) || 1),
+                })
               }
             />
           </label>
@@ -276,7 +279,10 @@ export function Settings() {
               min={1}
               value={draft.rollingWindowMinutes}
               onChange={(e) =>
-                setDraft({ ...draft, rollingWindowMinutes: Math.max(1, Number(e.target.value) || 1) })
+                setDraft({
+                  ...draft,
+                  rollingWindowMinutes: Math.max(1, Number(e.target.value) || 1),
+                })
               }
             />
             <span className="muted small">Changing this resets the current session.</span>
@@ -345,7 +351,11 @@ export function Settings() {
           <button
             type="button"
             className="btn"
-            disabled={clearLogsBusy || Boolean(clearBusy) || !dataPaths?.entries.find((e) => e.id === "diagnostic-log")?.exists}
+            disabled={
+              clearLogsBusy ||
+              Boolean(clearBusy) ||
+              !dataPaths?.entries.find((e) => e.id === "diagnostic-log")?.exists
+            }
             onClick={() => void onClearDiagnosticLogs()}
           >
             {clearLogsBusy ? "Clearing…" : "Clear"}

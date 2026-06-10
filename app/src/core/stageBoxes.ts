@@ -90,7 +90,9 @@ export function buildStageBoxCatalog(): StageBoxCatalog {
   return { count: items.length, items };
 }
 
-export function stageBoxIdSet(items: Iterable<GameItem> = buildStageBoxCatalog().items): ReadonlySet<number> {
+export function stageBoxIdSet(
+  items: Iterable<GameItem> = buildStageBoxCatalog().items,
+): ReadonlySet<number> {
   return new Set([...items].map((i) => i.id));
 }
 

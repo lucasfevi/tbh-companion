@@ -22,7 +22,9 @@ function toggleLevel(entry: BoxTimerCatalogEntry, catalog: BoxTimerCatalogEntry[
 }
 
 function applyPreset(levels: number[], catalog: BoxTimerCatalogEntry[]): void {
-  const ids = catalog.filter((e) => e.level != null && levels.includes(e.level)).map((e) => e.boxId);
+  const ids = catalog
+    .filter((e) => e.level != null && levels.includes(e.level))
+    .map((e) => e.boxId);
   void window.tbh.setBoxTrackerBoxes(ids);
 }
 
@@ -103,10 +105,20 @@ export function BoxTracker() {
       <div className="overlay-bar box-tracker-bar">
         <span className="overlay-title drag-handle">Stage chest tracker</span>
         <div className="overlay-actions no-drag">
-          <button type="button" className="icon-btn" title="Open full window" onClick={() => window.tbh.showMain()}>
+          <button
+            type="button"
+            className="icon-btn"
+            title="Open full window"
+            onClick={() => window.tbh.showMain()}
+          >
             {"\u2922"}
           </button>
-          <button type="button" className="icon-btn" title="Close" onClick={() => window.tbh.closeBoxTracker()}>
+          <button
+            type="button"
+            className="icon-btn"
+            title="Close"
+            onClick={() => window.tbh.closeBoxTracker()}
+          >
             {"\u2715"}
           </button>
         </div>
@@ -188,7 +200,6 @@ export function BoxTracker() {
           )}
         </div>
       )}
-
     </div>
   );
 }

@@ -7,7 +7,9 @@ export interface AggregateEntry {
   value: number;
 }
 
-export function parseAggregateEntries(player: Record<string, unknown> | null | undefined): AggregateEntry[] {
+export function parseAggregateEntries(
+  player: Record<string, unknown> | null | undefined,
+): AggregateEntry[] {
   if (!player) return [];
   const raw = player.aggregateSaveDatas;
   if (!Array.isArray(raw)) return [];

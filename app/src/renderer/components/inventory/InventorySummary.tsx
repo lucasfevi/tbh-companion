@@ -29,9 +29,7 @@ export function InventorySummary({
         const after = result.status.count;
         setCatalogMessage(
           `Catalog updated (${after.toLocaleString()} items).` +
-            (before > 0
-              ? " Remaining unknown items may not be listed on tbh.city yet."
-              : ""),
+            (before > 0 ? " Remaining unknown items may not be listed on tbh.city yet." : ""),
         );
       } else {
         setCatalogMessage(`Refresh failed: ${result.error ?? "could not fetch catalog"}.`);

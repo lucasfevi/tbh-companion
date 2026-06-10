@@ -55,7 +55,17 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
       sortKey,
       sortDir,
     });
-  }, [inv, query, tradableOnly, inUseOnly, gradeFilter, typeFilter, locationFilter, sortKey, sortDir]);
+  }, [
+    inv,
+    query,
+    tradableOnly,
+    inUseOnly,
+    gradeFilter,
+    typeFilter,
+    locationFilter,
+    sortKey,
+    sortDir,
+  ]);
 
   if (!inv) {
     return (
@@ -106,7 +116,11 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
             ? `: ${priceProgress.done}/${priceProgress.total} (${priceProgress.priced} priced)`
             : "..."}
           .{" "}
-          <button type="button" className="btn small-btn danger" onClick={() => window.tbh.cancelPrices()}>
+          <button
+            type="button"
+            className="btn small-btn danger"
+            onClick={() => window.tbh.cancelPrices()}
+          >
             Stop
           </button>
         </div>

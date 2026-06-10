@@ -27,7 +27,10 @@ export function typeOptionsFromInventory(inv: ResolvedInventory): string[] {
   return [...new Set(inv.rows.map((r) => r.type))].sort();
 }
 
-export function filterAndSortRows(inv: ResolvedInventory, state: InventoryFilterState): ResolvedInventoryRow[] {
+export function filterAndSortRows(
+  inv: ResolvedInventory,
+  state: InventoryFilterState,
+): ResolvedInventoryRow[] {
   const q = state.query.trim().toLowerCase();
   let rows = inv.rows.filter((row) => {
     const inUse = row.inUseCount ?? 0;
@@ -35,14 +38,15 @@ export function filterAndSortRows(inv: ResolvedInventory, state: InventoryFilter
     if (state.inUseOnly && inUse <= 0) return false;
     if (state.gradeFilter !== "ALL" && row.grade !== state.gradeFilter) return false;
     if (state.typeFilter !== "ALL" && row.type !== state.typeFilter) return false;
-    if (state.locationFilter !== "ALL" && !rowMatchesLocation(row, state.locationFilter)) return false;
+    if (state.locationFilter !== "ALL" && !rowMatchesLocation(row, state.locationFilter))
+      return false;
     if (q && !row.name.toLowerCase().includes(q)) return false;
     return true;
   });
 
   const dir = state.sortDir === "asc" ? 1 : -1;
   rows = [...rows].sort((a, b) => {
-    let cmp = 0;
+    let cmp: number;
     if (state.sortKey === "name") cmp = a.name.localeCompare(b.name);
     else if (state.sortKey === "type") cmp = a.type.localeCompare(b.type);
     else if (state.sortKey === "level") cmp = (a.level ?? -1) - (b.level ?? -1);

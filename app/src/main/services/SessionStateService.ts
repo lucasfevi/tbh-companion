@@ -71,11 +71,13 @@ export class SessionStateService {
     }
   }
 
-  startAutosave(getContext: () => {
-    tracker: XpTracker;
-    lastSnap: SaveSnapshot | null;
-    config: AppConfig;
-  }): void {
+  startAutosave(
+    getContext: () => {
+      tracker: XpTracker;
+      lastSnap: SaveSnapshot | null;
+      config: AppConfig;
+    },
+  ): void {
     this.stopAutosave();
     this.saveTimer = setInterval(() => {
       const ctx = getContext();
@@ -179,11 +181,7 @@ export class SessionStateService {
     this.setStatusOverride("New session");
   }
 
-  flush(
-    tracker: XpTracker,
-    lastSnap: SaveSnapshot | null,
-    config: AppConfig,
-  ): void {
+  flush(tracker: XpTracker, lastSnap: SaveSnapshot | null, config: AppConfig): void {
     this.persist(tracker, lastSnap, config);
   }
 

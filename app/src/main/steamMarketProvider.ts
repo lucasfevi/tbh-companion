@@ -131,7 +131,13 @@ export class SteamMarketProvider {
         const name = allTargets[i];
         if (!opts.force && this.isFresh(name, now)) {
           skipped++;
-          opts.onProgress?.({ done: i + 1, total: allTargets.length, current: name, priced, failed });
+          opts.onProgress?.({
+            done: i + 1,
+            total: allTargets.length,
+            current: name,
+            priced,
+            failed,
+          });
           continue;
         }
 

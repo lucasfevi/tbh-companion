@@ -17,10 +17,7 @@ export function sessionMatchesConfig(
  * Whether a fresh save snapshot can continue a persisted session.
  * Same or newer mtime is OK; older mtime means the save was replaced or rolled back.
  */
-export function snapshotContinuesSession(
-  persistedLastMtime: number,
-  snap: SaveSnapshot,
-): boolean {
+export function snapshotContinuesSession(persistedLastMtime: number, snap: SaveSnapshot): boolean {
   return snap.saveMtime >= persistedLastMtime;
 }
 

@@ -21,13 +21,15 @@ export class ErrorBoundary extends Component<Props, State> {
     if (import.meta.env.DEV) {
       console.error(error, info.componentStack);
     }
-    void window.tbh?.logRendererError?.({
-      source: "ErrorBoundary",
-      message: error.message,
-      stack: info.componentStack ?? error.stack,
-    }).catch(() => {
-      // Preload may be unavailable during early boot.
-    });
+    void window.tbh
+      ?.logRendererError?.({
+        source: "ErrorBoundary",
+        message: error.message,
+        stack: info.componentStack ?? error.stack,
+      })
+      .catch(() => {
+        // Preload may be unavailable during early boot.
+      });
   }
 
   render(): ReactNode {

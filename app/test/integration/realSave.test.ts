@@ -3,7 +3,12 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { readSnapshot, readAndDecrypt } from "../../src/main/io/saveFile";
 import { parseInventory, resolveInventory } from "../../src/core/inventory";
-import { buildChestState, loadBoxTypeCatalog, loadRuneBoxCapCatalog, parseRuneSaveData } from "../../src/core/boxes";
+import {
+  buildChestState,
+  loadBoxTypeCatalog,
+  loadRuneBoxCapCatalog,
+  parseRuneSaveData,
+} from "../../src/core/boxes";
 import { indexById, type GameData } from "../../src/core/gamedata";
 
 // Integration test against the actual local save. Skipped automatically when
@@ -19,7 +24,9 @@ const savePath = join(
 
 const bundledGameData = join(__dirname, "../../../data/gamedata.json");
 
-function loadCatalogLookup(): (key: number) => ReturnType<typeof indexById> extends Map<number, infer V> ? V : never {
+function loadCatalogLookup(): (
+  key: number,
+) => ReturnType<typeof indexById> extends Map<number, infer V> ? V : never {
   const data = JSON.parse(readFileSync(bundledGameData, "utf-8")) as GameData;
   const index = indexById(data.items);
   return (key) => index.get(key);

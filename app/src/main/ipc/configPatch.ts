@@ -29,8 +29,7 @@ export function applyConfigPatch(deps: ConfigPatchDeps, patch: Partial<AppConfig
     patch.savePath !== undefined ||
     patch.pollIntervalSeconds !== undefined ||
     patch.es3Password !== undefined;
-  const needsTracker =
-    patch.rollingWindowMinutes !== undefined || patch.trackCubeExp !== undefined;
+  const needsTracker = patch.rollingWindowMinutes !== undefined || patch.trackCubeExp !== undefined;
   const csvToggled = patch.logHistoryCsv !== undefined;
 
   const prev = deps.getConfig();
@@ -38,10 +37,7 @@ export function applyConfigPatch(deps: ConfigPatchDeps, patch: Partial<AppConfig
   deps.setConfig(next);
   deps.saveConfig(next);
 
-  if (
-    patch.savePath !== undefined &&
-    expandPath(patch.savePath) !== expandPath(prev.savePath)
-  ) {
+  if (patch.savePath !== undefined && expandPath(patch.savePath) !== expandPath(prev.savePath)) {
     deps.onSavePathChange?.();
   }
 
@@ -49,9 +45,7 @@ export function applyConfigPatch(deps: ConfigPatchDeps, patch: Partial<AppConfig
     (key) => patch[key] !== undefined,
   );
   if (changedKeys.length > 0) {
-    const safe = changedKeys.map((key) =>
-      key === "es3Password" ? "es3Password (redacted)" : key,
-    );
+    const safe = changedKeys.map((key) => (key === "es3Password" ? "es3Password (redacted)" : key));
     configLog.info(`Config updated: ${safe.join(", ")}`);
   }
 

@@ -39,8 +39,12 @@ npm install
 npm run dev        # electron-vite dev (main + renderer with HMR)
 npm run build      # production bundle (out/)
 npm run typecheck  # tsc --noEmit
+npm run lint       # eslint (errors fail; warnings OK)
+npm run lint:fix   # eslint --fix
+npm run format     # prettier --write
+npm run format:check  # prettier --check
 npm test           # vitest (core logic)
-npm run qa         # typecheck + test + build + bundle guards (run before marking done)
+npm run qa         # typecheck + lint + format + test + build + bundle guards (run before marking done)
 npm run qa:dev     # automated dev smoke when UI is not visible (see tbh-qa skill)
 npm run pack       # electron-builder --dir -> release/win-unpacked (no installer)
 npm run dist       # electron-builder -> Windows NSIS installer
@@ -128,7 +132,7 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 
 **Testing:** all new `core/` logic needs Vitest; new IPC/config handlers need tests in `test/main/` or `test/ipc/`. Optional local integration: `test/integration/realSave.test.ts`.
 
-**QA before done:** run the **tbh-qa** skill (`.cursor/skills/tbh-qa/SKILL.md`) — `npm run qa`, then `npm run dev` (non-blank window) or `npm run qa:dev` when the UI cannot be seen. Never mark app work complete on tests/build alone.
+**QA before done:** run the **tbh-qa** skill (`.cursor/skills/tbh-qa/SKILL.md`) — `npm run qa` (includes lint + format check), then `npm run dev` (non-blank window) or `npm run qa:dev` when the UI cannot be seen. Never mark app work complete on tests/build alone or with lint/format failures.
 
 ## Docs index
 

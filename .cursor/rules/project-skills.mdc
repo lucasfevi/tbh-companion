@@ -9,7 +9,7 @@ Before **implementing** a feature, refactor, or behavior change under `app/`:
 
 1. **Read** (open the file; do not rely on memory):
    - `.cursor/skills/coding-guidelines/SKILL.md` — always
-   - `.cursor/skills/tbh-qa/SKILL.md` — completion gate (`npm run qa`, dev smoke)
+   - `.cursor/skills/tbh-qa/SKILL.md` — completion gate (`npm run qa` incl. lint/format, dev smoke)
 2. **Also read when the change touches:**
    - `app/src/renderer/**` → `.cursor/skills/react-best-practices/SKILL.md` and `.cursor/skills/tbh-ux/SKILL.md` (tabs, chrome, overlays, layout)
    - `app/src/main/**`, `app/src/preload/**`, CSP, IPC, network, config → `.cursor/skills/best-practices/SKILL.md`
@@ -21,4 +21,4 @@ Apply the skills during the work, not only at the end. No drive-by refactors out
 
 **Refactors:** follow **coding-guidelines** and layer skills; keep diffs surgical — no drive-by rewrites outside the task.
 
-**Done means:** tbh-qa passed, spike/probe scripts removed when applicable, and required skills were followed — not just green tests.
+**Done means:** tbh-qa passed (lint, format, typecheck, tests, build), spike/probe scripts removed when applicable, and required skills were followed — not just green tests.

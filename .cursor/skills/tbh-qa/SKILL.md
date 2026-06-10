@@ -1,10 +1,10 @@
 ---
 name: tbh-qa
-description: Run TBH Companion QA before marking app work complete — typecheck, tests, build, bundle path checks, and dev smoke so the Electron window is not blank. Use when finishing features, refactors, bugfixes, IPC/main/preload/renderer changes in app/, or before commits touching the companion app. Not for docs-only, data-only, or read-only questions outside app/.
+description: Run TBH Companion QA before marking app work complete — lint, format, typecheck, tests, build, bundle path checks, and dev smoke so the Electron window is not blank. Use when finishing features, refactors, bugfixes, IPC/main/preload/renderer changes in app/, or before commits touching the companion app. Not for docs-only, data-only, or read-only questions outside app/.
 license: CC-BY-4.0
 metadata:
   author: tbh-project
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # TBH Companion — QA gate
@@ -47,7 +47,7 @@ From `app/`:
 cd app; npm run qa
 ```
 
-Runs `typecheck`, `vitest`, `build`, and bundle path guards (rejects `../../preload` in `out/main/index.js`). Fix and re-run until green.
+Runs `typecheck`, `lint`, `format:check`, `vitest`, `build`, and bundle path guards (rejects `../../preload` in `out/main/index.js`). Fix lint/format issues with `npm run lint:fix` and `npm run format`, then re-run until green.
 
 ### Step 2 — Dev launch
 
@@ -112,7 +112,7 @@ Tell the user only after required steps pass:
 
 ```markdown
 ## QA
-- `npm run qa`: pass (typecheck, N tests, build, bundle paths)
+- `npm run qa`: pass (typecheck, lint, format, N tests, build, bundle paths)
 - Dev: pass — [manual: tabs visible | automated: qa:dev exit 0]
 - Manual: [extra checks]
 ```
@@ -142,9 +142,10 @@ Actions:
 ## Hard rules
 
 1. **Never skip dev smoke** for main/preload/window/path/IPC/renderer changes.
-2. **Paths**: preload/renderer via `app/src/main/paths.ts` (`../preload`, `../renderer` from `out/main/`).
-3. **PowerShell**: chain with `;` not `&&`.
-4. **No personal data** in commits (`.es3`, decrypted saves).
+2. **Never mark done** with lint or format failures — `npm run qa` must pass (includes `lint` + `format:check`).
+3. **Paths**: preload/renderer via `app/src/main/paths.ts` (`../preload`, `../renderer` from `out/main/`).
+4. **PowerShell**: chain with `;` not `&&`.
+5. **No personal data** in commits (`.es3`, decrypted saves).
 
 ## Reference
 

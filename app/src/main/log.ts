@@ -65,8 +65,7 @@ export function evaluateLogThrottle(
     return { action: "skip" };
   }
 
-  const suffix =
-    entry.suppressed > 0 ? ` (repeated ${entry.suppressed} times)` : undefined;
+  const suffix = entry.suppressed > 0 ? ` (repeated ${entry.suppressed} times)` : undefined;
   entry.lastLoggedMs = nowMs;
   entry.suppressed = 0;
   return { action: "log", messageSuffix: suffix };
@@ -130,9 +129,7 @@ export function createLogger(module: string): Logger {
   };
 }
 
-export function clearDiagnosticLogs(
-  userDataDir = resolveUserDataDir(),
-): ClearDiagnosticLogResult {
+export function clearDiagnosticLogs(userDataDir = resolveUserDataDir()): ClearDiagnosticLogResult {
   const cleared: string[] = [];
 
   for (const rel of listDiagnosticLogFiles(userDataDir)) {

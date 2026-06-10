@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it, expect } from "vitest";
-import { IPC, IPC_INVOKE_CHANNELS, IPC_PUSH_CHANNELS, IPC_SEND_CHANNELS } from "../../shared/ipc";
+import { IPC_INVOKE_CHANNELS, IPC_PUSH_CHANNELS, IPC_SEND_CHANNELS } from "../../shared/ipc";
 
 function readHandler(name: string): string {
   return readFileSync(join(__dirname, `../../src/main/ipc/handlers/${name}.ts`), "utf-8");
@@ -33,19 +33,28 @@ describe("IPC channel registry", () => {
     expect(market).toContain("IPC.PRICES_REFRESH");
     expect(data).toContain("IPC.GET_DATA_PATHS");
     expect(data).toContain("IPC.CLEAR_APP_DATA");
-    const logHandler = readFileSync(
-      join(__dirname, "../../src/main/ipc/handlers/log.ts"),
-      "utf-8",
-    );
+    const logHandler = readFileSync(join(__dirname, "../../src/main/ipc/handlers/log.ts"), "utf-8");
     expect(logHandler).toContain("IPC.CLEAR_DIAGNOSTIC_LOGS");
     expect(logHandler).toContain("IPC.LOG_RENDERER_ERROR");
   });
 
   it("services broadcast on IPC push constants", () => {
-    const tracking = readFileSync(join(__dirname, "../../src/main/services/TrackingService.ts"), "utf-8");
-    const inventory = readFileSync(join(__dirname, "../../src/main/services/InventoryService.ts"), "utf-8");
-    const chests = readFileSync(join(__dirname, "../../src/main/services/ChestService.ts"), "utf-8");
-    const boxTimers = readFileSync(join(__dirname, "../../src/main/services/BoxTimerService.ts"), "utf-8");
+    const tracking = readFileSync(
+      join(__dirname, "../../src/main/services/TrackingService.ts"),
+      "utf-8",
+    );
+    const inventory = readFileSync(
+      join(__dirname, "../../src/main/services/InventoryService.ts"),
+      "utf-8",
+    );
+    const chests = readFileSync(
+      join(__dirname, "../../src/main/services/ChestService.ts"),
+      "utf-8",
+    );
+    const boxTimers = readFileSync(
+      join(__dirname, "../../src/main/services/BoxTimerService.ts"),
+      "utf-8",
+    );
     expect(tracking).toContain("IPC.STATS");
     expect(inventory).toContain("IPC.INVENTORY");
     expect(inventory).toContain("IPC.PRICES_PROGRESS");
