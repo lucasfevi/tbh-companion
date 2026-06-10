@@ -11,6 +11,12 @@ describe("parseMoney", () => {
     expect(parseMoney("R$ 0,17")).toBeCloseTo(0.17);
     expect(parseMoney("1.234,56 zl")).toBeCloseTo(1234.56);
     expect(parseMoney("0,03 EUR")).toBeCloseTo(0.03);
+    expect(parseMoney("3,24₴")).toBeCloseTo(3.24);
+  });
+
+  it("parses Philippine peso prices", () => {
+    expect(parseMoney("P6.49")).toBeCloseTo(6.49);
+    expect(parseMoney("P4.44")).toBeCloseTo(4.44);
   });
 
   it("parses integer-only currencies (JPY/KRW)", () => {
@@ -30,6 +36,8 @@ describe("currency map", () => {
     expect(currencyCode("USD")).toBe(1);
     expect(currencyCode("BRL")).toBe(7);
     expect(currencyCode("eur")).toBe(3);
+    expect(currencyCode("PHP")).toBe(12);
+    expect(currencyCode("UAH")).toBe(18);
   });
 
   it("falls back to USD for unknown codes", () => {
@@ -45,6 +53,8 @@ describe("currency map", () => {
     expect(formatMoney(0.04, "USD")).toBe("$0.04");
     expect(formatMoney(0.04, "BRL")).toBe("R$ 0,04");
     expect(formatMoney(120, "JPY")).toBe("¥120");
+    expect(formatMoney(6.49, "PHP")).toBe("P6.49");
+    expect(formatMoney(3.24, "UAH")).toBe("3,24");
   });
 });
 
