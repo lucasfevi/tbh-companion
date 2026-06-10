@@ -35,6 +35,7 @@ QA progress:
 - [ ] Step 2: Dev launch (`npm run dev` or `npm run qa:dev`)
 - [ ] Step 3: UI smoke OR automated dev fallback
 - [ ] Step 4: Scope-specific checks (if applicable)
+- [ ] Step 4b: Spike/probe cleanup (if applicable)
 - [ ] Step 5: Report results to user
 ```
 
@@ -90,8 +91,19 @@ Quit dev when done (close Electron + stop terminal).
 | `main/ipc/configPatch.ts`, Settings | currency → price refresh; CSV toggle |
 | `main/paths.ts`, `main/windows/` | bundle check + dev not blank |
 | `renderer/` only | dev smoke + no console errors |
+| research spike / new `data/` or save parsing | remove `probe-*`, `spike-*`, scratch dumps; findings in tests, `data/`, or `docs/findings/` |
 
 Full checklist: [references/checklist.md](references/checklist.md) — read when debugging failures or testing Settings/Inventory/overlay.
+
+### Step 4b — Spike / probe cleanup
+
+When the task involved exploring save formats, APIs, or catalog shapes:
+
+1. **Delete** temporary scripts under `app/scripts/` (e.g. `probe-*.ts`, `spike-*.ts`) and scratch outputs not wired into `package.json` or CI.
+2. **Keep** durable results in `app/src/core/`, tests, `data/`, or `docs/findings/` — not in throwaway runners.
+3. **Do not** leave spike scripts in the PR at merge time unless the user explicitly asked to keep them as a documented dev tool.
+
+Rule: `.cursor/rules/spike-scripts.mdc`
 
 ### Step 5 — Report
 
