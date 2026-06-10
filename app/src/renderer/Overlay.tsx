@@ -1,11 +1,9 @@
 import { useStats } from "./lib/useStats";
 import { useInventory } from "./lib/useInventory";
 import { usePriceStatus } from "./lib/usePrices";
-import { fmtCompact, fmtAgo } from "./lib/format";
+import { fmtCompact } from "./lib/format";
 import { formatMoney } from "../core/steamPrice";
 import { stageName } from "../core/stages";
-
-const IDLE_THRESHOLD = 120;
 
 const RATE_TIP =
   "XP/hour updates only when the game writes new XP to the save (often up to " +
@@ -23,8 +21,6 @@ export function Overlay() {
   const invValue = inv?.composition.valuedTotal ?? null;
   const pricing = priceStatus?.running ?? false;
 
-  const idle = stats !== null && stats.secondsSinceGain !== null && stats.secondsSinceGain > IDLE_THRESHOLD;
-
   return (
     <div className="overlay">
       <div className="overlay-bar">
@@ -36,7 +32,11 @@ export function Overlay() {
           <button type="button" title="Open full window" onClick={() => window.tbh.showMain()}>
             {"\u2922"}
           </button>
-          <button type="button" title="Close overlay" onClick={() => window.tbh.closeOverlay()}>
+          <button
+            type="button"
+            title="Close mini overlay (app keeps running in the tray)"
+            onClick={() => window.tbh.closeOverlay()}
+          >
             {"\u2715"}
           </button>
         </div>
@@ -59,12 +59,6 @@ export function Overlay() {
 
           <p className="overlay-detail">
             <span>{stageName(stats.stageKey, stats.stageWave)}</span>
-            <span className="overlay-sep" aria-hidden>
-              ·
-            </span>
-            <span className={idle ? "warn" : undefined} title="When XP last changed in your save">
-              XP updated {fmtAgo(stats.secondsSinceGain)}
-            </span>
             {inv && (
               <>
                 <span className="overlay-sep" aria-hidden>

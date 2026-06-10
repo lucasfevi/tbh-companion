@@ -9,7 +9,6 @@ import { applyConfigPatch } from "../ipc/configPatch";
 import { createMainWindow as buildMainWindow } from "../windows/mainWindow";
 import { createOverlayWindow as buildOverlayWindow } from "../windows/overlayWindow";
 import { createBoxTrackerWindow as buildBoxTrackerWindow } from "../windows/boxTrackerWindow";
-import { isAppQuitting } from "../tray/trayService";
 
 let config: AppConfig;
 const inventory = new InventoryService();
@@ -56,12 +55,6 @@ export function openOverlayWindow(): BrowserWindow {
     () => overlayWindow,
     (w) => {
       overlayWindow = w;
-    },
-    () => {
-      if (!isAppQuitting()) {
-        openMainWindow();
-        mainWindow?.show();
-      }
     },
   );
 }
@@ -135,10 +128,6 @@ export function getAppServices() {
     },
     closeOverlay: () => {
       overlayWindow?.close();
-      if (!isAppQuitting()) {
-        openMainWindow();
-        mainWindow?.show();
-      }
     },
   };
 }
