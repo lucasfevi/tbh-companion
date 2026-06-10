@@ -104,7 +104,7 @@ export function initDiagnosticLog(): void {
 }
 
 export function createLogger(module: string): Logger {
-  const scoped = log.scope(` ${module}`);
+  const scoped = log.scope(module);
 
   const write = (level: "info" | "warn" | "error", message: string): void => {
     const sanitized = sanitizeLogMessage(message);

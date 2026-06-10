@@ -15,6 +15,7 @@ const appDataLog = createLogger("appData");
 import { createMainWindow as buildMainWindow } from "../windows/mainWindow";
 import { createOverlayWindow as buildOverlayWindow } from "../windows/overlayWindow";
 import { createBoxTrackerWindow as buildBoxTrackerWindow } from "../windows/boxTrackerWindow";
+import { isAppQuitting } from "../tray/trayService";
 
 let config: AppConfig;
 const sessionState = new SessionStateService();
@@ -83,6 +84,7 @@ export function openOverlayWindow(): BrowserWindow {
       overlayWindow = w;
     },
     () => {
+      if (isAppQuitting()) return;
       sessionState.setMiniOverlayOpen(false);
       tracking.flushSession();
     },
@@ -98,6 +100,7 @@ export function openBoxTrackerWindow(): BrowserWindow {
     () => boxTimers.startTick(),
     () => {
       boxTimers.stopTick();
+      if (isAppQuitting()) return;
       sessionState.setBoxTrackerOpen(false);
       tracking.flushSession();
     },
