@@ -24,6 +24,11 @@ function readAppVersion(): string {
   }
 }
 
+function formatCurrentVersion(): string {
+  const base = readAppVersion();
+  return app.isPackaged ? base : `${base}-dev`;
+}
+
 function friendlyUpdateError(err: unknown): string {
   const message =
     err instanceof Error ? err.message : typeof err === "string" ? err : "Update check failed.";
@@ -62,7 +67,7 @@ export class UpdateService {
   private baseStatus(phase: UpdatePhase = "idle"): UpdateStatus {
     return {
       phase: app.isPackaged ? phase : "disabled",
-      currentVersion: readAppVersion(),
+      currentVersion: formatCurrentVersion(),
     };
   }
 

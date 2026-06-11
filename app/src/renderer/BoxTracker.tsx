@@ -51,7 +51,7 @@ function BoxTimerCard({ row }: { row: BoxTimerRow }) {
         "border-l-[3px]",
         row.status === "cooldown" && "border-l-status-info",
         row.status === "ready" && "border-l-status-success",
-        row.atIdealStage && "shadow-[inset_0_0_0_1px_rgba(74,163,255,0.25)]",
+        row.atIdealStage && "shadow-[inset_0_0_0_1px] shadow-ideal/25",
       )}
     >
       <div className="flex items-start justify-between gap-2">
@@ -172,7 +172,7 @@ export function BoxTracker() {
                 className={cn(
                   "cursor-pointer rounded-full border px-2 py-0.5 text-[10px] font-semibold",
                   entry.enabled
-                    ? "border-accent bg-[rgba(74,163,255,0.15)] text-accent"
+                    ? "border-accent bg-ideal/15 text-accent"
                     : "border-border bg-card text-muted hover:border-muted hover:text-fg",
                 )}
                 title={`${entry.idealStageLabel}${entry.enabled ? " — tracking" : " — tap to track"}`}

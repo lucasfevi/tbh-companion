@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Card } from "./Card";
 import { cn } from "../../lib/cn";
 
 export function StatCard({
@@ -13,12 +14,7 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-1 rounded-lg border border-border bg-panel p-2.5",
-        className,
-      )}
-    >
+    <Card padding="compact" className={cn("flex flex-col gap-1 bg-panel", className)}>
       {valueFirst ? (
         <>
           <div className="text-lg font-semibold">{value}</div>
@@ -30,6 +26,6 @@ export function StatCard({
           <span className="text-lg font-semibold">{value}</span>
         </>
       )}
-    </div>
+    </Card>
   );
 }

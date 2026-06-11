@@ -3,6 +3,7 @@ import { fmtCompact, fmtDuration, fmtXpUpdated, fmtClock } from "../lib/format";
 import { stageName } from "../../core/stages";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
+import { DataList, DataListRow } from "../components/ui/DataList";
 import { PanelSection } from "../components/ui/PanelSection";
 import { StatCard } from "../components/ui/StatCard";
 import { TabHeader } from "../components/ui/TabHeader";
@@ -96,21 +97,19 @@ export function Live() {
         {stats.heroes.length === 0 ? (
           <p className="m-0 text-muted">No active heroes yet.</p>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-border">
+          <DataList>
             {stats.heroes.map((h, i) => (
-              <div
+              <DataListRow
                 key={h.key}
-                className={cn(
-                  "grid grid-cols-[1fr_auto_auto] items-center gap-3 px-3 py-2 text-[13px]",
-                  i % 2 === 0 && "bg-panel",
-                )}
+                index={i}
+                className="grid grid-cols-[1fr_auto_auto] items-center gap-3"
               >
                 <span className="font-semibold">{h.name}</span>
                 <span className="text-muted">Lv {h.level}</span>
                 <span className="tabular-nums text-accent">{fmtCompact(h.rate)}/hr</span>
-              </div>
+              </DataListRow>
             ))}
-          </div>
+          </DataList>
         )}
       </PanelSection>
 
@@ -124,22 +123,20 @@ export function Live() {
         {stats.history.length === 0 ? (
           <p className="m-0 text-muted">No XP changes recorded yet.</p>
         ) : (
-          <div className="max-h-[220px] overflow-y-auto rounded-lg border border-border">
+          <DataList scrollable className="max-h-[220px]">
             {stats.history.map((e, i) => (
-              <div
+              <DataListRow
                 key={`${e.wallTime}-${i}`}
-                className={cn(
-                  "grid grid-cols-[auto_auto_auto_1fr] items-center gap-3 px-3 py-2 text-[13px] tabular-nums",
-                  i % 2 === 0 && "bg-panel",
-                )}
+                index={i}
+                className="grid grid-cols-[auto_auto_auto_1fr] items-center gap-3 tabular-nums"
               >
                 <span className="text-muted">{fmtClock(e.wallTime)}</span>
                 <span className="text-accent">+{fmtCompact(e.delta)}</span>
                 <span>{fmtCompact(e.rate)}/hr</span>
                 <span className="text-right text-muted">{stageName(e.stageKey, e.stageWave)}</span>
-              </div>
+              </DataListRow>
             ))}
-          </div>
+          </DataList>
         )}
       </PanelSection>
 

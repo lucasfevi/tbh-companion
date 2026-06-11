@@ -8,11 +8,18 @@ import { Section } from "../components/ui/Section";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
 
-const GITHUB_RELEASES = "https://github.com/lucasfevi/tbh-companion/releases";
+const GITHUB_REPO = "https://github.com/lucasfevi/tbh-companion";
+const GITHUB_RELEASES = `${GITHUB_REPO}/releases`;
 
 function githubReleaseUrl(version: string): string {
   const tag = version.startsWith("v") ? version : `v${version}`;
   return `${GITHUB_RELEASES}/tag/${tag}`;
+}
+
+function releaseNotesUrl(currentVersion: string | undefined): string {
+  if (!currentVersion || currentVersion === "…") return GITHUB_RELEASES;
+  const base = currentVersion.replace(/-dev$/, "");
+  return githubReleaseUrl(base);
 }
 
 function fmtBytes(bytes: number | undefined): string {
@@ -45,6 +52,9 @@ function statusMessage(status: UpdateStatus): string | null {
       return null;
   }
 }
+
+const externalLinkClass =
+  "text-muted no-underline hover:text-accent hover:underline focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export function About() {
   const status = useUpdate();
@@ -93,19 +103,40 @@ export function About() {
         intro="TBH Companion is an unofficial fan tool for Task Bar Hero. It reads your local save only — it never changes your save or connects to game servers."
       />
 
-      <div className="flex max-w-md flex-col gap-3.5">
+      <div className="flex flex-col gap-3.5">
         <Section title="Version">
           <p className="m-0">
             <strong>v{status?.currentVersion ?? "…"}</strong>
           </p>
-          <p className="m-0 text-xs text-muted">
+          <p className="m-0 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs">
+            <a
+              href={GITHUB_REPO}
+              className={externalLinkClass}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+            <span className="text-muted opacity-55" aria-hidden>
+              ·
+            </span>
+            <a
+              href={releaseNotesUrl(status?.currentVersion)}
+              className={externalLinkClass}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Release notes
+            </a>
+          </p>
+          <p className="m-0 max-w-2xl text-xs text-muted">
             Not affiliated with Tesseract Studio. Fan-made companion for personal stats and
             inventory valuation.
           </p>
         </Section>
 
         {!isDisabled && (
-          <Section title="Updates">
+          <Section title="Updates" className="max-w-md">
             {message && (
               <p className={`m-0 ${phase === "error" ? "text-accent" : "text-muted"}`}>{message}</p>
             )}
@@ -128,7 +159,7 @@ export function About() {
               <p className="m-0 text-xs">
                 <a
                   href={githubReleaseUrl(status.availableVersion!)}
-                  className="text-inherit no-underline hover:text-accent hover:underline"
+                  className={externalLinkClass}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
