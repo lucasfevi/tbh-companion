@@ -4,6 +4,7 @@ import { isAppQuitting } from "../tray/trayService";
 import { loadRenderer } from "./loadRenderer";
 import { setWindowIcon } from "../iconPaths";
 import { MAIN_WINDOW_HEIGHT, MAIN_WINDOW_MIN_HEIGHT, MAIN_WINDOW_WIDTH } from "./constants";
+import { applyWindowTopmost } from "./alwaysOnTop";
 
 export function createMainWindow(
   getExisting: () => BrowserWindow | null,
@@ -14,6 +15,7 @@ export function createMainWindow(
   if (existing && !existing.isDestroyed()) {
     existing.setMinimumSize(MAIN_WINDOW_WIDTH, MAIN_WINDOW_MIN_HEIGHT);
     existing.setMaximumSize(MAIN_WINDOW_WIDTH, 0);
+    applyWindowTopmost(existing, startTopmost());
     existing.show();
     return existing;
   }
@@ -34,7 +36,7 @@ export function createMainWindow(
   });
 
   win.on("ready-to-show", () => {
-    win.setAlwaysOnTop(startTopmost());
+    applyWindowTopmost(win, startTopmost());
     win.show();
   });
 

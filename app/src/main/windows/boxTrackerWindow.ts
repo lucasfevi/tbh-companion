@@ -1,21 +1,25 @@
 import { BrowserWindow } from "electron";
 import { PRELOAD_SCRIPT } from "../paths";
 import { loadRenderer } from "./loadRenderer";
+import { applyWindowTopmost } from "./alwaysOnTop";
 
 export function createBoxTrackerWindow(
   getExisting: () => BrowserWindow | null,
   setWindow: (w: BrowserWindow | null) => void,
+  startTopmost: () => boolean,
   onOpen?: () => void,
   onClose?: () => void,
 ): BrowserWindow {
   const existing = getExisting();
   if (existing && !existing.isDestroyed()) {
+    applyWindowTopmost(existing, startTopmost(), true);
     existing.show();
     existing.focus();
     onOpen?.();
     return existing;
   }
 
+  const topmost = startTopmost();
   const win = new BrowserWindow({
     width: 340,
     height: 520,
@@ -25,7 +29,7 @@ export function createBoxTrackerWindow(
     resizable: true,
     minWidth: 300,
     minHeight: 360,
-    alwaysOnTop: true,
+    alwaysOnTop: topmost,
     skipTaskbar: true,
     backgroundColor: "#0f1117",
     webPreferences: {
@@ -34,7 +38,7 @@ export function createBoxTrackerWindow(
     },
   });
 
-  win.setAlwaysOnTop(true, "screen-saver");
+  applyWindowTopmost(win, topmost, true);
   win.on("ready-to-show", () => win.show());
   win.on("closed", () => {
     setWindow(null);

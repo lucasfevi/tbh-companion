@@ -395,7 +395,7 @@ export function Settings() {
 
         <Section title="Window & tray">
           <div className="flex flex-col gap-3">
-            <Field label="Keep main window on top" checkbox>
+            <Field label="Keep all windows on top" checkbox>
               <input
                 type="checkbox"
                 checked={draft.startTopmost}

@@ -23,6 +23,7 @@ import { createMainWindow as buildMainWindow } from "../windows/mainWindow";
 import { createOverlayWindow as buildOverlayWindow } from "../windows/overlayWindow";
 import { createBoxTrackerWindow as buildBoxTrackerWindow } from "../windows/boxTrackerWindow";
 import { isAppQuitting } from "../tray/trayService";
+import { applyWindowTopmost } from "../windows/alwaysOnTop";
 
 let config: AppConfig;
 const sessionState = new SessionStateService();
@@ -93,6 +94,7 @@ export function openOverlayWindow(): BrowserWindow {
     (w) => {
       overlayWindow = w;
     },
+    () => config.startTopmost,
     () => {
       if (isAppQuitting()) return;
       sessionState.setMiniOverlayOpen(false);
@@ -107,6 +109,7 @@ export function openBoxTrackerWindow(): BrowserWindow {
     (w) => {
       boxTrackerWindow = w;
     },
+    () => config.startTopmost,
     () => boxTimers.startTick(),
     () => {
       boxTimers.stopTick();
@@ -169,7 +172,11 @@ export function getAppServices() {
           getMarket: () => inventory.getMarket(),
           restartWatcher: () => tracking.restartWatcher(),
           setAlwaysOnTop: (v) => {
-            if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setAlwaysOnTop(v);
+            if (mainWindow && !mainWindow.isDestroyed()) applyWindowTopmost(mainWindow, v);
+            if (overlayWindow && !overlayWindow.isDestroyed())
+              applyWindowTopmost(overlayWindow, v, true);
+            if (boxTrackerWindow && !boxTrackerWindow.isDestroyed())
+              applyWindowTopmost(boxTrackerWindow, v, true);
           },
           pushStats: () => tracking.pushStats(),
           resolveAndPushInventory: () => inventory.resolveAndPushInventory(),
