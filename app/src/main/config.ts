@@ -2,6 +2,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { platform } from "node:os";
 import { app } from "electron";
 import {
   DEFAULT_NOTIFICATION_PREFS,
@@ -15,8 +16,15 @@ import { DEFAULT_PASSWORD } from "../core/es3";
 
 export type { AppConfig };
 
-const DEFAULT_SAVE = join(
-  "%USERPROFILE%",
+/** Relative save path fragment shared across all Linux candidate paths. */
+const STEAM_REL = join(
+  "steamapps",
+  "compatdata",
+  "3678970",
+  "pfx",
+  "drive_c",
+  "users",
+  "steamuser",
   "AppData",
   "LocalLow",
   "TesseractStudio",
@@ -29,8 +37,44 @@ const DEFAULT_CHEST_AUTO_OPEN: ChestAutoOpenPrefs = {
   stageBoss: false,
 };
 
+/**
+ * Return candidate save paths for Linux Steam/Proton, ordered by likelihood.
+ * This is a pure function (no I/O) so it can be tested without mocking fs.
+ */
+export function getDefaultSavePathCandidates(home: string): string[] {
+  return [
+    // Arch/Omarchy native pacman Steam: ~/.local/share/Steam/steamapps/compatdata/...
+    join(home, ".local", "share", "Steam", STEAM_REL),
+    // Standard Steam (via ~/.steam/steam symlink)
+    join(home, ".steam", "steam", STEAM_REL),
+    // Flatpak Steam
+    join(home, ".var", "app", "com.valvesoftware.Steam", "data", "steam", STEAM_REL),
+  ];
+}
+
+/** Return the platform-appropriate default save path. */
+export function getDefaultSavePath(): string {
+  if (platform() === "win32") {
+    return join(
+      "%USERPROFILE%",
+      "AppData",
+      "LocalLow",
+      "TesseractStudio",
+      "TaskbarHero",
+      "SaveFile_Live.es3",
+    );
+  }
+  const home = process.env.HOME ?? "";
+  const candidates = getDefaultSavePathCandidates(home);
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  // Fallback — return first candidate even if it doesn't exist yet
+  return candidates[0] ?? "";
+}
+
 const DEFAULTS: AppConfig = {
-  savePath: DEFAULT_SAVE,
+  savePath: "", // resolved on load via getDefaultSavePath()
   es3Password: DEFAULT_PASSWORD,
   pollIntervalSeconds: 5,
   rollingWindowMinutes: 5,
@@ -71,14 +115,14 @@ function normalizeConfig(raw: RawConfig): AppConfig {
     raw.inventoryAlmostFullThresholdPercent,
   );
   const chestAutoOpenEnabled = sanitizeChestAutoOpenPrefs(raw.chestAutoOpenEnabled);
-  return {
+  return resolveConfig({
     ...DEFAULTS,
     ...rest,
     notificationPrefs,
     notificationVolume,
     inventoryAlmostFullThresholdPercent,
     chestAutoOpenEnabled,
-  };
+  });
 }
 
 /** Normalizes raw config JSON (migration + validation). Exported for tests. */
@@ -107,6 +151,13 @@ function candidatePaths(): string[] {
   paths.push(join(process.cwd(), "config.json"));
   paths.push(join(process.cwd(), "..", "config.json"));
   return paths;
+}
+
+export function resolveConfig(defaults: AppConfig): AppConfig {
+  if (!defaults.savePath) {
+    defaults.savePath = getDefaultSavePath();
+  }
+  return defaults;
 }
 
 export function loadConfig(): AppConfig {
