@@ -2,9 +2,9 @@ import type { HTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
 
 const fillClasses = {
-  gray: "bg-[#9aa3b5]",
-  blue: "bg-[#5a9fd1]",
-  red: "bg-[#c94a4a]",
+  gray: "bg-status-muted",
+  blue: "bg-status-info",
+  red: "bg-status-danger",
 } as const;
 
 export function CapacityBar({

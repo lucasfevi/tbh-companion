@@ -2,6 +2,7 @@ import { useStats } from "../lib/useStats";
 import { fmtCompact, fmtDuration, fmtXpUpdated, fmtClock } from "../lib/format";
 import { stageName } from "../../core/stages";
 import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/Card";
 import { PanelSection } from "../components/ui/PanelSection";
 import { StatCard } from "../components/ui/StatCard";
 import { TabHeader } from "../components/ui/TabHeader";
@@ -39,7 +40,7 @@ export function Live() {
         intro="Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer."
       />
 
-      <section className="grid grid-cols-[auto_1fr_auto] items-center gap-x-[18px] gap-y-3.5 rounded-[10px] border border-border bg-card px-3.5 py-3 max-[560px]:grid-cols-[1fr_auto] max-[560px]:grid-rows-[auto_auto]">
+      <Card className="grid grid-cols-[auto_1fr_auto] items-center gap-x-[18px] gap-y-3.5 max-[560px]:grid-cols-[1fr_auto] max-[560px]:grid-rows-[auto_auto]">
         <div
           className="flex cursor-help items-baseline gap-2 max-[560px]:col-span-full"
           title={RATE_TIP}
@@ -82,7 +83,7 @@ export function Live() {
         >
           {"\u21bb"} Reset
         </Button>
-      </section>
+      </Card>
 
       <section className="grid grid-cols-4 gap-2.5">
         <StatCard label="Session XP" value={fmtCompact(stats.cumulativeGained)} />
@@ -144,7 +145,7 @@ export function Live() {
 
       {showStatus && (
         <footer
-          className={cn("border-t border-border pt-1 text-xs text-muted", idle && "text-[#e0a64a]")}
+          className={cn("border-t border-border pt-1 text-xs text-muted", idle && "text-gold")}
         >
           {stats.status}
         </footer>

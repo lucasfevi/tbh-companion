@@ -4,12 +4,12 @@ import { cn } from "../../lib/cn";
 type Variant = "full" | "info" | "success" | "muted" | "statusReady" | "statusCooldown";
 
 const variantClasses: Record<Variant, string> = {
-  full: "bg-[#c94a4a] font-semibold text-white",
-  info: "border border-[#3a6a8a] bg-card font-semibold text-[#5a9fd1]",
-  success: "border border-[#3d6b52] bg-card font-semibold text-[#6fcf97]",
+  full: "bg-status-danger font-semibold text-white",
+  info: "border border-status-info-border bg-card font-semibold text-status-info",
+  success: "border border-status-success-border bg-card font-semibold text-status-success",
   muted: "border border-border bg-card font-medium text-muted",
-  statusReady: "bg-[rgba(111,207,151,0.15)] font-bold tabular-nums text-[#6fcf97]",
-  statusCooldown: "bg-[rgba(90,159,209,0.15)] font-bold tabular-nums text-[#5a9fd1]",
+  statusReady: "bg-status-success/15 font-bold tabular-nums text-status-success",
+  statusCooldown: "bg-status-info/15 font-bold tabular-nums text-status-info",
 };
 
 export function Badge({

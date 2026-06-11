@@ -4,6 +4,7 @@ import type { BoxTimerCatalogEntry, BoxTimerRow } from "../../shared/types";
 import { Button } from "./components/ui/Button";
 import { Badge } from "./components/ui/Badge";
 import { CapacityBar } from "./components/ui/CapacityBar";
+import { Card } from "./components/ui/Card";
 import { IconButton } from "./components/ui/IconButton";
 import { OverlayFrame } from "./components/ui/OverlayFrame";
 import { cn } from "./lib/cn";
@@ -43,11 +44,13 @@ function trackLevelsSummary(catalog: BoxTimerCatalogEntry[]): string {
 
 function BoxTimerCard({ row }: { row: BoxTimerRow }) {
   return (
-    <li
+    <Card
+      as="li"
+      padding="compact"
       className={cn(
-        "rounded-lg border border-border border-l-[3px] bg-card px-2.5 py-2",
-        row.status === "cooldown" && "border-l-[#5a9fd1]",
-        row.status === "ready" && "border-l-[#6fcf97]",
+        "border-l-[3px]",
+        row.status === "cooldown" && "border-l-status-info",
+        row.status === "ready" && "border-l-status-success",
         row.atIdealStage && "shadow-[inset_0_0_0_1px_rgba(74,163,255,0.25)]",
       )}
     >
@@ -86,7 +89,7 @@ function BoxTimerCard({ row }: { row: BoxTimerRow }) {
           Dropped
         </Button>
       )}
-    </li>
+    </Card>
   );
 }
 

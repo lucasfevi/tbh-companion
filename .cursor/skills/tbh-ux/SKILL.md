@@ -30,14 +30,15 @@ Tailwind `@theme` in `styles.css` — see [`docs/STYLING.md`](../../docs/STYLING
 | `text-fg`, `text-muted` | Primary and secondary text |
 | `bg-accent` `#5ad17a` | Primary actions, positive states |
 | `text-gold` | XP / idle warnings |
+| `text-status-info`, `text-status-success`, `bg-status-danger` | Box tracker / chest status accents (see `@theme` in `styles.css`) |
 
-Typography: Segoe UI / system sans, 14px body. Use `Button`, `Field`, `Card`, `text-muted`, `text-xs` from `components/ui/` — not one-off hex colors.
+Typography: Segoe UI / system sans, 14px body. Use `Button`, `Field`, `Card`, `text-muted`, `text-xs` from `components/ui/` — prefer theme tokens over one-off hex colors.
 
 ## Main window chrome
 
 ```text
-[ Live | Inventory | Chests | Market | Settings | About ]     [ Mini ] [ Stage chests ]
-[ save status bar ]
+[ Live | Inventory | Chests | Market | Settings | About ]     [ Mini ] [ Stage chests ]  ← AppTabBar
+[ save status bar ]                                                                        ← SaveStatusBar
 [ tab content ]
 ```
 
@@ -46,7 +47,7 @@ Rules:
 - **Tab bar = navigation only.** Never put overlay toggles or actions in the tab `<nav>`.
 - **Overlay entry points:** [`AppToolbar`](../../app/src/renderer/components/AppToolbar.tsx) (`ToolbarButton` for Mini + Stage chests), Chests header CTA for box tracker, and system tray menu.
 - **Do not use Unicode box glyphs** (`□`, `▣`) as icons — use inline SVG like `AppToolbar`.
-- Save status stays below chrome in `App.tsx`; do not duplicate save timing inside tabs.
+- Save status stays below chrome in [`SaveStatusBar`](../../app/src/renderer/components/SaveStatusBar.tsx); do not duplicate save timing inside tabs.
 
 ## Tab content pattern (match Inventory)
 

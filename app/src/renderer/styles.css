@@ -12,6 +12,12 @@
   --color-danger: #d15a5a;
   --color-danger-fg: #f0a0a0;
   --color-gold: #e8c45a;
+  --color-status-info: #5a9fd1;
+  --color-status-info-border: #3a6a8a;
+  --color-status-success: #6fcf97;
+  --color-status-success-border: #3d6b52;
+  --color-status-danger: #c94a4a;
+  --color-status-muted: #9aa3b5;
   --font-sans: "Segoe UI", system-ui, sans-serif;
 }
 

@@ -8,7 +8,8 @@ The renderer uses **Tailwind CSS v4** with shared components under `app/src/rend
 | ----- | ----- | ------ |
 | 1 | Tailwind setup, primitives, Settings/Market/About | Done (PR #20) |
 | 2 | Live, Chests, Inventory, chrome, overlays; trim legacy CSS | Done (PR #21) |
-| 3 | `Card`, `ToolbarButton`, Badge variants, panel `Accordion`; agent docs | Current |
+| 3 | `Card`, `ToolbarButton`, Badge variants, panel `Accordion`; agent docs | Done (PR #22) |
+| 4 | Status color tokens; app chrome extraction; `Card` adoption in Live + box tracker | Current |
 
 ## Stack
 
@@ -31,8 +32,11 @@ The renderer uses **Tailwind CSS v4** with shared components under `app/src/rend
 | Primary action | `bg-accent`, `text-accent-fg`     |
 | Danger         | `border-danger`, `text-danger-fg` |
 | Warning / XP   | `text-gold`                       |
+| Status info    | `text-status-info`, `border-status-info-border` |
+| Status success | `text-status-success`, `border-status-success-border` |
+| Status danger  | `bg-status-danger`                |
 
-Status accents (box tracker, chest full badge) use fixed hex in `Badge` variants — do not invent new colors in tabs.
+Status accents for box tracker and chest badges use `@theme` tokens above — do not invent new hex colors in tabs.
 
 ## UI components
 
