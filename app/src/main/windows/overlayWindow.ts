@@ -1,6 +1,7 @@
 import { BrowserWindow } from "electron";
 import { PRELOAD_SCRIPT } from "../paths";
 import { loadRenderer } from "./loadRenderer";
+import { applyWindowTopmost } from "./alwaysOnTop";
 
 /** Mini overlay — keep in sync with `OverlayFrame` (px-2.5 py-1.5) and readout rows. */
 export const OVERLAY_WIDTH = 280;
@@ -13,16 +14,19 @@ function applyOverlaySize(win: BrowserWindow): void {
 export function createOverlayWindow(
   getExisting: () => BrowserWindow | null,
   setWindow: (w: BrowserWindow | null) => void,
+  startTopmost: () => boolean,
   onClosed?: () => void,
 ): BrowserWindow {
   const existing = getExisting();
   if (existing && !existing.isDestroyed()) {
     applyOverlaySize(existing);
+    applyWindowTopmost(existing, startTopmost(), true);
     existing.show();
     existing.focus();
     return existing;
   }
 
+  const topmost = startTopmost();
   const win = new BrowserWindow({
     width: OVERLAY_WIDTH,
     height: OVERLAY_HEIGHT,
@@ -30,7 +34,7 @@ export function createOverlayWindow(
     show: false,
     frame: false,
     resizable: false,
-    alwaysOnTop: true,
+    alwaysOnTop: topmost,
     skipTaskbar: true,
     backgroundColor: "#0f1117",
     webPreferences: {
@@ -39,7 +43,7 @@ export function createOverlayWindow(
     },
   });
 
-  win.setAlwaysOnTop(true, "screen-saver");
+  applyWindowTopmost(win, topmost, true);
   win.on("ready-to-show", () => win.show());
   win.on("closed", () => {
     setWindow(null);
