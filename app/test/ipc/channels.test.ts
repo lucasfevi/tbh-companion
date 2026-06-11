@@ -16,6 +16,10 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.GET_PETS");
     expect(preload).toContain("IPC.GET_BOX_TIMERS");
     expect(preload).toContain("IPC.SET_BOX_TRACKER_BOXES");
+    expect(preload).toContain("IPC.SET_BOX_TRACKER_COOLDOWN");
+    expect(preload).toContain("IPC.CLEAR_BOX_TRACKER_COOLDOWN");
+    expect(preload).toContain("IPC.SET_BOX_TRACKER_FARM_STAGE");
+    expect(preload).toContain("IPC.CLEAR_BOX_TRACKER_FARM_STAGE");
     expect(preload).toContain("IPC.SAVE_CONFIG");
     expect(preload).toContain("IPC.PICK_SAVE_FILE");
     expect(preload).toContain("IPC.PRICES_REFRESH");

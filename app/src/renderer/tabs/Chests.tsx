@@ -1,12 +1,12 @@
 import { useChests } from "../lib/useChests";
 import type { BoxSlotStatus, ChestCapacityBreakdown } from "../../../shared/types";
 import { Badge } from "../components/ui/Badge";
-import { Button } from "../components/ui/Button";
 import { CapacityBar } from "../components/ui/CapacityBar";
 import { Accordion } from "../components/ui/Accordion";
 import { Card } from "../components/ui/Card";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
+import { ChestsTrackerPanel } from "../components/ChestsTrackerPanel";
 
 function capacityParts(breakdown: ChestCapacityBreakdown): string[] {
   const parts = [`${breakdown.base} base`];
@@ -77,35 +77,36 @@ export function Chests() {
     <TabPage>
       <TabHeader
         title="Chests"
-        intro={`${totalHeld.toLocaleString()} unopened chest slots from your save. Common and stage boss chests share an open cooldown. Stage boss drops are timed — use the Stage chest tracker below.`}
-      >
-        <div className="mt-2 flex flex-col items-start gap-1.5">
-          <Button variant="primary" onClick={() => window.tbh.openBoxTracker()}>
-            Open Stage chest tracker
-          </Button>
-        </div>
-      </TabHeader>
+        intro={`${totalHeld.toLocaleString()} unopened chest slots from your save.`}
+      />
 
-      <div className="grid grid-cols-3 items-stretch gap-2.5 max-[720px]:grid-cols-1">
-        <ChestCategoryCard
-          title="Common"
-          slot={common}
-          breakdown={chests.capacity.common}
-          fillVariant="gray"
-        />
-        <ChestCategoryCard
-          title="Stage boss"
-          slot={stageBoss}
-          breakdown={chests.capacity.stageBoss}
-          fillVariant="blue"
-        />
-        <ChestCategoryCard
-          title="Act boss"
-          slot={actBoss}
-          breakdown={chests.capacity.actBoss}
-          fillVariant="red"
-        />
-      </div>
+      <section aria-labelledby="chest-slots-heading" className="flex flex-col gap-2">
+        <h2 id="chest-slots-heading" className="m-0 text-sm font-semibold">
+          Chest slots
+        </h2>
+        <div className="grid grid-cols-3 items-stretch gap-2.5 max-[720px]:grid-cols-1">
+          <ChestCategoryCard
+            title="Common"
+            slot={common}
+            breakdown={chests.capacity.common}
+            fillVariant="gray"
+          />
+          <ChestCategoryCard
+            title="Stage boss"
+            slot={stageBoss}
+            breakdown={chests.capacity.stageBoss}
+            fillVariant="blue"
+          />
+          <ChestCategoryCard
+            title="Act boss"
+            slot={actBoss}
+            breakdown={chests.capacity.actBoss}
+            fillVariant="red"
+          />
+        </div>
+      </section>
+
+      <ChestsTrackerPanel />
     </TabPage>
   );
 }

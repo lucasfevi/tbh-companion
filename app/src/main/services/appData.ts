@@ -58,7 +58,7 @@ export function getAppDataPaths(userDataDir = resolveUserDataDir()): AppDataPath
     },
     {
       id: "box-timers",
-      label: "Stage chest tracker",
+      label: "Stage boss chest tracker",
       files: [BOX_TIMERS_FILE],
       exists: existsSync(join(userDataDir, BOX_TIMERS_FILE)),
     },

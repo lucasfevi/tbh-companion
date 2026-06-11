@@ -7,7 +7,6 @@ export const REQUIRED_BUNDLED_DATA_FILES = [
   "stage_boxes.json",
   "box_types.json",
   "rune_box_cap.json",
-  "rare_box_routes.json",
   "pets.json",
 ] as const;
 

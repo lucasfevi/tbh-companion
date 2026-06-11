@@ -85,5 +85,5 @@ The box-tracker overlay uses manual **Dropped** buttons with local persistence
 (`box_timers.json` in app userData), inspired by community tools like
 [taskbarhero.sbs](https://taskbarhero.sbs/).
 
-Ideal farming stages are bundled in [`data/rare_box_routes.json`](../../data/rare_box_routes.json)
-(community/wiki curated, no runtime fetch).
+Ideal farming stages and drop ranges are bundled in [`data/stage_boxes.json`](../../data/stage_boxes.json)
+(wiki-sourced tracker metadata on obtainable rare boxes; no runtime fetch).

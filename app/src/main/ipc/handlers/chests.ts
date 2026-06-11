@@ -13,4 +13,16 @@ export function registerBoxTimerHandlers(ipc: IpcMain, services: AppServices): v
   ipc.handle(IPC.SET_BOX_TRACKER_BOXES, (_e, boxIds: number[]) =>
     services.setBoxTrackerBoxes(boxIds),
   );
+  ipc.handle(IPC.SET_BOX_TRACKER_COOLDOWN, (_e, boxId: number, cooldownSeconds: number) =>
+    services.setBoxTrackerCooldown(boxId, cooldownSeconds),
+  );
+  ipc.handle(IPC.CLEAR_BOX_TRACKER_COOLDOWN, (_e, boxId: number) =>
+    services.clearBoxTrackerCooldown(boxId),
+  );
+  ipc.handle(IPC.SET_BOX_TRACKER_FARM_STAGE, (_e, boxId: number, stageKey: number) =>
+    services.setBoxTrackerFarmStage(boxId, stageKey),
+  );
+  ipc.handle(IPC.CLEAR_BOX_TRACKER_FARM_STAGE, (_e, boxId: number) =>
+    services.clearBoxTrackerFarmStage(boxId),
+  );
 }

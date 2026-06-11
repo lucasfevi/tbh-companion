@@ -106,7 +106,6 @@ jobs:
           $required = @(
             "box_types.json",
             "rune_box_cap.json",
-            "rare_box_routes.json",
             "gamedata.json",
             "stage_boxes.json"
           )

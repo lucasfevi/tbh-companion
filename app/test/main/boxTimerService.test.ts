@@ -6,10 +6,24 @@ import { tmpdir } from "node:os";
 vi.mock("electron", () => ({
   app: {
     getPath: () => userDataDir,
+    isPackaged: false,
   },
   BrowserWindow: {
     getAllWindows: () => [],
   },
+}));
+
+vi.mock("../../src/main/log", () => ({
+  createLogger: () => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  }),
+}));
+
+vi.mock("../../src/main/services/broadcast", () => ({
+  broadcast: vi.fn(),
 }));
 
 let userDataDir = "";
@@ -17,6 +31,7 @@ let userDataDir = "";
 describe("BoxTimerService", () => {
   beforeEach(() => {
     userDataDir = mkdtempSync(join(tmpdir(), "tbh-box-timers-"));
+    vi.resetModules();
   });
 
   afterEach(() => {
@@ -24,7 +39,6 @@ describe("BoxTimerService", () => {
   });
 
   async function loadService() {
-    vi.resetModules();
     const { BoxTimerService } = await import("../../src/main/services/BoxTimerService");
     return new BoxTimerService();
   }
@@ -35,6 +49,7 @@ describe("BoxTimerService", () => {
     expect(state.enabledCount).toBe(4);
     expect(state.rows).toHaveLength(4);
     expect(state.catalog).toHaveLength(14);
+    expect(state.defaultCooldownSeconds).toBe(720);
   });
 
   it("toggles enabled boxes and persists selection", async () => {
@@ -66,5 +81,69 @@ describe("BoxTimerService", () => {
 
     svc.clearTimer(920151);
     expect(svc.getState().rows.find((r) => r.boxId === 920151)?.status).toBe("ready");
+  });
+
+  it("stores per-box cooldown overrides", async () => {
+    const svc = await loadService();
+    svc.setCooldownSeconds(920151, 600);
+    expect(svc.getState().rows.find((r) => r.boxId === 920151)?.cooldownSeconds).toBe(600);
+    expect(svc.getState().rows.find((r) => r.boxId === 920151)?.cooldownIsCustom).toBe(true);
+
+    svc.clearCooldownOverride(920151);
+    expect(svc.getState().rows.find((r) => r.boxId === 920151)?.cooldownSeconds).toBe(720);
+    expect(svc.getState().rows.find((r) => r.boxId === 920151)?.cooldownIsCustom).toBe(false);
+
+    const raw = JSON.parse(readFileSync(join(userDataDir, "box_timers.json"), "utf-8")) as {
+      cooldownSecondsByBoxId?: Record<string, number>;
+    };
+    expect(raw.cooldownSecondsByBoxId?.["920151"]).toBeUndefined();
+  });
+
+  it("includes drop stage range on catalog", async () => {
+    const svc = await loadService();
+    svc.setEnabledBoxIds([920501]);
+    const entry = svc.getState().catalog.find((e) => e.boxId === 920501);
+    expect(entry?.dropStageRangeLabel).toContain("Nightmare 3-5");
+    expect(entry?.farmStageOptions.length).toBeGreaterThan(0);
+  });
+
+  it("stores per-box farm stage overrides", async () => {
+    const svc = await loadService();
+    svc.setEnabledBoxIds([920501]);
+    const route = svc.getState().catalog.find((e) => e.boxId === 920501);
+    const altStage = route?.farmStageOptions.find(
+      (opt) => opt.stageKey !== route.defaultIdealStageKey,
+    )?.stageKey;
+    expect(altStage).toBeDefined();
+
+    svc.setFarmStageKey(920501, altStage!);
+    const row = svc.getState().rows.find((r) => r.boxId === 920501);
+    expect(row?.idealStageKey).toBe(altStage);
+    expect(svc.getState().catalog.find((e) => e.boxId === 920501)?.idealStageIsCustom).toBe(true);
+
+    svc.clearFarmStageOverride(920501);
+    expect(svc.getState().rows.find((r) => r.boxId === 920501)?.idealStageKey).toBe(
+      route?.defaultIdealStageKey,
+    );
+  });
+
+  it("marks dropped from Player.log ItemKey for tracked boxes", async () => {
+    const svc = await loadService();
+    expect(svc.tryMarkDroppedFromLog(920151)).toBe(true);
+    expect(svc.getState().rows.find((r) => r.boxId === 920151)?.status).toBe("cooldown");
+  });
+
+  it("ignores Player.log ItemKey when box level is not tracked", async () => {
+    const svc = await loadService();
+    svc.setEnabledBoxIds([920151]);
+    expect(svc.tryMarkDroppedFromLog(920501)).toBe(false);
+    expect(svc.getState().rows.find((r) => r.boxId === 920501)).toBeUndefined();
+  });
+
+  it("marks dropped from duplicate Player.log ItemKey via canonical id", async () => {
+    const svc = await loadService();
+    svc.setEnabledBoxIds([920003]);
+    expect(svc.tryMarkDroppedFromLog(920004)).toBe(true);
+    expect(svc.getState().rows.find((r) => r.boxId === 920003)?.status).toBe("cooldown");
   });
 });

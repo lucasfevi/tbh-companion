@@ -54,6 +54,8 @@ Import from `components/ui/` — **Market `Button` sizing is the reference**.
 | `Card`                     | Bordered panels; `padding`: `default` \| `compact` \| `none`; `as`: `div` \| `li`                      |
 | `DataList`, `DataListRow`  | Striped read-only lists (Live heroes/history)                                                            |
 | `Field`, `Input`, `Select` | Form controls                                                                                            |
+| `NumberInput`, `NumberField` | Themed number inputs (no native spinners); `density`: `default` \| `compact`; `align`: `start` \| `center`; `NumberField` adds optional `label`, `footer`, `labelAlign` / `footerAlign` for compact config rows |
+| `SelectField`              | Themed listbox dropdown (`bg-card`, `border-border`); `variant`: `default` \| `ideal`; optional `footer` slot for reset links without layout shift — not a native `<select>` popup |
 | `Section`                  | Settings/About subsection headings                                                                       |
 | `PanelSection`             | Live-style uppercase section labels                                                                      |
 | `StatCard`                 | Metric tiles (Live totals, Inventory summary) — composes `Card`                                          |
@@ -74,6 +76,24 @@ Import from `components/ui/` — **Market `Button` sizing is the reference**.
 - Main window width is **900px fixed** (no horizontal resize). Do **not** add tab-level `max-width`.
 - Form-heavy tabs: inner column `max-w-md` inside `TabPage`.
 - Player-facing copy in tab intros; technical paths in Settings **Advanced**.
+
+## Layout stability (avoid shift)
+
+Conditional UI must **not** push surrounding content when it appears or disappears.
+
+**Do:**
+
+- Reserve space for optional actions (reset links, hints, errors) with a fixed `min-h-*` footer slot; hide extras with `invisible pointer-events-none` instead of conditional mount.
+- Use `SelectField` for dropdowns — custom list uses app tokens (`bg-card`), not the native OS gray popup.
+- Prefer toggling visibility/opacity over mounting new blocks below controls the user is interacting with.
+
+**Don't:**
+
+- Render reset/help links only when `isCustom` / `hasError` if that changes card or row height.
+- Rely on the browser default select arrow (varies by platform and padding).
+- Stack new badges or messages above/below a focused input without reserved space.
+
+**Agent checklist:** Before shipping renderer UI, scan for `{condition && <…>}` near form controls; if removal would change layout, use a reserved slot or `invisible` placeholder.
 
 ## Adding new styles
 

@@ -6,7 +6,7 @@ import { Accordion } from "../components/ui/Accordion";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Field } from "../components/ui/Field";
-import { Input } from "../components/ui/Input";
+import { NumberInput } from "../components/ui/NumberInput";
 import { Section } from "../components/ui/Section";
 import { Select } from "../components/ui/Select";
 import { TabHeader } from "../components/ui/TabHeader";
@@ -34,10 +34,10 @@ const CLEAR_ACTIONS: {
   },
   {
     target: "box-timers",
-    label: "Reset stage chest tracker",
+    label: "Reset stage boss chest tracker",
     detail: "box_timers.json",
     confirm:
-      "Reset stage chest tracker timers and enabled routes to defaults? Active cooldowns will be cleared.",
+      "Reset stage boss chest tracker timers and enabled routes to defaults? Active cooldowns will be cleared.",
   },
   {
     target: "session",
@@ -327,8 +327,7 @@ export function Settings() {
         <Section title="Live stats">
           <div className="flex flex-col gap-3">
             <Field label="Poll interval (seconds)">
-              <Input
-                type="number"
+              <NumberInput
                 min={1}
                 value={draft.pollIntervalSeconds}
                 onChange={(e) =>
@@ -344,8 +343,7 @@ export function Settings() {
               label="Rolling window (minutes)"
               hint="Changing this resets the current session."
             >
-              <Input
-                type="number"
+              <NumberInput
                 min={1}
                 value={draft.rollingWindowMinutes}
                 onChange={(e) =>

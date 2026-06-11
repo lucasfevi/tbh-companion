@@ -112,6 +112,8 @@ Add new shared UI to `app/src/renderer/components/ui/` when used in more than on
 - [ ] Colors/spacing use existing tokens and classes
 - [ ] Overlay entry points use toolbar/tray/Chests CTA — not tab bar
 - [ ] Chests changes keep compact grid + top CTA
+- [ ] Conditional UI near controls uses reserved space — no layout shift (see [`docs/STYLING.md`](../../docs/STYLING.md) **Layout stability**)
+- [ ] Dropdowns use `SelectField` when a chevron gutter is needed
 - [ ] Run **tbh-qa** (visual smoke if you changed chrome or Chests layout)
 
 ## Examples

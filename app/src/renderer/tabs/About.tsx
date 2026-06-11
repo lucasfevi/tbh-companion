@@ -188,9 +188,9 @@ export function About() {
 
             {canInstall && (
               <p className="m-0 text-xs text-muted">
-                Restart closes the main window, Mini overlay, and stage chest tracker, then installs
-                over your existing folder. Windows may show an unsigned-app warning — choose More
-                info, then Run anyway (same as the first install).
+                Restart closes the main window, Mini overlay, and stage boss chest tracker, then
+                installs over your existing folder. Windows may show an unsigned-app warning —
+                choose More info, then Run anyway (same as the first install).
               </p>
             )}
 

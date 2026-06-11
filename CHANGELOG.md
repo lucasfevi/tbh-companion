@@ -4,6 +4,16 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+### Chests
+
+- **Stage boss chest tracker** on the Chests tab: pick levels to track, set per-level cooldowns and farm stages, and open the overlay from the tab or toolbar.
+- Overlay shows ready/cooling timers; tap **Dropped** manually or rely on **Player.log** auto-detect when a stage boss chest drops.
+- Player.log watch status appears in the save status bar when the log file is available.
+
+### Settings
+
+- Advanced clear-cache action renamed to **Reset stage boss chest tracker** (resets `box_timers.json`).
+
 ## [1.5.0] - 2026-06-11
 
 ### Pets

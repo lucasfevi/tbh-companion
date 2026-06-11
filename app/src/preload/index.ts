@@ -95,6 +95,18 @@ const api: TbhApi = {
   setBoxTrackerBoxes(boxIds: number[]): Promise<BoxTimerState> {
     return ipcRenderer.invoke(IPC.SET_BOX_TRACKER_BOXES, boxIds);
   },
+  setBoxTrackerCooldown(boxId: number, cooldownSeconds: number): Promise<BoxTimerState> {
+    return ipcRenderer.invoke(IPC.SET_BOX_TRACKER_COOLDOWN, boxId, cooldownSeconds);
+  },
+  clearBoxTrackerCooldown(boxId: number): Promise<BoxTimerState> {
+    return ipcRenderer.invoke(IPC.CLEAR_BOX_TRACKER_COOLDOWN, boxId);
+  },
+  setBoxTrackerFarmStage(boxId: number, stageKey: number): Promise<BoxTimerState> {
+    return ipcRenderer.invoke(IPC.SET_BOX_TRACKER_FARM_STAGE, boxId, stageKey);
+  },
+  clearBoxTrackerFarmStage(boxId: number): Promise<BoxTimerState> {
+    return ipcRenderer.invoke(IPC.CLEAR_BOX_TRACKER_FARM_STAGE, boxId);
+  },
   pricesStatus(): Promise<PriceStatus> {
     return ipcRenderer.invoke(IPC.PRICES_STATUS);
   },

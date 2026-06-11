@@ -55,7 +55,6 @@ const requiredDataFiles = [
   "stage_boxes.json",
   "box_types.json",
   "rune_box_cap.json",
-  "rare_box_routes.json",
 ];
 for (const file of requiredDataFiles) {
   const path = join(dataDir, file);

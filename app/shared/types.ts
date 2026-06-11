@@ -367,6 +367,11 @@ export interface PetState {
 
 // --- Box tracker (manual rare boss box timers) ---
 
+export interface BoxTimerFarmStageOption {
+  stageKey: number;
+  label: string;
+}
+
 export interface BoxTimerRow {
   boxId: number;
   name: string;
@@ -374,6 +379,7 @@ export interface BoxTimerRow {
   idealStageKey: number;
   idealStageLabel: string;
   cooldownSeconds: number;
+  cooldownIsCustom: boolean;
   active: boolean;
   remainingSeconds: number;
   progress: number;
@@ -385,7 +391,15 @@ export interface BoxTimerCatalogEntry {
   boxId: number;
   name: string;
   level: number | null;
+  idealStageKey: number;
   idealStageLabel: string;
+  defaultIdealStageKey: number;
+  defaultIdealStageLabel: string;
+  idealStageIsCustom: boolean;
+  farmStageOptions: BoxTimerFarmStageOption[];
+  dropStageRangeLabel: string;
+  cooldownSeconds: number;
+  cooldownIsCustom: boolean;
   enabled: boolean;
 }
 
@@ -396,7 +410,9 @@ export interface BoxTimerState {
   readyCount: number;
   cooldownCount: number;
   currentStageKey: number;
-  disclaimer?: string;
+  defaultCooldownSeconds: number;
+  playerLogPath: string;
+  playerLogAvailable: boolean;
 }
 
 export type UpdatePhase =
@@ -455,6 +471,10 @@ export interface TbhApi {
   markBoxDropped(boxId: number): Promise<BoxTimerState>;
   clearBoxTimer(boxId: number): Promise<BoxTimerState>;
   setBoxTrackerBoxes(boxIds: number[]): Promise<BoxTimerState>;
+  setBoxTrackerCooldown(boxId: number, cooldownSeconds: number): Promise<BoxTimerState>;
+  clearBoxTrackerCooldown(boxId: number): Promise<BoxTimerState>;
+  setBoxTrackerFarmStage(boxId: number, stageKey: number): Promise<BoxTimerState>;
+  clearBoxTrackerFarmStage(boxId: number): Promise<BoxTimerState>;
   getUpdateStatus(): Promise<UpdateStatus>;
   checkForUpdates(): Promise<UpdateStatus>;
   downloadUpdate(): Promise<UpdateStatus>;

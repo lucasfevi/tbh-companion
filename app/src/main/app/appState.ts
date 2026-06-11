@@ -42,6 +42,12 @@ const tracking = new TrackingService(
   },
   (stageKey) => boxTimers.setCurrentStageKey(stageKey),
   sessionState,
+  {
+    onDrop: (itemKey) => {
+      boxTimers.tryMarkDroppedFromLog(itemKey);
+    },
+    onAvailability: (path, available) => boxTimers.setPlayerLogStatus(path, available),
+  },
 );
 
 let mainWindow: BrowserWindow | null = null;
@@ -131,6 +137,12 @@ export function getAppServices() {
     markBoxDropped: (boxId: number) => boxTimers.markDropped(boxId),
     clearBoxTimer: (boxId: number) => boxTimers.clearTimer(boxId),
     setBoxTrackerBoxes: (boxIds: number[]) => boxTimers.setEnabledBoxIds(boxIds),
+    setBoxTrackerCooldown: (boxId: number, cooldownSeconds: number) =>
+      boxTimers.setCooldownSeconds(boxId, cooldownSeconds),
+    clearBoxTrackerCooldown: (boxId: number) => boxTimers.clearCooldownOverride(boxId),
+    setBoxTrackerFarmStage: (boxId: number, stageKey: number) =>
+      boxTimers.setFarmStageKey(boxId, stageKey),
+    clearBoxTrackerFarmStage: (boxId: number) => boxTimers.clearFarmStageOverride(boxId),
     gameDataStatus: () => inventory.gameDataStatus(),
     refreshGameData: () => inventory.refreshGameData(),
     pricesStatus: () => inventory.pricesStatus(),

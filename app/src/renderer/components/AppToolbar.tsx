@@ -50,9 +50,12 @@ export function AppToolbar() {
         <MiniOverlayIcon />
         Mini
       </ToolbarButton>
-      <ToolbarButton title="Open Stage chest tracker" onClick={() => window.tbh.openBoxTracker()}>
+      <ToolbarButton
+        title="Open Stage boss chest tracker"
+        onClick={() => window.tbh.openBoxTracker()}
+      >
         <BoxTrackerIcon />
-        Stage chests
+        Boss chests
       </ToolbarButton>
     </div>
   );
