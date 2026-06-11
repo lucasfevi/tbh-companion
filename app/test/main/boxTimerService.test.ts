@@ -6,10 +6,24 @@ import { tmpdir } from "node:os";
 vi.mock("electron", () => ({
   app: {
     getPath: () => userDataDir,
+    isPackaged: false,
   },
   BrowserWindow: {
     getAllWindows: () => [],
   },
+}));
+
+vi.mock("../../src/main/log", () => ({
+  createLogger: () => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  }),
+}));
+
+vi.mock("../../src/main/services/broadcast", () => ({
+  broadcast: vi.fn(),
 }));
 
 let userDataDir = "";
@@ -17,6 +31,7 @@ let userDataDir = "";
 describe("BoxTimerService", () => {
   beforeEach(() => {
     userDataDir = mkdtempSync(join(tmpdir(), "tbh-box-timers-"));
+    vi.resetModules();
   });
 
   afterEach(() => {
@@ -24,7 +39,6 @@ describe("BoxTimerService", () => {
   });
 
   async function loadService() {
-    vi.resetModules();
     const { BoxTimerService } = await import("../../src/main/services/BoxTimerService");
     return new BoxTimerService();
   }
