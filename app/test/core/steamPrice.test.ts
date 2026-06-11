@@ -26,6 +26,16 @@ describe("parseMoney", () => {
     expect(parseMoney("P4.44")).toBeCloseTo(4.44);
   });
 
+  it("parses Indonesian rupiah prices", () => {
+    expect(parseMoney("Rp 123 039")).toBe(123039);
+    expect(parseMoney("Rp 121 314.53")).toBeCloseTo(121314.53);
+  });
+
+  it("parses Vietnamese dong prices", () => {
+    expect(parseMoney("181.500₫")).toBe(181500);
+    expect(parseMoney("178.209,73₫")).toBeCloseTo(178209.73);
+  });
+
   it("parses integer-only currencies (JPY/KRW)", () => {
     expect(parseMoney("¥120")).toBe(120);
     expect(parseMoney("₩ 1,500")).toBe(1500);
@@ -44,6 +54,8 @@ describe("currency map", () => {
     expect(currencyCode("BRL")).toBe(7);
     expect(currencyCode("eur")).toBe(3);
     expect(currencyCode("PHP")).toBe(12);
+    expect(currencyCode("IDR")).toBe(10);
+    expect(currencyCode("VND")).toBe(15);
     expect(currencyCode("UAH")).toBe(18);
   });
 
@@ -61,6 +73,8 @@ describe("currency map", () => {
     expect(formatMoney(0.04, "BRL")).toBe("R$ 0,04");
     expect(formatMoney(120, "JPY")).toBe("¥120");
     expect(formatMoney(6.49, "PHP")).toBe("P6.49");
+    expect(formatMoney(123039, "IDR")).toBe("Rp 123039.00");
+    expect(formatMoney(181500, "VND")).toBe("181500,00");
     expect(formatMoney(3.24, "UAH")).toBe("3,24");
   });
 });
