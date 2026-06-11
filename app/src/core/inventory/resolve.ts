@@ -3,6 +3,7 @@ import { marketHashCandidates } from "../marketName";
 import { pickMarketUnit } from "../steamPrice";
 import type {
   InventorySnapshot,
+  InventoryItemInstance,
   ResolvedInventory,
   ResolvedInventoryRow,
   InventoryComposition,
@@ -18,40 +19,114 @@ export interface ResolveInventoryOptions {
   excludeItemKey?: (itemKey: number) => boolean;
 }
 
-function resolveMarketHashAndPrice(
-  item: GameItem,
-  priceLookup?: PriceLookup,
-): {
+const EMPTY_UNIT = { unit: null, raw: null, source: null } as const;
+
+type MarketUnit = ReturnType<typeof pickMarketUnit>;
+
+interface MarketResolution {
   hash: string | null;
-  price: InventoryPriceInfo | undefined;
-  unit: ReturnType<typeof pickMarketUnit>;
+  unit: MarketUnit;
   priceChecked: boolean;
-} {
+}
+
+function resolveMarketHashAndPrice(item: GameItem, priceLookup?: PriceLookup): MarketResolution {
   const candidates = marketHashCandidates(item);
   if (candidates.length === 0) {
-    return {
-      hash: null,
-      price: undefined,
-      unit: { unit: null, raw: null, source: null },
-      priceChecked: false,
-    };
+    return { hash: null, unit: EMPTY_UNIT, priceChecked: false };
   }
 
   let priceChecked = false;
-  if (priceLookup) {
-    for (const hash of candidates) {
-      const price = priceLookup(hash);
-      if (price !== undefined) priceChecked = true;
-      const unit = price ? pickMarketUnit(price) : { unit: null, raw: null, source: null };
-      if (unit.unit != null) return { hash, price, unit, priceChecked };
+  let firstUnit: MarketUnit = EMPTY_UNIT;
+
+  for (const hash of candidates) {
+    const price = priceLookup?.(hash);
+    if (price === undefined) continue;
+    priceChecked = true;
+    const unit = pickMarketUnit(price);
+    if (hash === candidates[0]) firstUnit = unit;
+    if (unit.unit != null) return { hash, unit, priceChecked };
+  }
+
+  return { hash: candidates[0], unit: firstUnit, priceChecked };
+}
+
+function createResolvedRow(
+  itemKey: number,
+  g: GameItem | undefined,
+  market: MarketResolution,
+): ResolvedInventoryRow {
+  return {
+    itemKey,
+    name: g?.name ?? `Unknown #${itemKey}`,
+    grade: g?.grade ?? "UNKNOWN",
+    type: g?.type ?? "UNKNOWN",
+    level: g?.level ?? null,
+    marketTradable: g?.marketTradable ?? false,
+    marketHashName: market.hash,
+    count: 0,
+    inUseCount: 0,
+    inventoryCount: 0,
+    stashCount: 0,
+    tradingCount: 0,
+    chaoticCount: 0,
+    known: Boolean(g),
+    priceRaw: market.unit.raw,
+    unitPrice: market.unit.unit,
+    priceSource: market.unit.source,
+    priceChecked: market.priceChecked,
+    value: null,
+  };
+}
+
+function applyInstance(row: ResolvedInventoryRow, inst: InventoryItemInstance): void {
+  row.count++;
+  if (inst.inUse) row.inUseCount++;
+  if (inst.isChaotic) row.chaoticCount++;
+  if (inst.location === "inventory") row.inventoryCount++;
+  else if (inst.location === "stash") row.stashCount++;
+  else if (inst.location === "trading") row.tradingCount++;
+}
+
+function finalizeRows(rows: ResolvedInventoryRow[]): InventoryComposition {
+  const composition: InventoryComposition = {
+    total: 0,
+    byGrade: {},
+    byType: {},
+    tradableCount: 0,
+    unknownCount: 0,
+    chaoticCount: 0,
+    inUseCount: 0,
+    priceableCount: 0,
+    valuedTotal: 0,
+    currency: null,
+  };
+
+  for (const row of rows) {
+    composition.inUseCount += row.inUseCount;
+    composition.total += row.count;
+    composition.byGrade[row.grade] = (composition.byGrade[row.grade] ?? 0) + row.count;
+    composition.byType[row.type] = (composition.byType[row.type] ?? 0) + row.count;
+    if (row.marketTradable) composition.tradableCount += row.count;
+    if (!row.known) composition.unknownCount += row.count;
+    composition.chaoticCount += row.chaoticCount;
+
+    if (!row.marketHashName) {
+      row.priceRaw = null;
+      row.unitPrice = null;
+      row.priceSource = null;
+      row.priceChecked = false;
+      row.value = null;
+      continue;
+    }
+
+    composition.priceableCount += row.count;
+    if (row.unitPrice !== null) {
+      row.value = row.unitPrice * row.count;
+      composition.valuedTotal += row.value;
     }
   }
 
-  const hash = candidates[0];
-  const price = priceLookup?.(hash);
-  if (price !== undefined) priceChecked = true;
-  const unit = price ? pickMarketUnit(price) : { unit: null, raw: null, source: null };
-  return { hash, price, unit, priceChecked };
+  return composition;
 }
 
 export function resolveInventory(
@@ -63,83 +138,34 @@ export function resolveInventory(
 ): ResolvedInventory {
   const exclude = options?.excludeItemKey;
   const byKey = new Map<number, ResolvedInventoryRow>();
-  const materialStacks = snapshot.materialStacks;
 
   for (const inst of snapshot.items) {
     if (exclude?.(inst.itemKey)) continue;
     let row = byKey.get(inst.itemKey);
     if (!row) {
       const g = lookup(inst.itemKey);
-      const { hash, unit, priceChecked } = g
-        ? resolveMarketHashAndPrice(g, priceLookup)
-        : {
-            hash: null as string | null,
-            unit: { unit: null, raw: null, source: null },
-            priceChecked: false,
-          };
-      row = {
-        itemKey: inst.itemKey,
-        name: g?.name ?? `Unknown #${inst.itemKey}`,
-        grade: g?.grade ?? "UNKNOWN",
-        type: g?.type ?? "UNKNOWN",
-        level: g?.level ?? null,
-        marketTradable: g?.marketTradable ?? false,
-        marketHashName: hash,
-        count: 0,
-        inUseCount: 0,
-        inventoryCount: 0,
-        stashCount: 0,
-        tradingCount: 0,
-        chaoticCount: 0,
-        known: Boolean(g),
-        priceRaw: unit.raw,
-        unitPrice: unit.unit,
-        priceSource: unit.source,
-        priceChecked,
-        value: null,
-      };
+      const market = g ? resolveMarketHashAndPrice(g, priceLookup) : null;
+      row = createResolvedRow(
+        inst.itemKey,
+        g,
+        market ?? { hash: null, unit: EMPTY_UNIT, priceChecked: false },
+      );
       byKey.set(inst.itemKey, row);
     }
-    row.count++;
-    if (inst.inUse) row.inUseCount++;
-    if (inst.isChaotic) row.chaoticCount++;
-    if (inst.location === "inventory") row.inventoryCount++;
-    else if (inst.location === "stash") row.stashCount++;
-    else if (inst.location === "trading") row.tradingCount++;
+    applyInstance(row, inst);
   }
 
   // Material stacks from aggregateSaveDatas (when mapped) can exceed instance rows.
-  if (materialStacks) {
-    for (const [itemKey, stackQty] of materialStacks) {
+  if (snapshot.materialStacks) {
+    for (const [itemKey, stackQty] of snapshot.materialStacks) {
       if (exclude?.(itemKey)) continue;
       let row = byKey.get(itemKey);
       const g = lookup(itemKey);
       if (!row && g) {
-        const { hash, unit, priceChecked } = resolveMarketHashAndPrice(g, priceLookup);
-        row = {
-          itemKey,
-          name: g.name,
-          grade: g.grade,
-          type: g.type,
-          level: g.level,
-          marketTradable: g.marketTradable,
-          marketHashName: hash,
-          count: 0,
-          inUseCount: 0,
-          inventoryCount: 0,
-          stashCount: 0,
-          tradingCount: 0,
-          chaoticCount: 0,
-          known: true,
-          priceRaw: unit.raw,
-          unitPrice: unit.unit,
-          priceSource: unit.source,
-          priceChecked,
-          value: null,
-        };
+        row = createResolvedRow(itemKey, g, resolveMarketHashAndPrice(g, priceLookup));
         byKey.set(itemKey, row);
       }
-      if (row && row.type === "MATERIAL" && stackQty > row.count) {
+      if (row?.type === "MATERIAL" && stackQty > row.count) {
         row.count = stackQty;
         row.inventoryCount = stackQty;
       }
@@ -147,47 +173,7 @@ export function resolveInventory(
   }
 
   const rows = [...byKey.values()];
-  let valuedTotal = 0;
-  let priceableCount = 0;
-  let inUseCount = 0;
-
-  for (const r of rows) {
-    inUseCount += r.inUseCount;
-    if (r.marketHashName) {
-      priceableCount += r.count;
-      if (r.unitPrice !== null) {
-        r.value = r.unitPrice * r.count;
-        valuedTotal += r.value;
-      }
-    } else {
-      r.priceRaw = null;
-      r.unitPrice = null;
-      r.priceSource = null;
-      r.priceChecked = false;
-      r.value = null;
-    }
-  }
-
-  const composition: InventoryComposition = {
-    total: 0,
-    byGrade: {},
-    byType: {},
-    tradableCount: 0,
-    unknownCount: 0,
-    chaoticCount: 0,
-    inUseCount,
-    priceableCount,
-    valuedTotal,
-    currency: null,
-  };
-  for (const r of rows) {
-    composition.total += r.count;
-    composition.byGrade[r.grade] = (composition.byGrade[r.grade] ?? 0) + r.count;
-    composition.byType[r.type] = (composition.byType[r.type] ?? 0) + r.count;
-    if (r.marketTradable) composition.tradableCount += r.count;
-    if (!r.known) composition.unknownCount += r.count;
-    composition.chaoticCount += r.chaoticCount;
-  }
+  const composition = finalizeRows(rows);
 
   return {
     rows,
