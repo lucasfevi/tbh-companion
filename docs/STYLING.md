@@ -52,6 +52,7 @@ Import from `components/ui/` — **Market `Button` sizing is the reference**.
 | `LinkButton`               | Inline text links in stat labels                                                                         |
 | `IconButton`               | Overlay chrome icon buttons (close, expand)                                                              |
 | `ToolbarButton`            | Main-window toolbar (Mini, Stage chests)                                                                 |
+| `OverlayFrame`             | Mini overlay + box tracker shell (uniform `p-2` inset)                                                   |
 | `Accordion`                | `variant`: `default` \| `panel` (Settings Advanced)                                                      |
 | `TabHeader`, `TabPage`     | Tab chrome                                                                                               |
 | `ProgressBar`              | Market/About download bars                                                                               |

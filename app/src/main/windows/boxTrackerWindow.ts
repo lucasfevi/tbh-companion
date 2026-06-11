@@ -19,6 +19,7 @@ export function createBoxTrackerWindow(
   const win = new BrowserWindow({
     width: 340,
     height: 520,
+    useContentSize: true,
     show: false,
     frame: false,
     resizable: true,

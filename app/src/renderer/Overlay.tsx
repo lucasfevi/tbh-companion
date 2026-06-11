@@ -5,6 +5,7 @@ import { fmtCompact } from "./lib/format";
 import { formatMoney } from "../core/steamPrice";
 import { stageName } from "../core/stages";
 import { IconButton } from "./components/ui/IconButton";
+import { OverlayFrame } from "./components/ui/OverlayFrame";
 
 const RATE_TIP =
   "XP/hour updates only when the game writes new XP to the save (often up to " +
@@ -23,7 +24,7 @@ export function Overlay() {
   const pricing = priceStatus?.running ?? false;
 
   return (
-    <div className="overlay flex h-full min-h-0 flex-col gap-1 border border-border bg-bg p-2.5">
+    <OverlayFrame className="gap-1">
       <div className="flex items-center justify-between">
         <span className="whitespace-nowrap text-[10px] font-bold tracking-wide text-muted">
           TBH Companion
@@ -57,7 +58,7 @@ export function Overlay() {
       </div>
 
       {!stats ? (
-        <p className="mt-2 text-muted">Connecting...</p>
+        <p className="m-0 text-muted">Connecting...</p>
       ) : (
         <div className="flex flex-col gap-1">
           <div className="flex items-baseline justify-between gap-2.5">
@@ -98,6 +99,6 @@ export function Overlay() {
           </p>
         </div>
       )}
-    </div>
+    </OverlayFrame>
   );
 }

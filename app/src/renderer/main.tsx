@@ -11,6 +11,11 @@ const hash = window.location.hash.replace("#", "");
 const isOverlay = hash === "overlay";
 const isBoxTracker = hash === "box-tracker";
 
+if (isOverlay || isBoxTracker) {
+  document.documentElement.classList.add("overflow-hidden");
+  document.body.classList.add("overflow-hidden");
+}
+
 function Root() {
   let content;
   if (isOverlay) content = <Overlay />;
