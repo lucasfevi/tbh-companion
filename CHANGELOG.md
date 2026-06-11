@@ -4,6 +4,10 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+### Market
+
+- Added **Indonesian Rupiah (IDR)** and **Vietnamese Dong (VND)** as Steam Market currency options in Settings and the Market tab.
+
 ## [1.3.0] - 2026-06-10
 
 ### About & updates

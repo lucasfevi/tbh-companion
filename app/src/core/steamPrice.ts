@@ -47,8 +47,10 @@ export const STEAM_CURRENCIES: SteamCurrency[] = [
   { code: 7, iso: "BRL", label: "Brazilian Real", prefix: "R$ " },
   { code: 8, iso: "JPY", label: "Japanese Yen", prefix: "¥" },
   { code: 9, iso: "NOK", label: "Norwegian Krone", prefix: "kr " },
+  { code: 10, iso: "IDR", label: "Indonesian Rupiah", prefix: "Rp " },
   { code: 12, iso: "PHP", label: "Philippine Peso", prefix: "P" },
   { code: 13, iso: "SGD", label: "Singapore Dollar", prefix: "S$" },
+  { code: 15, iso: "VND", label: "Vietnamese Dong", prefix: "" }, // Steam uses "181.500₫" suffix
   { code: 16, iso: "KRW", label: "South Korean Won", prefix: "₩" },
   { code: 17, iso: "TRY", label: "Turkish Lira", prefix: "₺" },
   { code: 18, iso: "UAH", label: "Ukrainian Hryvnia", prefix: "" }, // Steam uses "3,24₴" suffix
@@ -76,7 +78,7 @@ export function currencyPrefix(iso: string): string {
 }
 
 /** ISO codes that use comma as the decimal separator in display. */
-const COMMA_DECIMAL = new Set(["BRL", "EUR", "PLN", "TRY", "RUB", "NOK", "UAH"]);
+const COMMA_DECIMAL = new Set(["BRL", "EUR", "PLN", "TRY", "RUB", "NOK", "UAH", "VND"]);
 
 /** ISO codes shown without fractional digits (whole units). */
 const INTEGER_MONEY = new Set(["JPY", "KRW"]);
