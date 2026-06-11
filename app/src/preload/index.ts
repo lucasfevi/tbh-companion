@@ -7,6 +7,7 @@ import type {
   GameDataRefreshResult,
   ResolvedInventory,
   ChestState,
+  PetState,
   BoxTimerState,
   PriceStatus,
   PriceProgress,
@@ -68,6 +69,14 @@ const api: TbhApi = {
     const listener = (_e: unknown, state: ChestState): void => cb(state);
     ipcRenderer.on(IPC.CHESTS, listener);
     return () => ipcRenderer.removeListener(IPC.CHESTS, listener);
+  },
+  getPets(): Promise<PetState | null> {
+    return ipcRenderer.invoke(IPC.GET_PETS);
+  },
+  onPets(cb: (state: PetState) => void): () => void {
+    const listener = (_e: unknown, state: PetState): void => cb(state);
+    ipcRenderer.on(IPC.PETS, listener);
+    return () => ipcRenderer.removeListener(IPC.PETS, listener);
   },
   getBoxTimers(): Promise<BoxTimerState> {
     return ipcRenderer.invoke(IPC.GET_BOX_TIMERS);

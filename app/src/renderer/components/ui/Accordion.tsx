@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
-type Variant = "default" | "panel";
+type Variant = "default" | "panel" | "card";
 
 export function Accordion({
   title,
@@ -14,6 +14,15 @@ export function Accordion({
   variant?: Variant;
   className?: string;
 }) {
+  if (variant === "card") {
+    return (
+      <details className={cn(className)}>
+        <summary className="cursor-pointer text-xs font-semibold text-fg">{title}</summary>
+        <div className="mt-1.5">{children}</div>
+      </details>
+    );
+  }
+
   if (variant === "panel") {
     return (
       <details className={cn("overflow-hidden rounded-lg border border-border", className)}>

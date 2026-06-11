@@ -9,6 +9,13 @@ import {
 } from "../../src/core/boxes";
 import { indexById, type GameData } from "../../src/core/gamedata";
 import { parseInventory, resolveInventory } from "../../src/core/inventory";
+import {
+  buildPetState,
+  loadPetCatalog,
+  parseArrangedPetKey,
+  parseMonsterKillCounts,
+  parsePetSaveData,
+} from "../../src/core/pets";
 import { readAndDecrypt, readSnapshot } from "../../src/main/io/saveFile";
 
 // Integration test against the actual local save. Skipped automatically when
@@ -78,5 +85,28 @@ run("real save (local only)", () => {
     expect(chestState.capacity.stageBoss.runeBonus).toBe(6);
     expect(chestState.actBoss.capacity).toBe(7);
     expect(chestState.capacity.actBoss.runeBonus).toBe(2);
+  });
+
+  it("parses pets and kill progress from live save", () => {
+    const { text, mtime } = readAndDecrypt(savePath);
+    const catalog = loadPetCatalog();
+    const state = buildPetState(
+      catalog,
+      parsePetSaveData(text),
+      parseMonsterKillCounts(text),
+      parseArrangedPetKey(text),
+      mtime,
+    );
+
+    expect(state.pets).toHaveLength(8);
+    const farmable = state.pets.filter((p) => p.unlockKind === "kills");
+    expect(farmable).toHaveLength(5);
+    for (const pet of farmable) {
+      expect(pet.bestStages?.length).toBe(3);
+      expect(pet.appearsOnStages?.length).toBeGreaterThan(0);
+      if (pet.unlocked) {
+        expect(pet.killCount).toBeGreaterThanOrEqual(catalog.unlockKillCount);
+      }
+    }
   });
 });

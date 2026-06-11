@@ -5,6 +5,7 @@ import { loadConfig, saveConfig, expandPath, type AppConfig } from "../config";
 import { TrackingService } from "../services/TrackingService";
 import { InventoryService } from "../services/InventoryService";
 import { ChestService } from "../services/ChestService";
+import { PetService } from "../services/PetService";
 import { BoxTimerService } from "../services/BoxTimerService";
 import { SessionStateService } from "../services/SessionStateService";
 import { applyConfigPatch } from "../ipc/configPatch";
@@ -27,6 +28,7 @@ let config: AppConfig;
 const sessionState = new SessionStateService();
 const inventory = new InventoryService();
 const chests = new ChestService();
+const pets = new PetService();
 const boxTimers = new BoxTimerService();
 const updates = new UpdateService();
 const tracking = new TrackingService(
@@ -34,6 +36,7 @@ const tracking = new TrackingService(
   (text, mtime) => {
     const inv = inventory.parseFromSave(text, mtime);
     chests.onSave(text, mtime, inv.chests);
+    pets.onSave(text, mtime);
     return inv;
   },
   (stageKey) => boxTimers.setCurrentStageKey(stageKey),
@@ -120,6 +123,7 @@ export function getAppServices() {
     resetTracker: () => tracking.reset(),
     getInventory: () => inventory.getInventory(),
     getChests: () => chests.getChests(),
+    getPets: () => pets.getPets(),
     getBoxTimers: () => boxTimers.getState(),
     markBoxDropped: (boxId: number) => boxTimers.markDropped(boxId),
     clearBoxTimer: (boxId: number) => boxTimers.clearTimer(boxId),

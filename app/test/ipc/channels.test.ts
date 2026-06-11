@@ -13,6 +13,7 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.GET_STATS");
     expect(preload).toContain("IPC.GET_INVENTORY");
     expect(preload).toContain("IPC.GET_CHESTS");
+    expect(preload).toContain("IPC.GET_PETS");
     expect(preload).toContain("IPC.GET_BOX_TIMERS");
     expect(preload).toContain("IPC.SET_BOX_TRACKER_BOXES");
     expect(preload).toContain("IPC.SAVE_CONFIG");
@@ -65,6 +66,7 @@ describe("IPC channel registry", () => {
       join(__dirname, "../../src/main/services/ChestService.ts"),
       "utf-8",
     );
+    const pets = readFileSync(join(__dirname, "../../src/main/services/PetService.ts"), "utf-8");
     const boxTimers = readFileSync(
       join(__dirname, "../../src/main/services/BoxTimerService.ts"),
       "utf-8",
@@ -73,6 +75,7 @@ describe("IPC channel registry", () => {
     expect(inventory).toContain("IPC.INVENTORY");
     expect(inventory).toContain("IPC.PRICES_PROGRESS");
     expect(chests).toContain("IPC.CHESTS");
+    expect(pets).toContain("IPC.PETS");
     expect(boxTimers).toContain("IPC.BOX_TIMERS");
     const updates = readFileSync(
       join(__dirname, "../../src/main/services/UpdateService.ts"),

@@ -3,6 +3,7 @@ import type { BoxSlotStatus, ChestCapacityBreakdown } from "../../../shared/type
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { CapacityBar } from "../components/ui/CapacityBar";
+import { Accordion } from "../components/ui/Accordion";
 import { Card } from "../components/ui/Card";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
@@ -31,7 +32,7 @@ function ChestCategoryCard({
   const pct = slot.capacity > 0 ? Math.min(100, (slot.quantity / slot.capacity) * 100) : 0;
 
   return (
-    <Card>
+    <Card className="flex h-full flex-col">
       <div className="mb-1 flex items-center gap-2">
         <h2 className="m-0 text-sm">{title}</h2>
         {slot.isFull ? <Badge>Full</Badge> : null}
@@ -48,13 +49,12 @@ function ChestCategoryCard({
         aria-valuemin={0}
         aria-valuemax={slot.capacity}
       />
-      {!slot.isFull && (
-        <p className="mt-1.5 text-xs text-muted">{slot.slotsRemaining} slot(s) left</p>
-      )}
-      <details className="mt-2">
-        <summary className="cursor-pointer text-xs text-muted">Capacity details</summary>
-        <p className="text-xs text-muted">{capacityParts(breakdown).join(", ")}</p>
-      </details>
+      <p className="m-0 mt-1.5 min-h-[1.125rem] text-xs text-muted">
+        {!slot.isFull ? `${slot.slotsRemaining} slot(s) left` : "\u00a0"}
+      </p>
+      <Accordion variant="card" title="Capacity details" className="mt-auto pt-2">
+        <p className="m-0 text-xs text-muted">{capacityParts(breakdown).join(", ")}</p>
+      </Accordion>
     </Card>
   );
 }
@@ -86,7 +86,7 @@ export function Chests() {
         </div>
       </TabHeader>
 
-      <div className="grid grid-cols-3 gap-2.5 max-[720px]:grid-cols-1">
+      <div className="grid grid-cols-3 items-stretch gap-2.5 max-[720px]:grid-cols-1">
         <ChestCategoryCard
           title="Common"
           slot={common}

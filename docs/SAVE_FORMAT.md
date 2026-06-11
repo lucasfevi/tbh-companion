@@ -71,7 +71,11 @@ PlayerSaveData.value (nested JSON string) ->
                      EnchantData[6], ... }, ... ] # master list of instances
   BoxData: { BoxTypes[], BoxUniqueId[], BoxQuantity[] }  # held (unopened) chests
   aggregateSaveDatas: [ { Type, SubKey, Value }, ... ]   # lifetime counters
+  PetSaveData: [ { PetKey, IsUnlock, IsViewed }, ... ]   # companion unlock state
 ```
+
+`commonSaveData` also includes **`ArrangedPetKey`** — the cosmetic pet shown in
+formation (passives apply whether equipped or not).
 
 ### Key facts
 
@@ -108,6 +112,13 @@ PlayerSaveData.value (nested JSON string) ->
 - **`aggregateSaveDatas`** are lifetime counters `{ Type, SubKey, Value }`.
   Type `0` rows with mappable SubKeys supplement **material stack counts** (see
   `core/inventory/aggregates.ts`). Many SubKeys (e.g. `10021`) are still undecoded.
+  The same Type `0` rows also store **per-monster kill counts** when `SubKey` is a
+  monster id (e.g. `10031` = Bat) — used for pet unlock progress (`core/pets/`).
+  Do not run those SubKeys through the material `aggregateSubKeyToItemKey()` mapper.
+- **`PetSaveData`** lists all companions: `PetKey` (`1001`–`1005` farmable,
+  `6001`–`6003` DLC), `IsUnlock`, `IsViewed`. Kill progress toward the 5,000
+  unlock is **not** on this array — read monster kills from `aggregateSaveDatas`.
+  Static pet metadata (bonuses, farm stages) lives in bundled `data/pets.json`.
 - **`9xxxxx` ItemKeys** in `itemSaveDatas` are **stage boxes** (STAGEBOX). They
   are named via `data/stage_boxes.json`, omitted from the inventory tab, and show
   location `unknown` when not referenced by a slot array.

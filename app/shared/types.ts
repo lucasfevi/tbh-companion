@@ -322,6 +322,49 @@ export interface ChestState {
   runeBonusSlots: number;
 }
 
+// --- Pets ---
+
+export interface PetAppearStage {
+  act: number;
+  stage: number;
+  name: string;
+  label: string;
+}
+
+export interface PetBestStage {
+  stageKey: number;
+  difficultyLabel: string;
+  locationName: string;
+  spawnPercent: number;
+  expectedKillsPerClear: number;
+  /** Present while the pet is still locked — clears needed on this stage. */
+  runsMessage?: string;
+}
+
+export interface PetRow {
+  petKey: number;
+  name: string;
+  unlocked: boolean;
+  equipped: boolean;
+  unlockKind: "kills" | "dlc";
+  killCount?: number;
+  killTarget?: number;
+  killsRemaining?: number;
+  progressPct?: number;
+  bonuses: string[];
+  dlcLabel?: string;
+  appearsOnStages?: PetAppearStage[];
+  bestStages?: PetBestStage[];
+}
+
+export interface PetState {
+  pets: PetRow[];
+  saveMtime: number;
+  arrangedPetKey: number;
+  unlockKillCount: number;
+  dlcLabel: string;
+}
+
 // --- Box tracker (manual rare boss box timers) ---
 
 export interface BoxTimerRow {
@@ -403,6 +446,8 @@ export interface TbhApi {
   logRendererError(payload: RendererLogPayload): Promise<void>;
   getChests(): Promise<ChestState | null>;
   onChests(cb: (state: ChestState) => void): () => void;
+  getPets(): Promise<PetState | null>;
+  onPets(cb: (state: PetState) => void): () => void;
   openBoxTracker(): void;
   closeBoxTracker(): void;
   getBoxTimers(): Promise<BoxTimerState>;

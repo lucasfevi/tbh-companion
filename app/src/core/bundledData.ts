@@ -8,6 +8,7 @@ export const REQUIRED_BUNDLED_DATA_FILES = [
   "box_types.json",
   "rune_box_cap.json",
   "rare_box_routes.json",
+  "pets.json",
 ] as const;
 
 export type BundledDataFile = (typeof REQUIRED_BUNDLED_DATA_FILES)[number];

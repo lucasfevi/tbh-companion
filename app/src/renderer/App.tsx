@@ -6,6 +6,7 @@ import { SaveStatusBar } from "./components/SaveStatusBar";
 const Live = lazy(() => import("./tabs/Live").then((m) => ({ default: m.Live })));
 const Inventory = lazy(() => import("./tabs/Inventory").then((m) => ({ default: m.Inventory })));
 const Chests = lazy(() => import("./tabs/Chests").then((m) => ({ default: m.Chests })));
+const Pets = lazy(() => import("./tabs/Pets").then((m) => ({ default: m.Pets })));
 const Market = lazy(() => import("./tabs/Market").then((m) => ({ default: m.Market })));
 const Settings = lazy(() => import("./tabs/Settings").then((m) => ({ default: m.Settings })));
 const About = lazy(() => import("./tabs/About").then((m) => ({ default: m.About })));
@@ -33,6 +34,7 @@ export function App() {
             {tab === "live" && <Live />}
             {tab === "inventory" && <Inventory onOpenChests={() => setTab("chests")} />}
             {tab === "chests" && <Chests />}
+            {tab === "pets" && <Pets />}
             {tab === "market" && <Market />}
             {tab === "settings" && <Settings />}
             {tab === "about" && <About />}
