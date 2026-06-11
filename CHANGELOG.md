@@ -4,6 +4,21 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-06-11
+
+### Pets
+
+- New **Pets** tab tracks companion unlock progress from your save, total passive bonuses, kill targets, best farm stages (with expected kills per clear), and where each monster appears.
+
+### Settings
+
+- **Keep all windows on top** now applies to the main window, **Mini** overlay, and **Stage chest tracker**, and updates live when you change it in Settings.
+
+### Inventory
+
+- Fixed gear and materials from newer game saves showing as **Unknown #…** in **Inventory** instead of the correct item name.
+- The **Price** column now shows **No active listings** when Steam has no listing or recent sales, instead of looking like a price is still loading.
+
 ## [1.4.1] - 2026-06-11
 
 ### About & updates
