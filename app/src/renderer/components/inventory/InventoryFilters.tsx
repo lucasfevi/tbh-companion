@@ -1,5 +1,8 @@
 import { gradeLabel, typeLabel } from "../../../core/labels";
 import type { LocationFilter, SortKey } from "../../lib/inventoryFilters";
+import { Field } from "../ui/Field";
+import { Input } from "../ui/Input";
+import { Select } from "../ui/Select";
 
 export interface InventoryFiltersProps {
   query: string;
@@ -37,15 +40,15 @@ export function InventoryFilters({
   onLocationFilterChange,
 }: InventoryFiltersProps) {
   return (
-    <div className="inv-controls">
-      <input
-        className="inv-search"
+    <div className="flex flex-wrap items-center gap-3">
+      <Input
+        className="max-w-xs flex-1"
         placeholder="Search items..."
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
       />
-      <select
-        className="inv-filter"
+      <Select
+        className="min-w-0"
         value={gradeFilter}
         onChange={(e) => onGradeFilterChange(e.target.value)}
         title="Filter by grade"
@@ -56,9 +59,9 @@ export function InventoryFilters({
             {gradeLabel(g)}
           </option>
         ))}
-      </select>
-      <select
-        className="inv-filter"
+      </Select>
+      <Select
+        className="min-w-0"
         value={typeFilter}
         onChange={(e) => onTypeFilterChange(e.target.value)}
         title="Filter by type"
@@ -69,9 +72,9 @@ export function InventoryFilters({
             {typeLabel(t)}
           </option>
         ))}
-      </select>
-      <select
-        className="inv-filter"
+      </Select>
+      <Select
+        className="min-w-0"
         value={locationFilter}
         onChange={(e) => onLocationFilterChange(e.target.value as LocationFilter)}
         title="Filter by storage location"
@@ -82,24 +85,22 @@ export function InventoryFilters({
         <option value="trading">Trading</option>
         <option value="equipped">Equipped</option>
         <option value="unknown">Unknown</option>
-      </select>
-      <label className="inv-toggle">
+      </Select>
+      <Field label="Tradable only" checkbox>
         <input
           type="checkbox"
           checked={tradableOnly}
           onChange={(e) => onTradableOnlyChange(e.target.checked)}
         />
-        Tradable only
-      </label>
-      <label className="inv-toggle">
+      </Field>
+      <Field label="In use only" checkbox>
         <input
           type="checkbox"
           checked={inUseOnly}
           onChange={(e) => onInUseOnlyChange(e.target.checked)}
         />
-        In use only
-      </label>
-      <span className="muted small">{shownCount} shown</span>
+      </Field>
+      <span className="text-xs text-muted">{shownCount} shown</span>
     </div>
   );
 }

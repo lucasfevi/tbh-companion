@@ -1,6 +1,6 @@
 function MiniOverlayIcon() {
   return (
-    <svg className="toolbar-icon" viewBox="0 0 16 16" aria-hidden="true">
+    <svg className="size-3.5 shrink-0" viewBox="0 0 16 16" aria-hidden="true">
       <rect
         x="2"
         y="3"
@@ -23,7 +23,7 @@ function MiniOverlayIcon() {
 
 function BoxTrackerIcon() {
   return (
-    <svg className="toolbar-icon" viewBox="0 0 16 16" aria-hidden="true">
+    <svg className="size-3.5 shrink-0" viewBox="0 0 16 16" aria-hidden="true">
       <path
         d="M3 5.5 8 3l5 2.5v5L8 13 3 10.5v-5Z"
         fill="none"
@@ -41,12 +41,15 @@ function BoxTrackerIcon() {
   );
 }
 
+const toolbarBtnClass =
+  "inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-muted hover:border-accent hover:text-fg";
+
 export function AppToolbar() {
   return (
-    <div className="overlay-toolbar" role="toolbar" aria-label="Overlays">
+    <div className="flex shrink-0 gap-1 pb-1.5" role="toolbar" aria-label="Overlays">
       <button
         type="button"
-        className="toolbar-btn"
+        className={toolbarBtnClass}
         title="Open mini stats overlay"
         onClick={() => window.tbh.openOverlay()}
       >
@@ -55,7 +58,7 @@ export function AppToolbar() {
       </button>
       <button
         type="button"
-        className="toolbar-btn"
+        className={toolbarBtnClass}
         title="Open Stage chest tracker"
         onClick={() => window.tbh.openBoxTracker()}
       >

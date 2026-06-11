@@ -3,6 +3,10 @@ import { formatMoney } from "../../../core/steamPrice";
 import { GradeBars } from "./GradeBars";
 import type { ResolvedInventory } from "../../../../shared/types";
 import { reportIpcError } from "../../lib/reportError";
+import { Button } from "../ui/Button";
+import { HintBanner } from "../ui/HintBanner";
+import { LinkButton } from "../ui/LinkButton";
+import { StatCard } from "../ui/StatCard";
 
 export function InventorySummary({
   inv,
@@ -44,53 +48,49 @@ export function InventorySummary({
 
   return (
     <>
-      <div className="inv-cards">
-        <div className="stat">
-          <div className="stat-value">{(c.total ?? 0).toLocaleString()}</div>
-          <div className="stat-label">items owned</div>
-        </div>
-        <div className="stat">
-          <div className="stat-value">{inv.rows.length.toLocaleString()}</div>
-          <div className="stat-label">distinct</div>
-        </div>
-        <div className="stat">
-          <div className="stat-value">
-            {c.valuedTotal != null && Number.isFinite(c.valuedTotal)
+      <div className="grid grid-cols-4 gap-2.5">
+        <StatCard valueFirst label="items owned" value={(c.total ?? 0).toLocaleString()} />
+        <StatCard valueFirst label="distinct" value={inv.rows.length.toLocaleString()} />
+        <StatCard
+          valueFirst
+          label="Steam value (priced)"
+          value={
+            c.valuedTotal != null && Number.isFinite(c.valuedTotal)
               ? formatMoney(c.valuedTotal, currency)
-              : "-"}
-          </div>
-          <div className="stat-label">Steam value (priced)</div>
-        </div>
-        <div className="stat">
-          <div className="stat-value">{chestTotal.toLocaleString()}</div>
-          <div className="stat-label">
-            unopened chests
-            {onViewChests && (
-              <>
-                {" "}
-                <button type="button" className="linkish" onClick={onViewChests}>
-                  View chests →
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+              : "-"
+          }
+        />
+        <StatCard
+          valueFirst
+          label={
+            <>
+              unopened chests
+              {onViewChests ? (
+                <>
+                  {" "}
+                  <LinkButton onClick={onViewChests}>View chests →</LinkButton>
+                </>
+              ) : null}
+            </>
+          }
+          value={chestTotal.toLocaleString()}
+        />
       </div>
       <GradeBars composition={c} />
       {(c.unknownCount ?? 0) > 0 && (
-        <div className="inv-hint">
+        <HintBanner>
           {c.unknownCount} item(s) are not in the catalog (Unknown #id).{" "}
-          <button
-            type="button"
-            className="btn small-btn"
+          <Button
+            size="sm"
+            className="ml-1.5"
             disabled={catalogBusy}
             onClick={() => void onRefreshCatalog()}
           >
             {catalogBusy ? "Refreshing…" : "Refresh catalog"}
-          </button>
-        </div>
+          </Button>
+        </HintBanner>
       )}
-      {catalogMessage && <div className="inv-hint">{catalogMessage}</div>}
+      {catalogMessage ? <HintBanner>{catalogMessage}</HintBanner> : null}
     </>
   );
 }

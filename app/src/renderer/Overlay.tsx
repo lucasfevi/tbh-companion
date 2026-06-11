@@ -4,6 +4,7 @@ import { usePriceStatus } from "./lib/usePrices";
 import { fmtCompact } from "./lib/format";
 import { formatMoney } from "../core/steamPrice";
 import { stageName } from "../core/stages";
+import { IconButton } from "./components/ui/IconButton";
 
 const RATE_TIP =
   "XP/hour updates only when the game writes new XP to the save (often up to " +
@@ -22,51 +23,75 @@ export function Overlay() {
   const pricing = priceStatus?.running ?? false;
 
   return (
-    <div className="overlay">
-      <div className="overlay-bar">
-        <span className="overlay-title">TBH Companion</span>
-        <div className="overlay-actions no-drag">
-          <button type="button" title="Reset session stats" onClick={() => window.tbh.reset()}>
-            {"\u21bb"}
-          </button>
-          <button type="button" title="Open full window" onClick={() => window.tbh.showMain()}>
-            {"\u2922"}
-          </button>
-          <button
+    <div className="overlay flex h-full min-h-0 flex-col gap-1 border border-border bg-bg p-2.5">
+      <div className="flex items-center justify-between">
+        <span className="whitespace-nowrap text-[10px] font-bold tracking-wide text-muted">
+          TBH Companion
+        </span>
+        <div className="no-drag flex gap-1">
+          <IconButton
             type="button"
+            className="text-xs"
+            title="Reset session stats"
+            onClick={() => window.tbh.reset()}
+          >
+            {"\u21bb"}
+          </IconButton>
+          <IconButton
+            type="button"
+            className="text-xs"
+            title="Open full window"
+            onClick={() => window.tbh.showMain()}
+          >
+            {"\u2922"}
+          </IconButton>
+          <IconButton
+            type="button"
+            className="text-xs"
             title="Close mini overlay (app keeps running in the tray)"
             onClick={() => window.tbh.closeOverlay()}
           >
             {"\u2715"}
-          </button>
+          </IconButton>
         </div>
       </div>
 
       {!stats ? (
-        <p className="muted overlay-msg">Connecting...</p>
+        <p className="mt-2 text-muted">Connecting...</p>
       ) : (
-        <div className="overlay-readout">
-          <div className="overlay-metrics">
-            <p className="overlay-metric overlay-metric--xp" title={RATE_TIP}>
-              <span className="overlay-metric-val">{fmtCompact(stats.rollingRate)}</span>
-              <span className="overlay-metric-unit">XP/hr</span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-baseline justify-between gap-2.5">
+            <p className="m-0 flex min-w-0 cursor-help items-baseline gap-1" title={RATE_TIP}>
+              <span className="text-2xl font-bold leading-none tabular-nums text-accent">
+                {fmtCompact(stats.rollingRate)}
+              </span>
+              <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wider text-muted">
+                XP/hr
+              </span>
             </p>
-            <p className="overlay-metric overlay-metric--gold" title={GOLD_TIP}>
-              <span className="overlay-metric-val">{fmtCompact(stats.goldRate)}</span>
-              <span className="overlay-metric-unit">gold/hr</span>
+            <p
+              className="m-0 flex min-w-0 cursor-help items-baseline gap-1 text-right"
+              title={GOLD_TIP}
+            >
+              <span className="text-base font-semibold leading-none tabular-nums text-gold">
+                {fmtCompact(stats.goldRate)}
+              </span>
+              <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wider text-muted">
+                gold/hr
+              </span>
             </p>
           </div>
 
-          <p className="overlay-detail">
+          <p className="m-0 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[11px] tabular-nums text-muted">
             <span>{stageName(stats.stageKey, stats.stageWave)}</span>
             {inv && (
               <>
-                <span className="overlay-sep" aria-hidden>
+                <span className="opacity-55" aria-hidden>
                   ·
                 </span>
                 <span>
                   Inv {invValue !== null ? formatMoney(invValue, currency) : "—"}
-                  {pricing && <span className="muted"> (pricing…)</span>}
+                  {pricing && <span className="text-muted"> (pricing…)</span>}
                 </span>
               </>
             )}

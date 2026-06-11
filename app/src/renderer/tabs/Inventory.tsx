@@ -13,6 +13,8 @@ import {
 import { InventorySummary } from "../components/inventory/InventorySummary";
 import { InventoryFilters } from "../components/inventory/InventoryFilters";
 import { InventoryTable } from "../components/inventory/InventoryTable";
+import { Button } from "../components/ui/Button";
+import { HintBanner } from "../components/ui/HintBanner";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
 
@@ -71,9 +73,11 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
 
   if (!inv) {
     return (
-      <div className="placeholder">
-        <h1>Inventory</h1>
-        <p>Waiting for the save file... open the game so it writes a save.</p>
+      <div className="flex flex-col gap-1.5">
+        <h1 className="m-0 text-lg font-semibold">Inventory</h1>
+        <p className="m-0 text-muted">
+          Waiting for the save file... open the game so it writes a save.
+        </p>
       </div>
     );
   }
@@ -101,7 +105,7 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
   }
 
   return (
-    <TabPage className="inventory">
+    <TabPage>
       <TabHeader title="Inventory" />
 
       <InventorySummary
@@ -112,20 +116,21 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
       />
 
       {pricing && (
-        <div className="inv-hint">
+        <HintBanner>
           Updating Steam prices in the background
           {priceProgress
             ? `: ${priceProgress.done}/${priceProgress.total} (${priceProgress.priced} priced)`
             : "..."}
           .{" "}
-          <button
-            type="button"
-            className="btn small-btn danger"
+          <Button
+            size="sm"
+            variant="danger"
+            className="ml-1.5"
             onClick={() => window.tbh.cancelPrices()}
           >
             Stop
-          </button>
-        </div>
+          </Button>
+        </HintBanner>
       )}
 
       <InventoryFilters

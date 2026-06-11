@@ -1,18 +1,22 @@
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
 
-type Variant = "default" | "primary" | "danger";
-type Size = "default" | "lg";
+type Variant = "default" | "primary" | "danger" | "ghost" | "success";
+type Size = "default" | "lg" | "sm";
 
 const variantClasses: Record<Variant, string> = {
   default: "bg-card border-border text-fg hover:border-accent",
   primary: "bg-accent border-accent text-accent-fg font-semibold hover:brightness-[1.08]",
   danger: "bg-card border-danger text-danger-fg hover:border-danger",
+  ghost: "border-border bg-transparent text-muted hover:border-muted hover:text-fg",
+  success:
+    "border-[#3d6b52] bg-[rgba(111,207,151,0.12)] font-semibold text-[#6fcf97] hover:bg-[rgba(111,207,151,0.22)]",
 };
 
 const sizeClasses: Record<Size, string> = {
   default: "px-3.5 py-1.5 text-[13px]",
   lg: "px-4 py-2.5 text-[13px]",
+  sm: "px-2.5 py-0.5 text-xs",
 };
 
 export function Button({

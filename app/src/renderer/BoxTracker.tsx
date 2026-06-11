@@ -1,6 +1,10 @@
 import { useBoxTimers, fmtTimer } from "./lib/useBoxTimers";
 import { stageName } from "../core/stages";
 import type { BoxTimerCatalogEntry, BoxTimerRow } from "../../shared/types";
+import { Button } from "./components/ui/Button";
+import { CapacityBar } from "./components/ui/CapacityBar";
+import { IconButton } from "./components/ui/IconButton";
+import { cn } from "./lib/cn";
 
 const PRESETS: { label: string; title: string; levels: number[] }[] = [
   { label: "Starter", title: "Lv 1–7 (Act 1 bosses)", levels: [1, 2, 3, 4, 5, 6, 7] },
@@ -36,49 +40,52 @@ function trackLevelsSummary(catalog: BoxTimerCatalogEntry[]): string {
 }
 
 function BoxTimerCard({ row }: { row: BoxTimerRow }) {
-  const rowClass = [
-    "box-row",
-    row.status === "cooldown" ? "box-row-cooldown" : "box-row-ready",
-    row.atIdealStage ? "box-row-here" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
   return (
-    <li className={rowClass}>
-      <div className="box-row-top">
-        <div className="box-row-head">
-          <span className="box-name">Lv{row.level ?? "?"}</span>
-          <span className="box-lv muted">{row.idealStageLabel}</span>
+    <li
+      className={cn(
+        "rounded-lg border border-border border-l-[3px] bg-card px-2.5 py-2",
+        row.status === "cooldown" && "border-l-[#5a9fd1]",
+        row.status === "ready" && "border-l-[#6fcf97]",
+        row.atIdealStage && "shadow-[inset_0_0_0_1px_rgba(74,163,255,0.25)]",
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex min-w-0 flex-1 justify-between gap-2 text-xs">
+          <span className="font-semibold">Lv{row.level ?? "?"}</span>
+          <span className="text-muted">{row.idealStageLabel}</span>
         </div>
-        <span className={`box-status-pill ${row.status}`}>
+        <span
+          className={cn(
+            "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums",
+            row.status === "ready" && "bg-[rgba(111,207,151,0.15)] text-[#6fcf97]",
+            row.status === "cooldown" && "bg-[rgba(90,159,209,0.15)] text-[#5a9fd1]",
+          )}
+        >
           {row.status === "cooldown" ? fmtTimer(row.remainingSeconds) : "Ready"}
         </span>
       </div>
       {row.status === "cooldown" ? (
         <>
-          <div className="progress-bar compact">
-            <div className="progress-fill blue" style={{ width: `${row.progress * 100}%` }} />
-          </div>
-          <div className="box-row-actions">
-            <span className="timer-hint muted small">On cooldown</span>
-            <button
-              type="button"
-              className="btn small-btn ghost-btn"
+          <CapacityBar percent={row.progress * 100} variant="blue" compact className="mt-1" />
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <span className="flex-1 text-xs text-muted">On cooldown</span>
+            <Button
+              size="sm"
+              variant="ghost"
               onClick={() => void window.tbh.clearBoxTimer(row.boxId)}
             >
               Reset
-            </button>
+            </Button>
           </div>
         </>
       ) : (
-        <button
-          type="button"
-          className="btn dropped-btn ready-btn"
+        <Button
+          variant="success"
+          className="mt-1 w-full"
           onClick={() => void window.tbh.markBoxDropped(row.boxId)}
         >
           Dropped
-        </button>
+        </Button>
       )}
     </li>
   );
@@ -89,8 +96,8 @@ export function BoxTracker() {
 
   if (!state) {
     return (
-      <div className="box-tracker">
-        <p className="muted overlay-msg">Loading…</p>
+      <div className="overlay flex h-screen flex-col gap-2 border border-border bg-bg p-2">
+        <p className="mt-2 text-muted">Loading…</p>
       </div>
     );
   }
@@ -101,67 +108,72 @@ export function BoxTracker() {
   const levelsSummary = trackLevelsSummary(state.catalog);
 
   return (
-    <div className="box-tracker">
-      <div className="overlay-bar box-tracker-bar">
-        <span className="overlay-title drag-handle">Stage chest tracker</span>
-        <div className="overlay-actions no-drag">
-          <button
-            type="button"
-            className="icon-btn"
-            title="Open full window"
-            onClick={() => window.tbh.showMain()}
-          >
+    <div className="overlay flex h-screen flex-col gap-2 border border-border bg-bg p-2">
+      <div className="flex shrink-0 items-center justify-between">
+        <span className="drag-handle whitespace-nowrap text-[10px] font-bold tracking-wide text-muted">
+          Stage chest tracker
+        </span>
+        <div className="no-drag flex gap-1">
+          <IconButton type="button" title="Open full window" onClick={() => window.tbh.showMain()}>
             {"\u2922"}
-          </button>
-          <button
-            type="button"
-            className="icon-btn"
-            title="Close"
-            onClick={() => window.tbh.closeBoxTracker()}
-          >
+          </IconButton>
+          <IconButton type="button" title="Close" onClick={() => window.tbh.closeBoxTracker()}>
             {"\u2715"}
-          </button>
+          </IconButton>
         </div>
       </div>
 
-      <div className="box-tracker-summary no-drag">
-        <span className="summary-chip cooldown">{state.cooldownCount} cooling</span>
-        <span className="summary-chip ready">{state.readyCount} ready</span>
-        <span className="summary-chip muted">Stage: {currentLabel}</span>
+      <div className="no-drag flex flex-wrap gap-1.5 px-0.5">
+        <span className="rounded-full border border-[#3a6a8a] bg-card px-2 py-0.5 text-[11px] font-semibold text-[#5a9fd1]">
+          {state.cooldownCount} cooling
+        </span>
+        <span className="rounded-full border border-[#3d6b52] bg-card px-2 py-0.5 text-[11px] font-semibold text-[#6fcf97]">
+          {state.readyCount} ready
+        </span>
+        <span className="rounded-full border border-border bg-card px-2 py-0.5 text-[11px] font-medium text-muted">
+          Stage: {currentLabel}
+        </span>
       </div>
 
-      <details className="box-level-picker no-drag">
-        <summary className="box-level-picker-toggle">
+      <details className="no-drag shrink-0 overflow-hidden rounded-lg border border-border bg-card">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-2 py-1.5 text-[11px] font-semibold [&::-webkit-details-marker]:hidden">
           <span>Track levels</span>
-          <span className="box-level-picker-summary muted">{levelsSummary}</span>
+          <span className="min-w-0 truncate text-right text-[10px] font-medium text-muted">
+            {levelsSummary}
+          </span>
         </summary>
-        <div className="box-level-picker-body">
-          <div className="box-preset-row">
+        <div className="flex flex-col gap-1.5 border-t border-border px-2 py-1.5 pb-2">
+          <div className="flex flex-wrap gap-1">
             {PRESETS.map((p) => (
-              <button
+              <Button
                 key={p.label}
-                type="button"
-                className="btn small-btn ghost-btn preset-btn"
+                size="sm"
+                variant="ghost"
                 title={p.title}
                 onClick={() => applyPreset(p.levels, state.catalog)}
               >
                 {p.label}
-              </button>
+              </Button>
             ))}
-            <button
-              type="button"
-              className="btn small-btn ghost-btn preset-btn"
+            <Button
+              size="sm"
+              variant="ghost"
               onClick={() => void window.tbh.setBoxTrackerBoxes([])}
             >
               Clear
-            </button>
+            </Button>
           </div>
-          <div className="box-level-chips">
+          <div className="flex max-h-[88px] flex-wrap gap-1 overflow-y-auto">
             {state.catalog.map((entry) => (
               <button
                 key={entry.boxId}
                 type="button"
-                className={entry.enabled ? "level-chip active" : "level-chip"}
+                className={cn(
+                  "cursor-pointer rounded-full border px-2 py-0.5 text-[10px] font-semibold",
+                  entry.enabled
+                    ? "border-accent bg-[rgba(74,163,255,0.15)] text-accent"
+                    : "border-border bg-card text-muted hover:border-muted hover:text-fg",
+                )}
                 title={`${entry.idealStageLabel}${entry.enabled ? " — tracking" : " — tap to track"}`}
                 onClick={() => toggleLevel(entry, state.catalog)}
               >
@@ -173,15 +185,17 @@ export function BoxTracker() {
       </details>
 
       {state.rows.length === 0 ? (
-        <p className="muted small box-tracker-empty no-drag">
+        <p className="no-drag px-2 py-3 text-center text-xs text-muted">
           Expand track levels above to pick boxes and start cooldown timers.
         </p>
       ) : (
-        <div className="box-tracker-sections no-drag">
+        <div className="no-drag flex min-h-0 flex-1 flex-col gap-2.5 overflow-auto">
           {cooldownRows.length > 0 && (
-            <section className="box-tracker-section">
-              <h3 className="box-section-title">On cooldown</h3>
-              <ul className="box-tracker-list">
+            <section className="flex flex-col gap-1.5">
+              <h3 className="m-0 px-1 text-[11px] font-bold uppercase tracking-wide text-muted">
+                On cooldown
+              </h3>
+              <ul className="m-0 flex list-none flex-col gap-2 p-0">
                 {cooldownRows.map((row) => (
                   <BoxTimerCard key={row.boxId} row={row} />
                 ))}
@@ -189,9 +203,11 @@ export function BoxTracker() {
             </section>
           )}
           {readyRows.length > 0 && (
-            <section className="box-tracker-section">
-              <h3 className="box-section-title">Ready to mark</h3>
-              <ul className="box-tracker-list">
+            <section className="flex flex-col gap-1.5">
+              <h3 className="m-0 px-1 text-[11px] font-bold uppercase tracking-wide text-muted">
+                Ready to mark
+              </h3>
+              <ul className="m-0 flex list-none flex-col gap-2 p-0">
                 {readyRows.map((row) => (
                   <BoxTimerCard key={row.boxId} row={row} />
                 ))}

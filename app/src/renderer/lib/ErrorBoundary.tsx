@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Button } from "../components/ui/Button";
 
 interface Props {
   children: ReactNode;
@@ -35,15 +36,15 @@ export class ErrorBoundary extends Component<Props, State> {
   render(): ReactNode {
     if (this.state.error) {
       return (
-        <div className="placeholder">
-          <h1>{this.props.title ?? "Something went wrong"}</h1>
-          <p className="muted">{this.state.error.message}</p>
-          <p className="muted">
+        <div className="flex flex-col gap-1.5">
+          <h1 className="m-0 text-lg font-semibold">
+            {this.props.title ?? "Something went wrong"}
+          </h1>
+          <p className="m-0 text-muted">{this.state.error.message}</p>
+          <p className="m-0 text-muted">
             Quit and reopen the app (or restart <code>npm run dev</code> after pulling updates).
           </p>
-          <button className="btn" onClick={() => this.setState({ error: null })}>
-            Try again
-          </button>
+          <Button onClick={() => this.setState({ error: null })}>Try again</Button>
         </div>
       );
     }

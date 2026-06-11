@@ -143,18 +143,18 @@ export function Settings() {
 
   if (loadError) {
     return (
-      <div className="placeholder">
-        <h1>Settings</h1>
-        <p className="muted">{loadError}</p>
+      <div className="flex flex-col gap-1.5">
+        <h1 className="m-0 text-lg font-semibold">Settings</h1>
+        <p className="m-0 text-muted">{loadError}</p>
       </div>
     );
   }
 
   if (!draft) {
     return (
-      <div className="placeholder">
-        <h1>Settings</h1>
-        <p className="muted">Loading...</p>
+      <div className="flex flex-col gap-1.5">
+        <h1 className="m-0 text-lg font-semibold">Settings</h1>
+        <p className="m-0 text-muted">Loading...</p>
       </div>
     );
   }
@@ -303,7 +303,7 @@ export function Settings() {
 
       <div className="flex max-w-md flex-col gap-3.5">
         <div className="flex flex-wrap items-center gap-2.5 rounded-lg border border-border bg-card p-3">
-          <Button variant="primary" size="lg" disabled={busy} onClick={() => void onSave()}>
+          <Button variant="primary" disabled={busy} onClick={() => void onSave()}>
             Save settings
           </Button>
           <Button disabled={busy} onClick={onReset}>

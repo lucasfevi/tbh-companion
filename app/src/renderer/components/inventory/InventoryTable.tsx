@@ -5,6 +5,8 @@ import { unassignedCount } from "../../../core/inventory/location";
 import { gradeColor } from "./GradeBars";
 import { MarketListingLink } from "./MarketListingLink";
 import type { ResolvedInventoryRow } from "../../../../shared/types";
+import { Button } from "../ui/Button";
+import { cn } from "../../lib/cn";
 
 function priceSourceTitle(source: ResolvedInventoryRow["priceSource"]): string | undefined {
   if (source === "median") return "Recent sale median on Steam Market";
@@ -28,6 +30,12 @@ function SortArrow({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
   return <>{dir === "asc" ? " \u25b2" : " \u25bc"}</>;
 }
 
+const thClass =
+  "sticky top-0 z-[1] bg-panel px-2.5 py-1.5 text-left text-muted cursor-pointer select-none border-b border-border font-semibold";
+const thNumClass = cn(thClass, "text-right");
+const tdClass = "px-2.5 py-1.5 border-b border-border";
+const tdNumClass = cn(tdClass, "text-right");
+
 const InventoryRow = memo(function InventoryRow({
   row,
   currency,
@@ -37,39 +45,71 @@ const InventoryRow = memo(function InventoryRow({
 }) {
   const inUse = row.inUseCount ?? 0;
   return (
-    <tr className={row.known ? "inv-row" : "inv-row unknown-row"}>
-      <td>
-        <span className="grade-dot" style={{ background: gradeColor(row.grade) }} />
+    <tr
+      className={cn(
+        "hover:bg-card [content-visibility:auto] [contain-intrinsic-size:0_36px]",
+        !row.known && "opacity-70",
+      )}
+    >
+      <td className={tdClass}>
+        <span
+          className="mr-1 inline-block size-[9px] shrink-0 rounded-full"
+          style={{ background: gradeColor(row.grade) }}
+        />
         {row.name}
         {row.chaoticCount > 0 && (
-          <span className="chaotic" title="Chaotic">
+          <span className="text-gold" title="Chaotic">
             {" "}
             &#9670;
           </span>
         )}
       </td>
-      <td style={{ color: gradeColor(row.grade) }}>{gradeLabel(row.grade)}</td>
-      <td className="num">{row.level != null ? row.level : <span className="muted">-</span>}</td>
-      <td className="muted">{typeLabel(row.type)}</td>
-      <td className="num">{row.count}</td>
-      <td className="num loc-cell">
-        {(row.inventoryCount ?? 0) > 0 && <span title="Inventory">Inv {row.inventoryCount}</span>}
-        {(row.stashCount ?? 0) > 0 && <span title="Stash">St {row.stashCount}</span>}
-        {(row.tradingCount ?? 0) > 0 && <span title="Trading">Tr {row.tradingCount}</span>}
-        {inUse > 0 && <span title="Equipped">Eq {inUse}</span>}
-        {unassignedCount(row) > 0 && <span title="Unassigned">?</span>}
+      <td className={tdClass} style={{ color: gradeColor(row.grade) }}>
+        {gradeLabel(row.grade)}
       </td>
-      <td className="num">
+      <td className={tdNumClass}>
+        {row.level != null ? row.level : <span className="text-muted">-</span>}
+      </td>
+      <td className={cn(tdClass, "text-muted")}>{typeLabel(row.type)}</td>
+      <td className={tdNumClass}>{row.count}</td>
+      <td className={tdNumClass}>
+        {(row.inventoryCount ?? 0) > 0 && (
+          <span className="mr-1.5 inline-block text-[11px] text-muted" title="Inventory">
+            Inv {row.inventoryCount}
+          </span>
+        )}
+        {(row.stashCount ?? 0) > 0 && (
+          <span className="mr-1.5 inline-block text-[11px] text-muted" title="Stash">
+            St {row.stashCount}
+          </span>
+        )}
+        {(row.tradingCount ?? 0) > 0 && (
+          <span className="mr-1.5 inline-block text-[11px] text-muted" title="Trading">
+            Tr {row.tradingCount}
+          </span>
+        )}
+        {inUse > 0 && (
+          <span className="mr-1.5 inline-block text-[11px] text-muted" title="Equipped">
+            Eq {inUse}
+          </span>
+        )}
+        {unassignedCount(row) > 0 && (
+          <span className="mr-1.5 inline-block text-[11px] text-muted" title="Unassigned">
+            ?
+          </span>
+        )}
+      </td>
+      <td className={tdNumClass}>
         {inUse > 0 ? (
-          <span className="in-use">
+          <span className="text-accent">
             {inUse}
             {inUse < row.count ? `/${row.count}` : ""}
           </span>
         ) : (
-          <span className="muted">-</span>
+          <span className="text-muted">-</span>
         )}
       </td>
-      <td className="num">
+      <td className={tdNumClass}>
         {row.marketHashName ? (
           row.priceRaw ? (
             <MarketListingLink hash={row.marketHashName} title={priceSourceTitle(row.priceSource)}>
@@ -77,16 +117,16 @@ const InventoryRow = memo(function InventoryRow({
             </MarketListingLink>
           ) : (
             <MarketListingLink hash={row.marketHashName} title="Open on Steam Market">
-              <span className="muted">pending</span>
+              <span className="text-muted">pending</span>
             </MarketListingLink>
           )
         ) : (
-          <span className="muted" title="Not priced (non-tradable or below Legendary gear)">
+          <span className="text-muted" title="Not priced (non-tradable or below Legendary gear)">
             -
           </span>
         )}
       </td>
-      <td className="num">
+      <td className={tdNumClass}>
         {row.marketHashName ? (
           <MarketListingLink
             hash={row.marketHashName}
@@ -117,40 +157,40 @@ export function InventoryTable({
   onClearFilters,
 }: InventoryTableProps) {
   return (
-    <div className="inv-table-wrap">
-      <table className="inv-table">
+    <div className="min-h-[200px] flex-1 overflow-auto rounded-lg border border-border">
+      <table className="w-full border-collapse text-[13px]">
         <thead>
           <tr>
-            <th onClick={() => onSort("name")}>
+            <th className={thClass} onClick={() => onSort("name")}>
               Name
               <SortArrow active={sortKey === "name"} dir={sortDir} />
             </th>
-            <th onClick={() => onSort("grade")}>
+            <th className={thClass} onClick={() => onSort("grade")}>
               Grade
               <SortArrow active={sortKey === "grade"} dir={sortDir} />
             </th>
-            <th className="num" onClick={() => onSort("level")}>
+            <th className={thNumClass} onClick={() => onSort("level")}>
               Level
               <SortArrow active={sortKey === "level"} dir={sortDir} />
             </th>
-            <th onClick={() => onSort("type")}>
+            <th className={thClass} onClick={() => onSort("type")}>
               Type
               <SortArrow active={sortKey === "type"} dir={sortDir} />
             </th>
-            <th className="num" onClick={() => onSort("count")}>
+            <th className={thNumClass} onClick={() => onSort("count")}>
               Count
               <SortArrow active={sortKey === "count"} dir={sortDir} />
             </th>
-            <th className="num">Location</th>
-            <th className="num" onClick={() => onSort("inUse")}>
+            <th className={thNumClass}>Location</th>
+            <th className={thNumClass} onClick={() => onSort("inUse")}>
               In use
               <SortArrow active={sortKey === "inUse"} dir={sortDir} />
             </th>
-            <th className="num" onClick={() => onSort("price")}>
+            <th className={thNumClass} onClick={() => onSort("price")}>
               Price
               <SortArrow active={sortKey === "price"} dir={sortDir} />
             </th>
-            <th className="num" onClick={() => onSort("value")}>
+            <th className={thNumClass} onClick={() => onSort("value")}>
               Value
               <SortArrow active={sortKey === "value"} dir={sortDir} />
             </th>
@@ -159,11 +199,11 @@ export function InventoryTable({
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={9} className="inv-empty muted">
+              <td colSpan={9} className="px-3 py-6 text-center text-muted">
                 No items match these filters.{" "}
-                <button type="button" className="btn small-btn" onClick={onClearFilters}>
+                <Button size="sm" className="ml-1.5" onClick={onClearFilters}>
                   Clear filters
-                </button>
+                </Button>
               </td>
             </tr>
           ) : (

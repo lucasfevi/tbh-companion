@@ -22,14 +22,19 @@ export function gradeColor(grade: string): string {
 
 export function GradeBars({ composition }: { composition: InventoryComposition }) {
   return (
-    <div className="grade-bars">
+    <div className="flex flex-wrap gap-x-4 gap-y-2">
       {GRADE_ORDER.filter((g) => composition.byGrade[g]).map((g) => (
-        <div key={g} className="grade-bar" title={`${g}: ${composition.byGrade[g]}`}>
-          <span className="grade-dot" style={{ background: gradeColor(g) }} />
-          <span className="grade-name" style={{ color: gradeColor(g) }}>
-            {gradeLabel(g)}
-          </span>
-          <span className="grade-count">{composition.byGrade[g]}</span>
+        <div
+          key={g}
+          className="flex items-center gap-1.5 text-xs"
+          title={`${g}: ${composition.byGrade[g]}`}
+        >
+          <span
+            className="inline-block size-[9px] shrink-0 rounded-full"
+            style={{ background: gradeColor(g) }}
+          />
+          <span style={{ color: gradeColor(g) }}>{gradeLabel(g)}</span>
+          <span className="text-muted">{composition.byGrade[g]}</span>
         </div>
       ))}
     </div>

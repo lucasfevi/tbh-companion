@@ -128,7 +128,7 @@ export function About() {
               <p className="m-0 text-xs">
                 <a
                   href={githubReleaseUrl(status.availableVersion!)}
-                  className="market-link"
+                  className="text-inherit no-underline hover:text-accent hover:underline"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

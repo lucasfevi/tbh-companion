@@ -1,6 +1,8 @@
 import { useChests } from "../lib/useChests";
 import type { BoxSlotStatus, ChestCapacityBreakdown } from "../../../shared/types";
+import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
+import { CapacityBar } from "../components/ui/CapacityBar";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
 
@@ -18,39 +20,39 @@ function ChestCategoryCard({
   title,
   slot,
   breakdown,
-  fillClass,
+  fillVariant,
 }: {
   title: string;
   slot: BoxSlotStatus;
   breakdown: ChestCapacityBreakdown;
-  fillClass: "gray" | "blue" | "red";
+  fillVariant: "gray" | "blue" | "red";
 }) {
   const pct = slot.capacity > 0 ? Math.min(100, (slot.quantity / slot.capacity) * 100) : 0;
 
   return (
-    <article className="chest-card">
-      <div className="chest-card-head">
-        <h2>{title}</h2>
-        {slot.isFull && <span className="badge full">Full</span>}
+    <article className="rounded-lg border border-border bg-card p-3">
+      <div className="mb-1 flex items-center gap-2">
+        <h2 className="m-0 text-sm">{title}</h2>
+        {slot.isFull ? <Badge>Full</Badge> : null}
       </div>
-      <p className="chest-card-count">
+      <p className="mb-1.5 mt-0 text-lg font-semibold">
         {slot.quantity} / {slot.capacity}
       </p>
-      <div
-        className="progress-bar compact"
+      <CapacityBar
+        percent={pct}
+        variant={fillVariant}
+        compact
         role="progressbar"
         aria-valuenow={slot.quantity}
         aria-valuemin={0}
         aria-valuemax={slot.capacity}
-      >
-        <div className={`progress-fill ${fillClass}`} style={{ width: `${pct}%` }} />
-      </div>
+      />
       {!slot.isFull && (
-        <p className="muted small chest-card-remaining">{slot.slotsRemaining} slot(s) left</p>
+        <p className="mt-1.5 text-xs text-muted">{slot.slotsRemaining} slot(s) left</p>
       )}
-      <details className="chest-card-details">
-        <summary className="muted small">Capacity details</summary>
-        <p className="muted small">{capacityParts(breakdown).join(", ")}</p>
+      <details className="mt-2">
+        <summary className="cursor-pointer text-xs text-muted">Capacity details</summary>
+        <p className="text-xs text-muted">{capacityParts(breakdown).join(", ")}</p>
       </details>
     </article>
   );
@@ -61,9 +63,9 @@ export function Chests() {
 
   if (!chests) {
     return (
-      <div className="placeholder">
-        <h1>Chests</h1>
-        <p className="muted">Waiting for save data…</p>
+      <div className="flex flex-col gap-1.5">
+        <h1 className="m-0 text-lg font-semibold">Chests</h1>
+        <p className="m-0 text-muted">Waiting for save data…</p>
       </div>
     );
   }
@@ -76,31 +78,31 @@ export function Chests() {
         title="Chests"
         intro={`${totalHeld.toLocaleString()} unopened chest slots from your save. Common and stage boss chests share an open cooldown. Stage boss drops are timed — use the Stage chest tracker below.`}
       >
-        <div className="chests-header-actions">
+        <div className="mt-2 flex flex-col items-start gap-1.5">
           <Button variant="primary" onClick={() => window.tbh.openBoxTracker()}>
             Open Stage chest tracker
           </Button>
         </div>
       </TabHeader>
 
-      <div className="chest-grid">
+      <div className="grid grid-cols-3 gap-2.5 max-[720px]:grid-cols-1">
         <ChestCategoryCard
           title="Common"
           slot={common}
           breakdown={chests.capacity.common}
-          fillClass="gray"
+          fillVariant="gray"
         />
         <ChestCategoryCard
           title="Stage boss"
           slot={stageBoss}
           breakdown={chests.capacity.stageBoss}
-          fillClass="blue"
+          fillVariant="blue"
         />
         <ChestCategoryCard
           title="Act boss"
           slot={actBoss}
           breakdown={chests.capacity.actBoss}
-          fillClass="red"
+          fillVariant="red"
         />
       </div>
     </TabPage>
