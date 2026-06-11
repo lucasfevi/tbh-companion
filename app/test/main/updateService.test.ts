@@ -54,6 +54,7 @@ describe("UpdateService", () => {
     service.start();
 
     expect(service.getStatus().phase).toBe("disabled");
+    expect(service.getStatus().currentVersion.endsWith("-dev")).toBe(true);
     expect(autoUpdaterMock.on).not.toHaveBeenCalled();
     expect(autoUpdaterMock.checkForUpdates).not.toHaveBeenCalled();
   });
@@ -73,6 +74,7 @@ describe("UpdateService", () => {
     service.start();
 
     expect(service.getStatus().phase).toBe("idle");
+    expect(service.getStatus().currentVersion.endsWith("-dev")).toBe(false);
     expect(autoUpdaterMock.autoDownload).toBe(false);
     expect(autoUpdaterMock.on).toHaveBeenCalled();
   });

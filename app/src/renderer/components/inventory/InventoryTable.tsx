@@ -6,6 +6,7 @@ import { gradeColor } from "./GradeBars";
 import { MarketListingLink } from "./MarketListingLink";
 import type { ResolvedInventoryRow } from "../../../../shared/types";
 import { Button } from "../ui/Button";
+import { Card } from "../ui/Card";
 import { cn } from "../../lib/cn";
 
 function priceSourceTitle(source: ResolvedInventoryRow["priceSource"]): string | undefined {
@@ -157,7 +158,7 @@ export function InventoryTable({
   onClearFilters,
 }: InventoryTableProps) {
   return (
-    <div className="min-h-[200px] flex-1 overflow-auto rounded-lg border border-border">
+    <Card padding="none" className="min-h-[200px] flex-1 overflow-auto">
       <table className="w-full border-collapse text-[13px]">
         <thead>
           <tr>
@@ -211,6 +212,6 @@ export function InventoryTable({
           )}
         </tbody>
       </table>
-    </div>
+    </Card>
   );
 }

@@ -10,7 +10,7 @@ const variantClasses: Record<Variant, string> = {
   danger: "bg-card border-danger text-danger-fg hover:border-danger",
   ghost: "border-border bg-transparent text-muted hover:border-muted hover:text-fg",
   success:
-    "border-[#3d6b52] bg-[rgba(111,207,151,0.12)] font-semibold text-[#6fcf97] hover:bg-[rgba(111,207,151,0.22)]",
+    "border-status-success-border bg-status-success/10 font-semibold text-status-success hover:bg-status-success/20",
 };
 
 const sizeClasses: Record<Size, string> = {

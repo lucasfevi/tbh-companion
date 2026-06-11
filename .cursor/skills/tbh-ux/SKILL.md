@@ -31,6 +31,7 @@ Tailwind `@theme` in `styles.css` — see [`docs/STYLING.md`](../../docs/STYLING
 | `bg-accent` `#5ad17a` | Primary actions, positive states |
 | `text-gold` | XP / idle warnings |
 | `text-status-info`, `text-status-success`, `bg-status-danger` | Box tracker / chest status accents (see `@theme` in `styles.css`) |
+| `text-ideal`, `bg-ideal/15` | Ideal-stage highlight in box tracker level chips |
 
 Typography: Segoe UI / system sans, 14px body. Use `Button`, `Field`, `Card`, `text-muted`, `text-xs` from `components/ui/` — prefer theme tokens over one-off hex colors.
 

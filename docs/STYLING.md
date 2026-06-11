@@ -9,7 +9,12 @@ The renderer uses **Tailwind CSS v4** with shared components under `app/src/rend
 | 1 | Tailwind setup, primitives, Settings/Market/About | Done (PR #20) |
 | 2 | Live, Chests, Inventory, chrome, overlays; trim legacy CSS | Done (PR #21) |
 | 3 | `Card`, `ToolbarButton`, Badge variants, panel `Accordion`; agent docs | Done (PR #22) |
-| 4 | Status color tokens; app chrome extraction; `Card` adoption in Live + box tracker | Current |
+| 4 | Status color tokens; app chrome extraction; `Card` adoption in Live + box tracker | Done (PR #23) |
+| 5 | `ideal` token; remove remaining inline hex in Button + box tracker | This branch |
+| 6 | `DataList` for Live tables; Inventory table `Card` shell | This branch |
+| 7 | `StatCard` on `Card`; migration complete | This branch |
+
+Phases 5–7 on **`feat/tailwind-phase-5-7-finish`** — one PR to close the Tailwind migration.
 
 ## Stack
 
@@ -35,6 +40,7 @@ The renderer uses **Tailwind CSS v4** with shared components under `app/src/rend
 | Status info    | `text-status-info`, `border-status-info-border` |
 | Status success | `text-status-success`, `border-status-success-border` |
 | Status danger  | `bg-status-danger`                |
+| Ideal stage    | `text-ideal`, `bg-ideal/15`, `shadow-ideal/25` (box tracker) |
 
 Status accents for box tracker and chest badges use `@theme` tokens above — do not invent new hex colors in tabs.
 
@@ -45,11 +51,12 @@ Import from `components/ui/` — **Market `Button` sizing is the reference**.
 | Component                  | Use                                                                                                      |
 | -------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `Button`                   | `variant`: `default` \| `primary` \| `danger` \| `ghost` \| `success`; `size`: `default` \| `lg` \| `sm` |
-| `Card`                     | Bordered panels; `padding`: `default` \| `compact` \| `none`                                             |
+| `Card`                     | Bordered panels; `padding`: `default` \| `compact` \| `none`; `as`: `div` \| `li`                      |
+| `DataList`, `DataListRow`  | Striped read-only lists (Live heroes/history)                                                            |
 | `Field`, `Input`, `Select` | Form controls                                                                                            |
 | `Section`                  | Settings/About subsection headings                                                                       |
 | `PanelSection`             | Live-style uppercase section labels                                                                      |
-| `StatCard`                 | Metric tiles (Live totals, Inventory summary)                                                            |
+| `StatCard`                 | Metric tiles (Live totals, Inventory summary) — composes `Card`                                          |
 | `Badge`                    | `full` (chest Full), `info` / `success` / `muted` (summary pills), `statusReady` / `statusCooldown`     |
 | `CapacityBar`              | Chest capacity + box-tracker cooldown bars                                                               |
 | `HintBanner`               | Gold-accent callouts (Inventory hints, pricing banner)                                                   |
@@ -60,6 +67,7 @@ Import from `components/ui/` — **Market `Button` sizing is the reference**.
 | `Accordion`                | `variant`: `default` \| `panel` (Settings Advanced)                                                      |
 | `TabHeader`, `TabPage`     | Tab chrome                                                                                               |
 | `ProgressBar`              | Market/About download bars                                                                               |
+| `AppTabBar`, `SaveStatusBar` | Main window chrome (extracted from `App.tsx`)                                                          |
 
 ## Layout rules
 
