@@ -11,7 +11,7 @@ Before **implementing** a feature, refactor, or behavior change under `app/`:
    - `.cursor/skills/coding-guidelines/SKILL.md` — always
    - `.cursor/skills/tbh-qa/SKILL.md` — completion gate (`npm run qa` incl. lint/format, dev smoke)
 2. **Also read when the change touches:**
-   - `app/src/renderer/**` → `.cursor/skills/react-best-practices/SKILL.md` and `.cursor/skills/tbh-ux/SKILL.md` (tabs, chrome, overlays, layout)
+   - `app/src/renderer/**` → `.cursor/skills/react-best-practices/SKILL.md`, `.cursor/skills/tbh-ux/SKILL.md`, and `docs/STYLING.md` (tabs, chrome, overlays, layout)
    - `app/src/main/**`, `app/src/preload/**`, CSP, IPC, network, config → `.cursor/skills/best-practices/SKILL.md`
    - Release, `CHANGELOG.md`, or semver / version bump → `.cursor/skills/tbh-changelog/SKILL.md`
 

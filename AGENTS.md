@@ -137,6 +137,7 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 ## Docs index
 
 - `docs/ARCHITECTURE.md` - processes, IPC boundary, windows, data flow.
+- `docs/STYLING.md` - Tailwind + ui components vs legacy `styles.css` (renderer).
 - `docs/DIAGNOSTIC_LOGGING.md` - how to add support logs (main/renderer rules, what to log).
 - `docs/SAVE_FORMAT.md` - ES3 decryption scheme + save JSON layout.
 - `docs/DECISIONS.md` - short ADR log of why the stack is what it is.

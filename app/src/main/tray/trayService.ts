@@ -1,7 +1,7 @@
-import { app, Menu, Tray, nativeImage } from "electron";
-import { join } from "node:path";
+import { app, Menu, Tray } from "electron";
 
 import type { AppServices } from "../app/appState";
+import { trayImage } from "../iconPaths";
 
 let tray: Tray | null = null;
 let quitting = false;
@@ -12,19 +12,6 @@ export function isAppQuitting(): boolean {
 
 export function setAppQuitting(value = true): void {
   quitting = value;
-}
-
-function trayIconPath(): string {
-  if (app.isPackaged) {
-    return join(process.resourcesPath, "tray-icon.png");
-  }
-  return join(app.getAppPath(), "..", "docs", "design", "icons", "concept-companion-512.png");
-}
-
-function trayImage() {
-  const image = nativeImage.createFromPath(trayIconPath());
-  if (image.isEmpty()) return image;
-  return image.resize({ width: 16, height: 16 });
 }
 
 export function createTray(services: AppServices): Tray {

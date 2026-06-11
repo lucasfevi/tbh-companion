@@ -1,5 +1,6 @@
 import { defineConfig } from "electron-vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 // electron-vite auto-detects entries:
 //   main    -> src/main/index.ts
@@ -9,7 +10,7 @@ export default defineConfig({
   main: { build: { sourcemap: false } },
   preload: { build: { sourcemap: false } },
   renderer: {
-    plugins: [react()],
+    plugins: [tailwindcss(), react()],
     build: { sourcemap: false },
   },
 });

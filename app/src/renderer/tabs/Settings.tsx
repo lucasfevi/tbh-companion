@@ -2,6 +2,14 @@ import { useEffect, useState } from "react";
 import { STEAM_CURRENCIES } from "../../core/steamPrice";
 import type { AppConfig, AppDataClearTarget, AppDataPaths } from "../../../shared/types";
 import { reportIpcError } from "../lib/reportError";
+import { Accordion } from "../components/ui/Accordion";
+import { Button } from "../components/ui/Button";
+import { Field } from "../components/ui/Field";
+import { Input } from "../components/ui/Input";
+import { Section } from "../components/ui/Section";
+import { Select } from "../components/ui/Select";
+import { TabHeader } from "../components/ui/TabHeader";
+import { TabPage } from "../components/ui/TabPage";
 
 const CLEAR_ACTIONS: {
   target: AppDataClearTarget;
@@ -46,6 +54,51 @@ const CLEAR_ACTIONS: {
   },
 ];
 
+type SettingsPatch = Omit<AppConfig, "es3Password">;
+
+function settingsPatch(draft: AppConfig): SettingsPatch {
+  return {
+    savePath: draft.savePath,
+    pollIntervalSeconds: draft.pollIntervalSeconds,
+    rollingWindowMinutes: draft.rollingWindowMinutes,
+    trackCubeExp: draft.trackCubeExp,
+    startTopmost: draft.startTopmost,
+    logHistoryCsv: draft.logHistoryCsv,
+    currency: draft.currency,
+  };
+}
+
+function CacheActionRow({
+  title,
+  detail,
+  missingHint,
+  variant = "default",
+  disabled,
+  busy,
+  onClear,
+}: {
+  title: string;
+  detail: string;
+  missingHint?: string;
+  variant?: "default" | "danger";
+  disabled?: boolean;
+  busy?: boolean;
+  onClear: () => void;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3 rounded-lg border border-border bg-card p-2.5">
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <strong className="text-[13px] font-semibold">{title}</strong>
+        <span className="text-xs text-muted">{detail}</span>
+        {missingHint ? <span className="text-xs text-muted">{missingHint}</span> : null}
+      </div>
+      <Button variant={variant} className="shrink-0" disabled={disabled} onClick={onClear}>
+        {busy ? "Clearing…" : "Clear"}
+      </Button>
+    </div>
+  );
+}
+
 export function Settings() {
   const [cfg, setCfg] = useState<AppConfig | null>(null);
   const [draft, setDraft] = useState<AppConfig | null>(null);
@@ -53,6 +106,7 @@ export function Settings() {
   const [message, setMessage] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [browseBusy, setBrowseBusy] = useState(false);
   const [clearBusy, setClearBusy] = useState<AppDataClearTarget | null>(null);
   const [clearLogsBusy, setClearLogsBusy] = useState(false);
 
@@ -105,12 +159,31 @@ export function Settings() {
     );
   }
 
+  async function onBrowseSave() {
+    if (typeof window.tbh?.pickSaveFile !== "function") {
+      setMessage("Save picker is not loaded. Restart the app and try again.");
+      return;
+    }
+    setBrowseBusy(true);
+    setMessage(null);
+    try {
+      const path = await window.tbh.pickSaveFile();
+      if (path) setDraft({ ...draft!, savePath: path });
+    } catch (err) {
+      reportIpcError(err);
+      setMessage("Could not open the save file picker.");
+    } finally {
+      setBrowseBusy(false);
+    }
+  }
+
   async function onSave() {
     if (!draft || !cfg) return;
 
+    const patch = settingsPatch(draft);
     const resetsSession =
-      draft.rollingWindowMinutes !== cfg.rollingWindowMinutes ||
-      draft.trackCubeExp !== cfg.trackCubeExp;
+      patch.rollingWindowMinutes !== cfg.rollingWindowMinutes ||
+      patch.trackCubeExp !== cfg.trackCubeExp;
     if (
       resetsSession &&
       !window.confirm(
@@ -123,7 +196,7 @@ export function Settings() {
     setBusy(true);
     setMessage(null);
     try {
-      const saved = await window.tbh.saveConfig(draft);
+      const saved = await window.tbh.saveConfig(patch);
       setCfg(saved);
       setDraft(saved);
       setMessage(
@@ -222,75 +295,91 @@ export function Settings() {
   }
 
   return (
-    <div className="settings">
-      <h1>Settings</h1>
-      <p className="muted">
-        Configure save polling, session tracking, and defaults. Changes are stored as{" "}
-        <code>config.json</code> in your app user-data folder.
-      </p>
-      <p className="muted small">
-        Closing the main window keeps TBH Companion running in the system tray. Use{" "}
-        <strong>Quit</strong> from the tray menu to exit fully.
-      </p>
+    <TabPage>
+      <TabHeader
+        title="Settings"
+        intro="Choose where the app reads your save and how live stats and prices behave. Settings are saved on your PC."
+      />
 
-      <section className="settings-section">
-        <h2>Game save</h2>
-        <div className="settings-grid">
-          <label className="field">
-            <span>Save file path</span>
-            <input
-              value={draft.savePath}
-              onChange={(e) => setDraft({ ...draft, savePath: e.target.value })}
-            />
-          </label>
-
-          <label className="field">
-            <span>ES3 password</span>
-            <input
-              value={draft.es3Password}
-              onChange={(e) => setDraft({ ...draft, es3Password: e.target.value })}
-            />
-          </label>
+      <div className="flex max-w-md flex-col gap-3.5">
+        <div className="flex flex-wrap items-center gap-2.5 rounded-lg border border-border bg-card p-3">
+          <Button variant="primary" size="lg" disabled={busy} onClick={() => void onSave()}>
+            Save settings
+          </Button>
+          <Button disabled={busy} onClick={onReset}>
+            Reset
+          </Button>
         </div>
-      </section>
 
-      <section className="settings-section">
-        <h2>Tracking</h2>
-        <div className="settings-grid">
-          <label className="field">
-            <span>Poll interval (seconds)</span>
-            <input
-              type="number"
-              min={1}
-              value={draft.pollIntervalSeconds}
-              onChange={(e) =>
-                setDraft({
-                  ...draft,
-                  pollIntervalSeconds: Math.max(1, Number(e.target.value) || 1),
-                })
-              }
-            />
-          </label>
+        <Section title="Save file">
+          <div className="flex flex-col gap-2">
+            <span className="text-xs text-muted">Current save file</span>
+            <code className="break-all rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-muted">
+              {draft.savePath}
+            </code>
+            <Button disabled={browseBusy || busy} onClick={() => void onBrowseSave()}>
+              {browseBusy ? "Opening…" : "Browse…"}
+            </Button>
+          </div>
+        </Section>
 
-          <label className="field">
-            <span>Rolling window (minutes)</span>
-            <input
-              type="number"
-              min={1}
-              value={draft.rollingWindowMinutes}
-              onChange={(e) =>
-                setDraft({
-                  ...draft,
-                  rollingWindowMinutes: Math.max(1, Number(e.target.value) || 1),
-                })
-              }
-            />
-            <span className="muted small">Changing this resets the current session.</span>
-          </label>
+        <Section title="Live stats">
+          <div className="flex flex-col gap-3">
+            <Field label="Poll interval (seconds)">
+              <Input
+                type="number"
+                min={1}
+                value={draft.pollIntervalSeconds}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    pollIntervalSeconds: Math.max(1, Number(e.target.value) || 1),
+                  })
+                }
+              />
+            </Field>
 
-          <label className="field">
-            <span>Market currency</span>
-            <select
+            <Field
+              label="Rolling window (minutes)"
+              hint="Changing this resets the current session."
+            >
+              <Input
+                type="number"
+                min={1}
+                value={draft.rollingWindowMinutes}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    rollingWindowMinutes: Math.max(1, Number(e.target.value) || 1),
+                  })
+                }
+              />
+            </Field>
+
+            <Field
+              label="Include Hero-dric Cube XP in totals (resets session when toggled)"
+              checkbox
+            >
+              <input
+                type="checkbox"
+                checked={draft.trackCubeExp}
+                onChange={(e) => setDraft({ ...draft, trackCubeExp: e.target.checked })}
+              />
+            </Field>
+
+            <Field label="Log XP history to CSV" checkbox>
+              <input
+                type="checkbox"
+                checked={draft.logHistoryCsv}
+                onChange={(e) => setDraft({ ...draft, logHistoryCsv: e.target.checked })}
+              />
+            </Field>
+          </div>
+        </Section>
+
+        <Section title="Steam Market">
+          <Field label="Market currency">
+            <Select
               value={draft.currency}
               onChange={(e) => setDraft({ ...draft, currency: e.target.value })}
             >
@@ -299,122 +388,92 @@ export function Settings() {
                   {c.iso} - {c.label}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </Field>
+        </Section>
 
-          <label className="field checkbox">
-            <input
-              type="checkbox"
-              checked={draft.trackCubeExp}
-              onChange={(e) => setDraft({ ...draft, trackCubeExp: e.target.checked })}
-            />
-            <span>Include Hero-dric Cube XP in totals (resets session when toggled)</span>
-          </label>
-
-          <label className="field checkbox">
-            <input
-              type="checkbox"
-              checked={draft.startTopmost}
-              onChange={(e) => setDraft({ ...draft, startTopmost: e.target.checked })}
-            />
-            <span>Keep main window on top</span>
-          </label>
-
-          <label className="field checkbox">
-            <input
-              type="checkbox"
-              checked={draft.logHistoryCsv}
-              onChange={(e) => setDraft({ ...draft, logHistoryCsv: e.target.checked })}
-            />
-            <span>Log XP history to CSV</span>
-          </label>
-        </div>
-      </section>
-
-      <section className="settings-section">
-        <h2>Diagnostics</h2>
-        <p className="muted small">
-          When reporting an issue, you can send the diagnostic log file from Settings.
-        </p>
-        {dataPaths ? (
-          <p className="muted small cache-path">
-            <span>Log file:</span> <code>{dataPaths.diagnosticLogPath}</code>
-          </p>
-        ) : (
-          <p className="muted small">Loading log path…</p>
-        )}
-        <div className="cache-action-row">
-          <div className="cache-action-copy">
-            <strong>Clear diagnostic logs</strong>
-            <span className="muted small">logs/app.log and rotated archives</span>
+        <Section title="Window & tray">
+          <div className="flex flex-col gap-3">
+            <Field label="Keep main window on top" checkbox>
+              <input
+                type="checkbox"
+                checked={draft.startTopmost}
+                onChange={(e) => setDraft({ ...draft, startTopmost: e.target.checked })}
+              />
+            </Field>
+            <p className="m-0 text-xs text-muted">
+              Closing the main window keeps TBH Companion running in the system tray. Use{" "}
+              <strong>Quit</strong> from the tray menu to exit fully.
+            </p>
           </div>
-          <button
-            type="button"
-            className="btn"
-            disabled={
-              clearLogsBusy ||
-              Boolean(clearBusy) ||
-              !dataPaths?.entries.find((e) => e.id === "diagnostic-log")?.exists
-            }
-            onClick={() => void onClearDiagnosticLogs()}
-          >
-            {clearLogsBusy ? "Clearing…" : "Clear"}
-          </button>
-        </div>
-      </section>
+        </Section>
 
-      <section className="settings-section">
-        <h2>Data &amp; cache</h2>
-        <p className="muted small">
-          Cached catalog, prices, and tracker data live in your app user-data folder.{" "}
-          <code>config.json</code> is never removed by these actions.
-        </p>
-        {dataPaths ? (
-          <p className="muted small cache-path">
-            <span>Folder:</span> <code>{dataPaths.userDataDir}</code>
-          </p>
-        ) : (
-          <p className="muted small">Loading cache paths…</p>
-        )}
+        <Accordion title="Advanced — logs and cached data">
+          <Section title="Diagnostics">
+            <p className="m-0 text-xs text-muted">
+              When reporting an issue, you can send the diagnostic log file from Settings.
+            </p>
+            {dataPaths ? (
+              <p className="m-0 text-xs text-muted">
+                <span>Log file:</span>{" "}
+                <code className="break-all">{dataPaths.diagnosticLogPath}</code>
+              </p>
+            ) : (
+              <p className="m-0 text-xs text-muted">Loading log path…</p>
+            )}
+            <CacheActionRow
+              title="Clear diagnostic logs"
+              detail="logs/app.log and rotated archives"
+              disabled={
+                clearLogsBusy ||
+                Boolean(clearBusy) ||
+                !dataPaths?.entries.find((e) => e.id === "diagnostic-log")?.exists
+              }
+              busy={clearLogsBusy}
+              onClear={() => void onClearDiagnosticLogs()}
+            />
+          </Section>
 
-        <ul className="cache-actions">
-          {CLEAR_ACTIONS.map((action) => {
-            const hasData = pathEntryExists(action.target);
-            const isBusy = clearBusy === action.target;
-            const isDanger = action.target === "all-except-config";
-            return (
-              <li key={action.target} className="cache-action-row">
-                <div className="cache-action-copy">
-                  <strong>{action.label}</strong>
-                  <span className="muted small">{action.detail}</span>
-                  {!showMissingHint(action.target) ? null : (
-                    <span className="muted small">Nothing cached yet.</span>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className={isDanger ? "btn danger" : "btn"}
-                  disabled={Boolean(clearBusy) || !hasData}
-                  onClick={() => void onClearCache(action.target, action.confirm)}
-                >
-                  {isBusy ? "Clearing…" : "Clear"}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+          <Section title="Data & cache">
+            <p className="m-0 text-xs text-muted">
+              Cached catalog, prices, and tracker data live in your app user-data folder.{" "}
+              <code>config.json</code> is never removed by these actions.
+            </p>
+            {dataPaths ? (
+              <p className="m-0 text-xs text-muted">
+                <span>Folder:</span> <code className="break-all">{dataPaths.userDataDir}</code>
+              </p>
+            ) : (
+              <p className="m-0 text-xs text-muted">Loading cache paths…</p>
+            )}
 
-      <div className="settings-actions">
-        <button className="btn primary" disabled={busy} onClick={() => void onSave()}>
-          Save settings
-        </button>
-        <button className="btn" disabled={busy} onClick={onReset}>
-          Reset
-        </button>
+            <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+              {CLEAR_ACTIONS.map((action) => {
+                const hasData = pathEntryExists(action.target);
+                const isBusy = clearBusy === action.target;
+                const isDanger = action.target === "all-except-config";
+                return (
+                  <li key={action.target} className="list-none">
+                    <CacheActionRow
+                      title={action.label}
+                      detail={action.detail}
+                      missingHint={
+                        showMissingHint(action.target) ? "Nothing cached yet." : undefined
+                      }
+                      variant={isDanger ? "danger" : "default"}
+                      disabled={Boolean(clearBusy) || !hasData}
+                      busy={isBusy}
+                      onClear={() => void onClearCache(action.target, action.confirm)}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          </Section>
+        </Accordion>
+
+        {message && <p className="m-0 text-[13px] text-accent">{message}</p>}
       </div>
-
-      {message && <p className="settings-message">{message}</p>}
-    </div>
+    </TabPage>
   );
 }

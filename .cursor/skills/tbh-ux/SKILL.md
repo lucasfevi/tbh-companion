@@ -14,24 +14,24 @@ Follow these patterns so every tab and overlay feels like the same app. **Invent
 ## Before you change UI
 
 1. Open [`app/src/renderer/tabs/Inventory.tsx`](../../app/src/renderer/tabs/Inventory.tsx) and match its header pattern.
-2. Skim [`app/src/renderer/styles.css`](../../app/src/renderer/styles.css) for existing classes — reuse before inventing new ones.
+2. Read [`docs/STYLING.md`](../../docs/STYLING.md) and use `app/src/renderer/components/ui/*` on migrated tabs; skim [`app/src/renderer/styles.css`](../../app/src/renderer/styles.css) for legacy classes (Inventory, Live, Chests grid, chrome).
 3. If the change touches main-window chrome or tray behavior, read [`app/src/main/tray/trayService.ts`](../../app/src/main/tray/trayService.ts) and [`app/src/main/app/appState.ts`](../../app/src/main/app/appState.ts).
 4. For a **new tab from scratch** or large layout refactor, also read [references/patterns.md](references/patterns.md).
 
 ## Design tokens (do not drift)
 
-Use CSS variables from `:root` in `styles.css`:
+Tailwind `@theme` in `styles.css` mirrors legacy `:root` vars — see [`docs/STYLING.md`](../../docs/STYLING.md).
 
 | Token | Use |
 |-------|-----|
-| `--bg` `#0f1117` | Page / window background |
-| `--panel`, `--card` | Tab bar, cards, inputs |
-| `--border` | Dividers, input borders |
-| `--fg`, `--muted` | Primary and secondary text |
-| `--accent` `#5ad17a` | Primary actions, positive states |
-| `--gold` | XP / idle warnings |
+| `bg-bg` / `--bg` `#0f1117` | Page / window background |
+| `bg-panel`, `bg-card` | Tab bar, cards, inputs |
+| `border-border` | Dividers, input borders |
+| `text-fg`, `text-muted` | Primary and secondary text |
+| `bg-accent` `#5ad17a` | Primary actions, positive states |
+| `text-gold` | XP / idle warnings |
 
-Typography: Segoe UI / system sans, 14px body. Prefer `.muted`, `.small`, `.btn`, `.btn.primary` over one-off colors.
+Typography: Segoe UI / system sans, 14px body. On migrated tabs use `Button`, `Field`, `text-muted`, `text-xs` — not one-off hex colors.
 
 ## Main window chrome
 
@@ -52,13 +52,18 @@ Rules:
 
 Each tab should have:
 
-1. **`<h1>` title** — short, scannable (e.g. "Inventory", "Chests", "Live stats").
-2. **One or two sentences** of `.muted` explainer — what the tab reads from the save and when to use it.
-3. **Primary controls next** — summary cards, filters, or the main CTA before long lists.
+1. **`<TabHeader>`** from [`components/ui/TabHeader.tsx`](../../app/src/renderer/components/ui/TabHeader.tsx) — short `<h1>` title (**18px / semibold**) plus one muted intro line (**4px** below title when present).
+2. **Primary controls next** — summary cards, filters, or the main CTA before long lists.
+
+Wrap the tab root in **`<TabPage>`** for **14px** vertical section spacing (`gap-3.5`). Form-heavy tabs (Settings, About): inner column `max-w-md`. The main window is **900px wide** (fixed — no horizontal resize); height remains resizable from 480px. Section subtitles use **`Section`** or **4px** between `h2` and content.
 
 Placeholder state (no data yet): same `<h1>` + `.placeholder` + `.muted` wait message — see Inventory and Chests.
 
 Avoid walls of copy; move rune breakdowns and capacity math into `<details>` or tooltips (see compact Chests cards).
+
+**Copy tone:** write for players — no “installed app”, dev-build jargon, or internal timers in tab intros. Technical paths belong in Settings advanced sections.
+
+**App icon:** ship transparent PNG/ICO under `docs/design/icons/` (`companion-icon-*`, `tray-icon-32.png`). Do not use opaque black-background PNGs for tray, taskbar, or website.
 
 ## Chests tab
 
@@ -84,15 +89,17 @@ Avoid walls of copy; move rune breakdowns and capacity math into `<details>` or 
 
 | Need | Use |
 |------|-----|
-| Primary button | `.btn.primary` |
-| Secondary button | `.btn` |
-| Danger | `.btn.danger` |
+| Primary button (migrated tabs) | `<Button variant="primary">` |
+| Secondary button | `<Button>` or legacy `.btn` on Inventory |
+| Danger | `<Button variant="danger">` or `.btn.danger` |
+| Form field | `<Field>` + `<Input>` / `<Select>` |
+| Collapsible advanced block | `<Accordion>` |
 | Status badge | `.badge.full` |
-| Progress | `.progress-bar` + `.progress-fill.{gray,blue,red}` |
-| Link-style control | `.linkish` |
+| Progress | `<ProgressBar>` or `.progress-bar` + `.progress-fill.{gray,blue,red}` |
+| Link-style control | `.linkish` or `.market-link` |
 | Toolbar overlay buttons | `.toolbar-btn` + `.toolbar-icon` |
 
-Add new shared UI to `app/src/renderer/components/` when used in more than one place.
+Add new shared UI to `app/src/renderer/components/ui/` when used in more than one place.
 
 ## Review checklist (before marking UI work done)
 

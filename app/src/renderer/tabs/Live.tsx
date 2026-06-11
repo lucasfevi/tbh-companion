@@ -1,6 +1,8 @@
 import { useStats } from "../lib/useStats";
 import { fmtCompact, fmtDuration, fmtXpUpdated, fmtClock } from "../lib/format";
 import { stageName } from "../../core/stages";
+import { TabHeader } from "../components/ui/TabHeader";
+import { TabPage } from "../components/ui/TabPage";
 
 const IDLE_THRESHOLD = 120;
 
@@ -27,12 +29,11 @@ export function Live() {
   const showStatus = stats.status !== "Tracking";
 
   return (
-    <div className="live">
-      <h1>Live stats</h1>
-      <p className="muted">
-        Reads your save on a timer. XP and gold rates update when the game writes new progress—often
-        up to three minutes apart, sometimes longer.
-      </p>
+    <TabPage className="live">
+      <TabHeader
+        title="Live stats"
+        intro="Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer."
+      />
 
       <section className="rate-card">
         <div className="rate-primary" title={RATE_TIP}>
@@ -115,7 +116,7 @@ export function Live() {
       </section>
 
       {showStatus && <footer className={idle ? "status warn" : "status"}>{stats.status}</footer>}
-    </div>
+    </TabPage>
   );
 }
 

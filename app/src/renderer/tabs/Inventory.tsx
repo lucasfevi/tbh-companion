@@ -13,6 +13,8 @@ import {
 import { InventorySummary } from "../components/inventory/InventorySummary";
 import { InventoryFilters } from "../components/inventory/InventoryFilters";
 import { InventoryTable } from "../components/inventory/InventoryTable";
+import { TabHeader } from "../components/ui/TabHeader";
+import { TabPage } from "../components/ui/TabPage";
 
 export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
   const inv = useInventory();
@@ -99,8 +101,8 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
   }
 
   return (
-    <div className="inventory">
-      <h1>Inventory</h1>
+    <TabPage className="inventory">
+      <TabHeader title="Inventory" />
 
       <InventorySummary
         inv={inv}
@@ -152,6 +154,6 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
         onSort={toggleSort}
         onClearFilters={clearFilters}
       />
-    </div>
+    </TabPage>
   );
 }

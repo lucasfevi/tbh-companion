@@ -2,6 +2,11 @@ import { useState } from "react";
 import type { UpdateStatus } from "../../../shared/types";
 import { useUpdate } from "../lib/useUpdate";
 import { reportIpcError } from "../lib/reportError";
+import { Button } from "../components/ui/Button";
+import { ProgressBar } from "../components/ui/ProgressBar";
+import { Section } from "../components/ui/Section";
+import { TabHeader } from "../components/ui/TabHeader";
+import { TabPage } from "../components/ui/TabPage";
 
 const GITHUB_RELEASES = "https://github.com/lucasfevi/tbh-companion/releases";
 
@@ -19,9 +24,9 @@ function fmtBytes(bytes: number | undefined): string {
 function statusMessage(status: UpdateStatus): string | null {
   switch (status.phase) {
     case "disabled":
-      return "Updates are available in the installed app (not while running npm run dev).";
+      return "Updates aren't available in this build.";
     case "checking":
-      return "Checking GitHub for a newer release…";
+      return "Checking for a newer release…";
     case "not-available":
       return "You're on the latest release.";
     case "available":
@@ -82,91 +87,90 @@ export function About() {
   const showReleaseLink = status?.availableVersion && (phase === "available" || phase === "ready");
 
   return (
-    <div className="about">
-      <h1>About</h1>
-      <p className="muted">
-        TBH Companion is an unofficial fan tool for Task Bar Hero players. It reads your local save
-        only — it does not modify your save or connect to game servers. In the installed app, update
-        checks run in the background about 30 seconds after startup.
-      </p>
+    <TabPage>
+      <TabHeader
+        title="About"
+        intro="TBH Companion is an unofficial fan tool for Task Bar Hero. It reads your local save only — it never changes your save or connects to game servers."
+      />
 
-      <section className="settings-section about-version">
-        <h2>Version</h2>
-        <p>
-          <strong>v{status?.currentVersion ?? "…"}</strong>
-        </p>
-        <p className="muted small">
-          Not affiliated with Tesseract Studio. Fan-made companion for personal stats and inventory
-          valuation.
-        </p>
-      </section>
+      <div className="flex max-w-md flex-col gap-3.5">
+        <Section title="Version">
+          <p className="m-0">
+            <strong>v{status?.currentVersion ?? "…"}</strong>
+          </p>
+          <p className="m-0 text-xs text-muted">
+            Not affiliated with Tesseract Studio. Fan-made companion for personal stats and
+            inventory valuation.
+          </p>
+        </Section>
 
-      <section className="settings-section about-updates">
-        <h2>Updates</h2>
-        {message && <p className={phase === "error" ? "settings-message" : "muted"}>{message}</p>}
+        {!isDisabled && (
+          <Section title="Updates">
+            {message && (
+              <p className={`m-0 ${phase === "error" ? "text-accent" : "text-muted"}`}>{message}</p>
+            )}
 
-        {phase === "downloading" && (
-          <div className="market-progress">
-            <div className="bar">
-              <div className="bar-fill" style={{ width: `${percent}%` }} />
+            {phase === "downloading" && (
+              <ProgressBar
+                percent={percent}
+                label={
+                  <span className="text-xs text-muted">
+                    {percent}%
+                    {status?.transferred && status?.total
+                      ? ` — ${fmtBytes(status.transferred)} / ${fmtBytes(status.total)}`
+                      : ""}
+                  </span>
+                }
+              />
+            )}
+
+            {showReleaseLink && (
+              <p className="m-0 text-xs">
+                <a
+                  href={githubReleaseUrl(status.availableVersion!)}
+                  className="market-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  v{status.availableVersion} on GitHub
+                </a>
+              </p>
+            )}
+
+            <div className="mt-1 flex flex-wrap gap-2">
+              {canCheck && (
+                <Button variant="primary" disabled={isChecking} onClick={() => void onCheck()}>
+                  {isChecking ? "Checking…" : "Check for updates"}
+                </Button>
+              )}
+              {canDownload && (
+                <Button variant="primary" onClick={() => void onDownload()}>
+                  Download update
+                </Button>
+              )}
+              {canInstall && (
+                <Button variant="primary" onClick={onInstall}>
+                  Restart to install
+                </Button>
+              )}
             </div>
-            <span className="muted small">
-              {percent}%
-              {status?.transferred && status?.total
-                ? ` — ${fmtBytes(status.transferred)} / ${fmtBytes(status.total)}`
-                : ""}
-            </span>
-          </div>
-        )}
 
-        {showReleaseLink && (
-          <p className="small">
-            <a
-              href={githubReleaseUrl(status.availableVersion!)}
-              className="market-link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              v{status.availableVersion} on GitHub
-            </a>
-          </p>
-        )}
+            {canInstall && (
+              <p className="m-0 text-xs text-muted">
+                Restart closes the main window, Mini overlay, and stage chest tracker, then installs
+                over your existing folder. Windows may show an unsigned-app warning — choose More
+                info, then Run anyway (same as the first install).
+              </p>
+            )}
 
-        <div className="about-update-actions">
-          {canCheck && (
-            <button
-              type="button"
-              className="btn primary"
-              disabled={isChecking}
-              onClick={() => void onCheck()}
-            >
-              {isChecking ? "Checking…" : "Check for updates"}
-            </button>
-          )}
-          {canDownload && (
-            <button type="button" className="btn primary" onClick={() => void onDownload()}>
-              Download update
-            </button>
-          )}
-          {canInstall && (
-            <button type="button" className="btn primary" onClick={onInstall}>
-              Restart to install
-            </button>
-          )}
-        </div>
-
-        {canInstall && (
-          <p className="muted small">
-            Restart closes the main window, Mini overlay, and stage chest tracker, then installs
-            over your existing folder. Windows may show an unsigned-app warning — choose More info,
-            then Run anyway (same as the first install).
-          </p>
+            {phase === "idle" && (
+              <p className="m-0 text-xs text-muted">
+                Check for updates to see if a newer version is on GitHub.
+              </p>
+            )}
+          </Section>
         )}
-
-        {!isDisabled && phase === "idle" && (
-          <p className="muted small">Use Check for updates to look for a release now.</p>
-        )}
-      </section>
-    </div>
+      </div>
+    </TabPage>
   );
 }

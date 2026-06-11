@@ -1,6 +1,7 @@
-import { type BrowserWindow } from "electron";
+import { BrowserWindow, dialog, type OpenDialogOptions } from "electron";
+import { dirname } from "node:path";
 
-import { loadConfig, saveConfig, type AppConfig } from "../config";
+import { loadConfig, saveConfig, expandPath, type AppConfig } from "../config";
 import { TrackingService } from "../services/TrackingService";
 import { InventoryService } from "../services/InventoryService";
 import { ChestService } from "../services/ChestService";
@@ -134,6 +135,22 @@ export function getAppServices() {
       return inventory.setCurrency(iso);
     },
     getConfig: () => ({ ...config }),
+    pickSaveFile: async (): Promise<string | null> => {
+      const current = expandPath(config.savePath);
+      const parent =
+        mainWindow && !mainWindow.isDestroyed() ? mainWindow : BrowserWindow.getFocusedWindow();
+      const options: OpenDialogOptions = {
+        title: "Choose TBH save file",
+        defaultPath: dirname(current),
+        properties: ["openFile"],
+        filters: [{ name: "TBH save", extensions: ["es3"] }],
+      };
+      const result = parent
+        ? await dialog.showOpenDialog(parent, options)
+        : await dialog.showOpenDialog(options);
+      if (result.canceled || result.filePaths.length === 0) return null;
+      return result.filePaths[0] ?? null;
+    },
     saveConfigPatch: (patch: Partial<AppConfig>) =>
       applyConfigPatch(
         {

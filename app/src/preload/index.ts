@@ -109,6 +109,9 @@ const api: TbhApi = {
   saveConfig(patch: Partial<AppConfig>): Promise<AppConfig> {
     return ipcRenderer.invoke(IPC.SAVE_CONFIG, patch);
   },
+  pickSaveFile(): Promise<string | null> {
+    return ipcRenderer.invoke(IPC.PICK_SAVE_FILE);
+  },
   getDataPaths(): Promise<AppDataPaths> {
     return ipcRenderer.invoke(IPC.GET_DATA_PATHS);
   },

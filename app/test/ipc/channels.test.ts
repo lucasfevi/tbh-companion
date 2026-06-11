@@ -16,6 +16,7 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.GET_BOX_TIMERS");
     expect(preload).toContain("IPC.SET_BOX_TRACKER_BOXES");
     expect(preload).toContain("IPC.SAVE_CONFIG");
+    expect(preload).toContain("IPC.PICK_SAVE_FILE");
     expect(preload).toContain("IPC.PRICES_REFRESH");
     expect(preload).toContain("IPC.GET_DATA_PATHS");
     expect(preload).toContain("IPC.CLEAR_APP_DATA");
@@ -34,6 +35,7 @@ describe("IPC channel registry", () => {
     const data = readHandler("data");
     expect(stats).toContain("IPC.GET_STATS");
     expect(config).toContain("IPC.SAVE_CONFIG");
+    expect(config).toContain("IPC.PICK_SAVE_FILE");
     expect(market).toContain("IPC.PRICES_REFRESH");
     expect(data).toContain("IPC.GET_DATA_PATHS");
     expect(data).toContain("IPC.CLEAR_APP_DATA");

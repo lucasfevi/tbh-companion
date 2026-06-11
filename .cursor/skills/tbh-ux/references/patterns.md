@@ -24,16 +24,13 @@ Loading state keeps the same title:
 ## Chests header (compact + CTA)
 
 ```tsx
-<header className="chests-header">
-  <h1>Chests</h1>
-  <p className="muted">One-line explainer.</p>
+<TabHeader title="Chests" intro="One-line explainer.">
   <div className="chests-header-actions">
     <button type="button" className="btn primary" onClick={() => window.tbh.openBoxTracker()}>
-      Open box tracker overlay
+      Open Stage chest tracker
     </button>
-    <p className="muted small">Short hint about the overlay.</p>
   </div>
-</header>
+</TabHeader>
 <div className="chest-grid">{/* three .chest-card */}</div>
 ```
 

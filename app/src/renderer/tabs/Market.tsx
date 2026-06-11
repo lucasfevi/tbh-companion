@@ -2,6 +2,12 @@ import { useRef, useState } from "react";
 import { STEAM_CURRENCIES } from "../../core/steamPrice";
 import { usePriceProgress, usePriceStatus, usePriceActions } from "../lib/usePrices";
 import { reportIpcError } from "../lib/reportError";
+import { Button } from "../components/ui/Button";
+import { Field } from "../components/ui/Field";
+import { ProgressBar } from "../components/ui/ProgressBar";
+import { Select } from "../components/ui/Select";
+import { TabHeader } from "../components/ui/TabHeader";
+import { TabPage } from "../components/ui/TabPage";
 
 function fmtAge(iso: string | null): string {
   if (!iso) return "never";
@@ -58,85 +64,83 @@ export function Market() {
   const cachedCount = status?.count ?? 0;
 
   return (
-    <div className="market">
-      <h1>Market prices</h1>
-      <p className="muted">
-        Steam Community Market prices in your chosen currency. The app refreshes owned items in the
-        background and backs off on rate limits until done.
-      </p>
+    <TabPage>
+      <TabHeader
+        title="Market prices"
+        intro="Steam Community Market prices in your chosen currency. Prices refresh in the background; the app waits if Steam rate-limits requests."
+      />
 
-      <ul className="tab-tips muted">
-        <li>Use when Inventory value columns show dashes or prices look stale.</li>
-        <li>Change currency here or in Settings — both stay in sync.</li>
-        <li>Force full refresh re-prices everything, ignoring the 24-hour cache.</li>
-      </ul>
+      <div className="flex flex-col gap-3.5">
+        <ul className="m-0 list-disc pl-[18px] text-muted [&>li]:mb-1">
+          <li>Use when Inventory value columns show dashes or prices look stale.</li>
+          <li>Change currency here or in Settings — both stay in sync.</li>
+          <li>Force full refresh re-prices everything, ignoring the 24-hour cache.</li>
+        </ul>
 
-      {cachedCount === 0 && !busy && (
-        <p className="muted empty-hint">
-          No prices cached yet. Open Inventory while the game is running, or refresh here once you
-          own tradable materials or Legendary+ gear.
-        </p>
-      )}
-
-      <div className="market-controls">
-        <label className="field">
-          <span>Currency</span>
-          <select
-            value={status?.currency ?? "USD"}
-            disabled={busy}
-            onChange={(e) => void onCurrencyChange(e.target.value)}
-          >
-            {STEAM_CURRENCIES.map((c) => (
-              <option key={c.iso} value={c.iso}>
-                {c.iso} - {c.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {!busy ? (
-          <>
-            <button type="button" className="btn primary" onClick={() => void onRefresh(false)}>
-              Refresh prices
-            </button>
-            <button
-              type="button"
-              className="btn"
-              title="Re-price everything, ignoring the 24h cache"
-              onClick={() => void onRefresh(true)}
-            >
-              Force full refresh
-            </button>
-          </>
-        ) : (
-          <button type="button" className="btn danger" onClick={onCancel}>
-            Stop
-          </button>
+        {cachedCount === 0 && !busy && (
+          <p className="m-0 rounded-lg border border-border bg-card px-3 py-2.5 text-muted">
+            No prices cached yet. Open Inventory while the game is running, or refresh here once you
+            own tradable materials or Legendary+ gear.
+          </p>
         )}
-      </div>
 
-      <div className="market-status">
-        <span>
-          <strong>{cachedCount}</strong> prices cached
-        </span>
-        <span className="muted">currency {status?.currency ?? "-"}</span>
-        <span className="muted">updated {fmtAge(status?.fetchedUtc ?? null)}</span>
-      </div>
+        <div className="flex flex-wrap items-end gap-2.5">
+          <Field label="Currency">
+            <Select
+              value={status?.currency ?? "USD"}
+              disabled={busy}
+              onChange={(e) => void onCurrencyChange(e.target.value)}
+            >
+              {STEAM_CURRENCIES.map((c) => (
+                <option key={c.iso} value={c.iso}>
+                  {c.iso} - {c.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
 
-      {busy && (
-        <div className="market-progress">
-          <div className="bar">
-            <div className="bar-fill" style={{ width: `${pct}%` }} />
-          </div>
-          <div className="muted small">
-            {progress
-              ? `${progress.done}/${progress.total} - priced ${progress.priced}, failed ${progress.failed} - ${progress.current}`
-              : "starting..."}
-          </div>
+          {!busy ? (
+            <>
+              <Button variant="primary" onClick={() => void onRefresh(false)}>
+                Refresh prices
+              </Button>
+              <Button
+                title="Re-price everything, ignoring the 24h cache"
+                onClick={() => void onRefresh(true)}
+              >
+                Force full refresh
+              </Button>
+            </>
+          ) : (
+            <Button variant="danger" onClick={onCancel}>
+              Stop
+            </Button>
+          )}
         </div>
-      )}
 
-      {message && <p className="market-message">{message}</p>}
-    </div>
+        <div className="flex items-baseline gap-4 text-[13px]">
+          <span>
+            <strong>{cachedCount}</strong> prices cached
+          </span>
+          <span className="text-muted">currency {status?.currency ?? "-"}</span>
+          <span className="text-muted">updated {fmtAge(status?.fetchedUtc ?? null)}</span>
+        </div>
+
+        {busy && (
+          <ProgressBar
+            percent={pct}
+            label={
+              <span className="text-xs text-muted">
+                {progress
+                  ? `${progress.done}/${progress.total} - priced ${progress.priced}, failed ${progress.failed} - ${progress.current}`
+                  : "starting..."}
+              </span>
+            }
+          />
+        )}
+
+        {message && <p className="m-0 text-[13px]">{message}</p>}
+      </div>
+    </TabPage>
   );
 }

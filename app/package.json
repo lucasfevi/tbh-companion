@@ -43,13 +43,17 @@
         "to": "data"
       },
       {
-        "from": "../docs/design/icons/concept-companion-512.png",
-        "to": "tray-icon.png"
+        "from": "../docs/design/icons/tray-icon-32.png",
+        "to": "tray-icon-32.png"
+      },
+      {
+        "from": "../docs/design/icons/companion-icon-256.png",
+        "to": "companion-icon-256.png"
       }
     ],
     "win": {
       "target": "nsis",
-      "icon": "../docs/design/icons/concept-companion-512.png"
+      "icon": "../docs/design/icons/companion-icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -59,6 +63,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.0",
     "@types/node": "^22.19.20",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
@@ -72,15 +77,18 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
     "prettier": "^3.8.4",
+    "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.0",
     "vite": "^7.3.5",
     "vitest": "^4.1.8"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "electron-log": "^5.4.4",
     "electron-updater": "^6.6.2",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "tailwind-merge": "^3.6.0"
   }
 }

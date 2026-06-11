@@ -394,6 +394,7 @@ export interface TbhApi {
   onPricesProgress(cb: (p: PriceProgress) => void): () => void;
   getConfig(): Promise<AppConfig>;
   saveConfig(patch: Partial<AppConfig>): Promise<AppConfig>;
+  pickSaveFile(): Promise<string | null>;
   getDataPaths(): Promise<AppDataPaths>;
   clearAppData(target: AppDataClearTarget): Promise<ClearAppDataResult>;
   clearDiagnosticLogs(): Promise<ClearDiagnosticLogResult>;

@@ -1,3 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0f1117;
+  --color-panel: #171a23;
+  --color-card: #1d212c;
+  --color-border: #2a2f3d;
+  --color-fg: #e8eaf0;
+  --color-muted: #8b93a7;
+  --color-accent: #5ad17a;
+  --color-accent-fg: #0c0f14;
+  --color-danger: #d15a5a;
+  --color-danger-fg: #f0a0a0;
+  --color-gold: #e8c45a;
+  --font-sans: "Segoe UI", system-ui, sans-serif;
+}
+
 :root {
   --bg: #0f1117;
   --panel: #171a23;
@@ -116,9 +133,16 @@ body {
   min-height: 0;
 }
 
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .placeholder h1 {
-  margin: 0 0 6px;
-  font-size: 22px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .placeholder p {
@@ -137,27 +161,22 @@ body {
   gap: 14px;
 }
 
-.live h1 {
-  margin: 0 0 6px;
-  font-size: 22px;
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.tab-tips {
-  margin: 0 0 4px;
-  padding-left: 18px;
+.panel h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  margin: 0;
+  font-weight: 600;
 }
 
-.tab-tips li {
-  margin-bottom: 4px;
-}
-
-.empty-hint {
-  margin: 0 0 8px;
-  padding: 10px 12px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
+/* --- Market tab (progress kept for legacy refs) --- */
 
 .rate-card {
   display: grid;
@@ -269,15 +288,6 @@ body {
 
 .stat-value {
   font-size: 18px;
-  font-weight: 600;
-}
-
-.panel h2 {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--muted);
-  margin: 0 0 8px;
   font-weight: 600;
 }
 
@@ -488,51 +498,7 @@ body {
   margin: 8px 0 0;
 }
 
-/* --- Market tab --- */
-.market {
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.market h1 {
-  margin: 0;
-  font-size: 18px;
-}
-.market p {
-  margin: 0;
-  max-width: 640px;
-  line-height: 1.45;
-  font-size: 13px;
-}
-.market code {
-  background: var(--card);
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-.market-controls {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--muted);
-}
-.field select {
-  background: var(--card);
-  color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 13px;
-  min-width: 200px;
-}
+/* --- Legacy buttons (Inventory, box tracker) --- */
 .btn {
   background: var(--card);
   border: 1px solid var(--border);
@@ -558,48 +524,17 @@ body {
   border-color: #d15a5a;
   color: #f0a0a0;
 }
-.market-status {
-  display: flex;
-  gap: 16px;
-  align-items: baseline;
-  font-size: 13px;
-}
-.market-progress {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.market-progress .bar {
-  height: 8px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  overflow: hidden;
-}
-.market-progress .bar-fill {
-  height: 100%;
-  background: var(--accent);
-  transition: width 0.2s ease;
-}
+
 .small {
   font-size: 12px;
-}
-.market-message {
-  font-size: 13px;
-  color: var(--fg);
 }
 
 /* --- Inventory tab --- */
 .inventory {
-  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
   box-sizing: border-box;
-}
-.inventory h1 {
-  margin: 0;
-  font-size: 18px;
 }
 .inv-cards {
   display: grid;
@@ -765,118 +700,6 @@ body {
   color: var(--gold);
 }
 
-/* --- Settings tab --- */
-.settings {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-width: 640px;
-}
-
-.settings-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.settings-section h2 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-}
-.settings h1,
-.about h1 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.about {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-width: 640px;
-}
-
-.about-update-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.settings-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.settings-grid .field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.settings-grid .field.checkbox {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-}
-.settings-grid input[type="text"],
-.settings-grid input[type="number"],
-.settings-grid select {
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--fg);
-  border-radius: 6px;
-  padding: 7px 10px;
-  font-size: 13px;
-}
-.settings-actions {
-  display: flex;
-  gap: 10px;
-}
-.settings-message {
-  font-size: 13px;
-  color: var(--accent);
-}
-
-.cache-path code {
-  word-break: break-all;
-}
-
-.cache-actions {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.cache-action-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.cache-action-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.cache-action-copy strong {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.cache-action-row .btn {
-  flex-shrink: 0;
-}
-
 .loc-cell span {
   display: inline-block;
   margin-right: 6px;
@@ -901,16 +724,12 @@ body {
   gap: 14px;
 }
 
-.chests-header h1 {
-  margin: 0 0 6px;
-}
-
 .chests-header-actions {
   display: flex;
   flex-direction: column;
   gap: 6px;
   align-items: flex-start;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .chest-grid {

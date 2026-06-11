@@ -2,6 +2,8 @@ import { BrowserWindow } from "electron";
 import { PRELOAD_SCRIPT } from "../paths";
 import { isAppQuitting } from "../tray/trayService";
 import { loadRenderer } from "./loadRenderer";
+import { setWindowIcon } from "../iconPaths";
+import { MAIN_WINDOW_HEIGHT, MAIN_WINDOW_MIN_HEIGHT, MAIN_WINDOW_WIDTH } from "./constants";
 
 export function createMainWindow(
   getExisting: () => BrowserWindow | null,
@@ -10,15 +12,18 @@ export function createMainWindow(
 ): BrowserWindow {
   const existing = getExisting();
   if (existing && !existing.isDestroyed()) {
+    existing.setMinimumSize(MAIN_WINDOW_WIDTH, MAIN_WINDOW_MIN_HEIGHT);
+    existing.setMaximumSize(MAIN_WINDOW_WIDTH, 0);
     existing.show();
     return existing;
   }
 
   const win = new BrowserWindow({
-    width: 900,
-    height: 640,
-    minWidth: 420,
-    minHeight: 480,
+    width: MAIN_WINDOW_WIDTH,
+    height: MAIN_WINDOW_HEIGHT,
+    minWidth: MAIN_WINDOW_WIDTH,
+    maxWidth: MAIN_WINDOW_WIDTH,
+    minHeight: MAIN_WINDOW_MIN_HEIGHT,
     show: false,
     backgroundColor: "#0f1117",
     autoHideMenuBar: true,
@@ -43,6 +48,7 @@ export function createMainWindow(
   win.on("closed", () => setWindow(null));
 
   loadRenderer(win, "main");
+  setWindowIcon(win);
   setWindow(win);
   return win;
 }
