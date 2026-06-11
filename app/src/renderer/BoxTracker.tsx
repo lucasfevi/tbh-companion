@@ -183,7 +183,7 @@ export function BoxTracker() {
       </details>
 
       {state.rows.length === 0 ? (
-        <p className="no-drag m-0 py-2 text-center text-xs text-muted">
+        <p className="no-drag m-0 text-center text-xs text-muted">
           Expand track levels above to pick boxes and start cooldown timers.
         </p>
       ) : (

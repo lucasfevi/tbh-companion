@@ -24,7 +24,7 @@ export function Overlay() {
   const pricing = priceStatus?.running ?? false;
 
   return (
-    <OverlayFrame className="gap-1">
+    <OverlayFrame>
       <div className="flex items-center justify-between">
         <span className="whitespace-nowrap text-[10px] font-bold tracking-wide text-muted">
           TBH Companion

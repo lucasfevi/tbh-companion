@@ -17,9 +17,9 @@ export function IconButton({
     <button
       type={type}
       className={cn(
-        "cursor-pointer rounded border-none bg-transparent px-1.5 py-0.5 text-[13px] text-muted hover:bg-card hover:text-fg",
-        edge === "start" && "-ml-1.5",
-        edge === "end" && "-mr-1.5",
+        "cursor-pointer rounded border-none bg-transparent px-1 py-0 text-[13px] leading-none text-muted hover:bg-card hover:text-fg",
+        edge === "start" && "-ml-1",
+        edge === "end" && "-mr-1",
         className,
       )}
       {...props}

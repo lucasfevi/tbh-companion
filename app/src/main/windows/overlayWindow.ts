@@ -2,9 +2,9 @@ import { BrowserWindow } from "electron";
 import { PRELOAD_SCRIPT } from "../paths";
 import { loadRenderer } from "./loadRenderer";
 
-/** Mini overlay — keep in sync with `OverlayFrame` padding (p-2) and readout rows. */
+/** Mini overlay — keep in sync with `OverlayFrame` (px-2.5 py-1.5) and readout rows. */
 export const OVERLAY_WIDTH = 280;
-export const OVERLAY_HEIGHT = 96;
+export const OVERLAY_HEIGHT = 86;
 
 function applyOverlaySize(win: BrowserWindow): void {
   win.setSize(OVERLAY_WIDTH, OVERLAY_HEIGHT);
