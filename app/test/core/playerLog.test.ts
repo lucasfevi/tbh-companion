@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect } from "vitest";
+import { platform } from "node:os";
 import { dirname, join } from "node:path";
 import { parseGetBoxCountItemKeys, playerLogPathFromSave } from "../../src/core/playerLog";
 
@@ -16,13 +17,14 @@ describe("playerLog", () => {
     );
   });
 
-  it.skipIf(process.platform !== "win32")("derives Player.log path from native Windows save paths", () => {
-    const savePath =
-      "C:\\Users\\me\\AppData\\LocalLow\\TesseractStudio\\TaskbarHero\\SaveFile_Live.es3";
-    expect(playerLogPathFromSave(savePath)).toBe(
-      join(dirname(savePath), "Player.log"),
-    );
-  });
+  it.skipIf(platform() !== "win32")(
+    "derives Player.log path from native Windows save paths",
+    () => {
+      const savePath =
+        "C:\\Users\\me\\AppData\\LocalLow\\TesseractStudio\\TaskbarHero\\SaveFile_Live.es3";
+      expect(playerLogPathFromSave(savePath)).toBe(join(dirname(savePath), "Player.log"));
+    },
+  );
 
   it("parses GetBoxCount Success lines", () => {
     const chunk = `
