@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import type { GameDataStatus } from "../../shared/types";
 import {
   CATALOG_SOURCE,
+  catalogItemKeyFromSave,
   extractAndEnrichItemsFromHtml,
   indexById,
   catalogHasGearLevels,
@@ -180,7 +181,7 @@ export class GameDataProvider {
   }
 
   get(itemKey: number): GameItem | undefined {
-    return this.index.get(itemKey);
+    return this.index.get(catalogItemKeyFromSave(itemKey));
   }
 
   isStageBox(itemKey: number): boolean {

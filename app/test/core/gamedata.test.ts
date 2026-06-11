@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   buildGameItems,
   catalogHasGearLevels,
+  catalogItemKeyFromSave,
   extractItemsFromHtml,
   extractLevelFromDetailHtml,
   iconTemplateFromPath,
@@ -71,6 +72,14 @@ describe("gamedata", () => {
     const idx = indexById(extractItemsFromHtml(html, new Map([["STAFF_320011", 50]])));
     expect(idx.get(322111)?.name).toBe("Void Staff");
     expect(idx.get(999999)).toBeUndefined();
+  });
+
+  it("maps suffixed save ItemKeys to catalog ids", () => {
+    expect(catalogItemKeyFromSave(322111)).toBe(322111);
+    expect(catalogItemKeyFromSave(514051900)).toBe(514051);
+    expect(catalogItemKeyFromSave(140001900)).toBe(140001);
+    expect(catalogItemKeyFromSave(910151900)).toBe(910151);
+    expect(catalogItemKeyFromSave(1_500_000_000)).toBe(1_500_000_000);
   });
 
   it("detects when a catalog snapshot includes gear levels", () => {

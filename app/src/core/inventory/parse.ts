@@ -1,5 +1,6 @@
 // Parse owned items and chests from decrypted save JSON.
 
+import { catalogItemKeyFromSave } from "../gamedata";
 import { unwrapEs3Entry } from "../save/snapshot";
 import { materialStacksFromAggregates, parseAggregateEntries } from "./aggregates";
 import type {
@@ -91,7 +92,7 @@ function parseItemsFromPlayerString(playerStr: string): InventoryItemInstance[] 
   const arr = sliceJsonArray(playerStr, '"itemSaveDatas":');
   const items: InventoryItemInstance[] = [];
   for (const m of arr.matchAll(ITEM_TRIPLE_RE)) {
-    const itemKey = Math.trunc(Number(m[1]));
+    const itemKey = catalogItemKeyFromSave(Math.trunc(Number(m[1])));
     if (itemKey <= 0) continue;
     const uniqueId = m[2];
     const location = resolveLocation(uniqueId, equipped, inventory, stash, trading);
@@ -112,7 +113,7 @@ function parseItemsFromPlayerObject(player: Record<string, unknown>): InventoryI
   for (const raw of arr) {
     if (!raw || typeof raw !== "object") continue;
     const it = raw as Record<string, unknown>;
-    const itemKey = Math.trunc(toNum(it.ItemKey, 0));
+    const itemKey = catalogItemKeyFromSave(Math.trunc(toNum(it.ItemKey, 0)));
     if (itemKey <= 0) continue;
     items.push({
       itemKey,

@@ -167,6 +167,22 @@ export function indexById(items: GameItem[]): Map<number, GameItem> {
   return m;
 }
 
+/** Save ItemKeys in the bundled catalog range (gear, materials, stage boxes). */
+const SAVE_CATALOG_ITEM_KEY_MIN = 110_001;
+const SAVE_CATALOG_ITEM_KEY_MAX = 939_999;
+
+/**
+ * Map a save `itemSaveDatas[].ItemKey` to the catalog `id`.
+ * Newer game builds append a 3-digit suffix (commonly `900`) so keys look like
+ * `514051900` instead of `514051`.
+ */
+export function catalogItemKeyFromSave(itemKey: number): number {
+  if (itemKey < 1_000_000) return itemKey;
+  const base = Math.trunc(itemKey / 1000);
+  if (base >= SAVE_CATALOG_ITEM_KEY_MIN && base <= SAVE_CATALOG_ITEM_KEY_MAX) return base;
+  return itemKey;
+}
+
 /** True when at least one gear row carries a resolved item level. */
 export function catalogHasGearLevels(items: Iterable<GameItem>): boolean {
   for (const item of items) {

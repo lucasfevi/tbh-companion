@@ -92,6 +92,17 @@ describe("parseInventory", () => {
     expect(snap.items).toEqual([]);
     expect(snap.chests).toEqual([]);
   });
+
+  it("normalizes suffixed ItemKeys from newer saves", () => {
+    const inner = `{
+      "itemSaveDatas":[
+        {"ItemKey":514051900,"UniqueId":514119247889201010,"IsChaotic":false},
+        {"ItemKey":140001900,"UniqueId":514119247889201011,"IsChaotic":false}
+      ]
+    }`;
+    const snap = parseInventory(wrapPlayer(inner), 0);
+    expect(snap.items.map((i) => i.itemKey)).toEqual([514051, 140001]);
+  });
 });
 
 describe("resolveInventory", () => {
@@ -162,6 +173,30 @@ describe("resolveInventory", () => {
     const sword = res.rows.find((r) => r.itemKey === 303071)!;
     expect(sword.marketHashName).toBe("Knight Sword (Legendary) B");
     expect(sword.unitPrice).toBe(1.5);
+  });
+
+  it("resolves suffixed ItemKeys against the catalog", () => {
+    const inner = `{
+      "itemSaveDatas":[
+        {"ItemKey":514051900,"UniqueId":514119247889201010,"IsChaotic":false}
+      ]
+    }`;
+    const snap = parseInventory(wrapPlayer(inner), 0);
+    const gearCatalog: Record<number, GameItem> = {
+      514051: {
+        id: 514051,
+        name: "Knight's Armor",
+        grade: "COMMON",
+        type: "GEAR",
+        level: 50,
+        marketTradable: false,
+      },
+    };
+    const res = resolveInventory(snap, (key) => gearCatalog[key], true);
+    expect(res.rows).toHaveLength(1);
+    expect(res.rows[0].name).toBe("Knight's Armor");
+    expect(res.rows[0].known).toBe(true);
+    expect(res.composition.unknownCount).toBe(0);
   });
 
   it("marks priceChecked when Steam returned no listing or sale price", () => {
