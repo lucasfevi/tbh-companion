@@ -105,13 +105,15 @@ coding** — enforced by `.cursor/rules/project-skills.mdc` (`alwaysApply: true`
 | **tbh-changelog** | `.cursor/skills/tbh-changelog/SKILL.md` | CHANGELOG updates, semver bump advice, release prep |
 
 Do not skip skills for “small” diffs. Match skill to layer: renderer → **react-best-practices**; main/preload/security → **best-practices**; release/changelog → **tbh-changelog**.
-- **Always commit.** When you finish a task (bugfix, feature, refactor, or docs),
-  create a git commit before treating the work as done. Do not leave completed
-  changes uncommitted in the working tree.
-- Commit style: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`,
+- **Commits:** use Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`,
   `refactor:`). One focused commit per logical change; split large work into
-  reviewable chunks. Push to `origin` after commits unless the user says otherwise.
-  Never force-push.
+  reviewable chunks. Commit when the user asks (or their rules allow); do not
+  commit unless requested.
+- **Push and PRs — confirm first:** never run `git push` or open a pull request
+  without explicit user approval in the current conversation. Summarize branch,
+  commits, and scope; ask; then push or create the PR only after they confirm.
+  See `docs/AGENT_WORKFLOW.md`.
+- Never force-push unless the user explicitly requests it.
 - Never commit personal save data (`*.es3`, decrypted dumps, `sample/`).
 
 ## Architecture & refactor conventions
@@ -136,6 +138,7 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 
 ## Docs index
 
+- `docs/AGENT_WORKFLOW.md` - git commits, push/PR confirmation, agent defaults.
 - `docs/ARCHITECTURE.md` - processes, IPC boundary, windows, data flow.
 - `docs/STYLING.md` - Tailwind + ui components vs legacy `styles.css` (renderer).
 - `docs/DIAGNOSTIC_LOGGING.md` - how to add support logs (main/renderer rules, what to log).
