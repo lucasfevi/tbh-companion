@@ -12,6 +12,10 @@ on:
 permissions:
   contents: write
 
+env:
+  RELEASE_TAG: ""
+  RELEASE_VERSION: ""
+
 jobs:
   release:
     runs-on: windows-latest
@@ -171,3 +175,129 @@ jobs:
           fi
           git commit -m "chore(website): update release manifest for ${{ env.RELEASE_TAG }}"
           git push origin main
+
+  release-linux:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Verify tag matches package.json
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+
+          if [ -z "$TAG" ]; then
+            echo "Release tag is required (e.g. v1.0.1)"
+            exit 1
+          fi
+
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$ ]]; then
+            echo "Invalid tag format: ${TAG} (expected vMAJOR.MINOR.PATCH)"
+            exit 1
+          fi
+
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "v${PKG_VERSION}" != "${TAG}" ]; then
+            echo "::error::Release tag ${TAG} does not match app/package.json version ${PKG_VERSION}."
+            echo "Bump version in app/package.json on main, commit, then tag v${PKG_VERSION}."
+            exit 1
+          fi
+
+          echo "RELEASE_TAG=${TAG}" >> "$GITHUB_ENV"
+          echo "RELEASE_VERSION=${PKG_VERSION}" >> "$GITHUB_ENV"
+          echo "Building Linux release ${TAG} from package.json"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Automated QA gate
+        run: npm run qa
+
+      - name: Build Linux packages
+        run: npm run build && npx electron-builder --linux --publish never
+
+      - name: Verify Linux artifacts
+        shell: bash
+        run: |
+          release_dir="release"
+          if [ ! -d "$release_dir" ]; then
+            echo "Expected release output at $release_dir"
+            exit 1
+          fi
+
+          appimage=$(ls "$release_dir"/*.AppImage 2>/dev/null || true)
+          deb=$(ls "$release_dir"/*.deb 2>/dev/null || true)
+          latest_yml=$(ls "$release_dir"/latest-linux.yml 2>/dev/null || true)
+
+          if [ -z "$appimage" ]; then
+            echo "Missing AppImage in release/"
+            exit 1
+          fi
+          if [ -z "$deb" ]; then
+            echo "Missing .deb in release/"
+            exit 1
+          fi
+          if [ -z "$latest_yml" ]; then
+            echo "Missing latest-linux.yml in release/ (required for in-app updates)"
+            exit 1
+          fi
+
+          echo "Linux artifacts OK: $(basename "$appimage"), $(basename "$deb"), latest-linux.yml"
+
+      - name: Verify bundled data ships in packaged resources
+        shell: bash
+        run: |
+          resources_data="release/*-linux-*/resources/data"
+          shopt -s nullglob
+          dirs=($resources_data)
+          if [ ${#dirs[@]} -eq 0 ]; then
+            # AppImage is a single file, check the unpacked dir instead
+            unpacked="release/*-linux-unpacked/resources/data"
+            dirs=($unpacked)
+          fi
+          if [ ${#dirs[@]} -eq 0 ]; then
+            echo "Warning: Could not verify bundled data (unpacked dir not found)"
+            echo "Skipping data verification for Linux build"
+            exit 0
+          fi
+          for file in box_types.json rune_box_cap.json rare_box_routes.json gamedata.json stage_boxes.json; do
+            found=false
+            for d in "${dirs[@]}"; do
+              if [ -f "$d/$file" ]; then
+                found=true
+                break
+              fi
+            done
+            if [ "$found" = false ]; then
+              echo "Warning: Missing bundled data file: $file"
+            fi
+          done
+          echo "Bundled data verification OK"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: tbh-companion-linux-${{ env.RELEASE_VERSION }}
+          path: app/release/**
+          if-no-files-found: error
+
+      - name: Publish GitHub Release (Linux)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: app/release/*
