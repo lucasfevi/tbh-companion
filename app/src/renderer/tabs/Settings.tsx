@@ -481,7 +481,7 @@ export function Settings() {
             )}
             <CacheActionRow
               title="Clear diagnostic logs"
-              detail="logs/app.log and rotated archives"
+              detail="app.log, main.log (legacy), and rotated archives"
               disabled={
                 clearLogsBusy ||
                 Boolean(clearBusy) ||

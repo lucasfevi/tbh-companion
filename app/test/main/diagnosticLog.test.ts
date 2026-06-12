@@ -11,6 +11,8 @@ import {
   sanitizeLogMessage,
   DIAGNOSTIC_LOG_ARCHIVE,
   DIAGNOSTIC_LOG_FILE,
+  LEGACY_LOG_ARCHIVE,
+  LEGACY_LOG_FILE,
   resolveDiagnosticLogDir,
 } from "../../src/main/log";
 
@@ -47,32 +49,38 @@ describe("diagnosticLog", () => {
     expect(resolveDiagnosticLogDir(userDataDir)).toBe(join(userDataDir, "logs"));
   });
 
-  it("listDiagnosticLogFiles finds app.log and archive only", () => {
+  it("listDiagnosticLogFiles finds app, legacy main, and rotated archives", () => {
     userDataDir = mkdtempSync(join(tmpdir(), "tbh-log-"));
     const logDir = join(userDataDir, "logs");
     mkdirSync(logDir, { recursive: true });
     writeFileSync(join(logDir, DIAGNOSTIC_LOG_FILE), "line\n");
     writeFileSync(join(logDir, DIAGNOSTIC_LOG_ARCHIVE), "old\n");
+    writeFileSync(join(logDir, LEGACY_LOG_FILE), "legacy\n");
+    writeFileSync(join(logDir, LEGACY_LOG_ARCHIVE), "legacy-old\n");
     writeFileSync(join(logDir, "xp_history.csv"), "csv\n");
 
     expect(listDiagnosticLogFiles(userDataDir)).toEqual([
       join("logs", DIAGNOSTIC_LOG_FILE),
       join("logs", DIAGNOSTIC_LOG_ARCHIVE),
+      join("logs", LEGACY_LOG_FILE),
+      join("logs", LEGACY_LOG_ARCHIVE),
     ]);
   });
 
-  it("clearDiagnosticLogs removes log files", () => {
+  it("clearDiagnosticLogs removes diagnostic and legacy log files", () => {
     userDataDir = mkdtempSync(join(tmpdir(), "tbh-log-"));
     const logDir = join(userDataDir, "logs");
     mkdirSync(logDir, { recursive: true });
     writeFileSync(join(logDir, DIAGNOSTIC_LOG_FILE), "line\n");
     writeFileSync(join(logDir, DIAGNOSTIC_LOG_ARCHIVE), "old\n");
+    writeFileSync(join(logDir, LEGACY_LOG_FILE), "legacy\n");
 
     const result = clearDiagnosticLogs(userDataDir);
     expect(result.ok).toBe(true);
-    expect(result.cleared).toHaveLength(2);
+    expect(result.cleared).toHaveLength(3);
     expect(existsSync(join(logDir, DIAGNOSTIC_LOG_FILE))).toBe(false);
     expect(existsSync(join(logDir, DIAGNOSTIC_LOG_ARCHIVE))).toBe(false);
+    expect(existsSync(join(logDir, LEGACY_LOG_FILE))).toBe(false);
     expect(existsSync(join(logDir, "xp_history.csv"))).toBe(false);
   });
 });
