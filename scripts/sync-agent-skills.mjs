@@ -6,6 +6,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -49,6 +50,11 @@ function walk(dir, onFile, prefix = "") {
   }
 }
 
+function fileContentHash(filePath) {
+  const data = fs.readFileSync(filePath);
+  return crypto.createHash("sha256").update(data).digest("hex");
+}
+
 function dirFingerprint(root, names) {
   const files = [];
   for (const name of names) {
@@ -58,8 +64,7 @@ function dirFingerprint(root, names) {
   return files
     .map((rel) => {
       const full = path.join(root, rel);
-      const stat = fs.statSync(full);
-      return `${rel}:${stat.size}:${stat.mtimeMs}`;
+      return `${rel}:${fileContentHash(full)}`;
     })
     .join("\n");
 }
