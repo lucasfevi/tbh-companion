@@ -138,7 +138,11 @@ export class SteamMarketProvider {
   status(ownedNames?: string[]): PriceStatus {
     const now = Date.now();
     const owned = ownedNames ?? [];
-    const { freshCount, staleCount } = countOwnedFreshness(owned, (name) => this.isFresh(name, now), now);
+    const { freshCount, staleCount } = countOwnedFreshness(
+      owned,
+      (name) => this.isFresh(name, now),
+      now,
+    );
     return {
       currency: this.currency,
       count: owned.length > 0 ? freshCount + staleCount : Object.keys(this.cache.prices).length,
@@ -154,7 +158,10 @@ export class SteamMarketProvider {
     this.cancelled = true;
   }
 
-  async refresh(names: string[] | undefined, opts: RefreshCallbacks = {}): Promise<PriceRefreshResult> {
+  async refresh(
+    names: string[] | undefined,
+    opts: RefreshCallbacks = {},
+  ): Promise<PriceRefreshResult> {
     if (this.running) {
       return {
         ...emptyRefreshResult(this.currency),
@@ -243,7 +250,13 @@ export class SteamMarketProvider {
         sawRateLimit = true;
         delayMs = Math.min(delayMs * 2, MAX_DELAY_MS);
         log.warn(`Rate-limited ${name} backoff=${Math.round(delayMs / 1000)}s`);
-        this.emitProgress(opts, targets.length, index + 1, `${name} (rate-limited, waiting ${Math.round(delayMs / 1000)}s)`, counters);
+        this.emitProgress(
+          opts,
+          targets.length,
+          index + 1,
+          `${name} (rate-limited, waiting ${Math.round(delayMs / 1000)}s)`,
+          counters,
+        );
         await sleepUntil(delayMs, () => this.cancelled);
         continue;
       }
