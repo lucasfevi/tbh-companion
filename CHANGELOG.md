@@ -4,6 +4,8 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-06-11
+
 ### Notifications
 
 - **Enable notifications** master toggle in **Settings** controls update toasts and chest-ready sounds.
