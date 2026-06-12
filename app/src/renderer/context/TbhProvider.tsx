@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Stats, ResolvedInventory, PriceStatus, PriceProgress } from "../../../shared/types";
+import { formatPriceRefreshMessage } from "../lib/formatPriceRefreshMessage";
 import { reportIpcError } from "../lib/reportError";
 
 export interface TbhContextValue {
@@ -15,8 +16,10 @@ export interface TbhContextValue {
   inventory: ResolvedInventory | null;
   priceStatus: PriceStatus | null;
   priceProgress: PriceProgress | null;
+  lastPriceRefreshMessage: string | null;
   setPriceStatus: (status: PriceStatus | null) => void;
   clearPriceProgress: () => void;
+  clearLastPriceRefreshMessage: () => void;
 }
 
 const TbhContext = createContext<TbhContextValue | null>(null);
@@ -26,6 +29,7 @@ export function TbhProvider({ children }: { children: ReactNode }) {
   const [inventory, setInventory] = useState<ResolvedInventory | null>(null);
   const [priceStatus, setPriceStatus] = useState<PriceStatus | null>(null);
   const [priceProgress, setPriceProgress] = useState<PriceProgress | null>(null);
+  const [lastPriceRefreshMessage, setLastPriceRefreshMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -41,13 +45,27 @@ export function TbhProvider({ children }: { children: ReactNode }) {
 
     const offStats = window.tbh.onStats((s) => setStats(s));
     const offInventory = window.tbh.onInventory((inv) => setInventory(inv));
+    const offPriceStatus = window.tbh.onPriceStatus((ps) => {
+      if (mounted) {
+        setPriceStatus(ps);
+        if (ps.freshCount === 0) {
+          setLastPriceRefreshMessage(null);
+        }
+      }
+    });
     const offProgress = window.tbh.onPricesProgress((p) => {
       if (p.finished) {
         startTransition(() => setPriceProgress(null));
         void window.tbh
           .pricesStatus()
           .then((ps) => {
-            if (mounted) setPriceStatus(ps);
+            if (!mounted) return;
+            setPriceStatus(ps);
+            if (p.result) {
+              setLastPriceRefreshMessage(
+                formatPriceRefreshMessage({ ok: true, ...p.result, ownedTargets: ps.ownedTargets }),
+              );
+            }
           })
           .catch(reportIpcError);
         return;
@@ -65,6 +83,7 @@ export function TbhProvider({ children }: { children: ReactNode }) {
       mounted = false;
       offStats();
       offInventory();
+      offPriceStatus();
       offProgress();
     };
   }, []);
@@ -75,10 +94,12 @@ export function TbhProvider({ children }: { children: ReactNode }) {
       inventory,
       priceStatus,
       priceProgress,
+      lastPriceRefreshMessage,
       setPriceStatus,
       clearPriceProgress: () => setPriceProgress(null),
+      clearLastPriceRefreshMessage: () => setLastPriceRefreshMessage(null),
     }),
-    [stats, inventory, priceStatus, priceProgress],
+    [stats, inventory, priceStatus, priceProgress, lastPriceRefreshMessage],
   );
 
   return <TbhContext.Provider value={value}>{children}</TbhContext.Provider>;

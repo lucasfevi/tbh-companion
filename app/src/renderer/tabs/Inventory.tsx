@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useInventory } from "../lib/useInventory";
-import { usePriceProgress, usePriceStatus } from "../lib/usePrices";
+import { SteamPriceProgress } from "../components/market/SteamPriceProgress";
 import { rowMatchesAnyLocation } from "../../core/inventory/location";
 import {
   filterAndSortRows,
@@ -13,15 +13,11 @@ import {
 import { InventorySummary } from "../components/inventory/InventorySummary";
 import { InventoryFilters } from "../components/inventory/InventoryFilters";
 import { InventoryTable } from "../components/inventory/InventoryTable";
-import { Button } from "../components/ui/Button";
-import { HintBanner } from "../components/ui/HintBanner";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
 
 export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
   const inv = useInventory();
-  const priceStatus = usePriceStatus();
-  const priceProgress = usePriceProgress();
   const [query, setQuery] = useState("");
   const [tradableOnly, setTradableOnly] = useState(false);
   const [inUseOnly, setInUseOnly] = useState(false);
@@ -84,8 +80,6 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
 
   const chestTotal = inv.chests.reduce((s, x) => s + x.quantity, 0);
   const currency = inv.currency ?? "USD";
-  const pricing = priceStatus?.running ?? false;
-
   function toggleSort(key: SortKey) {
     if (key === sortKey) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -115,23 +109,7 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
         onViewChests={chestTotal > 0 ? onOpenChests : undefined}
       />
 
-      {pricing && (
-        <HintBanner>
-          Updating Steam prices in the background
-          {priceProgress
-            ? `: ${priceProgress.done}/${priceProgress.total} (${priceProgress.priced} priced)`
-            : "..."}
-          .{" "}
-          <Button
-            size="sm"
-            variant="danger"
-            className="ml-1.5"
-            onClick={() => window.tbh.cancelPrices()}
-          >
-            Stop
-          </Button>
-        </HintBanner>
-      )}
+      <SteamPriceProgress variant="banner" />
 
       <InventoryFilters
         query={query}

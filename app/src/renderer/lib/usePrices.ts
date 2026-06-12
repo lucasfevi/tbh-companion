@@ -8,7 +8,11 @@ export function usePriceProgress() {
   return useTbhContext().priceProgress;
 }
 
+export function useLastPriceRefreshMessage() {
+  return useTbhContext().lastPriceRefreshMessage;
+}
+
 export function usePriceActions() {
-  const { setPriceStatus, clearPriceProgress } = useTbhContext();
-  return { setPriceStatus, clearPriceProgress };
+  const { setPriceStatus, clearPriceProgress, clearLastPriceRefreshMessage } = useTbhContext();
+  return { setPriceStatus, clearPriceProgress, clearLastPriceRefreshMessage };
 }

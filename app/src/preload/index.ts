@@ -131,6 +131,11 @@ const api: TbhApi = {
     ipcRenderer.on(IPC.PRICES_PROGRESS, listener);
     return () => ipcRenderer.removeListener(IPC.PRICES_PROGRESS, listener);
   },
+  onPriceStatus(cb: (status: PriceStatus) => void): () => void {
+    const listener = (_e: unknown, status: PriceStatus): void => cb(status);
+    ipcRenderer.on(IPC.PRICE_STATUS, listener);
+    return () => ipcRenderer.removeListener(IPC.PRICE_STATUS, listener);
+  },
   getConfig(): Promise<AppConfig> {
     return ipcRenderer.invoke(IPC.GET_CONFIG);
   },

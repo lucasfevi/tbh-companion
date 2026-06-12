@@ -9,9 +9,12 @@ import {
 } from "./services/priceCache";
 import { fetchSteamPrice } from "./services/steamPriceApi";
 import { FRESH_TTL_MS } from "./services/steamMarketConstants";
+import { createLogger } from "./log";
 
 export { FRESH_TTL_MS };
 export type { PriceEntry };
+
+const log = createLogger("market");
 
 const DEFAULT_DELAY_MS = 1500;
 const MAX_DELAY_MS = 60000;
@@ -65,10 +68,38 @@ export class SteamMarketProvider {
     return names.filter((n) => !this.isFresh(n, now));
   }
 
-  status(): PriceStatus {
+  /** Remove cache entries not in the current owned set. Returns count removed. */
+  pruneCache(ownedNames: string[]): number {
+    const owned = new Set(ownedNames);
+    let removed = 0;
+    for (const key of Object.keys(this.cache.prices)) {
+      if (!owned.has(key)) {
+        delete this.cache.prices[key];
+        removed++;
+      }
+    }
+    if (removed > 0) {
+      persistPriceCache(this.cache);
+      log.info(`Pruned ${removed} orphan cache entries`);
+    }
+    return removed;
+  }
+
+  status(ownedNames?: string[]): PriceStatus {
+    const now = Date.now();
+    const owned = ownedNames ?? [];
+    let freshCount = 0;
+    let staleCount = 0;
+    for (const name of owned) {
+      if (this.isFresh(name, now)) freshCount++;
+      else staleCount++;
+    }
     return {
       currency: this.currency,
-      count: Object.keys(this.cache.prices).length,
+      count: owned.length > 0 ? freshCount + staleCount : Object.keys(this.cache.prices).length,
+      ownedTargets: owned.length,
+      freshCount,
+      staleCount,
       fetchedUtc: this.cache.fetchedUtc,
       running: this.running,
     };
@@ -84,7 +115,7 @@ export class SteamMarketProvider {
       force?: boolean;
       onProgress?: (p: PriceProgress) => void;
       onPriced?: (name: string) => void;
-      onFinished?: () => void;
+      onFinished?: (result: PriceRefreshResult) => void;
     } = {},
   ): Promise<PriceRefreshResult> {
     if (this.running) {
@@ -102,26 +133,48 @@ export class SteamMarketProvider {
     this.running = true;
     this.cancelled = false;
     const allTargets = (names && names.length ? names : []).slice();
-    if (allTargets.length === 0) {
-      this.running = false;
-      return {
-        ok: true,
-        priced: 0,
-        skipped: 0,
-        failed: 0,
-        stopped: "completed",
-        currency: this.currency,
-      };
-    }
 
-    const now = Date.now();
-    let priced = 0;
-    let skipped = 0;
-    let failed = 0;
-    let delay = DEFAULT_DELAY_MS;
-    let stopped: PriceRefreshResult["stopped"] = "completed";
+    let result: PriceRefreshResult = {
+      ok: true,
+      priced: 0,
+      skipped: 0,
+      failed: 0,
+      stopped: "completed",
+      currency: this.currency,
+    };
 
     try {
+      if (allTargets.length === 0) {
+        return result;
+      }
+
+      const force = Boolean(opts.force);
+      const pending = this.pendingNames(allTargets, force);
+      if (!force && pending.length === 0) {
+        result = {
+          ok: true,
+          priced: 0,
+          skipped: allTargets.length,
+          failed: 0,
+          stopped: "completed",
+          currency: this.currency,
+          noop: true,
+        };
+        return result;
+      }
+
+      log.info(
+        `Refresh start currency=${this.currency} targets=${allTargets.length} stale=${pending.length} force=${force}`,
+      );
+
+      const now = Date.now();
+      let priced = 0;
+      let skipped = 0;
+      let failed = 0;
+      let delay = DEFAULT_DELAY_MS;
+      let stopped: PriceRefreshResult["stopped"] = "completed";
+      let sawRateLimit = false;
+
       for (let i = 0; i < allTargets.length; i++) {
         if (this.cancelled) {
           stopped = "cancelled";
@@ -129,7 +182,7 @@ export class SteamMarketProvider {
         }
 
         const name = allTargets[i];
-        if (!opts.force && this.isFresh(name, now)) {
+        if (!force && this.isFresh(name, now)) {
           skipped++;
           opts.onProgress?.({
             done: i + 1,
@@ -143,8 +196,13 @@ export class SteamMarketProvider {
 
         try {
           const r = await fetchSteamPrice(name, this.currency);
-          if (r.status === 429) {
+          if (r.status === 0) {
+            log.warn(`Fetch timeout ${name}`);
+            failed++;
+          } else if (r.status === 429) {
+            sawRateLimit = true;
             delay = Math.min(delay * 2, MAX_DELAY_MS);
+            log.warn(`Rate-limited ${name} backoff=${Math.round(delay / 1000)}s`);
             i--;
             opts.onProgress?.({
               done: i + 1,
@@ -154,16 +212,20 @@ export class SteamMarketProvider {
               failed,
             });
             await sleepUntil(delay, () => this.cancelled);
+            if (this.cancelled) {
+              stopped = "cancelled";
+              break;
+            }
             continue;
-          }
-
-          delay = DEFAULT_DELAY_MS;
-          if (r.ok && r.entry) {
-            this.cache.prices[name] = r.entry;
-            priced++;
-            opts.onPriced?.(name);
           } else {
-            failed++;
+            delay = DEFAULT_DELAY_MS;
+            if (r.ok && r.entry) {
+              this.cache.prices[name] = r.entry;
+              priced++;
+              opts.onPriced?.(name);
+            } else {
+              failed++;
+            }
           }
         } catch {
           failed++;
@@ -174,23 +236,31 @@ export class SteamMarketProvider {
         await sleepUntil(delay, () => this.cancelled);
       }
 
+      if (sawRateLimit && stopped === "completed" && priced === 0 && failed > 0) {
+        stopped = "rate-limited";
+      }
+
       if (priced > 0) this.cache.fetchedUtc = new Date().toISOString();
       persistPriceCache(this.cache);
-      return { ok: true, priced, skipped, failed, stopped, currency: this.currency };
+      result = { ok: true, priced, skipped, failed, stopped, currency: this.currency };
+      log.info(`Refresh ${stopped}: priced=${priced} failed=${failed} skipped=${skipped}`);
+      return result;
     } catch (err) {
       persistPriceCache(this.cache);
-      return {
+      result = {
         ok: false,
-        priced,
-        skipped,
-        failed,
-        stopped,
+        priced: result.priced,
+        skipped: result.skipped,
+        failed: result.failed,
+        stopped: result.stopped,
         currency: this.currency,
         error: (err as Error).message,
       };
+      log.warn(`Refresh failed: ${result.error ?? "unknown"}`);
+      return result;
     } finally {
       this.running = false;
-      opts.onFinished?.();
+      opts.onFinished?.(result);
     }
   }
 }

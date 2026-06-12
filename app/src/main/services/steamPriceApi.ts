@@ -11,7 +11,15 @@ export async function fetchSteamPrice(
   const url =
     `${PRICEOVERVIEW}?appid=${APP_ID}&currency=${currencyCode(currency)}` +
     `&market_hash_name=${encodeURIComponent(name)}`;
-  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (TBH Companion)" } });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (TBH Companion)" },
+      signal: AbortSignal.timeout(30_000),
+    });
+  } catch {
+    return { ok: false, status: 0 };
+  }
   if (!res.ok) return { ok: false, status: res.status };
 
   const data = (await res.json()) as {
