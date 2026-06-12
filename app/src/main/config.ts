@@ -28,6 +28,12 @@ const DEFAULTS: AppConfig = {
   notificationsEnabled: true,
   notifyOnUpdateAvailable: true,
   chestSoundVariant: "soft-chime",
+  discordWebhookEnabled: false,
+  discordWebhookUrl: "",
+  discordNotifyChestDrop: true,
+  discordNotifyHeroLevelUp: true,
+  discordNotifyStatsReport: false,
+  discordStatsReportIntervalMinutes: 30,
 };
 
 // Expand %VAR% (Windows) and ~ in a path.

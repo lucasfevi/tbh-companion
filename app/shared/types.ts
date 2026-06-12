@@ -43,6 +43,7 @@ export interface Stats {
   goldRate: number; // gold/hour (earned)
   cumulativeGained: number; // XP gained this session
   goldGained: number; // gold earned this session
+  currentGold: number; // current gold balance
   elapsed: number; // seconds since session start
   secondsSinceGain: number | null;
   secondsSinceRead: number | null;
@@ -251,6 +252,12 @@ export interface AppConfig {
   notificationsEnabled: boolean;
   notifyOnUpdateAvailable: boolean;
   chestSoundVariant: ChestSoundVariant;
+  discordWebhookEnabled: boolean;
+  discordWebhookUrl: string;
+  discordNotifyChestDrop: boolean;
+  discordNotifyHeroLevelUp: boolean;
+  discordNotifyStatsReport: boolean;
+  discordStatsReportIntervalMinutes: number;
 }
 
 /** Scoped targets for Settings → Data & cache clear actions. */
@@ -496,6 +503,7 @@ export interface TbhApi {
   clearBoxTrackerFarmStage(boxId: number): Promise<BoxTimerState>;
   setBoxTrackerNotify(boxId: number, enabled: boolean): Promise<BoxTimerState>;
   previewChestSound(variant?: ChestSoundVariant): Promise<void>;
+  testDiscordWebhook(url: string): Promise<{ ok: boolean; status?: number; error?: string }>;
   getUpdateStatus(): Promise<UpdateStatus>;
   checkForUpdates(): Promise<UpdateStatus>;
   downloadUpdate(): Promise<UpdateStatus>;

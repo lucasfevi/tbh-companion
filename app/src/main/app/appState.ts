@@ -13,6 +13,7 @@ import { clearDiagnosticLogs, createLogger, logRendererError } from "../log";
 import { clearAppDataFiles, getAppDataPaths } from "../services/appData";
 import { UpdateService } from "../services/UpdateService";
 import { NotificationService } from "../services/NotificationService";
+import { DiscordWebhookService } from "../services/DiscordWebhookService";
 import type {
   AppDataClearTarget,
   ChestSoundVariant,
@@ -46,6 +47,10 @@ function focusMainWindow(): void {
 }
 
 const notifications = new NotificationService(() => config, focusMainWindow);
+const discord = new DiscordWebhookService(
+  () => config,
+  () => tracking.getStats(),
+);
 const updates = new UpdateService({
   getConfig: () => config,
   onUpdateAvailable: (version) => notifications.showUpdateAvailable(version),
@@ -64,9 +69,14 @@ const tracking = new TrackingService(
   sessionState,
   {
     onDrop: (itemKey) => {
-      boxTimers.tryMarkDroppedFromLog(itemKey);
+      const drop = boxTimers.tryMarkDroppedFromLog(itemKey);
+      if (drop) discord.notifyChestDrop(drop.name, drop.level);
     },
     onAvailability: (path, available) => boxTimers.setPlayerLogStatus(path, available),
+  },
+  ({ heroKey, newLevel }) => {
+    const heroName = tracking.getStats().heroes.find((h) => h.key === heroKey)?.name ?? heroKey;
+    discord.notifyHeroLevelUp(heroName, newLevel);
   },
 );
 
@@ -80,6 +90,7 @@ export function startTracking(): SessionUiSnapshot {
   inventory.loadGameData();
   const ui = sessionState.load(config);
   tracking.start(config);
+  discord.syncInterval();
   return ui;
 }
 
@@ -102,6 +113,7 @@ export function stopTracking(): void {
   tracking.flushSession();
   tracking.stop();
   boxTimers.stopTick();
+  discord.stop();
 }
 
 export function openMainWindow(): BrowserWindow {
@@ -176,6 +188,7 @@ export function getAppServices() {
       saveConfig(config);
       return inventory.setCurrency(iso);
     },
+    testDiscordWebhook: (url: string) => discord.testWebhook(url),
     getConfig: () => ({ ...config }),
     pickSaveFile: async (): Promise<string | null> => {
       const current = expandPath(config.savePath);
@@ -217,6 +230,7 @@ export function getAppServices() {
           resolveAndPushInventory: () => inventory.resolveAndPushInventory(),
           ensureOwnedPrices: (force) => inventory.ensureOwnedPrices(force),
           onSavePathChange: () => tracking.onSavePathChanged(),
+        syncDiscordInterval: () => discord.syncInterval(),
         },
         patch,
       ),

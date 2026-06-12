@@ -74,6 +74,8 @@ export function buildStats(
 
     goldGained: tracker.goldGained,
 
+    currentGold: tracker.currentGold,
+
     elapsed: tracker.elapsed,
 
     secondsSinceGain: sinceGain,

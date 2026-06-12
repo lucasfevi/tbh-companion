@@ -106,6 +106,10 @@ export function Settings() {
   const [clearBusy, setClearBusy] = useState<AppDataClearTarget | null>(null);
   const [clearLogsBusy, setClearLogsBusy] = useState(false);
   const [previewBusy, setPreviewBusy] = useState(false);
+  const [discordUrl, setDiscordUrl] = useState("");
+  const [discordUrlError, setDiscordUrlError] = useState<string | null>(null);
+  const [discordTestBusy, setDiscordTestBusy] = useState(false);
+  const [discordTestResult, setDiscordTestResult] = useState<{ ok: boolean; error?: string } | null>(null);
 
   async function refreshDataPaths(): Promise<void> {
     if (typeof window.tbh?.getDataPaths !== "function") return;
@@ -115,6 +119,10 @@ export function Settings() {
       reportIpcError(err);
     }
   }
+
+  useEffect(() => {
+    if (cfg) setDiscordUrl(cfg.discordWebhookUrl);
+  }, [cfg?.discordWebhookUrl]);
 
   useEffect(() => {
     if (typeof window.tbh?.getConfig !== "function") {
@@ -177,6 +185,38 @@ export function Settings() {
         <p className="m-0 text-muted">Loading...</p>
       </div>
     );
+  }
+
+  async function onDiscordTest() {
+    if (!discordUrl.trim()) {
+      setDiscordUrlError("Enter a webhook URL to test.");
+      return;
+    }
+    setDiscordUrlError(null);
+    setDiscordTestResult(null);
+    setDiscordTestBusy(true);
+    try {
+      const result = await window.tbh.testDiscordWebhook(discordUrl.trim());
+      setDiscordTestResult(result);
+    } catch {
+      setDiscordTestResult({ ok: false, error: "IPC error — try restarting the app." });
+    } finally {
+      setDiscordTestBusy(false);
+    }
+  }
+
+  async function onDiscordStart() {
+    if (!discordUrl.trim()) {
+      setDiscordUrlError("Webhook URL is required to start.");
+      return;
+    }
+    setDiscordUrlError(null);
+    await savePartial({ discordWebhookUrl: discordUrl.trim(), discordWebhookEnabled: true });
+  }
+
+  async function onDiscordStop() {
+    setDiscordUrlError(null);
+    await savePartial({ discordWebhookEnabled: false });
   }
 
   async function onPreviewChestSound() {
@@ -446,6 +486,103 @@ export function Settings() {
             >
               {previewBusy ? "Playing…" : "Preview sound"}
             </Button>
+          </div>
+        </Section>
+
+        <Section title="Discord Webhook">
+          <p className="m-0 text-xs text-muted">
+            Send notifications to a Discord channel. Chest drops and hero level-ups are sent
+            immediately. Stats reports are sent on a configurable interval.
+          </p>
+          <div className="flex flex-col gap-3">
+            <Field label="Webhook URL">
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  className="min-w-0 flex-1 rounded-md border border-border bg-card px-2.5 py-1.5 text-[13px] text-fg placeholder:text-muted focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ideal/50 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={discordUrl}
+                  disabled={cfg.discordWebhookEnabled || saveBusy}
+                  placeholder="https://discord.com/api/webhooks/…"
+                  onChange={(e) => {
+                    setDiscordUrl(e.target.value);
+                    if (discordUrlError) setDiscordUrlError(null);
+                    if (discordTestResult) setDiscordTestResult(null);
+                  }}
+                />
+                <Button
+                  disabled={cfg.discordWebhookEnabled || discordTestBusy || saveBusy}
+                  onClick={() => void onDiscordTest()}
+                >
+                  {discordTestBusy ? "Testing…" : "Test"}
+                </Button>
+                {cfg.discordWebhookEnabled ? (
+                  <Button variant="danger" disabled={saveBusy} onClick={() => void onDiscordStop()}>
+                    Stop
+                  </Button>
+                ) : (
+                  <Button disabled={saveBusy} onClick={() => void onDiscordStart()}>
+                    Start
+                  </Button>
+                )}
+              </div>
+              {discordUrlError && (
+                <p className="m-0 mt-1 text-xs text-red-500">{discordUrlError}</p>
+              )}
+              {discordTestResult && (
+                <p className={`m-0 mt-1 text-xs ${discordTestResult.ok ? "text-green-500" : "text-red-500"}`}>
+                  {discordTestResult.ok
+                    ? "✓ Test message sent successfully."
+                    : `✗ Test failed: ${discordTestResult.error ?? "unknown error"}`}
+                </p>
+              )}
+              {cfg.discordWebhookEnabled && (
+                <p className="m-0 mt-1 text-xs text-green-500">● Webhook is running</p>
+              )}
+            </Field>
+
+            <Field label="Notify on chest drop" checkbox>
+              <input
+                type="checkbox"
+                checked={cfg.discordNotifyChestDrop}
+                disabled={saveBusy}
+                onChange={(e) => void savePartial({ discordNotifyChestDrop: e.target.checked })}
+              />
+            </Field>
+
+            <Field label="Notify on hero level up" checkbox>
+              <input
+                type="checkbox"
+                checked={cfg.discordNotifyHeroLevelUp}
+                disabled={saveBusy}
+                onChange={(e) => void savePartial({ discordNotifyHeroLevelUp: e.target.checked })}
+              />
+            </Field>
+
+            <Field label="Send periodic stats reports" checkbox>
+              <input
+                type="checkbox"
+                checked={cfg.discordNotifyStatsReport}
+                disabled={saveBusy}
+                onChange={(e) => void savePartial({ discordNotifyStatsReport: e.target.checked })}
+              />
+            </Field>
+
+            <Field
+              label="Stats report interval (minutes)"
+              hint={!cfg.discordNotifyStatsReport ? "Enable stats reports above first." : undefined}
+            >
+              <NumberInput
+                min={1}
+                defaultValue={cfg.discordStatsReportIntervalMinutes}
+                key={`discord-interval-${cfg.discordStatsReportIntervalMinutes}`}
+                disabled={!cfg.discordNotifyStatsReport || saveBusy}
+                onBlur={(e) => {
+                  const value = Math.max(1, Number(e.target.value) || 30);
+                  if (value === cfg.discordStatsReportIntervalMinutes) return;
+                  void savePartial({ discordStatsReportIntervalMinutes: value });
+                }}
+              />
+            </Field>
           </div>
         </Section>
 
