@@ -41,6 +41,7 @@ export const IPC = {
   UPDATE_CHECK: "update-check",
   UPDATE_DOWNLOAD: "update-download",
   UPDATE_QUIT_AND_INSTALL: "update-quit-and-install",
+  DISCORD_TEST: "discord-test", //I will just keep it here to test webhook in the future
 
   // Send (renderer → main, no response)
   RESET: "reset",
@@ -86,6 +87,7 @@ export const IPC_INVOKE_CHANNELS = [
   IPC.UPDATE_CHECK,
   IPC.UPDATE_DOWNLOAD,
   IPC.UPDATE_QUIT_AND_INSTALL,
+  IPC.DISCORD_TEST,
 ] as const;
 
 export const IPC_SEND_CHANNELS = [

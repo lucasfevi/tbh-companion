@@ -20,6 +20,11 @@ export interface PlayerLogHooks {
   onAvailability: (path: string, available: boolean) => void;
 }
 
+export interface HeroLevelUpEvent {
+  heroKey: string;
+  newLevel: number;
+}
+
 export class TrackingService {
   private tracker!: XpTracker;
   private watcher: SaveWatcher | null = null;
@@ -29,6 +34,7 @@ export class TrackingService {
   private lastError: string | null = null;
   private config!: AppConfig;
   private restoreApplied = false;
+  private prevHeroLevels = new Map<string, number>();
   private readonly onInventory: (snap: InventorySnapshot) => void;
   private readonly parseInventorySnapshot?: (text: string, mtime: number) => InventorySnapshot;
 
@@ -38,6 +44,7 @@ export class TrackingService {
     private readonly onStageKey?: (stageKey: number) => void,
     private readonly sessionState?: SessionStateService,
     private readonly playerLog?: PlayerLogHooks,
+    private readonly onHeroLevelUp?: (event: HeroLevelUpEvent) => void,
   ) {
     this.onInventory = onInventory;
     this.parseInventorySnapshot = parseInventorySnapshot;
@@ -110,6 +117,7 @@ export class TrackingService {
   restartWatcher(): void {
     this.sessionState?.invalidatePending();
     this.restoreApplied = false;
+    this.prevHeroLevels.clear();
     this.watcher?.stop();
     this.watcher = this.createWatcher();
     this.watcher.start();
@@ -123,6 +131,7 @@ export class TrackingService {
   onSavePathChanged(): void {
     this.lastSnap = null;
     this.restoreApplied = false;
+    this.prevHeroLevels.clear();
     this.sessionState?.invalidatePending();
     this.tracker.reset();
     this.sessionState?.notifyNewSession();
@@ -135,6 +144,17 @@ export class TrackingService {
     this.playerLogWatcher?.stop();
     this.playerLogWatcher = this.createPlayerLogWatcher();
     this.playerLogWatcher.start();
+  }
+
+  private detectHeroLevelUps(snap: SaveSnapshot): void {
+    if (!this.onHeroLevelUp) return;
+    for (const hero of snap.heroes) {
+      const prev = this.prevHeroLevels.get(hero.key);
+      if (prev !== undefined && hero.level > prev) {
+        this.onHeroLevelUp({ heroKey: hero.key, newLevel: hero.level });
+      }
+      this.prevHeroLevels.set(hero.key, hero.level);
+    }
   }
 
   private createWatcher(): SaveWatcher {
@@ -154,6 +174,7 @@ export class TrackingService {
         }
         this.tracker.update(snap);
         this.onStageKey?.(snap.stageKey);
+        this.detectHeroLevelUps(snap);
         this.pushStats();
       },
       onError: (message) => {

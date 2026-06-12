@@ -157,6 +157,9 @@ const api: TbhApi = {
   logRendererError(payload: RendererLogPayload): Promise<void> {
     return ipcRenderer.invoke(IPC.LOG_RENDERER_ERROR, payload);
   },
+  testDiscordWebhook(url: string): Promise<{ ok: boolean; status?: number; error?: string }> {
+    return ipcRenderer.invoke(IPC.DISCORD_TEST, url);
+  },
   getUpdateStatus(): Promise<UpdateStatus> {
     return ipcRenderer.invoke(IPC.GET_UPDATE_STATUS);
   },

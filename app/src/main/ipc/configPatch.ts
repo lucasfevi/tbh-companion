@@ -21,6 +21,7 @@ export interface ConfigPatchDeps {
   resolveAndPushInventory: () => void;
   ensureOwnedPrices: (force?: boolean) => void | Promise<void>;
   onSavePathChange?: () => void;
+  syncDiscordInterval?: () => void;
 }
 
 /** Apply settings patch and run side effects. */
@@ -31,6 +32,11 @@ export function applyConfigPatch(deps: ConfigPatchDeps, patch: Partial<AppConfig
     patch.es3Password !== undefined;
   const needsTracker = patch.rollingWindowMinutes !== undefined;
   const csvToggled = patch.logHistoryCsv !== undefined;
+  const discordChanged =
+    patch.discordWebhookEnabled !== undefined ||
+    patch.discordWebhookUrl !== undefined ||
+    patch.discordNotifyStatsReport !== undefined ||
+    patch.discordStatsReportIntervalMinutes !== undefined;
 
   const prev = deps.getConfig();
   const next = { ...prev, ...patch };
@@ -67,6 +73,7 @@ export function applyConfigPatch(deps: ConfigPatchDeps, patch: Partial<AppConfig
   }
 
   if (needsWatcher) deps.restartWatcher();
+  if (discordChanged) deps.syncDiscordInterval?.();
 
   deps.setAlwaysOnTop(next.startTopmost);
   deps.pushStats();

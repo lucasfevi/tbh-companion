@@ -129,21 +129,21 @@ describe("BoxTimerService", () => {
 
   it("marks dropped from Player.log ItemKey for tracked boxes", async () => {
     const svc = await loadService();
-    expect(svc.tryMarkDroppedFromLog(920151)).toBe(true);
+    expect(svc.tryMarkDroppedFromLog(920151)).toBeTruthy();
     expect(svc.getState().rows.find((r) => r.boxId === 920151)?.status).toBe("cooldown");
   });
 
   it("ignores Player.log ItemKey when box level is not tracked", async () => {
     const svc = await loadService();
     svc.setEnabledBoxIds([920151]);
-    expect(svc.tryMarkDroppedFromLog(920501)).toBe(false);
+    expect(svc.tryMarkDroppedFromLog(920501)).toBeFalsy();
     expect(svc.getState().rows.find((r) => r.boxId === 920501)).toBeUndefined();
   });
 
   it("marks dropped from duplicate Player.log ItemKey via canonical id", async () => {
     const svc = await loadService();
     svc.setEnabledBoxIds([920003]);
-    expect(svc.tryMarkDroppedFromLog(920004)).toBe(true);
+    expect(svc.tryMarkDroppedFromLog(920004)).toBeTruthy();
     expect(svc.getState().rows.find((r) => r.boxId === 920003)?.status).toBe("cooldown");
   });
 

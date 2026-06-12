@@ -93,20 +93,21 @@ export class BoxTimerService {
   }
 
   /** Start cooldown when Player.log reports a tracked stage boss box drop. */
-  tryMarkDroppedFromLog(itemKey: number): boolean {
+  tryMarkDroppedFromLog(itemKey: number): { boxId: number; name: string; level: number | null } | null {
     const boxId = resolveTrackedDropBoxId(
       itemKey,
       this.enabledBoxIds,
       (id) => this.routeById.has(id),
       this.catalogFile,
     );
-    if (boxId == null) return false;
+    if (boxId == null) return null;
 
+    const box = this.boxById.get(boxId);
     log.info(
-      `Stage boss drop detected from Player.log (ItemKey ${itemKey} → Lv${this.boxById.get(boxId)?.level ?? "?"})`,
+      `Stage boss drop detected from Player.log (ItemKey ${itemKey} → Lv${box?.level ?? "?"})`,
     );
     this.markDropped(boxId);
-    return true;
+    return { boxId, name: box?.name ?? `Box ${boxId}`, level: box?.level ?? null };
   }
 
   setPlayerLogStatus(path: string, available: boolean): void {
