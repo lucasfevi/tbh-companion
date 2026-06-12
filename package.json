@@ -1,0 +1,9 @@
+{
+  "name": "tbh-project",
+  "private": true,
+  "description": "TBH Companion monorepo root — tooling only",
+  "scripts": {
+    "sync:skills": "node scripts/sync-agent-skills.mjs",
+    "sync:skills:check": "node scripts/sync-agent-skills.mjs --check"
+  }
+}

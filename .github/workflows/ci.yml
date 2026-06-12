@@ -7,12 +7,18 @@ on:
       - "app/**"
       - ".github/workflows/**"
       - "data/**"
+      - ".cursor/skills/**"
+      - ".claude/skills/**"
+      - "scripts/sync-agent-skills.mjs"
   push:
     branches: [main]
     paths:
       - "app/**"
       - ".github/workflows/**"
       - "data/**"
+      - ".cursor/skills/**"
+      - ".claude/skills/**"
+      - "scripts/sync-agent-skills.mjs"
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -35,6 +41,10 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Verify agent skills mirror
+        working-directory: .
+        run: node scripts/sync-agent-skills.mjs --check
 
       - name: Automated QA gate
         run: npm run qa

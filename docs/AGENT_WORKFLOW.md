@@ -46,7 +46,28 @@ Use `--body-file` for long PR descriptions on Windows (see past PRs in this repo
 | Force-push | Never unless user explicitly requests |
 | Update CHANGELOG / semver | Only when user asks or release prep is in scope |
 
+## PR review — `/review-pr <N>`
+
+Advisory review for maintainers (not a merge gate — CI runs `npm run qa`).
+
+1. Invoke `/review-pr 39` or “review PR #39” in Cursor or Claude Code.
+2. Agent reads **tbh-reviewer** (`.cursor/skills/` or `.claude/skills/`), stashes local WIP if needed, checks out the PR branch, and posts the advisory template.
+3. Agent restores your branch and stash when done.
+
+Contributor self-check: `.github/pull_request_template.md`.
+
+## Skills sync (Cursor + Claude)
+
+Edit skills in `.cursor/skills/`. Mirror to Claude:
+
+```powershell
+npm run sync:skills
+```
+
+Commit both `.cursor/skills/` and `.claude/skills/`. CI runs `npm run sync:skills:check` when skill paths change.
+
 ## Related docs
 
 - `AGENTS.md` — project brief, build/QA, architecture
+- `CLAUDE.md` — Claude Code entry + skill paths
 - `.cursor/rules/git-remote-confirm.mdc` — always-on Cursor reminder for push/PR confirmation

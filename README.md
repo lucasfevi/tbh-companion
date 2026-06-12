@@ -138,7 +138,7 @@ data/                    # bundled catalogs (gamedata.json, stage_boxes.json)
 docs/                    # architecture, save format, decisions, findings
 ```
 
-See `AGENTS.md` for the contributor/agent brief.
+See `AGENTS.md` (Cursor) and `CLAUDE.md` (Claude Code) for the contributor/agent brief. Project skills live in `.cursor/skills/` and are mirrored to `.claude/skills/` via `npm run sync:skills`.
 
 ## Disclaimer
 

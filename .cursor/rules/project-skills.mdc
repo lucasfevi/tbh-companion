@@ -11,9 +11,12 @@ Before **implementing** a feature, refactor, or behavior change under `app/`:
    - `.cursor/skills/coding-guidelines/SKILL.md` — always
    - `.cursor/skills/tbh-qa/SKILL.md` — completion gate (`npm run qa` incl. lint/format, dev smoke)
 2. **Also read when the change touches:**
-   - `app/src/renderer/**` → `.cursor/skills/react-best-practices/SKILL.md`, `.cursor/skills/tbh-ux/SKILL.md`, and `docs/STYLING.md` (tabs, chrome, overlays, layout)
-   - `app/src/main/**`, `app/src/preload/**`, CSP, IPC, network, config → `.cursor/skills/best-practices/SKILL.md`
+   - `app/src/renderer/**` → `.cursor/skills/tbh-renderer/SKILL.md`, `.cursor/skills/tbh-ux/SKILL.md`, and `docs/STYLING.md`
+   - `app/src/main/**`, `app/src/preload/**`, CSP, IPC, network, config → `.cursor/skills/tbh-main/SKILL.md`
    - Release, `CHANGELOG.md`, or semver / version bump → `.cursor/skills/tbh-changelog/SKILL.md`
+3. **After editing any skill:** `npm run sync:skills` and commit `.claude/skills/` too.
+
+**PR review:** `/review-pr <N>` → `.cursor/skills/tbh-reviewer/SKILL.md` (advisory; see `CLAUDE.md`).
 
 Apply the skills during the work, not only at the end. No drive-by refactors outside the task.
 
