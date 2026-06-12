@@ -196,10 +196,22 @@ export interface ResolvedInventory {
 
 export interface PriceStatus {
   currency: string;
+  /** Cached entries for owned market targets (after prune). */
   count: number;
+  /** Unique market hash names for current inventory. */
+  ownedTargets: number;
+  /** Owned targets with cache younger than 24h. */
+  freshCount: number;
+  /** Owned targets needing a fetch. */
+  staleCount: number;
   fetchedUtc: string | null;
   running: boolean;
 }
+
+export type PriceRefreshSummary = Pick<
+  PriceRefreshResult,
+  "priced" | "skipped" | "failed" | "stopped" | "noop" | "queued"
+>;
 
 export interface PriceProgress {
   done: number;
@@ -209,6 +221,7 @@ export interface PriceProgress {
   failed: number;
   /** Main sends this when a background price run ends or is cancelled. */
   finished?: boolean;
+  result?: PriceRefreshSummary;
 }
 
 export interface PriceRefreshResult {
@@ -219,6 +232,10 @@ export interface PriceRefreshResult {
   stopped: "completed" | "cancelled" | "rate-limited";
   currency: string;
   error?: string;
+  /** All owned targets already fresh — no fetch started. */
+  noop?: boolean;
+  /** Refresh deferred until the current run finishes. */
+  queued?: boolean;
 }
 
 export type ChestSoundVariant = "none" | "soft-chime" | "double-tap" | "wood-tick" | "whisper-ping";
@@ -454,6 +471,7 @@ export interface TbhApi {
   cancelPrices(): void;
   setCurrency(iso: string): Promise<PriceStatus>;
   onPricesProgress(cb: (p: PriceProgress) => void): () => void;
+  onPriceStatus(cb: (status: PriceStatus) => void): () => void;
   getConfig(): Promise<AppConfig>;
   saveConfig(patch: Partial<AppConfig>): Promise<AppConfig>;
   pickSaveFile(): Promise<string | null>;

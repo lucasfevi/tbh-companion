@@ -1,11 +1,12 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { STEAM_CURRENCIES } from "../../core/steamPrice";
-import { usePriceProgress, usePriceStatus, usePriceActions } from "../lib/usePrices";
+import { useLastPriceRefreshMessage, usePriceStatus, usePriceActions } from "../lib/usePrices";
+import { formatPriceRefreshMessage } from "../lib/formatPriceRefreshMessage";
 import { reportIpcError } from "../lib/reportError";
+import { SteamPriceProgress } from "../components/market/SteamPriceProgress";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Field } from "../components/ui/Field";
-import { ProgressBar } from "../components/ui/ProgressBar";
 import { Select } from "../components/ui/Select";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
@@ -19,50 +20,57 @@ function fmtAge(iso: string | null): string {
   return `${Math.floor(secs / 86400)}d ago`;
 }
 
+function formatStatusLine(status: NonNullable<ReturnType<typeof usePriceStatus>>): string {
+  const { ownedTargets, freshCount, staleCount } = status;
+  if (ownedTargets === 0) {
+    return "No priceable items in inventory yet";
+  }
+  const stalePart = staleCount > 0 ? ` · ${staleCount} need update` : "";
+  return `${freshCount} of ${ownedTargets} items priced${stalePart}`;
+}
+
 export function Market() {
   const status = usePriceStatus();
-  const progress = usePriceProgress();
-  const { setPriceStatus, clearPriceProgress } = usePriceActions();
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const mounted = useRef(true);
+  const lastMessage = useLastPriceRefreshMessage();
+  const { setPriceStatus, clearPriceProgress, clearLastPriceRefreshMessage } = usePriceActions();
+  const [localMessage, setLocalMessage] = useState<string | null>(null);
+  const running = status?.running ?? false;
+
+  const message = localMessage ?? lastMessage;
 
   async function onCurrencyChange(iso: string) {
     const s = await window.tbh.setCurrency(iso);
     setPriceStatus(s);
-    setMessage(null);
+    setLocalMessage(null);
+    clearLastPriceRefreshMessage();
     clearPriceProgress();
   }
 
   async function onRefresh(force: boolean) {
-    setBusy(true);
-    setMessage(null);
+    setLocalMessage(null);
+    clearLastPriceRefreshMessage();
     clearPriceProgress();
     try {
       const res = await window.tbh.refreshPrices(force);
-      if (mounted.current) {
+      if (res.queued || res.noop || !res.ok) {
         setPriceStatus(res.status);
-        setBusy(false);
-        clearPriceProgress();
-        const stopMsg = res.stopped === "cancelled" ? " (cancelled)" : "";
-        setMessage(
-          `Priced ${res.priced}, skipped ${res.skipped} fresh, ${res.failed} failed${stopMsg}.`,
+        setLocalMessage(
+          formatPriceRefreshMessage({
+            ...res,
+            ownedTargets: res.status.ownedTargets,
+          }),
         );
+      } else {
+        setPriceStatus(res.status);
       }
     } catch (err) {
-      reportIpcError(err);
-      if (mounted.current) setBusy(false);
+      reportIpcError(err, "market-refresh");
+      setLocalMessage("Refresh failed — check your connection and try again.");
     }
   }
 
-  function onCancel() {
-    window.tbh.cancelPrices();
-  }
-
-  const pct =
-    progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0;
-
-  const cachedCount = status?.count ?? 0;
+  const ownedTargets = status?.ownedTargets ?? 0;
+  const showEmptyHint = ownedTargets === 0 && !running;
 
   return (
     <TabPage>
@@ -78,7 +86,7 @@ export function Market() {
           <li>Force full refresh re-prices everything, ignoring the 24-hour cache.</li>
         </ul>
 
-        {cachedCount === 0 && !busy && (
+        {showEmptyHint && (
           <Card padding="compact" className="text-muted">
             No prices cached yet. Open Inventory while the game is running, or refresh here once you
             own tradable materials or Legendary+ gear.
@@ -89,7 +97,7 @@ export function Market() {
           <Field label="Currency">
             <Select
               value={status?.currency ?? "USD"}
-              disabled={busy}
+              disabled={running}
               onChange={(e) => void onCurrencyChange(e.target.value)}
             >
               {STEAM_CURRENCIES.map((c) => (
@@ -100,7 +108,7 @@ export function Market() {
             </Select>
           </Field>
 
-          {!busy ? (
+          {!running ? (
             <>
               <Button variant="primary" onClick={() => void onRefresh(false)}>
                 Refresh prices
@@ -112,33 +120,16 @@ export function Market() {
                 Force full refresh
               </Button>
             </>
-          ) : (
-            <Button variant="danger" onClick={onCancel}>
-              Stop
-            </Button>
-          )}
+          ) : null}
         </div>
 
         <div className="flex items-baseline gap-4 text-[13px]">
-          <span>
-            <strong>{cachedCount}</strong> prices cached
-          </span>
+          <span>{status ? formatStatusLine(status) : "—"}</span>
           <span className="text-muted">currency {status?.currency ?? "-"}</span>
           <span className="text-muted">updated {fmtAge(status?.fetchedUtc ?? null)}</span>
         </div>
 
-        {busy && (
-          <ProgressBar
-            percent={pct}
-            label={
-              <span className="text-xs text-muted">
-                {progress
-                  ? `${progress.done}/${progress.total} - priced ${progress.priced}, failed ${progress.failed} - ${progress.current}`
-                  : "starting..."}
-              </span>
-            }
-          />
-        )}
+        <SteamPriceProgress variant="full" />
 
         {message && <p className="m-0 text-[13px]">{message}</p>}
       </div>

@@ -7,6 +7,7 @@ export const IPC = {
   PETS: "pets",
   BOX_TIMERS: "box-timers",
   PRICES_PROGRESS: "prices-progress",
+  PRICE_STATUS: "price-status",
   UPDATE_STATUS: "update-status",
 
   // Invoke (renderer → main)
@@ -104,5 +105,6 @@ export const IPC_PUSH_CHANNELS = [
   IPC.PETS,
   IPC.BOX_TIMERS,
   IPC.PRICES_PROGRESS,
+  IPC.PRICE_STATUS,
   IPC.UPDATE_STATUS,
 ] as const;

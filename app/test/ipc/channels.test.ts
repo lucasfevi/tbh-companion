@@ -80,6 +80,7 @@ describe("IPC channel registry", () => {
     expect(tracking).toContain("IPC.STATS");
     expect(inventory).toContain("IPC.INVENTORY");
     expect(inventory).toContain("IPC.PRICES_PROGRESS");
+    expect(inventory).toContain("IPC.PRICE_STATUS");
     expect(chests).toContain("IPC.CHESTS");
     expect(pets).toContain("IPC.PETS");
     expect(boxTimers).toContain("IPC.BOX_TIMERS");
@@ -98,6 +99,7 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.RESET");
     expect(preload).toContain("IPC.OPEN_OVERLAY");
     expect(preload).toContain("IPC.PRICES_CANCEL");
+    expect(preload).toContain("IPC.PRICE_STATUS");
   });
 
   it("push channel strings are unique", () => {

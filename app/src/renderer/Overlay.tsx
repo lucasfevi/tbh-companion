@@ -1,6 +1,6 @@
 import { useStats } from "./lib/useStats";
 import { useInventory } from "./lib/useInventory";
-import { usePriceStatus } from "./lib/usePrices";
+import { usePriceProgress, usePriceStatus } from "./lib/usePrices";
 import { fmtCompact } from "./lib/format";
 import { formatMoney } from "../core/steamPrice";
 import { stageName } from "../core/stages";
@@ -18,10 +18,14 @@ export function Overlay() {
   const stats = useStats();
   const inv = useInventory();
   const priceStatus = usePriceStatus();
+  const priceProgress = usePriceProgress();
 
   const currency = inv?.currency ?? priceStatus?.currency ?? "USD";
   const invValue = inv?.composition.valuedTotal ?? null;
   const pricing = priceStatus?.running ?? false;
+  const pricingLabel = priceProgress
+    ? `pricing ${priceProgress.done}/${priceProgress.total}…`
+    : "pricing…";
 
   return (
     <OverlayFrame>
@@ -93,7 +97,7 @@ export function Overlay() {
                 </span>
                 <span>
                   Inv {invValue !== null ? formatMoney(invValue, currency) : "—"}
-                  {pricing && <span className="text-muted"> (pricing…)</span>}
+                  {pricing && <span className="text-muted"> ({pricingLabel})</span>}
                 </span>
               </>
             )}

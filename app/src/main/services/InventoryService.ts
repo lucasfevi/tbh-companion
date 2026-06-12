@@ -23,6 +23,7 @@ export class InventoryService {
   private lastInventoryRaw: InventorySnapshot | null = null;
   private lastInventory: ResolvedInventory | null = null;
   private priceRefreshQueued = false;
+  private priceRefreshForceQueued = false;
 
   initMarket(currency: string): void {
     this.market = new SteamMarketProvider(currency);
@@ -44,6 +45,7 @@ export class InventoryService {
   reloadPriceCache(): void {
     this.market?.reloadFromDisk();
     this.resolveAndPushInventory();
+    this.pushPricesStatus();
   }
 
   onInventory(snap: InventorySnapshot): void {
@@ -54,6 +56,15 @@ export class InventoryService {
 
   private excludeFromInventoryListing(itemKey: number): boolean {
     return this.gameData.isStageBox(itemKey);
+  }
+
+  private currentOwnedMarketNames(): string[] {
+    if (!this.lastInventoryRaw) return [];
+    return ownedMarketNames(
+      this.lastInventoryRaw,
+      (key) => this.gameData.get(key),
+      (key) => this.excludeFromInventoryListing(key),
+    );
   }
 
   parseFromSave(text: string, mtime: number): InventorySnapshot {
@@ -81,7 +92,7 @@ export class InventoryService {
   }
 
   pricesStatus(): PriceStatus {
-    return this.market!.status();
+    return this.market!.status(this.currentOwnedMarketNames());
   }
 
   cancelPrices(): void {
@@ -92,27 +103,42 @@ export class InventoryService {
     this.market!.setCurrency(iso);
     this.resolveAndPushInventory();
     void this.ensureOwnedPrices(true);
-    return this.market!.status();
+    return this.pricesStatus();
+  }
+
+  private queuePriceRefresh(force: boolean): PriceRefreshResult & { status: PriceStatus } {
+    this.priceRefreshQueued = true;
+    if (force) this.priceRefreshForceQueued = true;
+    log.info("Price refresh queued (already running)");
+    return {
+      ok: true,
+      priced: 0,
+      skipped: 0,
+      failed: 0,
+      stopped: "completed",
+      currency: this.market!.status().currency,
+      queued: true,
+      status: this.pricesStatus(),
+    };
   }
 
   async refreshPrices(force?: boolean): Promise<PriceRefreshResult & { status: PriceStatus }> {
-    const result = await this.market!.refresh(
-      this.lastInventoryRaw
-        ? ownedMarketNames(
-            this.lastInventoryRaw,
-            (key) => this.gameData.get(key),
-            (key) => this.excludeFromInventoryListing(key),
-          )
-        : undefined,
-      this.priceRefreshCallbacks(Boolean(force)),
-    );
+    const wantsForce = Boolean(force);
+    if (this.market!.status().running) {
+      return this.queuePriceRefresh(wantsForce);
+    }
+
+    const names = this.currentOwnedMarketNames();
+    this.market!.pruneCache(names);
+
+    const result = await this.market!.refresh(names, this.priceRefreshCallbacks(wantsForce));
     this.resolveAndPushInventory();
-    const status = this.market!.status();
-    if (result.ok) {
+    const status = this.pricesStatus();
+    if (result.ok && !result.queued && !result.noop) {
       log.info(
         `Price refresh ${result.stopped}: priced=${result.priced} failed=${result.failed} skipped=${result.skipped}`,
       );
-    } else {
+    } else if (!result.ok) {
       log.warn(`Price refresh failed: ${result.error ?? "unknown"}`);
     }
     return { ...result, status };
@@ -143,27 +169,26 @@ export class InventoryService {
 
     if (this.market.status().running) {
       this.priceRefreshQueued = true;
+      if (force) this.priceRefreshForceQueued = true;
       return;
     }
 
-    const names = ownedMarketNames(
-      this.lastInventoryRaw,
-      (key) => this.gameData.get(key),
-      (key) => this.excludeFromInventoryListing(key),
-    );
+    const names = this.currentOwnedMarketNames();
+    this.market.pruneCache(names);
+
     const pending = this.market.pendingNames(names, force);
-    if (pending.length === 0) return;
+    if (!force && pending.length === 0) return;
 
-    await this.market.refresh(names, {
-      ...this.priceRefreshCallbacks(force),
-    });
-
+    await this.market.refresh(names, this.priceRefreshCallbacks(force));
     this.resolveAndPushInventory();
+  }
 
-    if (this.priceRefreshQueued) {
-      this.priceRefreshQueued = false;
-      void this.ensureOwnedPrices();
-    }
+  private drainPriceRefreshQueue(): void {
+    if (!this.priceRefreshQueued) return;
+    const queuedForce = this.priceRefreshForceQueued;
+    this.priceRefreshQueued = false;
+    this.priceRefreshForceQueued = false;
+    void this.ensureOwnedPrices(queuedForce);
   }
 
   getMarket(): SteamMarketProvider {
@@ -185,17 +210,22 @@ export class InventoryService {
     broadcast(IPC.PRICES_PROGRESS, p);
   }
 
+  private pushPricesStatus(): void {
+    if (!this.market) return;
+    broadcast(IPC.PRICE_STATUS, this.pricesStatus());
+  }
+
   private priceRefreshCallbacks(force = false): {
     force: boolean;
     onProgress: (p: PriceProgress) => void;
     onPriced: () => void;
-    onFinished: () => void;
+    onFinished: (result: PriceRefreshResult) => void;
   } {
     return {
       force,
       onProgress: (p) => this.broadcastPriceProgress(p),
       onPriced: () => this.resolveAndPushInventory(),
-      onFinished: () =>
+      onFinished: (result) => {
         this.broadcastPriceProgress({
           done: 0,
           total: 0,
@@ -203,7 +233,17 @@ export class InventoryService {
           priced: 0,
           failed: 0,
           finished: true,
-        }),
+          result: {
+            priced: result.priced,
+            skipped: result.skipped,
+            failed: result.failed,
+            stopped: result.stopped,
+            noop: result.noop,
+            queued: result.queued,
+          },
+        });
+        this.drainPriceRefreshQueue();
+      },
     };
   }
 }
