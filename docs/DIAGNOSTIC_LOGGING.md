@@ -8,9 +8,11 @@ Support-oriented logs for debugging user issues. **Not** the same as XP history 
 |------|--------|
 | Path | `%APPDATA%/tbh-companion/logs/app.log` (Windows) |
 | Rotation | 1 MB max; previous file becomes `app.old.log` |
-| Clear | Settings → **Diagnostics** → **Clear diagnostic logs** |
+| Clear | Settings → **Diagnostics** → **Clear diagnostic logs** (also removes legacy `main.log` / `main.old.log`) |
 
-Ask users to send `app.log` (and `app.old.log` if present) when investigating bugs.
+Logging initializes at startup via `logInit.ts` (imported before other main modules) so
+`electron-log` does not write to its default `main.log`. Ask users to send `app.log`
+(and `app.old.log` if present) when investigating bugs.
 
 ## Where to log
 
@@ -20,7 +22,7 @@ Ask users to send `app.log` (and `app.old.log` if present) when investigating bu
 | **core** (`app/src/core/`) | **Do not log.** Return errors/results; log in main after handling |
 | **renderer** (`app/src/renderer/`) | **Do not write files.** Use `reportIpcError(err, 'source')` or `window.tbh.logRendererError()` for failures worth persisting |
 
-Initialize once at startup via `initDiagnosticLog()` in `app/src/main/index.ts` (already wired).
+Initialize once at startup via `app/src/main/logInit.ts` (imported first from `index.ts`, after `appIdentity.ts` sets the Windows AppUserModelId).
 
 ## API
 

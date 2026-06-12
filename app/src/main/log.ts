@@ -15,6 +15,16 @@ function resolveUserDataDir(): string {
 export const DIAGNOSTIC_LOG_DIR = "logs";
 export const DIAGNOSTIC_LOG_FILE = "app.log";
 export const DIAGNOSTIC_LOG_ARCHIVE = "app.old.log";
+/** electron-log default before we override resolvePathFn — cleared with diagnostic logs. */
+export const LEGACY_LOG_FILE = "main.log";
+export const LEGACY_LOG_ARCHIVE = "main.old.log";
+
+const DIAGNOSTIC_LOG_FILENAMES = new Set([
+  DIAGNOSTIC_LOG_FILE,
+  DIAGNOSTIC_LOG_ARCHIVE,
+  LEGACY_LOG_FILE,
+  LEGACY_LOG_ARCHIVE,
+]);
 
 export const THROTTLE_MS = 5 * 60 * 1000;
 
@@ -77,7 +87,7 @@ export function listDiagnosticLogFiles(userDataDir: string): string[] {
 
   const relative: string[] = [];
   for (const name of readdirSync(logDir)) {
-    if (name === DIAGNOSTIC_LOG_FILE || name === DIAGNOSTIC_LOG_ARCHIVE) {
+    if (DIAGNOSTIC_LOG_FILENAMES.has(name)) {
       relative.push(join(DIAGNOSTIC_LOG_DIR, name));
     }
   }
@@ -95,6 +105,7 @@ export function initDiagnosticLog(): void {
   const logDir = resolveDiagnosticLogDir();
   mkdirSync(logDir, { recursive: true });
 
+  log.transports.file.fileName = DIAGNOSTIC_LOG_FILE;
   log.transports.file.resolvePathFn = () => getDiagnosticLogPath();
   log.transports.file.maxSize = 1024 * 1024;
   log.transports.file.sync = false;
@@ -149,10 +160,15 @@ export function clearDiagnosticLogs(userDataDir = resolveUserDataDir()): ClearDi
   return { ok: true, cleared };
 }
 
-const rendererLog = createLogger("renderer");
+let rendererLog: Logger | null = null;
+
+function getRendererLog(): Logger {
+  rendererLog ??= createLogger("renderer");
+  return rendererLog;
+}
 
 export function logRendererError(payload: RendererLogPayload): void {
   const parts = [`[${payload.source}] ${payload.message}`];
   if (payload.stack) parts.push(payload.stack.slice(0, 2000));
-  rendererLog.error(parts.join("\n"));
+  getRendererLog().error(parts.join("\n"));
 }
