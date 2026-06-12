@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const notificationCtor = vi.hoisted(() =>
   vi.fn(function MockNotification(this: { show: () => void; on: () => void }) {
@@ -55,6 +55,11 @@ describe("NotificationService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(Notification.isSupported).mockReturnValue(true);
+    vi.spyOn(process, "platform", "get").mockReturnValue("win32");
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("skips update notification when master toggle is off", () => {
