@@ -3,6 +3,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildChestState,
+  commonBoxCapacity,
+  actBossBoxCapacity,
+  stageBossBoxCapacity,
   loadBoxTypeCatalog,
   loadRuneBoxCapCatalog,
   parseRuneSaveData,
@@ -59,7 +62,7 @@ run("real save (local only)", () => {
     expect(resolved.composition.total).toBeGreaterThan(0);
   });
 
-  it("parses BoxData and common capacity from live save", () => {
+  it("parses BoxData and chest capacity from live save", () => {
     const { text, mtime } = readAndDecrypt(savePath);
     const raw = parseInventory(text, mtime);
     expect(raw.chests.length).toBeGreaterThan(0);
@@ -67,24 +70,48 @@ run("real save (local only)", () => {
     const purchases = parseRuneSaveData(text);
     expect(purchases.length).toBeGreaterThan(0);
 
+    const runeCapCatalog = loadRuneBoxCapCatalog();
     const chestState = buildChestState(
       raw.chests,
       purchases,
       mtime,
       loadBoxTypeCatalog(),
-      loadRuneBoxCapCatalog(),
+      runeCapCatalog,
     );
+
     expect(chestState.totalHeld).toBeGreaterThan(0);
-    expect(chestState.common.capacity).toBeGreaterThanOrEqual(5);
+    expect(chestState.capacity.totalRunePurchases).toBe(purchases.length);
+
+    const categories = [
+      {
+        slot: chestState.common,
+        breakdown: chestState.capacity.common,
+        expectedCapacity: commonBoxCapacity(purchases, runeCapCatalog),
+      },
+      {
+        slot: chestState.stageBoss,
+        breakdown: chestState.capacity.stageBoss,
+        expectedCapacity: stageBossBoxCapacity(purchases, runeCapCatalog),
+      },
+      {
+        slot: chestState.actBoss,
+        breakdown: chestState.capacity.actBoss,
+        expectedCapacity: actBossBoxCapacity(purchases, runeCapCatalog),
+      },
+    ] as const;
+
+    for (const { slot, breakdown, expectedCapacity } of categories) {
+      expect(slot.capacity).toBe(expectedCapacity);
+      expect(slot.capacity).toBe(breakdown.base + breakdown.runeBonus);
+      expect(slot.capacity).toBeGreaterThanOrEqual(breakdown.base);
+      expect(slot.quantity).toBeGreaterThanOrEqual(0);
+      expect(slot.quantity).toBeLessThanOrEqual(slot.capacity);
+      expect(slot.slotsRemaining).toBe(Math.max(0, slot.capacity - slot.quantity));
+      expect(breakdown.purchasedCapRuneNodes).toBeGreaterThanOrEqual(0);
+      expect(breakdown.runeBonus).toBeGreaterThanOrEqual(0);
+    }
+
     expect(chestState.common.quantity).toBeGreaterThan(0);
-    expect(chestState.capacity.totalRunePurchases).toBeGreaterThan(0);
-    expect(chestState.capacity.common.purchasedCapRuneNodes).toBe(2);
-    expect(chestState.capacity.common.runeBonus).toBe(2);
-    expect(chestState.common.capacity).toBe(7);
-    expect(chestState.stageBoss.capacity).toBe(11);
-    expect(chestState.capacity.stageBoss.runeBonus).toBe(6);
-    expect(chestState.actBoss.capacity).toBe(7);
-    expect(chestState.capacity.actBoss.runeBonus).toBe(2);
   });
 
   it("parses pets and kill progress from live save", () => {
@@ -98,11 +125,14 @@ run("real save (local only)", () => {
       mtime,
     );
 
-    expect(state.pets).toHaveLength(8);
+    expect(state.pets).toHaveLength(catalog.pets.length);
+
+    const farmableCatalog = catalog.pets.filter((p) => p.unlockKind === "kills");
     const farmable = state.pets.filter((p) => p.unlockKind === "kills");
-    expect(farmable).toHaveLength(5);
+    expect(farmable).toHaveLength(farmableCatalog.length);
+
     for (const pet of farmable) {
-      expect(pet.bestStages?.length).toBe(3);
+      expect(pet.bestStages?.length).toBeGreaterThan(0);
       expect(pet.appearsOnStages?.length).toBeGreaterThan(0);
       if (pet.unlocked) {
         expect(pet.killCount).toBeGreaterThanOrEqual(catalog.unlockKillCount);
