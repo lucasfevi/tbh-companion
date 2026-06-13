@@ -1,28 +1,8 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  startTransition,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useState, startTransition, type ReactNode } from "react";
 import type { Stats, ResolvedInventory, PriceStatus, PriceProgress } from "../../../shared/types";
 import { formatPriceRefreshMessage } from "../lib/formatPriceRefreshMessage";
 import { reportIpcError } from "../lib/reportError";
-
-export interface TbhContextValue {
-  stats: Stats | null;
-  inventory: ResolvedInventory | null;
-  priceStatus: PriceStatus | null;
-  priceProgress: PriceProgress | null;
-  lastPriceRefreshMessage: string | null;
-  setPriceStatus: (status: PriceStatus | null) => void;
-  clearPriceProgress: () => void;
-  clearLastPriceRefreshMessage: () => void;
-}
-
-const TbhContext = createContext<TbhContextValue | null>(null);
+import { TbhContext } from "./tbhContext";
 
 export function TbhProvider({ children }: { children: ReactNode }) {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -103,12 +83,4 @@ export function TbhProvider({ children }: { children: ReactNode }) {
   );
 
   return <TbhContext.Provider value={value}>{children}</TbhContext.Provider>;
-}
-
-export function useTbhContext(): TbhContextValue {
-  const ctx = useContext(TbhContext);
-  if (!ctx) {
-    throw new Error("TbhProvider missing — wrap the renderer root in main.tsx");
-  }
-  return ctx;
 }

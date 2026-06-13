@@ -2,7 +2,7 @@ import { memo } from "react";
 import { gradeLabel, typeLabel } from "../../../core/labels";
 import { formatMoney } from "../../../core/steamPrice";
 import { unassignedCount } from "../../../core/inventory/location";
-import { gradeColor } from "./GradeBars";
+import { gradeColor } from "./gradeColor";
 import { MarketListingLink } from "./MarketListingLink";
 import type { ResolvedInventoryRow } from "../../../../shared/types";
 import { Button } from "../ui/Button";

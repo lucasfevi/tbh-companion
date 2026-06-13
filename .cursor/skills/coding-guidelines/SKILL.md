@@ -82,5 +82,6 @@ Apply on every change in `app/` (especially `core/` and services):
 - **Return early** — guard clauses at the top; avoid `else` chains and deeply nested `if` blocks when an early `return` or `continue` in a small callback is clearer.
 - **Prefer functional composition** — extract small pure helpers; use array methods and `forEach` with early `return` instead of nested `for` + `if` pyramids. Imperative mutation is OK for hot accumulators (`Map`, tallies) when a functional rewrite would be harder to read.
 - **Clear names** — avoid single-letter variables (`g`, `i`, `x`) and cryptic abbreviations (`inst`, `tmp`, `res`) except in well-known narrow scopes (e.g. `i` in a numeric `for` index). Parameters and locals should read like the domain: `catalogItem`, `instance`, `marketHash`. Function names should state intent (`ensureRow`, not `getOrMake`).
+- **Branching JSX in components** — when picking among a few render branches inside a component, use a local `const renderContent = () => { ... }` with early `return` per branch and call `renderContent()` in JSX. Do not assign JSX to a `let content` across separate `if` / `else if` statements.
 
 `let` in a `for` loop over a growing `Map` is fine when it is the simplest correct model; do not force functional style past readability.

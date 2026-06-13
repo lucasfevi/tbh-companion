@@ -1,4 +1,4 @@
-import { useTbhContext } from "../context/TbhProvider";
+import { useTbhContext } from "../context/tbhContext";
 
 export function useStats() {
   return useTbhContext().stats;
