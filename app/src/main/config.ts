@@ -3,7 +3,12 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { app } from "electron";
-import type { AppConfig } from "../../shared/types";
+import {
+  DEFAULT_NOTIFICATION_PREFS,
+  migrateNotificationPrefs,
+  type LegacyChestSoundVariant,
+} from "../../shared/notificationCatalog";
+import type { AppConfig, NotificationPrefs } from "../../shared/types";
 import { DEFAULT_PASSWORD } from "../core/es3";
 
 export type { AppConfig };
@@ -27,8 +32,21 @@ const DEFAULTS: AppConfig = {
   currency: "USD",
   notificationsEnabled: true,
   notifyOnUpdateAvailable: true,
-  chestSoundVariant: "soft-chime",
+  notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
 };
+
+type RawConfig = Partial<AppConfig> & { chestSoundVariant?: LegacyChestSoundVariant };
+
+function normalizeConfig(raw: RawConfig): AppConfig {
+  const { chestSoundVariant: _legacy, notificationPrefs: _prefs, ...rest } = raw;
+  const notificationPrefs: NotificationPrefs = migrateNotificationPrefs(raw);
+  return { ...DEFAULTS, ...rest, notificationPrefs };
+}
+
+/** Normalizes raw config JSON (migration + validation). Exported for tests. */
+export function normalizeConfigFromRaw(raw: RawConfig): AppConfig {
+  return normalizeConfig(raw);
+}
 
 // Expand %VAR% (Windows) and ~ in a path.
 export function expandPath(p: string): string {
@@ -57,13 +75,13 @@ export function loadConfig(): AppConfig {
   for (const p of candidatePaths()) {
     if (!existsSync(p)) continue;
     try {
-      const raw = JSON.parse(readFileSync(p, "utf-8")) as Partial<AppConfig>;
-      return { ...DEFAULTS, ...raw };
+      const raw = JSON.parse(readFileSync(p, "utf-8")) as RawConfig;
+      return normalizeConfig(raw);
     } catch {
       // fall through to defaults on malformed config
     }
   }
-  return { ...DEFAULTS };
+  return normalizeConfig({});
 }
 
 // Persist the live config to the user-writable location (userData/config.json),
@@ -84,5 +102,6 @@ export function saveConfig(config: AppConfig): void {
     }
   }
   mkdirSync(dirname(target), { recursive: true });
-  writeFileSync(target, JSON.stringify({ ...existing, ...config }, null, 2));
+  const { chestSoundVariant: _legacy, ...toSave } = { ...existing, ...config } as RawConfig;
+  writeFileSync(target, JSON.stringify(toSave, null, 2));
 }

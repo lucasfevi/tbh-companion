@@ -71,7 +71,8 @@ export function ChestsTrackerPanel() {
 
       {!notificationsEnabled ? (
         <p className="m-0 text-xs text-muted">
-          Enable chest sounds in Settings to hear when tracked cooldowns finish.
+          Enable notification sounds in Settings (Chest ready) to hear when tracked cooldowns
+          finish.
         </p>
       ) : null}
 

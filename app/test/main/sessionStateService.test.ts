@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { XpTracker } from "../../src/core/tracker";
+import { DEFAULT_NOTIFICATION_PREFS } from "../../shared/notificationCatalog";
 import type { AppConfig, SaveSnapshot } from "../../shared/types";
 import { SESSION_STATE_FILE } from "../../src/main/services/appData";
 
@@ -24,7 +25,7 @@ const config: AppConfig = {
   currency: "USD",
   notificationsEnabled: true,
   notifyOnUpdateAvailable: true,
-  chestSoundVariant: "soft-chime",
+  notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
 };
 
 function snap(mtime: number, heroExp: number): SaveSnapshot {

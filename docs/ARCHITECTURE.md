@@ -82,13 +82,19 @@ Two `BrowserWindow`s load the same Vite bundle on different routes:
 - **`notificationsEnabled`** — master gate for all notification behavior.
 - **`notifyOnUpdateAvailable`** — when enabled, `UpdateService` triggers a Windows OS
   notification (Electron `Notification`) for a new GitHub release; click focuses the main window.
-- **Chest cooldown ready** — `BoxTimerService` calls `showChestReady` when a tracked route's
-  cooldown finishes and **Notify when ready** is on for that box. This plays a bundled WAV via
-  PowerShell (`chestSoundVariant`: `soft-chime`, `double-tap`, `wood-tick`, `whisper-ping`, or
-  `none`). No OS toast for chest ready.
+- **`notificationPrefs`** — per-kind sound settings (see `shared/notificationCatalog.ts`):
+  - **`chestDrop`** — when a tracked stage boss drops a chest (Player.log or **Dropped** button).
+  - **`chestReady`** — when a tracked route's cooldown finishes and **Notify when ready** is on
+    for that box (`BoxTimerService` → `showChestReady`).
+  - **`heroLevelUp`** — when a hero's level increases between save reads (`TrackingService` →
+    `showHeroLevelUp`).
 
-Per-box notify toggles live in `box_timers.json` (Chests tab), not in `config.json`. Settings
-exposes **Preview sound** over IPC to audition the selected variant.
+Each kind has `enabled` and `sound` (catalog id or `none`). Sounds play as bundled WAV files via
+PowerShell on Windows only; there is no OS toast for these events. Legacy `chestSoundVariant` in
+old configs migrates to `notificationPrefs.chestReady` on load.
+
+Per-box **Notify when ready** toggles live in `box_timers.json` (Chests tab), not in `config.json`.
+Settings exposes per-kind **Preview sound** over IPC (`preview-notification-sound`).
 
 ## Settings persistence
 

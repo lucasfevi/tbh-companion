@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { DEFAULT_NOTIFICATION_PREFS } from "../../shared/notificationCatalog";
 
 const notificationCtor = vi.hoisted(() =>
   vi.fn(function MockNotification(this: { show: () => void; on: () => void }) {
@@ -48,7 +49,7 @@ const baseConfig: AppConfig = {
   currency: "USD",
   notificationsEnabled: true,
   notifyOnUpdateAvailable: true,
-  chestSoundVariant: "soft-chime",
+  notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
 };
 
 describe("NotificationService", () => {
@@ -87,7 +88,7 @@ describe("NotificationService", () => {
     expect(notificationCtor).toHaveBeenCalledTimes(1);
   });
 
-  it("plays chest sound without showing an OS notification", () => {
+  it("plays chest ready sound without showing an OS notification", () => {
     const service = new NotificationService(() => baseConfig, vi.fn());
     service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
     expect(notificationCtor).not.toHaveBeenCalled();
@@ -99,23 +100,79 @@ describe("NotificationService", () => {
     );
   });
 
-  it("skips chest sound when master toggle is off", () => {
+  it("plays chest drop sound for chestDrop kind", () => {
+    const service = new NotificationService(() => baseConfig, vi.fn());
+    service.showChestDrop({ boxId: 920151, name: "Test box", level: 15 });
+    expect(execFileMock).toHaveBeenCalledWith(
+      "powershell",
+      expect.arrayContaining([expect.stringContaining("treasure-fanfare.wav")]),
+      expect.objectContaining({ windowsHide: true }),
+      expect.any(Function),
+    );
+  });
+
+  it("plays hero level up sound for heroLevelUp kind", () => {
+    const service = new NotificationService(() => baseConfig, vi.fn());
+    service.showHeroLevelUp([{ key: "101", previousLevel: 5, newLevel: 6 }]);
+    expect(execFileMock).toHaveBeenCalledWith(
+      "powershell",
+      expect.arrayContaining([expect.stringContaining("level-triumph.wav")]),
+      expect.objectContaining({ windowsHide: true }),
+      expect.any(Function),
+    );
+  });
+
+  it("plays hero level up sound once for a batch of level-ups", () => {
+    const service = new NotificationService(() => baseConfig, vi.fn());
+    service.showHeroLevelUp([
+      { key: "101", previousLevel: 5, newLevel: 6 },
+      { key: "201", previousLevel: 2, newLevel: 3 },
+    ]);
+    expect(execFileMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips hero level up sound for an empty batch", () => {
+    const service = new NotificationService(() => baseConfig, vi.fn());
+    service.showHeroLevelUp([]);
+    expect(execFileMock).not.toHaveBeenCalled();
+  });
+
+  it("skips kind sound when master toggle is off", () => {
     const service = new NotificationService(
       () => ({ ...baseConfig, notificationsEnabled: false }),
       vi.fn(),
     );
     service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
-    expect(notificationCtor).not.toHaveBeenCalled();
     expect(execFileMock).not.toHaveBeenCalled();
   });
 
-  it("skips sound when chest variant is none", () => {
+  it("skips kind sound when kind is disabled", () => {
     const service = new NotificationService(
-      () => ({ ...baseConfig, chestSoundVariant: "none" }),
+      () => ({
+        ...baseConfig,
+        notificationPrefs: {
+          ...baseConfig.notificationPrefs,
+          chestReady: { enabled: false, sound: "soft-chime" },
+        },
+      }),
       vi.fn(),
     );
     service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
-    expect(notificationCtor).not.toHaveBeenCalled();
+    expect(execFileMock).not.toHaveBeenCalled();
+  });
+
+  it("skips sound when kind sound is none", () => {
+    const service = new NotificationService(
+      () => ({
+        ...baseConfig,
+        notificationPrefs: {
+          ...baseConfig.notificationPrefs,
+          chestReady: { enabled: true, sound: "none" },
+        },
+      }),
+      vi.fn(),
+    );
+    service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
     expect(execFileMock).not.toHaveBeenCalled();
   });
 
@@ -124,16 +181,13 @@ describe("NotificationService", () => {
       () => ({ ...baseConfig, notificationsEnabled: false }),
       vi.fn(),
     );
-    service.previewChestSound();
+    service.previewNotificationSound("double-tap");
     expect(execFileMock).not.toHaveBeenCalled();
   });
 
-  it("preview can override the configured chest sound variant", () => {
-    const service = new NotificationService(
-      () => ({ ...baseConfig, chestSoundVariant: "none" }),
-      vi.fn(),
-    );
-    service.previewChestSound("double-tap");
+  it("preview plays the requested sound id", () => {
+    const service = new NotificationService(() => baseConfig, vi.fn());
+    service.previewNotificationSound("double-tap");
     expect(execFileMock).toHaveBeenCalledWith(
       "powershell",
       expect.arrayContaining([expect.stringContaining("double-tap.wav")]),

@@ -78,7 +78,7 @@ export function TrackerConfigRow({
       <Field
         label="Notify when ready"
         checkbox
-        hint={!notificationsEnabled ? "Enable chest sounds in Settings." : undefined}
+        hint={!notificationsEnabled ? "Enable notification sounds in Settings." : undefined}
       >
         <input
           type="checkbox"

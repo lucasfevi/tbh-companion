@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { STEAM_CURRENCIES } from "../../core/steamPrice";
+import type {
+  NotificationKindId,
+  NotificationKindPreference,
+} from "../../../shared/notificationCatalog";
 import type { AppConfig, AppDataClearTarget, AppDataPaths } from "../../../shared/types";
 import { reportIpcError } from "../lib/reportError";
 import { Accordion } from "../components/ui/Accordion";
+import { NotificationSoundAccordion } from "../components/NotificationKindRow";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Field } from "../components/ui/Field";
@@ -57,14 +62,6 @@ const CLEAR_ACTIONS: {
 
 type SettingsPatch = Omit<AppConfig, "es3Password">;
 
-const CHEST_SOUND_OPTIONS: { value: AppConfig["chestSoundVariant"]; label: string }[] = [
-  { value: "soft-chime", label: "Soft chime (default)" },
-  { value: "double-tap", label: "Double tap" },
-  { value: "wood-tick", label: "Wood tick" },
-  { value: "whisper-ping", label: "Whisper ping" },
-  { value: "none", label: "None (silent)" },
-];
-
 function CacheActionRow({
   title,
   detail,
@@ -105,7 +102,6 @@ export function Settings() {
   const [browseBusy, setBrowseBusy] = useState(false);
   const [clearBusy, setClearBusy] = useState<AppDataClearTarget | null>(null);
   const [clearLogsBusy, setClearLogsBusy] = useState(false);
-  const [previewBusy, setPreviewBusy] = useState(false);
 
   async function refreshDataPaths(): Promise<void> {
     if (typeof window.tbh?.getDataPaths !== "function") return;
@@ -177,23 +173,6 @@ export function Settings() {
         <p className="m-0 text-muted">Loading...</p>
       </div>
     );
-  }
-
-  async function onPreviewChestSound() {
-    if (!cfg) return;
-    if (typeof window.tbh?.previewChestSound !== "function") {
-      setMessage("Preview API is not loaded. Restart the app and try again.");
-      return;
-    }
-    setPreviewBusy(true);
-    try {
-      await window.tbh.previewChestSound(cfg.chestSoundVariant);
-    } catch (err) {
-      reportIpcError(err);
-      setMessage("Could not play the preview sound.");
-    } finally {
-      setPreviewBusy(false);
-    }
   }
 
   async function onBrowseSave() {
@@ -384,8 +363,8 @@ export function Settings() {
 
         <Section title="Notifications">
           <p className="m-0 text-xs text-muted">
-            Chest cooldown alerts play a sound in the app. App updates can show a Windows
-            notification when enabled below.
+            Sound alerts play in the app when enabled below. App updates can show a Windows
+            notification when that option is on.
           </p>
           <div className="flex flex-col gap-3">
             <Field label="Enable notifications" checkbox>
@@ -410,42 +389,21 @@ export function Settings() {
               />
             </Field>
 
-            <Field
-              label="Chest ready sound"
-              hint={
-                !cfg.notificationsEnabled
-                  ? "Enable notifications above first."
-                  : "Played when a tracked chest cooldown finishes (sound only)."
-              }
-            >
-              <Select
-                value={cfg.chestSoundVariant}
-                disabled={!cfg.notificationsEnabled || saveBusy}
-                onChange={(e) =>
+            <Accordion variant="panel" title="Notification sounds">
+              <NotificationSoundAccordion
+                prefs={cfg.notificationPrefs}
+                disabled={!cfg.notificationsEnabled}
+                saveBusy={saveBusy}
+                onKindChange={(kindId: NotificationKindId, next: NotificationKindPreference) =>
                   void savePartial({
-                    chestSoundVariant: e.target.value as AppConfig["chestSoundVariant"],
+                    notificationPrefs: {
+                      ...cfg.notificationPrefs,
+                      [kindId]: next,
+                    },
                   })
                 }
-              >
-                {CHEST_SOUND_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-
-            <Button
-              disabled={
-                !cfg.notificationsEnabled ||
-                cfg.chestSoundVariant === "none" ||
-                previewBusy ||
-                saveBusy
-              }
-              onClick={() => void onPreviewChestSound()}
-            >
-              {previewBusy ? "Playing…" : "Preview sound"}
-            </Button>
+              />
+            </Accordion>
           </div>
         </Section>
 

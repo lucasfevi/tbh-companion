@@ -1,5 +1,14 @@
 // Types shared across the Electron main, preload, and renderer processes.
 
+import type { NotificationPrefs, NotificationSoundId } from "./notificationCatalog";
+
+export type {
+  NotificationKindId,
+  NotificationKindPreference,
+  NotificationPrefs,
+  NotificationSoundId,
+} from "./notificationCatalog";
+
 export interface HeroSnapshot {
   key: string;
   level: number;
@@ -238,8 +247,6 @@ export interface PriceRefreshResult {
   queued?: boolean;
 }
 
-export type ChestSoundVariant = "none" | "soft-chime" | "double-tap" | "wood-tick" | "whisper-ping";
-
 export interface AppConfig {
   savePath: string;
   es3Password: string;
@@ -250,7 +257,7 @@ export interface AppConfig {
   currency: string;
   notificationsEnabled: boolean;
   notifyOnUpdateAvailable: boolean;
-  chestSoundVariant: ChestSoundVariant;
+  notificationPrefs: NotificationPrefs;
 }
 
 /** Scoped targets for Settings → Data & cache clear actions. */
@@ -495,7 +502,7 @@ export interface TbhApi {
   setBoxTrackerFarmStage(boxId: number, stageKey: number): Promise<BoxTimerState>;
   clearBoxTrackerFarmStage(boxId: number): Promise<BoxTimerState>;
   setBoxTrackerNotify(boxId: number, enabled: boolean): Promise<BoxTimerState>;
-  previewChestSound(variant?: ChestSoundVariant): Promise<void>;
+  previewNotificationSound(soundId?: NotificationSoundId): Promise<void>;
   getUpdateStatus(): Promise<UpdateStatus>;
   checkForUpdates(): Promise<UpdateStatus>;
   downloadUpdate(): Promise<UpdateStatus>;

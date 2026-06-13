@@ -4,6 +4,7 @@ import {
   sessionMatchesConfig,
   snapshotContinuesSession,
 } from "../../src/core/sessionState";
+import { DEFAULT_NOTIFICATION_PREFS } from "../../shared/notificationCatalog";
 import type { AppConfig, PersistedSessionState } from "../../shared/types";
 
 const config: AppConfig = {
@@ -16,7 +17,7 @@ const config: AppConfig = {
   currency: "USD",
   notificationsEnabled: true,
   notifyOnUpdateAvailable: true,
-  chestSoundVariant: "soft-chime",
+  notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
 };
 
 describe("sessionState", () => {

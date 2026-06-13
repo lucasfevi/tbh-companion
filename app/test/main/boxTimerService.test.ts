@@ -180,6 +180,27 @@ describe("BoxTimerService", () => {
     vi.useRealTimers();
   });
 
+  it("fires chest-dropped callback when markDropped succeeds", async () => {
+    const onDropped = vi.fn();
+    const svc = await loadService();
+    svc.setEnabledBoxIds([920151]);
+    svc.setOnChestDropped(onDropped);
+    svc.markDropped(920151);
+    expect(onDropped).toHaveBeenCalledTimes(1);
+    expect(onDropped).toHaveBeenCalledWith(
+      expect.objectContaining({ boxId: 920151, name: expect.any(String) }),
+    );
+  });
+
+  it("does not fire chest-dropped for disabled routes", async () => {
+    const onDropped = vi.fn();
+    const svc = await loadService();
+    svc.setEnabledBoxIds([]);
+    svc.setOnChestDropped(onDropped);
+    svc.markDropped(920151);
+    expect(onDropped).not.toHaveBeenCalled();
+  });
+
   it("does not fire chest-ready on cold load of expired timer", async () => {
     const svc = await loadService();
     svc.setEnabledBoxIds([920151]);

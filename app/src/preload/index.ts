@@ -1,26 +1,26 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { IPC } from "../../shared/ipc";
 import type {
-  Stats,
-  TbhApi,
-  GameDataStatus,
-  GameDataRefreshResult,
-  ResolvedInventory,
-  ChestState,
-  PetState,
-  BoxTimerState,
-  PriceStatus,
-  PriceProgress,
-  PriceRefreshResult,
-  AppConfig,
-  ChestSoundVariant,
   AppDataClearTarget,
   AppDataPaths,
+  AppConfig,
+  BoxTimerState,
+  ChestState,
   ClearAppDataResult,
   ClearDiagnosticLogResult,
+  GameDataRefreshResult,
+  GameDataStatus,
+  PetState,
+  PriceProgress,
+  PriceRefreshResult,
+  PriceStatus,
   RendererLogPayload,
+  ResolvedInventory,
+  Stats,
+  TbhApi,
   UpdateStatus,
 } from "../../shared/types";
+import type { NotificationSoundId } from "../../shared/notificationCatalog";
 
 const api: TbhApi = {
   onStats(cb: (stats: Stats) => void): () => void {
@@ -111,8 +111,8 @@ const api: TbhApi = {
   setBoxTrackerNotify(boxId: number, enabled: boolean): Promise<BoxTimerState> {
     return ipcRenderer.invoke(IPC.SET_BOX_TRACKER_NOTIFY, boxId, enabled);
   },
-  previewChestSound(variant?: ChestSoundVariant): Promise<void> {
-    return ipcRenderer.invoke(IPC.PREVIEW_CHEST_SOUND, variant);
+  previewNotificationSound(soundId: NotificationSoundId): Promise<void> {
+    return ipcRenderer.invoke(IPC.PREVIEW_NOTIFICATION_SOUND, soundId);
   },
   pricesStatus(): Promise<PriceStatus> {
     return ipcRenderer.invoke(IPC.PRICES_STATUS);

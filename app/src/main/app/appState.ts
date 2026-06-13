@@ -15,10 +15,10 @@ import { UpdateService } from "../services/UpdateService";
 import { NotificationService } from "../services/NotificationService";
 import type {
   AppDataClearTarget,
-  ChestSoundVariant,
   RendererLogPayload,
   SessionUiSnapshot,
 } from "../../../shared/types";
+import type { NotificationSoundId } from "../../../shared/notificationCatalog";
 
 const appDataLog = createLogger("appData");
 import { createMainWindow as buildMainWindow } from "../windows/mainWindow";
@@ -52,6 +52,7 @@ const updates = new UpdateService({
 });
 
 boxTimers.setOnChestReady((payload) => notifications.showChestReady(payload));
+boxTimers.setOnChestDropped((payload) => notifications.showChestDrop(payload));
 const tracking = new TrackingService(
   (snap) => inventory.onInventory(snap),
   (text, mtime) => {
@@ -68,6 +69,7 @@ const tracking = new TrackingService(
     },
     onAvailability: (path, available) => boxTimers.setPlayerLogStatus(path, available),
   },
+  (events) => notifications.showHeroLevelUp(events),
 );
 
 let mainWindow: BrowserWindow | null = null;
@@ -165,7 +167,8 @@ export function getAppServices() {
     clearBoxTrackerFarmStage: (boxId: number) => boxTimers.clearFarmStageOverride(boxId),
     setBoxTrackerNotify: (boxId: number, enabled: boolean) =>
       boxTimers.setBoxTrackerNotify(boxId, enabled),
-    previewChestSound: (variant?: ChestSoundVariant) => notifications.previewChestSound(variant),
+    previewNotificationSound: (soundId: NotificationSoundId) =>
+      notifications.previewNotificationSound(soundId),
     gameDataStatus: () => inventory.gameDataStatus(),
     refreshGameData: () => inventory.refreshGameData(),
     pricesStatus: () => inventory.pricesStatus(),

@@ -8,6 +8,7 @@ import { XpTracker } from "../../core/tracker";
 import type { AppConfig, InventorySnapshot, SaveSnapshot } from "../../../shared/types";
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
+import { detectHeroLevelUps, type HeroLevelUpEvent } from "../../core/heroes/detectLevelUps";
 import { createLogger } from "../log";
 import type { SessionStateService } from "./SessionStateService";
 
@@ -38,6 +39,7 @@ export class TrackingService {
     private readonly onStageKey?: (stageKey: number) => void,
     private readonly sessionState?: SessionStateService,
     private readonly playerLog?: PlayerLogHooks,
+    private readonly onHeroLevelUp?: (events: HeroLevelUpEvent[]) => void,
   ) {
     this.onInventory = onInventory;
     this.parseInventorySnapshot = parseInventorySnapshot;
@@ -146,6 +148,12 @@ export class TrackingService {
       password: this.config.es3Password,
       pollMs,
       onSnapshot: (snap) => {
+        if (this.lastSnap) {
+          const levelUps = detectHeroLevelUps(this.lastSnap.heroes, snap.heroes);
+          if (levelUps.length > 0) {
+            this.onHeroLevelUp?.(levelUps);
+          }
+        }
         this.lastSnap = snap;
         this.lastError = null;
         if (!this.restoreApplied && this.sessionState) {

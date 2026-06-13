@@ -112,9 +112,11 @@ Editable from the **Settings** tab or by hand. Stored under the app user-data fo
 | `startTopmost` | Keep main window on top | `true` |
 | `logHistoryCsv` | Append every XP change to `logs/xp_history.csv` | `true` |
 | `currency` | ISO code for Steam Market prices (`USD`, `EUR`, `BRL`, ...) | `USD` |
-| `notificationsEnabled` | Master switch for update toasts and chest-ready sounds | `true` |
+| `notificationsEnabled` | Master switch for update toasts and in-app notification sounds | `true` |
 | `notifyOnUpdateAvailable` | Windows notification when a newer release is available | `true` |
-| `chestSoundVariant` | Sound when a tracked chest cooldown finishes (`soft-chime`, `double-tap`, `wood-tick`, `whisper-ping`, `none`) | `soft-chime` |
+| `notificationPrefs` | Per-kind sound alerts: `chestDrop`, `chestReady`, `heroLevelUp` — each `{ enabled, sound }` where `sound` is a catalog id (see Settings) or `none` | see defaults in `shared/notificationCatalog.ts` |
+
+Legacy installs may still have `chestSoundVariant`; it is migrated to `notificationPrefs.chestReady` on first load and removed on save.
 
 If decryption stops working after a game update, the developer may have rotated
 the ES3 password; update `es3Password` and restart. See `docs/SAVE_FORMAT.md`.

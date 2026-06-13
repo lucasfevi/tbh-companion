@@ -1,6 +1,5 @@
 import type { IpcMain } from "electron";
 import { IPC } from "../../../../shared/ipc";
-import type { ChestSoundVariant } from "../../../../shared/types";
 import type { AppServices } from "../../app/appState";
 
 export function registerChestHandlers(ipc: IpcMain, services: AppServices): void {
@@ -28,8 +27,5 @@ export function registerBoxTimerHandlers(ipc: IpcMain, services: AppServices): v
   );
   ipc.handle(IPC.SET_BOX_TRACKER_NOTIFY, (_e, boxId: number, enabled: boolean) =>
     services.setBoxTrackerNotify(boxId, enabled),
-  );
-  ipc.handle(IPC.PREVIEW_CHEST_SOUND, (_e, variant?: ChestSoundVariant) =>
-    services.previewChestSound(variant),
   );
 }

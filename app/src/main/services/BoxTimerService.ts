@@ -19,7 +19,7 @@ import type {
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
 import { createLogger } from "../log";
-import type { ChestReadyPayload } from "./NotificationService";
+import type { ChestEventPayload } from "./NotificationService";
 
 const log = createLogger("boxTimers");
 
@@ -48,7 +48,8 @@ export class BoxTimerService {
   private idealStageKeyByBoxId = new Map<number, number>();
   private notifyWhenReadyByBoxId = new Map<number, boolean>();
   private wasOnCooldown = new Map<number, boolean>();
-  private onChestReady: ((payload: ChestReadyPayload) => void) | null = null;
+  private onChestReady: ((payload: ChestEventPayload) => void) | null = null;
+  private onChestDropped: ((payload: ChestEventPayload) => void) | null = null;
   private tickTimer: NodeJS.Timeout | null = null;
   private subscribers = 0;
   private currentStageKey = 0;
@@ -89,6 +90,12 @@ export class BoxTimerService {
   markDropped(boxId: number): BoxTimerState {
     if (!this.isEnabledRoute(boxId)) return this.buildState();
     this.timers.set(boxId, Date.now());
+    const box = this.boxById.get(boxId);
+    this.onChestDropped?.({
+      boxId,
+      name: box?.name ?? `Box ${boxId}`,
+      level: box?.level ?? null,
+    });
     return this.commitState();
   }
 
@@ -122,8 +129,12 @@ export class BoxTimerService {
     return this.commitState();
   }
 
-  setOnChestReady(callback: (payload: ChestReadyPayload) => void): void {
+  setOnChestReady(callback: (payload: ChestEventPayload) => void): void {
     this.onChestReady = callback;
+  }
+
+  setOnChestDropped(callback: (payload: ChestEventPayload) => void): void {
+    this.onChestDropped = callback;
   }
 
   setBoxTrackerNotify(boxId: number, enabled: boolean): BoxTimerState {
@@ -326,7 +337,7 @@ export class BoxTimerService {
   private buildState(): BoxTimerState {
     const now = Date.now();
     const rows: BoxTimerRow[] = [];
-    const readyNotifications: ChestReadyPayload[] = [];
+    const readyNotifications: ChestEventPayload[] = [];
 
     for (const boxId of this.routeBoxIds) {
       if (!this.enabledBoxIds.has(boxId)) {

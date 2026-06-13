@@ -3,15 +3,26 @@ import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 
-import type { AppConfig, ChestSoundVariant } from "../../../shared/types";
+import {
+  notificationSoundFile,
+  type NotificationKindId,
+  type NotificationSoundId,
+} from "../../../shared/notificationCatalog";
+import type { AppConfig } from "../../../shared/types";
 import { createLogger } from "../log";
 
 const log = createLogger("notifications");
 
-export interface ChestReadyPayload {
+export interface ChestEventPayload {
   boxId: number;
   name: string;
   level: number | null;
+}
+
+export interface HeroLevelUpPayload {
+  key: string;
+  previousLevel: number;
+  newLevel: number;
 }
 
 export class NotificationService {
@@ -47,27 +58,44 @@ export class NotificationService {
     notification.show();
   }
 
-  showChestReady(_payload: ChestReadyPayload): void {
-    const config = this.getConfig();
-    if (!config.notificationsEnabled) return;
-    this.playChestSound(config.chestSoundVariant);
+  showChestDrop(_payload: ChestEventPayload): void {
+    this.playKindSound("chestDrop");
   }
 
-  previewChestSound(variant?: ChestSoundVariant): void {
-    const config = this.getConfig();
-    if (!config.notificationsEnabled) return;
-    this.playChestSound(variant ?? config.chestSoundVariant);
+  showChestReady(_payload: ChestEventPayload): void {
+    this.playKindSound("chestReady");
   }
 
-  private playChestSound(variant: ChestSoundVariant): void {
-    if (variant === "none") return;
-    const path = soundPath(variant);
+  /** Plays once per save poll even when multiple heroes level up together. */
+  showHeroLevelUp(events: HeroLevelUpPayload[]): void {
+    if (events.length === 0) return;
+    this.playKindSound("heroLevelUp");
+  }
+
+  previewNotificationSound(soundId: NotificationSoundId): void {
+    const config = this.getConfig();
+    if (!config.notificationsEnabled) return;
+    this.playSound(soundId);
+  }
+
+  private playKindSound(kind: NotificationKindId): void {
+    const config = this.getConfig();
+    if (!config.notificationsEnabled) return;
+    const pref = config.notificationPrefs[kind];
+    if (!pref.enabled) return;
+    this.playSound(pref.sound);
+  }
+
+  private playSound(soundId: NotificationSoundId): void {
+    if (soundId === "none") return;
+    const path = resolveSoundPath(soundId);
+    if (!path) return;
     if (!existsSync(path)) {
-      log.warn(`Chest sound file missing: ${path}`);
+      log.warn(`Notification sound file missing: ${path}`);
       return;
     }
     if (process.platform !== "win32") {
-      log.debug(`Chest sound playback skipped on ${process.platform}`);
+      log.debug(`Notification sound playback skipped on ${process.platform}`);
       return;
     }
     const escaped = path.replace(/'/g, "''");
@@ -76,15 +104,15 @@ export class NotificationService {
       ["-NoProfile", "-Command", `(New-Object Media.SoundPlayer '${escaped}').PlaySync()`],
       { windowsHide: true },
       (err) => {
-        if (err) log.warn(`Chest sound playback failed: ${err.message}`);
+        if (err) log.warn(`Notification sound playback failed: ${err.message}`);
       },
     );
   }
 }
 
-export function soundPath(variant: ChestSoundVariant): string {
-  if (variant === "none") return "";
-  const filename = `${variant}.wav`;
+export function resolveSoundPath(soundId: NotificationSoundId): string {
+  const filename = notificationSoundFile(soundId);
+  if (!filename) return "";
   if (app.isPackaged) {
     return join(process.resourcesPath, "sounds", filename);
   }
