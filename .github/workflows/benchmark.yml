@@ -1,0 +1,67 @@
+name: Benchmarks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "data/**"
+      - "bench/**"
+      - ".github/workflows/benchmark.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: benchmark-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run performance benchmarks
+        run: npm run bench:ci
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results
+          path: app/bench-results.json
+          retention-days: 90
+
+      - name: Compare to baseline
+        working-directory: .
+        run: |
+          if [ -f bench/baseline.json ]; then
+            node -e "
+              const current = require('./app/bench-results.json');
+              const baseline = require('./bench/baseline.json');
+              console.log('Benchmark count:', Object.keys(current.results).length);
+              for (const [name, stats] of Object.entries(current.results)) {
+                const base = baseline.results[name];
+                if (!base) { console.log(name + ': (new)'); continue; }
+                const delta = stats.medianMs - base.medianMs;
+                const pct = ((delta / base.medianMs) * 100).toFixed(1);
+                const sign = delta >= 0 ? '+' : '';
+                console.log(name + ': ' + sign + delta.toFixed(2) + 'ms (' + sign + pct + '%)');
+              }
+            "
+          else
+            echo "No baseline.json committed yet."
+          fi

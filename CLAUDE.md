@@ -68,4 +68,5 @@ New IPC → `shared/ipc.ts` + `registerIpc` + preload + `test/ipc/channels.test.
 - `docs/STYLING.md` — renderer tokens and components
 - `docs/DIAGNOSTIC_LOGGING.md` — main-only logging
 - `docs/AGENT_WORKFLOW.md` — commits, push, PRs
+- `docs/BENCHMARKS.md` — performance benchmarks (save parse, inventory, CI trends)
 - `AGENTS.md` — full project brief (Cursor + shared)

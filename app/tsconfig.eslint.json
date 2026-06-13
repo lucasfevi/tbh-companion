@@ -9,6 +9,7 @@
     "scripts/**/*.test.ts",
     "electron.vite.config.ts",
     "vitest.config.ts",
-    "vitest.regenerate.config.ts"
+    "vitest.regenerate.config.ts",
+    "vitest.bench.config.ts"
   ]
 }

@@ -9,6 +9,8 @@ app/dist/
 app/out/
 app/release/
 app/.electron-cache/
+app/bench-results.json
+app/*-bench.json
 *.log
 
 # Runtime output

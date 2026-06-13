@@ -44,6 +44,8 @@ npm run lint:fix   # eslint --fix
 npm run format     # prettier --write
 npm run format:check  # prettier --check
 npm test           # vitest (core logic)
+npm run bench      # performance benchmarks (see docs/BENCHMARKS.md)
+npm run bench:ci   # benchmarks + JSON report for CI trend tracking
 npm run qa         # typecheck + lint + format + test + build + bundle guards (run before marking done)
 npm run qa:dev     # automated dev smoke when UI is not visible (see tbh-qa skill)
 npm run pack       # electron-builder --dir -> release/win-unpacked (no installer)
@@ -148,5 +150,6 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 - `docs/STYLING.md` - Tailwind + ui components vs legacy `styles.css` (renderer).
 - `docs/DIAGNOSTIC_LOGGING.md` - how to add support logs (main/renderer rules, what to log).
 - `docs/SAVE_FORMAT.md` - ES3 decryption scheme + save JSON layout.
+- `docs/BENCHMARKS.md` - performance benchmarks (startup proxy, save parse, inventory, Steam cache).
 - `docs/DECISIONS.md` - short ADR log of why the stack is what it is.
 - `docs/findings/` - research outputs (Steam Market probe, item mapping).

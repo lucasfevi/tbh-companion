@@ -16,6 +16,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "bench": "vitest bench --config vitest.bench.config.ts",
+    "bench:ci": "node scripts/bench-ci.mjs",
     "qa": "node scripts/qa-gate.mjs",
     "qa:dev": "node scripts/qa-dev.mjs",
     "regenerate-gamedata": "vitest run --config vitest.regenerate.config.ts",

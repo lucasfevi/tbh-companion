@@ -1,0 +1,63 @@
+{
+  "runAt": "2026-06-13T20:31:02.197Z",
+  "nodeVersion": "v24.16.0",
+  "commit": null,
+  "results": {
+    "test/bench/es3.bench.ts > es3 decrypt > decryptToText (1500 items)": {
+      "medianMs": 0.0705,
+      "p95Ms": 0.4945,
+      "p99Ms": 0.3847,
+      "meanMs": 0.087,
+      "hz": 11497.44
+    },
+    "test/bench/inventoryResolve.bench.ts > inventory resolve > parseInventory (1500 items)": {
+      "medianMs": 0.6955,
+      "p95Ms": 1.17,
+      "p99Ms": 1.05,
+      "meanMs": 0.7247,
+      "hz": 1379.82
+    },
+    "test/bench/inventoryResolve.bench.ts > inventory resolve > resolveInventory (1500 items, 10% priced)": {
+      "medianMs": 1.94,
+      "p95Ms": 2.71,
+      "p99Ms": 2.58,
+      "meanMs": 2,
+      "hz": 499.29
+    },
+    "test/bench/saveParse.bench.ts > save parse > parseSnapshot (1500 items)": {
+      "medianMs": 0.2597,
+      "p95Ms": 0.4895,
+      "p99Ms": 0.4647,
+      "meanMs": 0.2751,
+      "hz": 3635.21
+    },
+    "test/bench/startupBootstrap.bench.ts > startup bootstrap proxy > load gamedata index": {
+      "medianMs": 2.14,
+      "p95Ms": 3.39,
+      "p99Ms": 3.1,
+      "meanMs": 2.21,
+      "hz": 452.1
+    },
+    "test/bench/startupBootstrap.bench.ts > startup bootstrap proxy > save pipeline (decrypt + parse + resolve)": {
+      "medianMs": 1.95,
+      "p95Ms": 4.22,
+      "p99Ms": 4,
+      "meanMs": 2.12,
+      "hz": 471.01
+    },
+    "test/bench/startupBootstrap.bench.ts > startup bootstrap proxy > bootstrap total (gamedata + save pipeline)": {
+      "medianMs": 3.75,
+      "p95Ms": 5.06,
+      "p99Ms": 4.88,
+      "meanMs": 3.85,
+      "hz": 259.8
+    },
+    "test/bench/steamRefresh.bench.ts > steam refresh > refresh all cached (noop)": {
+      "medianMs": 0.0003,
+      "p95Ms": 0.0011,
+      "p99Ms": 0.0009,
+      "meanMs": 0.0004,
+      "hz": 2704400.38
+    }
+  }
+}
