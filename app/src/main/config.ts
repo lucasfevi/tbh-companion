@@ -2,14 +2,22 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { platform } from "node:os";
 import { app } from "electron";
 import type { AppConfig } from "../../shared/types";
 import { DEFAULT_PASSWORD } from "../core/es3";
 
 export type { AppConfig };
 
-const DEFAULT_SAVE = join(
-  "%USERPROFILE%",
+/** Relative save path fragment shared across all Linux candidate paths. */
+const STEAM_REL = join(
+  "steamapps",
+  "compatdata",
+  "3678970",
+  "pfx",
+  "drive_c",
+  "users",
+  "steamuser",
   "AppData",
   "LocalLow",
   "TesseractStudio",
@@ -17,8 +25,44 @@ const DEFAULT_SAVE = join(
   "SaveFile_Live.es3",
 );
 
+/**
+ * Return candidate save paths for Linux Steam/Proton, ordered by likelihood.
+ * This is a pure function (no I/O) so it can be tested without mocking fs.
+ */
+export function getDefaultSavePathCandidates(home: string): string[] {
+  return [
+    // Arch/Omarchy native pacman Steam: ~/.local/share/Steam/steamapps/compatdata/...
+    join(home, ".local", "share", "Steam", STEAM_REL),
+    // Standard Steam (via ~/.steam/steam symlink)
+    join(home, ".steam", "steam", STEAM_REL),
+    // Flatpak Steam
+    join(home, ".var", "app", "com.valvesoftware.Steam", "data", "steam", STEAM_REL),
+  ];
+}
+
+/** Return the platform-appropriate default save path. */
+export function getDefaultSavePath(): string {
+  if (platform() === "win32") {
+    return join(
+      "%USERPROFILE%",
+      "AppData",
+      "LocalLow",
+      "TesseractStudio",
+      "TaskbarHero",
+      "SaveFile_Live.es3",
+    );
+  }
+  const home = process.env.HOME ?? "";
+  const candidates = getDefaultSavePathCandidates(home);
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  // Fallback — return first candidate even if it doesn't exist yet
+  return candidates[0] ?? "";
+}
+
 const DEFAULTS: AppConfig = {
-  savePath: DEFAULT_SAVE,
+  savePath: "", // resolved on load via getDefaultSavePath()
   es3Password: DEFAULT_PASSWORD,
   pollIntervalSeconds: 5,
   rollingWindowMinutes: 5,
@@ -53,17 +97,24 @@ function candidatePaths(): string[] {
   return paths;
 }
 
+export function resolveConfig(defaults: AppConfig): AppConfig {
+  if (!defaults.savePath) {
+    defaults.savePath = getDefaultSavePath();
+  }
+  return defaults;
+}
+
 export function loadConfig(): AppConfig {
   for (const p of candidatePaths()) {
     if (!existsSync(p)) continue;
     try {
       const raw = JSON.parse(readFileSync(p, "utf-8")) as Partial<AppConfig>;
-      return { ...DEFAULTS, ...raw };
+      return resolveConfig({ ...DEFAULTS, ...raw });
     } catch {
       // fall through to defaults on malformed config
     }
   }
-  return { ...DEFAULTS };
+  return resolveConfig({ ...DEFAULTS });
 }
 
 // Persist the live config to the user-writable location (userData/config.json),

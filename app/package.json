@@ -68,6 +68,14 @@
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
       "artifactName": "tbh-companion-setup-${version}.${ext}"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "../docs/design/icons",
+      "category": "Game"
     }
   },
   "devDependencies": {
