@@ -1,4 +1,5 @@
 import type { IpcMain } from "electron";
+import type { BoxTrackerSortOrder } from "../../../../shared/types";
 import { IPC } from "../../../../shared/ipc";
 import type { AppServices } from "../../app/appState";
 
@@ -27,5 +28,8 @@ export function registerBoxTimerHandlers(ipc: IpcMain, services: AppServices): v
   );
   ipc.handle(IPC.SET_BOX_TRACKER_NOTIFY, (_e, boxId: number, enabled: boolean) =>
     services.setBoxTrackerNotify(boxId, enabled),
+  );
+  ipc.handle(IPC.SET_BOX_TRACKER_SORT_ORDER, (_e, sortOrder: BoxTrackerSortOrder) =>
+    services.setBoxTrackerSortOrder(sortOrder),
   );
 }

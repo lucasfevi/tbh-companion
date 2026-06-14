@@ -21,6 +21,7 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.SET_BOX_TRACKER_FARM_STAGE");
     expect(preload).toContain("IPC.CLEAR_BOX_TRACKER_FARM_STAGE");
     expect(preload).toContain("IPC.SET_BOX_TRACKER_NOTIFY");
+    expect(preload).toContain("IPC.SET_BOX_TRACKER_SORT_ORDER");
     expect(preload).toContain("IPC.PREVIEW_NOTIFICATION_SOUND");
     expect(preload).toContain("IPC.SAVE_CONFIG");
     expect(preload).toContain("IPC.PICK_SAVE_FILE");
@@ -86,6 +87,7 @@ describe("IPC channel registry", () => {
     expect(boxTimers).toContain("IPC.BOX_TIMERS");
     const chestHandlers = readHandler("chests");
     expect(chestHandlers).toContain("IPC.SET_BOX_TRACKER_NOTIFY");
+    expect(chestHandlers).toContain("IPC.SET_BOX_TRACKER_SORT_ORDER");
     const notificationHandlers = readHandler("notifications");
     expect(notificationHandlers).toContain("IPC.PREVIEW_NOTIFICATION_SOUND");
     const updates = readFileSync(

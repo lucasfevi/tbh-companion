@@ -1,7 +1,11 @@
 import { useBoxTimers, fmtTimer } from "./lib/useBoxTimers";
 import { stageName } from "../core/stages";
 import type { BoxTimerRow } from "../../shared/types";
-import { formatCooldownMinutes } from "./lib/boxTrackerUi";
+import {
+  boxTrackerRowsBySection,
+  boxTrackerSectionOrder,
+  formatCooldownMinutes,
+} from "./lib/boxTrackerUi";
 import { Button } from "./components/ui/Button";
 import { Badge } from "./components/ui/Badge";
 import { CapacityBar } from "./components/ui/CapacityBar";
@@ -87,8 +91,18 @@ export function BoxTracker() {
   }
 
   const currentLabel = stageName(state.currentStageKey);
-  const cooldownRows = state.rows.filter((row) => row.status === "cooldown");
-  const readyRows = state.rows.filter((row) => row.status === "ready");
+  const sections = boxTrackerSectionOrder(state.sortOrder);
+
+  const sectionContent = {
+    cooldown: {
+      title: "On cooldown",
+      rows: boxTrackerRowsBySection(state.rows, "cooldown"),
+    },
+    ready: {
+      title: "Ready to mark",
+      rows: boxTrackerRowsBySection(state.rows, "ready"),
+    },
+  } as const;
 
   return (
     <OverlayFrame>
@@ -127,30 +141,22 @@ export function BoxTracker() {
         </p>
       ) : (
         <div className="no-drag flex min-h-0 flex-1 flex-col gap-2.5 overflow-auto">
-          {cooldownRows.length > 0 ? (
-            <section className="flex flex-col gap-1.5">
-              <h3 className="m-0 text-[11px] font-bold uppercase tracking-wide text-muted">
-                On cooldown
-              </h3>
-              <ul className="m-0 flex list-none flex-col gap-2 p-0">
-                {cooldownRows.map((row) => (
-                  <BoxTimerCard key={row.boxId} row={row} />
-                ))}
-              </ul>
-            </section>
-          ) : null}
-          {readyRows.length > 0 ? (
-            <section className="flex flex-col gap-1.5">
-              <h3 className="m-0 text-[11px] font-bold uppercase tracking-wide text-muted">
-                Ready to mark
-              </h3>
-              <ul className="m-0 flex list-none flex-col gap-2 p-0">
-                {readyRows.map((row) => (
-                  <BoxTimerCard key={row.boxId} row={row} />
-                ))}
-              </ul>
-            </section>
-          ) : null}
+          {sections.map((section) => {
+            const { title, rows } = sectionContent[section];
+            if (rows.length === 0) return null;
+            return (
+              <section key={section} className="flex flex-col gap-1.5">
+                <h3 className="m-0 text-[11px] font-bold uppercase tracking-wide text-muted">
+                  {title}
+                </h3>
+                <ul className="m-0 flex list-none flex-col gap-2 p-0">
+                  {rows.map((row) => (
+                    <BoxTimerCard key={row.boxId} row={row} />
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
         </div>
       )}
 

@@ -1,4 +1,7 @@
-import type { BoxTimerCatalogEntry } from "../../../shared/types";
+import type { BoxTimerCatalogEntry, BoxTimerRow, BoxTrackerSortOrder } from "../../../shared/types";
+import { normalizeBoxTrackerSortOrder } from "../../core/boxTrackerSort";
+
+export { normalizeBoxTrackerSortOrder };
 
 export const TRACKER_LEVEL_CHIP_WIDTH_CLASS = "w-[4.5rem]";
 export const TRACKER_LEVEL_CHIP_GRID_CLASS = "grid-cols-[repeat(auto-fill,4.5rem)]";
@@ -56,4 +59,17 @@ export function enabledCatalogEntries(catalog: BoxTimerCatalogEntry[]): BoxTimer
   return catalog
     .filter((entry) => entry.enabled)
     .toSorted((a, b) => (a.level ?? 0) - (b.level ?? 0));
+}
+
+export function boxTrackerSectionOrder(
+  sortOrder: BoxTrackerSortOrder,
+): Array<"cooldown" | "ready"> {
+  return sortOrder === "ready-first" ? ["ready", "cooldown"] : ["cooldown", "ready"];
+}
+
+export function boxTrackerRowsBySection(
+  rows: BoxTimerRow[],
+  section: "cooldown" | "ready",
+): BoxTimerRow[] {
+  return rows.filter((row) => row.status === section);
 }

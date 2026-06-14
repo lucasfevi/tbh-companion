@@ -219,4 +219,28 @@ describe("BoxTimerService", () => {
     expect(onReady).not.toHaveBeenCalled();
     vi.useRealTimers();
   });
+
+  it("defaults sortOrder to cooldown-first and persists ready-first", async () => {
+    const svc = await loadService();
+    expect(svc.getState().sortOrder).toBe("cooldown-first");
+
+    svc.setEnabledBoxIds([920151, 920201]);
+    svc.markDropped(920151);
+    const before = svc.getState().rows.map((r) => r.status);
+    expect(before[0]).toBe("cooldown");
+
+    svc.setSortOrder("ready-first");
+    expect(svc.getState().sortOrder).toBe("ready-first");
+    const after = svc.getState().rows.map((r) => r.status);
+    expect(after[0]).toBe("ready");
+
+    const raw = JSON.parse(readFileSync(join(userDataDir, "box_timers.json"), "utf-8")) as {
+      sortOrder: string;
+    };
+    expect(raw.sortOrder).toBe("ready-first");
+
+    const svc2 = await loadService();
+    expect(svc2.getState().sortOrder).toBe("ready-first");
+    expect(svc2.getState().rows[0]?.status).toBe("ready");
+  });
 });

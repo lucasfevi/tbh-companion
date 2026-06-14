@@ -111,6 +111,9 @@ const api: TbhApi = {
   setBoxTrackerNotify(boxId: number, enabled: boolean): Promise<BoxTimerState> {
     return ipcRenderer.invoke(IPC.SET_BOX_TRACKER_NOTIFY, boxId, enabled);
   },
+  setBoxTrackerSortOrder(sortOrder: BoxTimerState["sortOrder"]): Promise<BoxTimerState> {
+    return ipcRenderer.invoke(IPC.SET_BOX_TRACKER_SORT_ORDER, sortOrder);
+  },
   previewNotificationSound(soundId: NotificationSoundId): Promise<void> {
     return ipcRenderer.invoke(IPC.PREVIEW_NOTIFICATION_SOUND, soundId);
   },

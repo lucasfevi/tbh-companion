@@ -8,6 +8,10 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 - Main window, Mini overlay, and Stage boss chest tracker remember their position (and size where resizable) across restarts, including on multi-monitor setups. If a monitor is unplugged, windows fall back to the primary display.
 
+### Chests
+
+- **Stage boss chest tracker** overlay: choose whether **On cooldown** or **Ready to mark** chests appear first (**Chests** tab → **Overlay display**). Preference is saved with your tracker settings.
+
 ### Fixed
 
 - Launching TBH Companion again while it is already running (for example, hidden in the system tray) now focuses the existing window instead of starting a second background process.
