@@ -2,24 +2,35 @@ import { BrowserWindow } from "electron";
 import { PRELOAD_SCRIPT } from "../paths";
 import { loadRenderer } from "./loadRenderer";
 import { applyWindowTopmost } from "./alwaysOnTop";
+import {
+  applyWindowLayout,
+  attachWindowLayoutPersistence,
+  type WindowLayoutApplyOptions,
+} from "./windowLayout";
+import type { WindowLayoutEntry, WindowLayoutPrefs } from "../../../shared/types";
 
 /** Mini overlay — keep in sync with `OverlayFrame` (px-2.5 py-1.5) and readout rows. */
 export const OVERLAY_WIDTH = 280;
 export const OVERLAY_HEIGHT = 86;
 
-function applyOverlaySize(win: BrowserWindow): void {
-  win.setSize(OVERLAY_WIDTH, OVERLAY_HEIGHT);
-}
+const OVERLAY_LAYOUT_OPTIONS: WindowLayoutApplyOptions = {
+  defaults: { width: OVERLAY_WIDTH, height: OVERLAY_HEIGHT },
+  constraints: {},
+  fixedWidth: OVERLAY_WIDTH,
+  fixedHeight: OVERLAY_HEIGHT,
+  useContentSize: true,
+};
 
 export function createOverlayWindow(
   getExisting: () => BrowserWindow | null,
   setWindow: (w: BrowserWindow | null) => void,
   startTopmost: () => boolean,
   onClosed?: () => void,
+  savedLayout?: WindowLayoutPrefs["overlay"],
+  onLayoutChange?: (entry: WindowLayoutEntry) => void,
 ): BrowserWindow {
   const existing = getExisting();
   if (existing && !existing.isDestroyed()) {
-    applyOverlaySize(existing);
     applyWindowTopmost(existing, startTopmost(), true);
     existing.show();
     existing.focus();
@@ -42,6 +53,11 @@ export function createOverlayWindow(
       sandbox: false,
     },
   });
+
+  applyWindowLayout(win, savedLayout, OVERLAY_LAYOUT_OPTIONS);
+  if (onLayoutChange) {
+    attachWindowLayoutPersistence(win, OVERLAY_LAYOUT_OPTIONS, onLayoutChange);
+  }
 
   applyWindowTopmost(win, topmost, true);
   win.on("ready-to-show", () => win.show());

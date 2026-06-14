@@ -247,6 +247,30 @@ export interface PriceRefreshResult {
   queued?: boolean;
 }
 
+/** Work area snapshot used to match a monitor across restarts. */
+export interface DisplayWorkArea {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** Saved window position relative to a display work area (not global desktop coords). */
+export interface WindowLayoutEntry {
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+  displayId: number;
+  displayWorkArea: DisplayWorkArea;
+}
+
+export interface WindowLayoutPrefs {
+  main?: WindowLayoutEntry;
+  overlay?: Omit<WindowLayoutEntry, "width" | "height">;
+  boxTracker?: WindowLayoutEntry;
+}
+
 export interface AppConfig {
   savePath: string;
   es3Password: string;
@@ -258,6 +282,7 @@ export interface AppConfig {
   notificationsEnabled: boolean;
   notifyOnUpdateAvailable: boolean;
   notificationPrefs: NotificationPrefs;
+  windowLayout?: WindowLayoutPrefs;
 }
 
 /** Scoped targets for Settings → Data & cache clear actions. */

@@ -2,3 +2,9 @@
 export const MAIN_WINDOW_WIDTH = 900;
 export const MAIN_WINDOW_HEIGHT = 640;
 export const MAIN_WINDOW_MIN_HEIGHT = 480;
+
+/** Stage boss chest tracker overlay — content size (useContentSize). */
+export const BOX_TRACKER_WIDTH = 340;
+export const BOX_TRACKER_HEIGHT = 520;
+export const BOX_TRACKER_MIN_WIDTH = 300;
+export const BOX_TRACKER_MIN_HEIGHT = 360;
