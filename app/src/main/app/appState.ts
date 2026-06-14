@@ -277,6 +277,7 @@ export function getAppServices() {
       openMainWindow();
       if (mainWindow?.isMinimized()) mainWindow.restore();
       mainWindow?.show();
+      mainWindow?.focus();
       overlayWindow?.close();
       sessionState.setMiniOverlayOpen(false);
       tracking.flushSession();

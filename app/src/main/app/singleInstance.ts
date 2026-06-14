@@ -16,6 +16,10 @@ export function acquireSingleInstanceLock(): boolean {
 export function registerSecondInstanceFocus(handler: () => void): void {
   app.on("second-instance", () => {
     appLog.info("Second launch detected — focusing existing instance");
-    handler();
+    if (app.isReady()) {
+      handler();
+    } else {
+      void app.whenReady().then(handler);
+    }
   });
 }
