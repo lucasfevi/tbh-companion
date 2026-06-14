@@ -69,9 +69,11 @@ GET https://steamcommunity.com/market/priceoverview/?appid=3678970&currency=<id>
 
 `priceoverview` is the only endpoint that honors a chosen currency, so the app
 exposes a **currency setting** (`config.currency`, ISO code, default `USD`) and
-prices via `priceoverview` in that currency. `search/render` is reserved for
-catalog discovery only. Changing currency invalidates the cached price set
-(prices are stored per-currency in `userData/prices.<ISO>.json`).
+prices via `priceoverview` in that currency. The dropdown lists all live Steam
+wallet currencies (ECurrency 1–47, excluding legacy SEK/BYN/HRK and non-wallet
+ARS). `search/render` is reserved for catalog discovery only. Changing currency
+invalidates the cached price set (prices are stored per-currency in
+`userData/prices.<ISO>.json`).
 
 ## Catalog shape (snapshot in `data/steam_market_catalog.json`)
 

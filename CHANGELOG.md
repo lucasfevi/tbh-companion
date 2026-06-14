@@ -4,6 +4,10 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+### Market
+
+- Settings and Market currency dropdown now include all live Steam wallet currencies (43 ISO codes).
+
 ## [1.9.0] - 2026-06-14
 
 ### App behavior

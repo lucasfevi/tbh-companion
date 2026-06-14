@@ -6,6 +6,7 @@ import {
   currencyPrefix,
   formatMoney,
   pickMarketUnit,
+  STEAM_CURRENCIES,
 } from "../../src/core/steamPrice";
 
 describe("parseMoney", () => {
@@ -41,6 +42,11 @@ describe("parseMoney", () => {
     expect(parseMoney("₩ 1,500")).toBe(1500);
   });
 
+  it("parses Malaysian ringgit and Chilean peso prices", () => {
+    expect(parseMoney("RM257.74")).toBeCloseTo(257.74);
+    expect(parseMoney("CLP$ 55.695,47")).toBeCloseTo(55695.47);
+  });
+
   it("returns null for empty/garbage", () => {
     expect(parseMoney("")).toBeNull();
     expect(parseMoney(null)).toBeNull();
@@ -49,6 +55,20 @@ describe("parseMoney", () => {
 });
 
 describe("currency map", () => {
+  it("lists all live Steam wallet currencies", () => {
+    expect(STEAM_CURRENCIES).toHaveLength(43);
+    const codes = STEAM_CURRENCIES.map((c) => c.code);
+    const isos = STEAM_CURRENCIES.map((c) => c.iso);
+    expect(new Set(codes).size).toBe(codes.length);
+    expect(new Set(isos).size).toBe(isos.length);
+    for (let i = 1; i < STEAM_CURRENCIES.length; i++) {
+      expect(STEAM_CURRENCIES[i].code).toBeGreaterThan(STEAM_CURRENCIES[i - 1].code);
+    }
+    for (const excluded of ["SEK", "BYN", "HRK", "ARS"]) {
+      expect(isos).not.toContain(excluded);
+    }
+  });
+
   it("maps ISO to Steam code", () => {
     expect(currencyCode("USD")).toBe(1);
     expect(currencyCode("BRL")).toBe(7);
@@ -57,6 +77,10 @@ describe("currency map", () => {
     expect(currencyCode("IDR")).toBe(10);
     expect(currencyCode("VND")).toBe(15);
     expect(currencyCode("UAH")).toBe(18);
+    expect(currencyCode("MYR")).toBe(11);
+    expect(currencyCode("NZD")).toBe(22);
+    expect(currencyCode("BGN")).toBe(42);
+    expect(currencyCode("RON")).toBe(47);
   });
 
   it("falls back to USD for unknown codes", () => {
@@ -76,6 +100,9 @@ describe("currency map", () => {
     expect(formatMoney(123039, "IDR")).toBe("Rp 123039.00");
     expect(formatMoney(181500, "VND")).toBe("181500,00");
     expect(formatMoney(3.24, "UAH")).toBe("3,24");
+    expect(formatMoney(257.74, "MYR")).toBe("RM257.74");
+    expect(formatMoney(107.55, "NZD")).toBe("NZ$ 107.55");
+    expect(formatMoney(55695.47, "CLP")).toBe("CLP$ 55695,47");
   });
 });
 
