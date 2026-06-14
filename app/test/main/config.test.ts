@@ -169,10 +169,12 @@ describe("resolveConfig", () => {
       es3Password: "x",
       pollIntervalSeconds: 5,
       rollingWindowMinutes: 5,
-      trackCubeExp: false,
       startTopmost: true,
       logHistoryCsv: false,
       currency: "USD",
+      notificationsEnabled: true,
+      notifyOnUpdateAvailable: true,
+      notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
     };
     const resolved = mod.resolveConfig(cfg);
     expect(resolved.savePath).toBeTruthy();
@@ -186,10 +188,12 @@ describe("resolveConfig", () => {
       es3Password: "x",
       pollIntervalSeconds: 5,
       rollingWindowMinutes: 5,
-      trackCubeExp: false,
       startTopmost: true,
       logHistoryCsv: false,
       currency: "USD",
+      notificationsEnabled: true,
+      notifyOnUpdateAvailable: true,
+      notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
     };
     const resolved = mod.resolveConfig({ ...cfg });
     expect(resolved.savePath).toBe("/custom/save.es3");
@@ -201,10 +205,12 @@ describe("resolveConfig", () => {
       es3Password: "x",
       pollIntervalSeconds: 5,
       rollingWindowMinutes: 5,
-      trackCubeExp: false,
       startTopmost: true,
       logHistoryCsv: false,
       currency: "USD",
+      notificationsEnabled: true,
+      notifyOnUpdateAvailable: true,
+      notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
     };
     const before = cfg.savePath;
     mod.resolveConfig(cfg);
