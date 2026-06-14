@@ -10,11 +10,13 @@ import {
   type StageBoxTrackerRoute,
 } from "../../core/stageBoxTracker";
 import { stageName } from "../../core/stages";
+import { compareBoxTimerRows, normalizeBoxTrackerSortOrder } from "../../core/boxTrackerSort";
 import type {
   BoxTimerCatalogEntry,
   BoxTimerFarmStageOption,
   BoxTimerRow,
   BoxTimerState,
+  BoxTrackerSortOrder,
 } from "../../../shared/types";
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
@@ -34,6 +36,7 @@ interface PersistedFile {
   cooldownSecondsByBoxId?: Record<string, number>;
   idealStageKeyByBoxId?: Record<string, number>;
   notifyWhenReadyByBoxId?: Record<string, boolean>;
+  sortOrder?: BoxTrackerSortOrder;
 }
 
 export class BoxTimerService {
@@ -47,6 +50,7 @@ export class BoxTimerService {
   private cooldownSecondsByBoxId = new Map<number, number>();
   private idealStageKeyByBoxId = new Map<number, number>();
   private notifyWhenReadyByBoxId = new Map<number, boolean>();
+  private sortOrder: BoxTrackerSortOrder = "cooldown-first";
   private wasOnCooldown = new Map<number, boolean>();
   private onChestReady: ((payload: ChestEventPayload) => void) | null = null;
   private onChestDropped: ((payload: ChestEventPayload) => void) | null = null;
@@ -147,6 +151,11 @@ export class BoxTimerService {
     return this.commitState();
   }
 
+  setSortOrder(sortOrder: BoxTrackerSortOrder): BoxTimerState {
+    this.sortOrder = normalizeBoxTrackerSortOrder(sortOrder);
+    return this.commitState();
+  }
+
   setCooldownSeconds(boxId: number, cooldownSeconds: number): BoxTimerState {
     if (!this.routeById.has(boxId)) return this.buildState();
     const seconds = Math.max(60, Math.min(86_400, Math.round(cooldownSeconds)));
@@ -192,6 +201,7 @@ export class BoxTimerService {
     this.cooldownSecondsByBoxId.clear();
     this.idealStageKeyByBoxId.clear();
     this.notifyWhenReadyByBoxId.clear();
+    this.sortOrder = "cooldown-first";
     this.wasOnCooldown.clear();
     for (const id of this.defaultEnabledIds()) this.enabledBoxIds.add(id);
     return this.commitState();
@@ -357,11 +367,7 @@ export class BoxTimerService {
       this.onChestReady?.(payload);
     }
 
-    rows.sort((a, b) => {
-      if (a.status !== b.status) return a.status === "cooldown" ? -1 : 1;
-      if (a.status === "cooldown") return a.remainingSeconds - b.remainingSeconds;
-      return (a.level ?? 0) - (b.level ?? 0) || a.boxId - b.boxId;
-    });
+    rows.sort((a, b) => compareBoxTimerRows(a, b, this.sortOrder));
 
     const readyCount = rows.filter((r) => r.status === "ready").length;
     const cooldownCount = rows.filter((r) => r.status === "cooldown").length;
@@ -372,6 +378,7 @@ export class BoxTimerService {
       enabledCount: this.enabledBoxIds.size,
       readyCount,
       cooldownCount,
+      sortOrder: this.sortOrder,
       currentStageKey: this.currentStageKey,
       defaultCooldownSeconds: this.catalogFile.defaultCooldownSeconds ?? 720,
       playerLogPath: this.playerLogPath,
@@ -425,6 +432,7 @@ export class BoxTimerService {
           this.notifyWhenReadyByBoxId.set(id, Boolean(notify));
         }
       }
+      this.sortOrder = normalizeBoxTrackerSortOrder(raw.sortOrder);
       const enabled = raw.enabledBoxIds?.filter((id) => this.routeById.has(id)) ?? [];
       if (enabled.length > 0) {
         for (const id of enabled) this.enabledBoxIds.add(id);
@@ -458,6 +466,7 @@ export class BoxTimerService {
           cooldownSecondsByBoxId,
           idealStageKeyByBoxId,
           notifyWhenReadyByBoxId,
+          sortOrder: this.sortOrder,
         },
         null,
         2,

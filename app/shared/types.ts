@@ -416,6 +416,8 @@ export interface PetState {
 
 // --- Box tracker (manual rare boss box timers) ---
 
+export type BoxTrackerSortOrder = "cooldown-first" | "ready-first";
+
 export interface BoxTimerFarmStageOption {
   stageKey: number;
   label: string;
@@ -459,6 +461,7 @@ export interface BoxTimerState {
   enabledCount: number;
   readyCount: number;
   cooldownCount: number;
+  sortOrder: BoxTrackerSortOrder;
   currentStageKey: number;
   defaultCooldownSeconds: number;
   playerLogPath: string;
@@ -527,6 +530,7 @@ export interface TbhApi {
   setBoxTrackerFarmStage(boxId: number, stageKey: number): Promise<BoxTimerState>;
   clearBoxTrackerFarmStage(boxId: number): Promise<BoxTimerState>;
   setBoxTrackerNotify(boxId: number, enabled: boolean): Promise<BoxTimerState>;
+  setBoxTrackerSortOrder(sortOrder: BoxTrackerSortOrder): Promise<BoxTimerState>;
   previewNotificationSound(soundId?: NotificationSoundId): Promise<void>;
   getUpdateStatus(): Promise<UpdateStatus>;
   checkForUpdates(): Promise<UpdateStatus>;

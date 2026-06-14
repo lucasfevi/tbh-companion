@@ -5,6 +5,7 @@ import { reportIpcError } from "../lib/reportError";
 import {
   applyTrackerPreset,
   enabledCatalogEntries,
+  normalizeBoxTrackerSortOrder,
   toggleTrackedLevel,
   TRACKER_LEVEL_CHIP_GRID_CLASS,
   TRACKER_LEVEL_CHIP_WIDTH_CLASS,
@@ -12,7 +13,9 @@ import {
 } from "../lib/boxTrackerUi";
 import { TrackerConfigRow } from "./TrackerConfigRow";
 import { Button } from "./ui/Button";
+import { Field } from "./ui/Field";
 import { PanelSection } from "./ui/PanelSection";
+import { Select } from "./ui/Select";
 import { cn } from "../lib/cn";
 
 export function ChestsTrackerPanel() {
@@ -75,6 +78,24 @@ export function ChestsTrackerPanel() {
           finish.
         </p>
       ) : null}
+
+      <PanelSection title="Overlay display">
+        <Field
+          label="Show first in overlay"
+          hint="Controls section order in the stage boss overlay."
+        >
+          <Select
+            className="max-w-xs"
+            value={state.sortOrder}
+            onChange={(e) =>
+              void window.tbh.setBoxTrackerSortOrder(normalizeBoxTrackerSortOrder(e.target.value))
+            }
+          >
+            <option value="cooldown-first">On cooldown</option>
+            <option value="ready-first">Ready to mark</option>
+          </Select>
+        </Field>
+      </PanelSection>
 
       <PanelSection title="Levels to track">
         <div className="flex flex-wrap gap-1">

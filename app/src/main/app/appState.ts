@@ -15,6 +15,7 @@ import { UpdateService } from "../services/UpdateService";
 import { NotificationService } from "../services/NotificationService";
 import type {
   AppDataClearTarget,
+  BoxTrackerSortOrder,
   RendererLogPayload,
   SessionUiSnapshot,
   WindowLayoutPrefs,
@@ -190,6 +191,7 @@ export function getAppServices() {
     clearBoxTrackerFarmStage: (boxId: number) => boxTimers.clearFarmStageOverride(boxId),
     setBoxTrackerNotify: (boxId: number, enabled: boolean) =>
       boxTimers.setBoxTrackerNotify(boxId, enabled),
+    setBoxTrackerSortOrder: (sortOrder: BoxTrackerSortOrder) => boxTimers.setSortOrder(sortOrder),
     previewNotificationSound: (soundId: NotificationSoundId) =>
       notifications.previewNotificationSound(soundId),
     gameDataStatus: () => inventory.gameDataStatus(),
