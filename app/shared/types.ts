@@ -520,6 +520,7 @@ export interface TbhApi {
   onPets(cb: (state: PetState) => void): () => void;
   openBoxTracker(): void;
   closeBoxTracker(): void;
+  minimizeBoxTracker(): void;
   getBoxTimers(): Promise<BoxTimerState>;
   onBoxTimers(cb: (state: BoxTimerState) => void): () => void;
   markBoxDropped(boxId: number): Promise<BoxTimerState>;

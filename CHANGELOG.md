@@ -7,6 +7,7 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 ### App behavior
 
 - Main window, Mini overlay, and Stage boss chest tracker remember their position (and size where resizable) across restarts, including on multi-monitor setups. If a monitor is unplugged, windows fall back to the primary display.
+- **Stage boss chest tracker** appears on the Windows taskbar and in Alt+Tab, so you can bring it back when the main window is hidden to the tray. Use the header **−** button to minimize it without closing timers.
 
 ### Chests
 

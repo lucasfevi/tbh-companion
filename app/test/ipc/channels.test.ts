@@ -90,6 +90,8 @@ describe("IPC channel registry", () => {
     expect(chestHandlers).toContain("IPC.SET_BOX_TRACKER_SORT_ORDER");
     const notificationHandlers = readHandler("notifications");
     expect(notificationHandlers).toContain("IPC.PREVIEW_NOTIFICATION_SOUND");
+    const windowHandlers = readHandler("window");
+    expect(windowHandlers).toContain("IPC.MINIMIZE_BOX_TRACKER");
     const updates = readFileSync(
       join(__dirname, "../../src/main/services/UpdateService.ts"),
       "utf-8",
@@ -101,6 +103,7 @@ describe("IPC channel registry", () => {
     const preload = readFileSync(join(__dirname, "../../src/preload/index.ts"), "utf-8");
     expect(preload).toContain("IPC.RESET");
     expect(preload).toContain("IPC.OPEN_OVERLAY");
+    expect(preload).toContain("IPC.MINIMIZE_BOX_TRACKER");
     expect(preload).toContain("IPC.PRICES_CANCEL");
     expect(preload).toContain("IPC.PRICE_STATUS");
   });

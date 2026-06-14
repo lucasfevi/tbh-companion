@@ -111,6 +111,13 @@ export function BoxTracker() {
           Stage boss chest tracker
         </span>
         <div className="no-drag flex gap-1">
+          <IconButton
+            type="button"
+            title="Minimize"
+            onClick={() => window.tbh.minimizeBoxTracker()}
+          >
+            {"\u2212"}
+          </IconButton>
           <IconButton type="button" title="Open full window" onClick={() => window.tbh.showMain()}>
             {"\u2922"}
           </IconButton>

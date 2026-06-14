@@ -1,4 +1,5 @@
 import { BrowserWindow } from "electron";
+import { appIconImage, setWindowIcon } from "../iconPaths";
 import { PRELOAD_SCRIPT } from "../paths";
 import { loadRenderer } from "./loadRenderer";
 import { applyWindowTopmost } from "./alwaysOnTop";
@@ -45,18 +46,20 @@ export function createBoxTrackerWindow(
   }
 
   const topmost = startTopmost();
+  const icon = appIconImage();
   const win = new BrowserWindow({
     width: BOX_TRACKER_WIDTH,
     height: BOX_TRACKER_HEIGHT,
     useContentSize: true,
     show: false,
+    title: "Stage boss chest tracker",
     frame: false,
     resizable: true,
     minWidth: BOX_TRACKER_MIN_WIDTH,
     minHeight: BOX_TRACKER_MIN_HEIGHT,
     alwaysOnTop: topmost,
-    skipTaskbar: true,
     backgroundColor: "#0f1117",
+    ...(icon.isEmpty() ? {} : { icon }),
     webPreferences: {
       preload: PRELOAD_SCRIPT,
       sandbox: false,
@@ -76,6 +79,7 @@ export function createBoxTrackerWindow(
   });
 
   loadRenderer(win, "box-tracker");
+  setWindowIcon(win);
   setWindow(win);
   onOpen?.();
   return win;

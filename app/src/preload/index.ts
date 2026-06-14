@@ -43,6 +43,9 @@ const api: TbhApi = {
   closeBoxTracker(): void {
     ipcRenderer.send(IPC.CLOSE_BOX_TRACKER);
   },
+  minimizeBoxTracker(): void {
+    ipcRenderer.send(IPC.MINIMIZE_BOX_TRACKER);
+  },
   showMain(): void {
     ipcRenderer.send(IPC.SHOW_MAIN);
   },

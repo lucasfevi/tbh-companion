@@ -6,6 +6,7 @@ export function registerWindowHandlers(ipc: IpcMain, services: AppServices): voi
   ipc.on(IPC.OPEN_OVERLAY, () => services.openOverlay());
   ipc.on(IPC.OPEN_BOX_TRACKER, () => services.openBoxTracker());
   ipc.on(IPC.CLOSE_BOX_TRACKER, () => services.closeBoxTracker());
+  ipc.on(IPC.MINIMIZE_BOX_TRACKER, () => services.minimizeBoxTracker());
   ipc.on(IPC.SHOW_MAIN, () => services.showMain());
   ipc.on(IPC.CLOSE_OVERLAY, () => services.closeOverlay());
 }

@@ -296,6 +296,11 @@ export function getAppServices() {
       tracking.flushSession();
     },
     closeBoxTracker: () => boxTrackerWindow?.close(),
+    minimizeBoxTracker: () => {
+      if (boxTrackerWindow && !boxTrackerWindow.isDestroyed()) {
+        boxTrackerWindow.minimize();
+      }
+    },
     showMain: () => {
       openMainWindow();
       if (mainWindow?.isMinimized()) mainWindow.restore();
