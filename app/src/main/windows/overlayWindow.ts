@@ -1,17 +1,17 @@
 import { BrowserWindow } from "electron";
+import type { WindowLayoutEntry, WindowLayoutPrefs } from "../../../shared/types";
 import { PRELOAD_SCRIPT } from "../paths";
-import { loadRenderer } from "./loadRenderer";
 import { applyWindowTopmost } from "./alwaysOnTop";
+import { loadRenderer } from "./loadRenderer";
 import {
   applyWindowLayout,
   attachWindowLayoutPersistence,
   type WindowLayoutApplyOptions,
 } from "./windowLayout";
-import type { WindowLayoutEntry, WindowLayoutPrefs } from "../../../shared/types";
 
 /** Mini overlay — keep in sync with `OverlayFrame` (px-2.5 py-1.5) and readout rows. */
 export const OVERLAY_WIDTH = 280;
-export const OVERLAY_HEIGHT = 86;
+export const OVERLAY_HEIGHT = 94;
 
 const OVERLAY_LAYOUT_OPTIONS: WindowLayoutApplyOptions = {
   defaults: { width: OVERLAY_WIDTH, height: OVERLAY_HEIGHT },
