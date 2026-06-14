@@ -1,7 +1,7 @@
 {
-  "source": "https://taskbarhero.wiki/stage-boxes",
-  "fetchedUtc": "2026-06-11T18:45:18.708Z",
-  "defaultCooldownSeconds": 720,
+  "source": "game_extracted",
+  "gameVersion": "1.00.11",
+  "fetchedUtc": "2026-06-14T02:12:03.336Z",
   "count": 59,
   "items": [
     {
@@ -9,187 +9,209 @@
       "name": "Normal Monster Box 1",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 1,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9100111
     },
     {
       "id": 910051,
       "name": "Normal Monster Box 2",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 2,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9100511
     },
     {
       "id": 910101,
       "name": "Normal Monster Box 3",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 3,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9101011
     },
     {
       "id": 910151,
       "name": "Normal Monster Box Lv15",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 15,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9101511
     },
     {
       "id": 910201,
       "name": "Normal Monster Box Lv20",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 20,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9102011
     },
     {
       "id": 910251,
       "name": "Normal Monster Box Lv25",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 25,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9102011
     },
     {
       "id": 910301,
       "name": "Normal Monster Box Lv30",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 30,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9103011
     },
     {
       "id": 910351,
       "name": "Normal Monster Box Lv35",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 35,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9103011
     },
     {
       "id": 910401,
       "name": "Normal Monster Box Lv40",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 40,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9104011
     },
     {
       "id": 910451,
       "name": "Normal Monster Box Lv45",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 45,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9104011
     },
     {
       "id": 910501,
       "name": "Normal Monster Box Lv50",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 50,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9105011
     },
     {
       "id": 910551,
       "name": "Normal Monster Box Lv55",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 55,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9105011
     },
     {
       "id": 910601,
       "name": "Normal Monster Box Lv60",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 60,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9105011
     },
     {
       "id": 910651,
       "name": "Normal Monster Box Lv65",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 65,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9106511
     },
     {
       "id": 910701,
       "name": "Normal Monster Box Lv70",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 70,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9106511
     },
     {
       "id": 910751,
       "name": "Normal Monster Box Lv75",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 75,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9106511
     },
     {
       "id": 910801,
       "name": "Normal Monster Box Lv80",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 80,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9108011
     },
     {
       "id": 910851,
       "name": "Normal Monster Box Lv85",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 85,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9108011
     },
     {
       "id": 910901,
       "name": "Normal Monster Box Lv90",
       "grade": "COMMON",
       "type": "STAGEBOX",
-      "level": 90,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9108011
     },
     {
       "id": 920001,
       "name": "Stage Boss Box 1",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 1,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
+      "dropKey": 9200011,
       "tracker": {
-        "canonical": true,
-        "idealStageKey": 1101,
         "dropStageKeys": [
           1101
         ],
-        "dropStageRangeLabel": "Normal 1-1"
+        "dropStageNames": [
+          "Pasture"
+        ],
+        "idealStageKey": 1101,
+        "idealStageName": "Pasture"
       }
     },
     {
@@ -197,16 +219,19 @@
       "name": "Stage Boss Box 2",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 2,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
+      "dropKey": 9200021,
       "tracker": {
-        "canonical": true,
-        "idealStageKey": 1104,
         "dropStageKeys": [
-          1104
+          1101
         ],
-        "dropStageRangeLabel": "Normal 1-4"
+        "dropStageNames": [
+          "Pasture"
+        ],
+        "idealStageKey": 1101,
+        "idealStageName": "Pasture"
       }
     },
     {
@@ -214,16 +239,19 @@
       "name": "Stage Boss Box 3",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 3,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
+      "dropKey": 9200031,
       "tracker": {
-        "canonical": true,
-        "idealStageKey": 1108,
         "dropStageKeys": [
-          1108
+          1101
         ],
-        "dropStageRangeLabel": "Normal 1-8"
+        "dropStageNames": [
+          "Pasture"
+        ],
+        "idealStageKey": 1101,
+        "idealStageName": "Pasture"
       }
     },
     {
@@ -231,84 +259,103 @@
       "name": "Stage Boss Box 3",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 3,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9200041,
+      "tracker": {
+        "dropStageKeys": [
+          1101
+        ],
+        "dropStageNames": [
+          "Pasture"
+        ],
+        "idealStageKey": 1101,
+        "idealStageName": "Pasture"
+      }
     },
     {
       "id": 920005,
       "name": "Stage Boss Box 3",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 3,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9200051,
+      "tracker": {
+        "dropStageKeys": [
+          1101
+        ],
+        "dropStageNames": [
+          "Pasture"
+        ],
+        "idealStageKey": 1101,
+        "idealStageName": "Pasture"
+      }
     },
     {
       "id": 920006,
       "name": "Stage Boss Box 3",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 3,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9200061,
+      "tracker": {
+        "dropStageKeys": [
+          1101
+        ],
+        "dropStageNames": [
+          "Pasture"
+        ],
+        "idealStageKey": 1101,
+        "idealStageName": "Pasture"
+      }
     },
     {
       "id": 920011,
       "name": "Stage Boss Box 4",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 4,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
-      "tracker": {
-        "canonical": true,
-        "idealStageKey": 1101,
-        "dropStageKeys": [
-          1101,
-          1102,
-          1103
-        ],
-        "dropStageRangeLabel": "Normal 1-1 – 1-3"
-      }
+      "dropKey": 9200111
     },
     {
       "id": 920051,
       "name": "Stage Boss Box 5",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 5,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
-      "tracker": {
-        "canonical": true,
-        "idealStageKey": 1104,
-        "dropStageKeys": [
-          1104,
-          1105,
-          1106,
-          1107
-        ],
-        "dropStageRangeLabel": "Normal 1-4 – 1-7"
-      }
+      "dropKey": 9200511
     },
     {
       "id": 920022,
       "name": "Stage Boss Box 6",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 6,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
+      "dropKey": 9200221,
       "tracker": {
-        "canonical": true,
-        "idealStageKey": 1206,
         "dropStageKeys": [
           1109,
           1209,
           1309
         ],
-        "dropStageRangeLabel": "Normal 1-9 · Normal 2-9 · Normal 3-9"
+        "dropStageNames": [
+          "Cursed Land",
+          "Pharaoh's Crypt",
+          "Core of the Abyss"
+        ],
+        "idealStageKey": 1109,
+        "idealStageName": "Cursed Land"
       }
     },
     {
@@ -316,436 +363,352 @@
       "name": "Stage Boss Box 6",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 6,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9200321,
+      "tracker": {
+        "dropStageKeys": [
+          2109,
+          2209,
+          2309
+        ],
+        "dropStageNames": [
+          "Cursed Land",
+          "Pharaoh's Crypt",
+          "Core of the Abyss"
+        ],
+        "idealStageKey": 2109,
+        "idealStageName": "Cursed Land"
+      }
     },
     {
       "id": 920042,
       "name": "Stage Boss Box 6",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 6,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9200421,
+      "tracker": {
+        "dropStageKeys": [
+          3109,
+          3209,
+          3309
+        ],
+        "dropStageNames": [
+          "Cursed Land",
+          "Pharaoh's Crypt",
+          "Core of the Abyss"
+        ],
+        "idealStageKey": 3109,
+        "idealStageName": "Cursed Land"
+      }
     },
     {
       "id": 920052,
       "name": "Stage Boss Box 6",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 6,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9200521,
+      "tracker": {
+        "dropStageKeys": [
+          4109,
+          4209,
+          4309
+        ],
+        "dropStageNames": [
+          "Cursed Land",
+          "Pharaoh's Crypt",
+          "Core of the Abyss"
+        ],
+        "idealStageKey": 4109,
+        "idealStageName": "Cursed Land"
+      }
     },
     {
       "id": 920101,
       "name": "Stage Boss Box 7",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 7,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
-      "tracker": {
-        "canonical": true,
-        "idealStageKey": 1108,
-        "dropStageKeys": [
-          1108,
-          1109,
-          1201,
-          1202
-        ],
-        "dropStageRangeLabel": "Normal 1-8 – 1-9 · Normal 2-1 – 2-2"
-      }
+      "dropKey": 9201011
     },
     {
       "id": 920151,
       "name": "Stage Boss Box Lv15",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 15,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
-      "tracker": {
-        "canonical": true,
-        "idealStageKey": 1203,
-        "dropStageKeys": [
-          1203,
-          1204,
-          1205,
-          1206,
-          1207
-        ],
-        "dropStageRangeLabel": "Normal 2-3 – 2-7"
-      }
+      "dropKey": 9201511
     },
     {
       "id": 920201,
       "name": "Stage Boss Box Lv20",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 20,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
-      "tracker": {
-        "canonical": true,
-        "idealStageKey": 1208,
-        "dropStageKeys": [
-          1208,
-          1209,
-          1301,
-          1302,
-          1303,
-          1304,
-          1305,
-          1306,
-          1307
-        ],
-        "dropStageRangeLabel": "Normal 2-8 – 2-9 · Normal 3-1 – 3-7"
-      }
+      "dropKey": 9202011
     },
     {
       "id": 920251,
       "name": "Stage Boss Box Lv25",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 25,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9202011
     },
     {
       "id": 920301,
       "name": "Stage Boss Box Lv30",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 30,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
-      "tracker": {
-        "canonical": true,
-        "idealStageKey": 1308,
-        "dropStageKeys": [
-          1308,
-          1309,
-          2101,
-          2102,
-          2103,
-          2104,
-          2105,
-          2106,
-          2107,
-          2108
-        ],
-        "dropStageRangeLabel": "Normal 3-8 – 3-9 · Nightmare 1-1 – 1-8"
-      }
+      "dropKey": 9203011
     },
     {
       "id": 920351,
       "name": "Stage Boss Box Lv35",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 35,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9203011
     },
     {
       "id": 920401,
       "name": "Stage Boss Box Lv40",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 40,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
-      "tracker": {
-        "canonical": true,
-        "idealStageKey": 2109,
-        "dropStageKeys": [
-          2109,
-          2201,
-          2202,
-          2203,
-          2204,
-          2205,
-          2206,
-          2207,
-          2208,
-          2209,
-          2301,
-          2302,
-          2303,
-          2304
-        ],
-        "dropStageRangeLabel": "Nightmare 1-9 · Nightmare 2-1 – 2-9 · Nightmare 3-1 – 3-4"
-      }
+      "dropKey": 9204011
     },
     {
       "id": 920451,
       "name": "Stage Boss Box Lv45",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 45,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9204011
     },
     {
       "id": 920501,
       "name": "Stage Boss Box Lv50",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 50,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
-      "tracker": {
-        "canonical": true,
-        "idealStageKey": 2305,
-        "dropStageKeys": [
-          2305,
-          2306,
-          2307,
-          2308,
-          2309,
-          3101,
-          3102,
-          3103,
-          3104,
-          3105,
-          3106,
-          3107,
-          3108,
-          3109,
-          3201,
-          3202,
-          3203,
-          3204
-        ],
-        "dropStageRangeLabel": "Nightmare 3-5 – 3-9 · Hell 1-1 – 1-9 · Hell 2-1 – 2-4"
-      }
+      "dropKey": 9205011
     },
     {
       "id": 920551,
       "name": "Stage Boss Box Lv55",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 55,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9205011
     },
     {
       "id": 920601,
       "name": "Stage Boss Box Lv60",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 60,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9205011
     },
     {
       "id": 920651,
       "name": "Stage Boss Box Lv65",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 65,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
-      "tracker": {
-        "canonical": true,
-        "idealStageKey": 3205,
-        "dropStageKeys": [
-          3205,
-          3206,
-          3207,
-          3208,
-          3209,
-          3301,
-          3302,
-          3303,
-          3304,
-          3305,
-          3306,
-          3307,
-          3308,
-          3309,
-          4101,
-          4102
-        ],
-        "dropStageRangeLabel": "Hell 2-5 – 2-9 · Hell 3-1 – 3-9 · Torment 1-1 – 1-2"
-      }
+      "dropKey": 9206511
     },
     {
       "id": 920701,
       "name": "Stage Boss Box Lv70",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 70,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9206511
     },
     {
       "id": 920751,
       "name": "Stage Boss Box Lv75",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 75,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9206511
     },
     {
       "id": 920801,
       "name": "Stage Boss Box Lv80",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 80,
+      "level": null,
       "marketTradable": false,
       "obtainable": true,
-      "tracker": {
-        "canonical": true,
-        "idealStageKey": 4103,
-        "dropStageKeys": [
-          4103,
-          4104,
-          4105,
-          4106,
-          4107,
-          4108,
-          4109,
-          4201,
-          4202,
-          4203,
-          4204,
-          4205,
-          4206,
-          4207,
-          4208,
-          4209,
-          4301,
-          4302,
-          4303,
-          4304,
-          4305,
-          4306,
-          4307,
-          4308,
-          4309
-        ],
-        "dropStageRangeLabel": "Torment 1-3 – 1-9 · Torment 2-1 – 2-9 · Torment 3-1 – 3-9"
-      }
+      "dropKey": 9208011
     },
     {
       "id": 920851,
       "name": "Stage Boss Box Lv85",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 85,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9208011
     },
     {
       "id": 920901,
       "name": "Stage Boss Box Lv90",
       "grade": "RARE",
       "type": "STAGEBOX",
-      "level": 90,
+      "level": null,
       "marketTradable": false,
-      "obtainable": false
+      "obtainable": false,
+      "dropKey": 9208011
     },
     {
       "id": 930101,
       "name": "Act Boss Box 1",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 1,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9301011
     },
     {
       "id": 930201,
       "name": "Act Boss Box Lv20",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 20,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9302011
     },
     {
       "id": 930301,
       "name": "Act Boss Box Lv30",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 30,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9303011
     },
     {
       "id": 930401,
       "name": "Act Boss Box Lv40",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 40,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9304011
     },
     {
       "id": 930451,
       "name": "Act Boss Box Lv45",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 45,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9304511
     },
     {
       "id": 930501,
       "name": "Act Boss Box Lv50",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 50,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9305011
     },
     {
       "id": 930601,
       "name": "Act Boss Box Lv60",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 60,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9306011
     },
     {
       "id": 930651,
       "name": "Act Boss Box Lv65",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 65,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9306511
     },
     {
       "id": 930701,
       "name": "Act Boss Box Lv70",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 70,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9307011
     },
     {
       "id": 930851,
       "name": "Act Boss Box Lv85",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 85,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9308511
     },
     {
       "id": 930901,
       "name": "Act Boss Box Lv90",
       "grade": "LEGENDARY",
       "type": "STAGEBOX",
-      "level": 90,
+      "level": null,
       "marketTradable": false,
-      "obtainable": true
+      "obtainable": true,
+      "dropKey": 9309011
     }
   ]
 }
