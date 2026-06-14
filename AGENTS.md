@@ -117,9 +117,10 @@ Deprecated (not synced): `best-practices`, `react-best-practices` — replaced b
   reviewable chunks. Commit when the user asks (or their rules allow); do not
   commit unless requested.
 - **Push and PRs — confirm first:** never run `git push` or open a pull request
-  without explicit user approval in the current conversation. Summarize branch,
-  commits, and scope; ask; then push or create the PR only after they confirm.
-  See `docs/AGENT_WORKFLOW.md`.
+  without explicit user approval in the current conversation. Run `cd app; npm run qa`
+  before push/PR; summarize branch, commits, scope, and QA; ask; then push or create
+  the PR only after they confirm. On Windows PowerShell, use `gh pr create --body-file`
+  for PR descriptions (never inline `--body`). See `docs/AGENT_WORKFLOW.md`.
 - Never force-push unless the user explicitly requests it.
 - Never commit personal save data (`*.es3`, decrypted dumps, `sample/`).
 

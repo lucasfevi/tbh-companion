@@ -9,7 +9,15 @@ Guidance for AI agents and contributors using Cursor (or similar) on this repo.
 - **Do not commit** unless the user asked for a commit (or their rules explicitly allow it).
 - Never commit personal save data (`*.es3`, decrypted dumps, `sample/`).
 
-See also `AGENTS.md` for QA and architecture expectations before marking app work done.
+See also `AGENTS.md` for QA and architecture expectations before marking work done.
+
+## QA before push or PR
+
+**Run `cd app; npm run qa` before every push and every PR** — including changes that only touch `data/*.json`, docs, or repo metadata.
+
+- CI runs the same gate; do not open a PR with failing tests locally.
+- For bundled catalog updates (`data/gamedata.json`, `data/stage_boxes.json`, etc.): run QA and fix or revert any file that breaks tests. Not every tbh-data export is drop-in compatible with the companion (e.g. `stage_boxes.json` needs companion `tracker` metadata).
+- Report QA results in the PR test plan (pass/fail, test count). See **tbh-qa** skill for the full checklist when `app/` code changed.
 
 ## Push — confirm first
 
@@ -17,9 +25,10 @@ See also `AGENTS.md` for QA and architecture expectations before marking app wor
 
 After local commits are ready:
 
-1. Summarize branch name, commit(s), and what changed.
-2. Ask whether to push (e.g. “Want me to push `feat/my-branch` to origin?”).
-3. Push only after the user says yes.
+1. Run `cd app; npm run qa` (see above).
+2. Summarize branch name, commit(s), what changed, and QA result.
+3. Ask whether to push (e.g. “Want me to push `feat/my-branch` to origin?”).
+4. Push only after the user says yes.
 
 Do not assume “push after commit” or “push unless told otherwise.”
 
@@ -29,20 +38,52 @@ Do not assume “push after commit” or “push unless told otherwise.”
 
 Before creating a PR:
 
-1. Ensure the branch is pushed (with user approval for the push).
-2. Summarize title, scope, and test plan.
-3. Ask whether to open the PR.
-4. Create the PR only after the user says yes.
+1. Run `cd app; npm run qa` locally.
+2. Ensure the branch is pushed (with user approval for the push).
+3. Summarize title, scope, test plan, and QA result.
+4. Ask whether to open the PR.
+5. Create the PR only after the user says yes.
 
-Use `--body-file` for long PR descriptions on Windows (see past PRs in this repo).
+### PR body on Windows (PowerShell) — required pattern
+
+**Do not** pass markdown inline to `gh pr create --body "..."` or `--body "$(...)""` on PowerShell. Backticks and `$` are interpreted or escaped incorrectly, which produces broken descriptions (literal `\data/file\` instead of `` `data/file` ``).
+
+**Always** write the body to a file and pass it with `--body-file`:
+
+```powershell
+# 1. Write markdown to a UTF-8 file (Node avoids PowerShell escaping issues)
+node -e @"
+const fs = require('fs');
+fs.writeFileSync('.pr-body.md', \`## Summary
+
+- Replace bundled \`data/gamedata.json\` with game-extracted catalog from tbh-data v1.00.11.
+
+## Test plan
+
+- [x] \`cd app; npm run qa\` — pass
+\`, 'utf8');
+"@
+
+# 2. Create or update the PR
+gh pr create --title "your title" --body-file .pr-body.md
+
+# 3. Remove the temp file (do not commit .pr-body.md)
+Remove-Item .pr-body.md
+```
+
+Alternative: use the repo template as a starting file, edit it, then `gh pr create --body-file .github/pull_request_template.md` (only if you filled every section).
+
+To fix a broken body after the fact: `gh pr edit <N> --body-file .pr-body.md`
 
 ## Safe defaults
 
 | Action | Default |
 |--------|---------|
 | Local commit | Only when user requests (or their rules allow) |
+| `npm run qa` before push/PR | **Always** |
 | `git push` | **Ask first** |
 | Open PR | **Ask first** |
+| PR body via inline `--body` on PowerShell | **Never** — use `--body-file` |
 | Force-push | Never unless user explicitly requests |
 | Update CHANGELOG / semver | Only when user asks or release prep is in scope |
 

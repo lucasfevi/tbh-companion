@@ -59,7 +59,7 @@ New IPC → `shared/ipc.ts` + `registerIpc` + preload + `test/ipc/channels.test.
 ## Git safety
 
 - **Do not commit** unless the user asks.
-- **Do not push** or open PRs without explicit approval (`docs/AGENT_WORKFLOW.md`).
+- **Do not push** or open PRs without explicit approval (`docs/AGENT_WORKFLOW.md`). Run `npm run qa` first; use `gh pr create --body-file` on Windows (never inline `--body`).
 - Never commit `*.es3`, decrypted dumps, or personal `sample/` saves.
 
 ## Docs

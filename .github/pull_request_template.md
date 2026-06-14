@@ -15,3 +15,5 @@
 ## Test plan
 
 <!-- How did you verify? e.g. qa pass, dev smoke tabs visible, specific tab tested -->
+
+<!-- Agents on Windows: write this section to a file and use gh pr create --body-file (see docs/AGENT_WORKFLOW.md). -->

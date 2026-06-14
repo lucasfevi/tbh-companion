@@ -17,7 +17,9 @@ Blank window → read [references/checklist.md](references/checklist.md) § *Kno
 
 Run before every commit that touches `app/` (especially `main/`, `preload/`, `renderer/`, `shared/ipc.ts`, or window/path code).
 
-**Skip this skill** for changes only under `docs/`, `data/` (catalog JSON), or repo metadata with no `app/` edits.
+**Also run Step 1 before every push or PR** — even when the diff is only `docs/`, `data/*.json`, or repo metadata. CI runs the same gate; bundled catalog changes can break tests (e.g. incompatible `stage_boxes.json` shape).
+
+**Skip dev smoke (Steps 2–3)** only when the change is docs/metadata with no bundled JSON and no `app/` edits. Bundled `data/` updates still need Step 1; add Step 4 checks for new files in `REQUIRED_BUNDLED_DATA_FILES`.
 
 ## Dev smoke required?
 
@@ -142,10 +144,12 @@ Actions:
 ## Hard rules
 
 1. **Never skip dev smoke** for main/preload/window/path/IPC/renderer changes.
-2. **Never mark done** with lint or format failures — `npm run qa` must pass (includes `lint` + `format:check`).
-3. **Paths**: preload/renderer via `app/src/main/paths.ts` (`../preload`, `../renderer` from `out/main/`).
-4. **PowerShell**: chain with `;` not `&&`.
-5. **No personal data** in commits (`.es3`, decrypted saves).
+2. **Never mark done, push, or open a PR** with lint or format failures — `npm run qa` must pass (includes `lint` + `format:check`).
+3. **Never open a PR without running Step 1 locally** and noting the result in the test plan.
+4. **Paths**: preload/renderer via `app/src/main/paths.ts` (`../preload`, `../renderer` from `out/main/`).
+5. **PowerShell**: chain with `;` not `&&`.
+6. **PR bodies on Windows**: use `gh pr create --body-file` — never inline `--body "..."` (see `docs/AGENT_WORKFLOW.md`).
+7. **No personal data** in commits (`.es3`, decrypted saves).
 
 ## Reference
 
