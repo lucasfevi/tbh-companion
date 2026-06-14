@@ -36,11 +36,13 @@ const boxTimers = new BoxTimerService();
 
 function focusMainWindow(): void {
   if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
     mainWindow.show();
     mainWindow.focus();
     return;
   }
   openMainWindow();
+  if (mainWindow?.isMinimized()) mainWindow.restore();
   mainWindow?.show();
   mainWindow?.focus();
 }
@@ -273,7 +275,9 @@ export function getAppServices() {
     closeBoxTracker: () => boxTrackerWindow?.close(),
     showMain: () => {
       openMainWindow();
+      if (mainWindow?.isMinimized()) mainWindow.restore();
       mainWindow?.show();
+      mainWindow?.focus();
       overlayWindow?.close();
       sessionState.setMiniOverlayOpen(false);
       tracking.flushSession();

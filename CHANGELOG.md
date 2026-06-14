@@ -4,6 +4,10 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+### Fixed
+
+- Launching TBH Companion again while it is already running (for example, hidden in the system tray) now focuses the existing window instead of starting a second background process.
+
 ## [1.8.1] - 2026-06-14
 
 ### Market
