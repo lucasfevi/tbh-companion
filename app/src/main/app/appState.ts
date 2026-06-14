@@ -17,6 +17,7 @@ import type {
   AppDataClearTarget,
   RendererLogPayload,
   SessionUiSnapshot,
+  WindowLayoutPrefs,
 } from "../../../shared/types";
 import type { NotificationSoundId } from "../../../shared/notificationCatalog";
 
@@ -78,6 +79,20 @@ let mainWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
 let boxTrackerWindow: BrowserWindow | null = null;
 
+function persistWindowLayout<K extends keyof WindowLayoutPrefs>(
+  key: K,
+  entry: NonNullable<WindowLayoutPrefs[K]>,
+): void {
+  config = {
+    ...config,
+    windowLayout: {
+      ...config.windowLayout,
+      [key]: entry,
+    },
+  };
+  saveConfig(config);
+}
+
 export function startTracking(): SessionUiSnapshot {
   config = loadConfig();
   inventory.initMarket(config.currency);
@@ -115,6 +130,8 @@ export function openMainWindow(): BrowserWindow {
       mainWindow = w;
     },
     () => config.startTopmost,
+    config.windowLayout?.main,
+    (entry) => persistWindowLayout("main", entry),
   );
 }
 
@@ -130,6 +147,8 @@ export function openOverlayWindow(): BrowserWindow {
       sessionState.setMiniOverlayOpen(false);
       tracking.flushSession();
     },
+    config.windowLayout?.overlay,
+    (entry) => persistWindowLayout("overlay", entry),
   );
 }
 
@@ -147,6 +166,8 @@ export function openBoxTrackerWindow(): BrowserWindow {
       sessionState.setBoxTrackerOpen(false);
       tracking.flushSession();
     },
+    config.windowLayout?.boxTracker,
+    (entry) => persistWindowLayout("boxTracker", entry),
   );
 }
 

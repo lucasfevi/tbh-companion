@@ -2,6 +2,29 @@ import { BrowserWindow } from "electron";
 import { PRELOAD_SCRIPT } from "../paths";
 import { loadRenderer } from "./loadRenderer";
 import { applyWindowTopmost } from "./alwaysOnTop";
+import {
+  BOX_TRACKER_HEIGHT,
+  BOX_TRACKER_MIN_HEIGHT,
+  BOX_TRACKER_MIN_WIDTH,
+  BOX_TRACKER_WIDTH,
+} from "./constants";
+import {
+  applyWindowLayout,
+  attachWindowLayoutPersistence,
+  type WindowLayoutApplyOptions,
+} from "./windowLayout";
+import type { WindowLayoutEntry } from "../../../shared/types";
+
+const BOX_TRACKER_LAYOUT_OPTIONS: WindowLayoutApplyOptions = {
+  defaults: { width: BOX_TRACKER_WIDTH, height: BOX_TRACKER_HEIGHT },
+  constraints: {
+    minWidth: BOX_TRACKER_MIN_WIDTH,
+    minHeight: BOX_TRACKER_MIN_HEIGHT,
+    requireWidth: true,
+    requireHeight: true,
+  },
+  useContentSize: true,
+};
 
 export function createBoxTrackerWindow(
   getExisting: () => BrowserWindow | null,
@@ -9,6 +32,8 @@ export function createBoxTrackerWindow(
   startTopmost: () => boolean,
   onOpen?: () => void,
   onClose?: () => void,
+  savedLayout?: WindowLayoutEntry,
+  onLayoutChange?: (entry: WindowLayoutEntry) => void,
 ): BrowserWindow {
   const existing = getExisting();
   if (existing && !existing.isDestroyed()) {
@@ -21,14 +46,14 @@ export function createBoxTrackerWindow(
 
   const topmost = startTopmost();
   const win = new BrowserWindow({
-    width: 340,
-    height: 520,
+    width: BOX_TRACKER_WIDTH,
+    height: BOX_TRACKER_HEIGHT,
     useContentSize: true,
     show: false,
     frame: false,
     resizable: true,
-    minWidth: 300,
-    minHeight: 360,
+    minWidth: BOX_TRACKER_MIN_WIDTH,
+    minHeight: BOX_TRACKER_MIN_HEIGHT,
     alwaysOnTop: topmost,
     skipTaskbar: true,
     backgroundColor: "#0f1117",
@@ -37,6 +62,11 @@ export function createBoxTrackerWindow(
       sandbox: false,
     },
   });
+
+  applyWindowLayout(win, savedLayout, BOX_TRACKER_LAYOUT_OPTIONS);
+  if (onLayoutChange) {
+    attachWindowLayoutPersistence(win, BOX_TRACKER_LAYOUT_OPTIONS, onLayoutChange);
+  }
 
   applyWindowTopmost(win, topmost, true);
   win.on("ready-to-show", () => win.show());
