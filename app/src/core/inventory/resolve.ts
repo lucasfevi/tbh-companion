@@ -4,7 +4,7 @@ import { flattenOwnedHashes, ownedPriceTargets } from "./ownedPriceTargets";
 import { pickMarketUnit } from "../steamPrice";
 import {
   aggregateSellerProceeds,
-  TBH_MARKET_FEE_RATES,
+  getTbhMarketFeeRates,
   type SteamMarketFeeRates,
 } from "../steamMarketFee";
 import type {
@@ -320,7 +320,7 @@ export function resolveInventory(
   options?: ResolveInventoryOptions,
 ): ResolvedInventory {
   const excludeItemKey = options?.excludeItemKey;
-  const feeRates = options?.marketFeeRates ?? TBH_MARKET_FEE_RATES;
+  const feeRates = options?.marketFeeRates ?? getTbhMarketFeeRates();
   const rowsByItemKey = new Map<number, ResolvedInventoryRow>();
 
   accumulateInstances(rowsByItemKey, snapshot.items, lookup, priceLookup, excludeItemKey);

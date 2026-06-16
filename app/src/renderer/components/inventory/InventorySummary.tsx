@@ -20,16 +20,9 @@ export function InventorySummary({ inv, currency }: { inv: ResolvedInventory; cu
   const [catalogMessage, setCatalogMessage] = useState<string | null>(null);
 
   const hasListValue = c.valuedTotal != null && Number.isFinite(c.valuedTotal) && c.valuedTotal > 0;
-  const pricedRows = inv.rows.filter((r) => r.unitPrice != null).length;
   const feeDetail =
     hasListValue && c.feeTotal > 0
       ? `−${formatMoney(c.feeTotal, currency)} Steam fees (estimate)`
-      : undefined;
-
-  const buyOrderRows = c.buyOrderPricedRows ?? 0;
-  const instantDetail =
-    buyOrderRows > 0 && pricedRows > buyOrderRows
-      ? `${buyOrderRows}/${pricedRows} priced items have buy orders`
       : undefined;
 
   const netAfterFees =
@@ -97,7 +90,6 @@ export function InventorySummary({ inv, currency }: { inv: ResolvedInventory; cu
               ? formatMoney(c.buyOrderValuedTotal, currency)
               : "-"
           }
-          detail={instantDetail}
         />
       </section>
 

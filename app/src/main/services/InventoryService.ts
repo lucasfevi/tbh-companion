@@ -162,6 +162,20 @@ export class InventoryService {
   }
 
   async refreshItemPrices(itemKey: number): Promise<PriceRefreshResult & { status: PriceStatus }> {
+    const currency = this.market!.status().currency;
+    if (!Number.isFinite(itemKey) || itemKey <= 0) {
+      return {
+        ok: false,
+        priced: 0,
+        skipped: 0,
+        failed: 0,
+        stopped: "completed",
+        currency,
+        error: "invalid item key",
+        status: this.pricesStatus(),
+      };
+    }
+
     const item = this.gameData.get(itemKey);
     if (!item) {
       return {
@@ -170,7 +184,7 @@ export class InventoryService {
         skipped: 0,
         failed: 0,
         stopped: "completed",
-        currency: this.market!.status().currency,
+        currency,
         error: "unknown item",
         status: this.pricesStatus(),
       };
@@ -184,7 +198,7 @@ export class InventoryService {
         skipped: 0,
         failed: 0,
         stopped: "completed",
-        currency: this.market!.status().currency,
+        currency,
         error: "not priceable",
         status: this.pricesStatus(),
       };

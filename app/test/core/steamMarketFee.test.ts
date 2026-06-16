@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   aggregateSellerProceeds,
   buyerPriceFromSellerAmount,
+  getTbhMarketFeeRates,
   sellerProceedsFromBuyerPrice,
   TBH_MARKET_FEE_RATES,
 } from "../../src/core/steamMarketFee";
@@ -26,5 +27,12 @@ describe("steamMarketFee", () => {
     expect(result.grossTotal).toBeCloseTo(2.5);
     expect(result.netTotal).toBeLessThan(result.grossTotal);
     expect(result.feeTotal).toBeCloseTo(result.grossTotal - result.netTotal);
+  });
+
+  it("loads TBH rates from bundled steam_market_fee.json", () => {
+    const rates = getTbhMarketFeeRates();
+    expect(rates.steamFeePercent).toBe(0.05);
+    expect(rates.publisherFeePercent).toBe(0);
+    expect(rates.minFeeMajor).toBe(0.01);
   });
 });

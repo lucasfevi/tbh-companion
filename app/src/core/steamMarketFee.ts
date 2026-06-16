@@ -1,5 +1,7 @@
 // Steam Community Market seller fee math (buyer listing price → wallet proceeds).
 
+import { readBundledJson } from "./bundledData";
+
 export interface SteamMarketFeeRates {
   steamFeePercent: number;
   publisherFeePercent: number;
@@ -7,12 +9,30 @@ export interface SteamMarketFeeRates {
   minFeeMajor: number;
 }
 
-/** Default TBH rates from bundled data/steam_market_fee.json (5% Steam, 0% publisher). */
+/** Fallback when bundled data/steam_market_fee.json is missing. */
 export const TBH_MARKET_FEE_RATES: SteamMarketFeeRates = {
   steamFeePercent: 0.05,
   publisherFeePercent: 0,
   minFeeMajor: 0.01,
 };
+
+let cachedTbhMarketFeeRates: SteamMarketFeeRates | null = null;
+
+/** TBH seller fee rates from bundled data/steam_market_fee.json (falls back to {@link TBH_MARKET_FEE_RATES}). */
+export function getTbhMarketFeeRates(): SteamMarketFeeRates {
+  if (cachedTbhMarketFeeRates) return cachedTbhMarketFeeRates;
+  try {
+    const raw = readBundledJson<SteamMarketFeeRates & { note?: string }>("steam_market_fee.json");
+    cachedTbhMarketFeeRates = {
+      steamFeePercent: raw.steamFeePercent,
+      publisherFeePercent: raw.publisherFeePercent,
+      minFeeMajor: raw.minFeeMajor,
+    };
+  } catch {
+    cachedTbhMarketFeeRates = TBH_MARKET_FEE_RATES;
+  }
+  return cachedTbhMarketFeeRates;
+}
 
 function roundFee(amount: number, rate: number, minFee: number): number {
   const raw = Math.floor(amount * rate * 100) / 100;
