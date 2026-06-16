@@ -1,7 +1,13 @@
 import { BrowserWindow, dialog, type OpenDialogOptions } from "electron";
 import { dirname } from "node:path";
 
-import { loadConfig, saveConfig, expandPath, type AppConfig } from "../config";
+import {
+  loadConfig,
+  saveConfig,
+  expandPath,
+  normalizeConfigFromRaw,
+  type AppConfig,
+} from "../config";
 import { TrackingService } from "../services/TrackingService";
 import { InventoryService } from "../services/InventoryService";
 import { ChestService } from "../services/ChestService";
@@ -49,9 +55,12 @@ function focusMainWindow(): void {
   mainWindow?.focus();
 }
 
-const notifications = new NotificationService(() => config, focusMainWindow);
+const notifications = new NotificationService(
+  () => normalizeConfigFromRaw(config),
+  focusMainWindow,
+);
 const updates = new UpdateService({
-  getConfig: () => config,
+  getConfig: () => normalizeConfigFromRaw(config),
   onUpdateAvailable: (version) => notifications.showUpdateAvailable(version),
 });
 
@@ -205,7 +214,7 @@ export function getAppServices() {
       saveConfig(config);
       return inventory.setCurrency(iso);
     },
-    getConfig: () => ({ ...config }),
+    getConfig: () => normalizeConfigFromRaw(config),
     pickSaveFile: async (): Promise<string | null> => {
       const current = expandPath(config.savePath);
       const parent =

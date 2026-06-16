@@ -72,4 +72,30 @@ describe("applyConfigPatch", () => {
     expect(setTracker).not.toHaveBeenCalled();
     expect(tracker.onHistory).toBeNull();
   });
+
+  it("fills notificationVolume when patching legacy config missing the field", () => {
+    let cfg = baseConfig();
+
+    const next = applyConfigPatch(
+      {
+        getConfig: () => cfg,
+        setConfig: (c) => {
+          cfg = c;
+        },
+        saveConfig: vi.fn(),
+        getTracker: () => new XpTracker(300),
+        setTracker: vi.fn(),
+        getMarket: () => ({ setCurrency: vi.fn() }) as never,
+        restartWatcher: vi.fn(),
+        setAlwaysOnTop: vi.fn(),
+        pushStats: vi.fn(),
+        resolveAndPushInventory: vi.fn(),
+        ensureOwnedPrices: vi.fn(),
+      },
+      { currency: "EUR" },
+    );
+
+    expect(next.notificationVolume).toBe(100);
+    expect(cfg.notificationVolume).toBe(100);
+  });
 });
