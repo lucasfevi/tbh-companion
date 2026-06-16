@@ -4,6 +4,8 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-06-16
+
 ### Inventory
 
 - **Inventory** tab summary matches **Live**: market value hero, estimated wallet total after Steam fees, and **instant sell** total capped by buy-order book depth (not full stack × top price).
