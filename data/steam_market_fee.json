@@ -1,0 +1,6 @@
+{
+  "steamFeePercent": 0.05,
+  "publisherFeePercent": 0,
+  "minFeeMajor": 0.01,
+  "note": "TBH sample (2026-06): sell_price_text R$ 1,01 vs sale_price_text R$ 0,96 ≈ 5% total. Confirm on Steam listing UI."
+}
