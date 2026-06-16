@@ -5,6 +5,7 @@ import { join } from "node:path";
 
 import {
   notificationSoundFile,
+  sanitizeNotificationVolume,
   type NotificationKindId,
   type NotificationSoundId,
 } from "../../../shared/notificationCatalog";
@@ -23,6 +24,22 @@ export interface HeroLevelUpPayload {
   key: string;
   previousLevel: number;
   newLevel: number;
+}
+
+/** Builds a blocking PowerShell command that plays a WAV via MediaPlayer at volume 0–1. */
+export function buildWindowsSoundPlayCommand(path: string, volume: number): string {
+  const clamped = Math.min(1, Math.max(0, volume));
+  const escaped = path.replace(/'/g, "''");
+  return [
+    "Add-Type -AssemblyName presentationCore;",
+    "$player = New-Object system.windows.media.mediaplayer;",
+    `$player.open('${escaped}');`,
+    `$player.Volume = ${clamped};`,
+    "$player.Play();",
+    "Start-Sleep -Milliseconds 500;",
+    "while ($player.NaturalDuration.HasTimeSpan -eq $false) { Start-Sleep -Milliseconds 50 }",
+    "Start-Sleep -s $player.NaturalDuration.TimeSpan.TotalSeconds;",
+  ].join(" ");
 }
 
 export class NotificationService {
@@ -75,7 +92,8 @@ export class NotificationService {
   previewNotificationSound(soundId: NotificationSoundId): void {
     const config = this.getConfig();
     if (!config.notificationsEnabled) return;
-    this.playSound(soundId);
+    const volume = sanitizeNotificationVolume(config.notificationVolume) / 100;
+    this.playSound(soundId, volume);
   }
 
   private playKindSound(kind: NotificationKindId): void {
@@ -83,11 +101,12 @@ export class NotificationService {
     if (!config.notificationsEnabled) return;
     const pref = config.notificationPrefs[kind];
     if (!pref.enabled) return;
-    this.playSound(pref.sound);
+    const volume = sanitizeNotificationVolume(config.notificationVolume) / 100;
+    this.playSound(pref.sound, volume);
   }
 
-  private playSound(soundId: NotificationSoundId): void {
-    if (soundId === "none") return;
+  private playSound(soundId: NotificationSoundId, volume: number): void {
+    if (soundId === "none" || volume <= 0) return;
     const path = resolveSoundPath(soundId);
     if (!path) return;
     if (!existsSync(path)) {
@@ -98,15 +117,10 @@ export class NotificationService {
       log.debug(`Notification sound playback skipped on ${process.platform}`);
       return;
     }
-    const escaped = path.replace(/'/g, "''");
-    execFile(
-      "powershell",
-      ["-NoProfile", "-Command", `(New-Object Media.SoundPlayer '${escaped}').PlaySync()`],
-      { windowsHide: true },
-      (err) => {
-        if (err) log.warn(`Notification sound playback failed: ${err.message}`);
-      },
-    );
+    const command = buildWindowsSoundPlayCommand(path, volume);
+    execFile("powershell", ["-NoProfile", "-Command", command], { windowsHide: true }, (err) => {
+      if (err) log.warn(`Notification sound playback failed: ${err.message}`);
+    });
   }
 }
 

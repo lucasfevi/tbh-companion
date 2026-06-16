@@ -36,7 +36,10 @@ vi.mock("../../src/main/log", () => ({
 }));
 
 import { Notification } from "electron";
-import { NotificationService } from "../../src/main/services/NotificationService";
+import {
+  buildWindowsSoundPlayCommand,
+  NotificationService,
+} from "../../src/main/services/NotificationService";
 import type { AppConfig } from "../../shared/types";
 
 const baseConfig: AppConfig = {
@@ -49,8 +52,29 @@ const baseConfig: AppConfig = {
   currency: "USD",
   notificationsEnabled: true,
   notifyOnUpdateAvailable: true,
+  notificationVolume: 100,
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
 };
+
+function expectMediaPlayerPlay(volume: number): void {
+  expect(execFileMock).toHaveBeenCalledWith(
+    "powershell",
+    expect.arrayContaining([
+      expect.stringContaining("mediaplayer"),
+      expect.stringContaining(`$player.Volume = ${volume}`),
+    ]),
+    expect.objectContaining({ windowsHide: true }),
+    expect.any(Function),
+  );
+}
+
+describe("buildWindowsSoundPlayCommand", () => {
+  it("escapes single quotes in the path and clamps volume", () => {
+    const command = buildWindowsSoundPlayCommand("C:\\sounds\\it's.wav", 1.5);
+    expect(command).toContain("it''s.wav");
+    expect(command).toContain("$player.Volume = 1");
+  });
+});
 
 describe("NotificationService", () => {
   beforeEach(() => {
@@ -94,10 +118,11 @@ describe("NotificationService", () => {
     expect(notificationCtor).not.toHaveBeenCalled();
     expect(execFileMock).toHaveBeenCalledWith(
       "powershell",
-      expect.arrayContaining([expect.stringContaining("SoundPlayer")]),
+      expect.arrayContaining([expect.stringContaining("soft-chime.wav")]),
       expect.objectContaining({ windowsHide: true }),
       expect.any(Function),
     );
+    expectMediaPlayerPlay(1);
   });
 
   it("plays chest drop sound for chestDrop kind", () => {
@@ -174,6 +199,33 @@ describe("NotificationService", () => {
     );
     service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
     expect(execFileMock).not.toHaveBeenCalled();
+  });
+
+  it("skips sound when notification volume is zero", () => {
+    const service = new NotificationService(
+      () => ({ ...baseConfig, notificationVolume: 0 }),
+      vi.fn(),
+    );
+    service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
+    expect(execFileMock).not.toHaveBeenCalled();
+  });
+
+  it("plays at scaled volume when notification volume is below 100", () => {
+    const service = new NotificationService(
+      () => ({ ...baseConfig, notificationVolume: 50 }),
+      vi.fn(),
+    );
+    service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
+    expectMediaPlayerPlay(0.5);
+  });
+
+  it("defaults volume when notificationVolume is missing from config", () => {
+    const service = new NotificationService(
+      () => ({ ...baseConfig, notificationVolume: undefined as unknown as number }),
+      vi.fn(),
+    );
+    service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
+    expectMediaPlayerPlay(1);
   });
 
   it("preview respects master toggle", () => {
