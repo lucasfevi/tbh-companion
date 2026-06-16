@@ -43,6 +43,39 @@ export interface HeroRate {
   rate: number; // rolling XP/hour for this hero
 }
 
+export interface ChestDropBreakdownRow {
+  itemKey: number;
+  name: string;
+  category: "common" | "rare";
+  count: number;
+}
+
+export interface ChestDropHistoryEntry {
+  wallTime: number;
+  itemKey: number;
+  name: string;
+  category: "common" | "rare";
+}
+
+export interface ChestDropStats {
+  commonTotal: number;
+  rareTotal: number;
+  combinedTotal: number;
+  commonPerHour: number;
+  rarePerHour: number;
+  breakdown: ChestDropBreakdownRow[];
+  history: ChestDropHistoryEntry[];
+  playerLogAvailable: boolean;
+}
+
+/** Serialized chest drop tracker for session_state.json restore. */
+export interface ChestDropTrackerSnapshot {
+  countsByKey: Record<string, number>;
+  namesByKey: Record<string, string>;
+  categoriesByKey: Record<string, "common" | "rare">;
+  history: ChestDropHistoryEntry[];
+}
+
 // Live payload pushed from main to the renderer.
 export interface Stats {
   connected: boolean;
@@ -59,6 +92,7 @@ export interface Stats {
   stageWave: number;
   heroes: HeroRate[];
   history: HistoryEntry[];
+  chestDrops: ChestDropStats;
 }
 
 /** Serialized XP tracker internals for session_state.json restore. */
@@ -106,6 +140,7 @@ export interface PersistedSessionState {
   lastSaveMtime: number;
   rollingWindowMinutes: number;
   tracker: TrackerSnapshot;
+  chestDropTracker?: ChestDropTrackerSnapshot;
   ui: SessionUiSnapshot;
 }
 
