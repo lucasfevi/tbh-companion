@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { STEAM_CURRENCIES } from "../../core/steamPrice";
 import type {
   NotificationKindId,
@@ -102,6 +102,8 @@ export function Settings() {
   const [browseBusy, setBrowseBusy] = useState(false);
   const [clearBusy, setClearBusy] = useState<AppDataClearTarget | null>(null);
   const [clearLogsBusy, setClearLogsBusy] = useState(false);
+  const pendingVolumeRef = useRef<number | null>(null);
+  const volumeSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function refreshDataPaths(): Promise<void> {
     if (typeof window.tbh?.getDataPaths !== "function") return;
@@ -136,11 +138,12 @@ export function Settings() {
   async function savePartial(
     patch: Partial<SettingsPatch>,
     successMessage?: string,
+    options?: { silent?: boolean },
   ): Promise<AppConfig | null> {
     if (!cfg) return null;
     const prev = cfg;
     setCfg({ ...prev, ...patch });
-    setSaveBusy(true);
+    if (!options?.silent) setSaveBusy(true);
     setMessage(null);
     try {
       const saved = await window.tbh.saveConfig(patch);
@@ -153,9 +156,33 @@ export function Settings() {
       setMessage("Failed to save settings.");
       return null;
     } finally {
-      setSaveBusy(false);
+      if (!options?.silent) setSaveBusy(false);
     }
   }
+
+  function flushVolumeSave(): void {
+    if (volumeSaveTimerRef.current) {
+      clearTimeout(volumeSaveTimerRef.current);
+      volumeSaveTimerRef.current = null;
+    }
+    const value = pendingVolumeRef.current;
+    if (value === null) return;
+    pendingVolumeRef.current = null;
+    void savePartial({ notificationVolume: value }, undefined, { silent: true });
+  }
+
+  function scheduleVolumeSave(value: number): void {
+    pendingVolumeRef.current = value;
+    if (volumeSaveTimerRef.current) clearTimeout(volumeSaveTimerRef.current);
+    volumeSaveTimerRef.current = setTimeout(flushVolumeSave, 300);
+  }
+
+  useEffect(
+    () => () => {
+      if (volumeSaveTimerRef.current) clearTimeout(volumeSaveTimerRef.current);
+    },
+    [],
+  );
 
   if (loadError) {
     return (
@@ -403,8 +430,14 @@ export function Settings() {
                 max={100}
                 step={1}
                 value={cfg.notificationVolume}
-                disabled={!cfg.notificationsEnabled || saveBusy}
-                onChange={(e) => void savePartial({ notificationVolume: Number(e.target.value) })}
+                disabled={!cfg.notificationsEnabled}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  setCfg({ ...cfg, notificationVolume: value });
+                  scheduleVolumeSave(value);
+                }}
+                onPointerUp={flushVolumeSave}
+                onBlur={flushVolumeSave}
                 className="h-2 w-full cursor-pointer accent-accent disabled:cursor-not-allowed disabled:opacity-50"
               />
             </Field>
