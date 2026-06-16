@@ -18,6 +18,7 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ### App
 
+- **Settings → Notifications**: global **Sound volume** slider (0–100%) for all notification sounds; **Preview sound** respects the current volume.
 - Main window is **1100×720** (fixed width) to fit the inventory table and summary cards.
 
 ### Fixed

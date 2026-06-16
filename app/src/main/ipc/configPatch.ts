@@ -1,6 +1,6 @@
 import type { AppConfig } from "../../../shared/types";
 import type { XpTracker } from "../../core/tracker";
-import { expandPath } from "../config";
+import { expandPath, normalizeConfigFromRaw } from "../config";
 import { createLogger } from "../log";
 
 const configLog = createLogger("config");
@@ -33,7 +33,7 @@ export function applyConfigPatch(deps: ConfigPatchDeps, patch: Partial<AppConfig
   const csvToggled = patch.logHistoryCsv !== undefined;
 
   const prev = deps.getConfig();
-  const next = { ...prev, ...patch };
+  const next = normalizeConfigFromRaw({ ...prev, ...patch });
   deps.setConfig(next);
   deps.saveConfig(next);
 

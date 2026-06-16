@@ -9,6 +9,7 @@ export const IPC = {
   PRICES_PROGRESS: "prices-progress",
   PRICE_STATUS: "price-status",
   UPDATE_STATUS: "update-status",
+  PLAY_NOTIFICATION_SOUND: "play-notification-sound",
 
   // Invoke (renderer → main)
   GET_STATS: "get-stats",
@@ -73,7 +74,6 @@ export const IPC_INVOKE_CHANNELS = [
   IPC.CLEAR_BOX_TRACKER_FARM_STAGE,
   IPC.SET_BOX_TRACKER_NOTIFY,
   IPC.SET_BOX_TRACKER_SORT_ORDER,
-  IPC.PREVIEW_NOTIFICATION_SOUND,
   IPC.GET_CONFIG,
   IPC.SAVE_CONFIG,
   IPC.PICK_SAVE_FILE,
@@ -113,4 +113,5 @@ export const IPC_PUSH_CHANNELS = [
   IPC.PRICES_PROGRESS,
   IPC.PRICE_STATUS,
   IPC.UPDATE_STATUS,
+  IPC.PLAY_NOTIFICATION_SOUND,
 ] as const;

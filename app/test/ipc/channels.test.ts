@@ -22,7 +22,7 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.CLEAR_BOX_TRACKER_FARM_STAGE");
     expect(preload).toContain("IPC.SET_BOX_TRACKER_NOTIFY");
     expect(preload).toContain("IPC.SET_BOX_TRACKER_SORT_ORDER");
-    expect(preload).toContain("IPC.PREVIEW_NOTIFICATION_SOUND");
+    expect(preload).toContain("IPC.PLAY_NOTIFICATION_SOUND");
     expect(preload).toContain("IPC.SAVE_CONFIG");
     expect(preload).toContain("IPC.PICK_SAVE_FILE");
     expect(preload).toContain("IPC.PRICES_REFRESH");
@@ -87,11 +87,14 @@ describe("IPC channel registry", () => {
     expect(chests).toContain("IPC.CHESTS");
     expect(pets).toContain("IPC.PETS");
     expect(boxTimers).toContain("IPC.BOX_TIMERS");
+    const broadcast = readFileSync(
+      join(__dirname, "../../src/main/services/broadcast.ts"),
+      "utf-8",
+    );
+    expect(broadcast).toContain("IPC.PLAY_NOTIFICATION_SOUND");
     const chestHandlers = readHandler("chests");
     expect(chestHandlers).toContain("IPC.SET_BOX_TRACKER_NOTIFY");
     expect(chestHandlers).toContain("IPC.SET_BOX_TRACKER_SORT_ORDER");
-    const notificationHandlers = readHandler("notifications");
-    expect(notificationHandlers).toContain("IPC.PREVIEW_NOTIFICATION_SOUND");
     const windowHandlers = readHandler("window");
     expect(windowHandlers).toContain("IPC.MINIMIZE_BOX_TRACKER");
     const updates = readFileSync(

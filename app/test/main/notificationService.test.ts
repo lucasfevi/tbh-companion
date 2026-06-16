@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { DEFAULT_NOTIFICATION_PREFS } from "../../shared/notificationCatalog";
+import { IPC } from "../../shared/ipc";
 
 const notificationCtor = vi.hoisted(() =>
   vi.fn(function MockNotification(this: { show: () => void; on: () => void }) {
@@ -8,22 +9,14 @@ const notificationCtor = vi.hoisted(() =>
   }),
 );
 
-const execFileMock = vi.hoisted(() => vi.fn());
+const sendNotificationSoundMock = vi.hoisted(() => vi.fn());
 
 vi.mock("electron", () => ({
   Notification: Object.assign(notificationCtor, { isSupported: vi.fn(() => true) }),
-  app: {
-    isPackaged: false,
-    getAppPath: () => "/app",
-  },
 }));
 
-vi.mock("node:child_process", () => ({
-  execFile: execFileMock,
-}));
-
-vi.mock("node:fs", () => ({
-  existsSync: vi.fn(() => true),
+vi.mock("../../src/main/services/broadcast", () => ({
+  sendNotificationSound: sendNotificationSoundMock,
 }));
 
 vi.mock("../../src/main/log", () => ({
@@ -49,6 +42,7 @@ const baseConfig: AppConfig = {
   currency: "USD",
   notificationsEnabled: true,
   notifyOnUpdateAvailable: true,
+  notificationVolume: 100,
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
 };
 
@@ -56,7 +50,6 @@ describe("NotificationService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(Notification.isSupported).mockReturnValue(true);
-    vi.spyOn(process, "platform", "get").mockReturnValue("win32");
   });
 
   afterEach(() => {
@@ -88,38 +81,31 @@ describe("NotificationService", () => {
     expect(notificationCtor).toHaveBeenCalledTimes(1);
   });
 
-  it("plays chest ready sound without showing an OS notification", () => {
+  it("plays chest ready sound via renderer IPC", () => {
     const service = new NotificationService(() => baseConfig, vi.fn());
     service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
-    expect(notificationCtor).not.toHaveBeenCalled();
-    expect(execFileMock).toHaveBeenCalledWith(
-      "powershell",
-      expect.arrayContaining([expect.stringContaining("SoundPlayer")]),
-      expect.objectContaining({ windowsHide: true }),
-      expect.any(Function),
-    );
+    expect(sendNotificationSoundMock).toHaveBeenCalledWith({
+      soundId: "soft-chime",
+      volumePercent: 100,
+    });
   });
 
   it("plays chest drop sound for chestDrop kind", () => {
     const service = new NotificationService(() => baseConfig, vi.fn());
     service.showChestDrop({ boxId: 920151, name: "Test box", level: 15 });
-    expect(execFileMock).toHaveBeenCalledWith(
-      "powershell",
-      expect.arrayContaining([expect.stringContaining("treasure-fanfare.wav")]),
-      expect.objectContaining({ windowsHide: true }),
-      expect.any(Function),
-    );
+    expect(sendNotificationSoundMock).toHaveBeenCalledWith({
+      soundId: "treasure-fanfare",
+      volumePercent: 100,
+    });
   });
 
   it("plays hero level up sound for heroLevelUp kind", () => {
     const service = new NotificationService(() => baseConfig, vi.fn());
     service.showHeroLevelUp([{ key: "101", previousLevel: 5, newLevel: 6 }]);
-    expect(execFileMock).toHaveBeenCalledWith(
-      "powershell",
-      expect.arrayContaining([expect.stringContaining("level-triumph.wav")]),
-      expect.objectContaining({ windowsHide: true }),
-      expect.any(Function),
-    );
+    expect(sendNotificationSoundMock).toHaveBeenCalledWith({
+      soundId: "level-triumph",
+      volumePercent: 100,
+    });
   });
 
   it("plays hero level up sound once for a batch of level-ups", () => {
@@ -128,13 +114,13 @@ describe("NotificationService", () => {
       { key: "101", previousLevel: 5, newLevel: 6 },
       { key: "201", previousLevel: 2, newLevel: 3 },
     ]);
-    expect(execFileMock).toHaveBeenCalledTimes(1);
+    expect(sendNotificationSoundMock).toHaveBeenCalledTimes(1);
   });
 
   it("skips hero level up sound for an empty batch", () => {
     const service = new NotificationService(() => baseConfig, vi.fn());
     service.showHeroLevelUp([]);
-    expect(execFileMock).not.toHaveBeenCalled();
+    expect(sendNotificationSoundMock).not.toHaveBeenCalled();
   });
 
   it("skips kind sound when master toggle is off", () => {
@@ -143,7 +129,7 @@ describe("NotificationService", () => {
       vi.fn(),
     );
     service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
-    expect(execFileMock).not.toHaveBeenCalled();
+    expect(sendNotificationSoundMock).not.toHaveBeenCalled();
   });
 
   it("skips kind sound when kind is disabled", () => {
@@ -158,7 +144,7 @@ describe("NotificationService", () => {
       vi.fn(),
     );
     service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
-    expect(execFileMock).not.toHaveBeenCalled();
+    expect(sendNotificationSoundMock).not.toHaveBeenCalled();
   });
 
   it("skips sound when kind sound is none", () => {
@@ -173,26 +159,45 @@ describe("NotificationService", () => {
       vi.fn(),
     );
     service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
-    expect(execFileMock).not.toHaveBeenCalled();
+    expect(sendNotificationSoundMock).not.toHaveBeenCalled();
   });
 
-  it("preview respects master toggle", () => {
+  it("skips sound when notification volume is zero", () => {
     const service = new NotificationService(
-      () => ({ ...baseConfig, notificationsEnabled: false }),
+      () => ({ ...baseConfig, notificationVolume: 0 }),
       vi.fn(),
     );
-    service.previewNotificationSound("double-tap");
-    expect(execFileMock).not.toHaveBeenCalled();
+    service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
+    expect(sendNotificationSoundMock).not.toHaveBeenCalled();
   });
 
-  it("preview plays the requested sound id", () => {
-    const service = new NotificationService(() => baseConfig, vi.fn());
-    service.previewNotificationSound("double-tap");
-    expect(execFileMock).toHaveBeenCalledWith(
-      "powershell",
-      expect.arrayContaining([expect.stringContaining("double-tap.wav")]),
-      expect.objectContaining({ windowsHide: true }),
-      expect.any(Function),
+  it("passes scaled volume percent when below 100", () => {
+    const service = new NotificationService(
+      () => ({ ...baseConfig, notificationVolume: 25 }),
+      vi.fn(),
     );
+    service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
+    expect(sendNotificationSoundMock).toHaveBeenCalledWith({
+      soundId: "soft-chime",
+      volumePercent: 25,
+    });
+  });
+
+  it("defaults volume when notificationVolume is missing from config", () => {
+    const service = new NotificationService(
+      () => ({ ...baseConfig, notificationVolume: undefined as unknown as number }),
+      vi.fn(),
+    );
+    service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
+    expect(sendNotificationSoundMock).toHaveBeenCalledWith({
+      soundId: "soft-chime",
+      volumePercent: 100,
+    });
+  });
+});
+
+describe("sendNotificationSound IPC channel", () => {
+  it("uses the play-notification-sound push channel", () => {
+    expect(IPC.PLAY_NOTIFICATION_SOUND).toBe("play-notification-sound");
   });
 });

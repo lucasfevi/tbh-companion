@@ -39,6 +39,13 @@ describe("normalizeConfigFromRaw", () => {
   it("applies defaults for an empty raw config", () => {
     const cfg = mod.normalizeConfigFromRaw({});
     expect(cfg.notificationPrefs).toEqual(DEFAULT_NOTIFICATION_PREFS);
+    expect(cfg.notificationVolume).toBe(100);
     expect(cfg.savePath).toContain("SaveFile_Live.es3");
+  });
+
+  it("sanitizes notification volume", () => {
+    expect(mod.normalizeConfigFromRaw({ notificationVolume: 200 }).notificationVolume).toBe(100);
+    expect(mod.normalizeConfigFromRaw({ notificationVolume: -1 }).notificationVolume).toBe(0);
+    expect(mod.normalizeConfigFromRaw({ notificationVolume: 42.6 }).notificationVolume).toBe(43);
   });
 });

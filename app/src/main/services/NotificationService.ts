@@ -1,15 +1,13 @@
-import { Notification, app } from "electron";
-import { execFile } from "node:child_process";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { Notification } from "electron";
 
 import {
-  notificationSoundFile,
+  sanitizeNotificationVolume,
   type NotificationKindId,
   type NotificationSoundId,
 } from "../../../shared/notificationCatalog";
 import type { AppConfig } from "../../../shared/types";
 import { createLogger } from "../log";
+import { sendNotificationSound } from "./broadcast";
 
 const log = createLogger("notifications");
 
@@ -72,49 +70,17 @@ export class NotificationService {
     this.playKindSound("heroLevelUp");
   }
 
-  previewNotificationSound(soundId: NotificationSoundId): void {
-    const config = this.getConfig();
-    if (!config.notificationsEnabled) return;
-    this.playSound(soundId);
-  }
-
   private playKindSound(kind: NotificationKindId): void {
     const config = this.getConfig();
     if (!config.notificationsEnabled) return;
     const pref = config.notificationPrefs[kind];
     if (!pref.enabled) return;
-    this.playSound(pref.sound);
+    const volumePercent = sanitizeNotificationVolume(config.notificationVolume);
+    this.playSound(pref.sound, volumePercent);
   }
 
-  private playSound(soundId: NotificationSoundId): void {
-    if (soundId === "none") return;
-    const path = resolveSoundPath(soundId);
-    if (!path) return;
-    if (!existsSync(path)) {
-      log.warn(`Notification sound file missing: ${path}`);
-      return;
-    }
-    if (process.platform !== "win32") {
-      log.debug(`Notification sound playback skipped on ${process.platform}`);
-      return;
-    }
-    const escaped = path.replace(/'/g, "''");
-    execFile(
-      "powershell",
-      ["-NoProfile", "-Command", `(New-Object Media.SoundPlayer '${escaped}').PlaySync()`],
-      { windowsHide: true },
-      (err) => {
-        if (err) log.warn(`Notification sound playback failed: ${err.message}`);
-      },
-    );
+  private playSound(soundId: NotificationSoundId, volumePercent: number): void {
+    if (soundId === "none" || volumePercent <= 0) return;
+    sendNotificationSound({ soundId, volumePercent });
   }
-}
-
-export function resolveSoundPath(soundId: NotificationSoundId): string {
-  const filename = notificationSoundFile(soundId);
-  if (!filename) return "";
-  if (app.isPackaged) {
-    return join(process.resourcesPath, "sounds", filename);
-  }
-  return join(app.getAppPath(), "resources", "sounds", filename);
 }

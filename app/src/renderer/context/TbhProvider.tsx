@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, startTransition, type ReactNode } from "react";
 import type { Stats, ResolvedInventory, PriceStatus, PriceProgress } from "../../../shared/types";
 import { formatPriceRefreshMessage } from "../lib/formatPriceRefreshMessage";
+import { handleNotificationSoundPayload } from "../lib/notificationSounds";
 import { reportIpcError } from "../lib/reportError";
 import { TbhContext } from "./tbhContext";
 
@@ -33,6 +34,7 @@ export function TbhProvider({ children }: { children: ReactNode }) {
         }
       }
     });
+    const offNotificationSound = window.tbh.onPlayNotificationSound(handleNotificationSoundPayload);
     const offProgress = window.tbh.onPricesProgress((p) => {
       if (p.finished) {
         startTransition(() => setPriceProgress(null));
@@ -64,6 +66,7 @@ export function TbhProvider({ children }: { children: ReactNode }) {
       offStats();
       offInventory();
       offPriceStatus();
+      offNotificationSound();
       offProgress();
     };
   }, []);
