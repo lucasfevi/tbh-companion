@@ -303,6 +303,7 @@ export class InventoryService {
       rawLowest: e.rawLowest ?? (e as { raw?: string | null }).raw ?? null,
       buyOrder: e.buyOrder ?? null,
       rawBuyOrder: e.rawBuyOrder ?? null,
+      buyOrderQuantity: e.buyOrderQuantity ?? null,
       buyOrderFetched: e.buyOrderFetched === true,
     };
   }

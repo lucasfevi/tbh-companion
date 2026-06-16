@@ -2,6 +2,7 @@
 
 import type { OwnedPriceTarget } from "../core/inventory/ownedPriceTargets";
 import { flattenOwnedHashes } from "../core/inventory/ownedPriceTargets";
+import { limitGearVariantHashes } from "../core/marketName";
 import type { PriceStatus, PriceProgress, PriceRefreshResult } from "../../shared/types";
 import {
   type PriceEntry,
@@ -9,7 +10,7 @@ import {
   loadPriceCache,
   persistPriceCache,
 } from "./services/priceCache";
-import { fetchSteamPrice } from "./services/steamPriceApi";
+import { fetchSteamPrice, describeSteamPriceFailure } from "./services/steamPriceApi";
 import { fetchSteamBuyOrder } from "./services/steamBuyOrderApi";
 import { getSteamItemNameIdService } from "./services/steamItemNameId";
 import { FRESH_TTL_MS } from "./services/steamMarketConstants";
@@ -65,6 +66,14 @@ function entryHasSellPrice(entry: PriceEntry): boolean {
   return entry.median != null || entry.lowest != null;
 }
 
+function entryHasBuyOrder(entry: PriceEntry): boolean {
+  return entry.buyOrderFetched === true && entry.buyOrder != null;
+}
+
+function entryHasMarketData(entry: PriceEntry): boolean {
+  return entryHasSellPrice(entry) || entryHasBuyOrder(entry);
+}
+
 function finalizeStopped(
   counters: RefreshCounters,
   sawRateLimit: boolean,
@@ -110,10 +119,16 @@ export class SteamMarketProvider {
   isFresh(name: string, now = Date.now()): boolean {
     const entry = this.cache.prices[name];
     if (!entry) return false;
-    if (!entryHasSellPrice(entry)) return false;
-    if (now - Date.parse(entry.fetchedUtc) >= FRESH_TTL_MS) return false;
-    if (!entry.buyOrderCheckUtc) return false;
-    if (now - Date.parse(entry.buyOrderCheckUtc) >= FRESH_TTL_MS) return false;
+    const hasSell = entryHasSellPrice(entry);
+    const hasBuy = entryHasBuyOrder(entry);
+    if (!hasSell && !hasBuy) return false;
+    if (hasSell && now - Date.parse(entry.fetchedUtc) >= FRESH_TTL_MS) return false;
+    if (hasBuy) {
+      if (!entry.buyOrderCheckUtc) return false;
+      if (now - Date.parse(entry.buyOrderCheckUtc) >= FRESH_TTL_MS) return false;
+    } else if (!entry.buyOrderCheckUtc) {
+      return false;
+    }
     return true;
   }
 
@@ -293,73 +308,85 @@ export class SteamMarketProvider {
     if (target.kind === "material") {
       return this.priceOneHash(target.hash, counters, opts);
     }
-    return this.priceGearVariants(target.candidates, counters, opts);
-  }
-
-  private async priceGearVariants(
-    candidates: readonly string[],
-    counters: RefreshCounters,
-    opts: RefreshCallbacks,
-  ): Promise<FetchStep> {
-    for (const hash of candidates) {
-      const step = await this.priceOneHash(hash, counters, opts, { countAsPriced: false });
-      if (step === "retry") return "retry";
-      const entry = this.cache.prices[hash];
-      if (entry && entryHasSellPrice(entry)) {
-        counters.priced++;
-        opts.onPriced?.(hash);
-        return "advance";
-      }
+    const hash = limitGearVariantHashes(target.candidates)[0];
+    if (!hash) {
+      counters.failed++;
+      return "advance";
     }
-    counters.failed++;
-    return "advance";
+    return this.priceOneHash(hash, counters, opts);
   }
 
   private async priceOneHash(
     name: string,
     counters: RefreshCounters,
     opts: RefreshCallbacks,
-    options: { countAsPriced?: boolean } = {},
+    options: { countAsPriced?: boolean; onFail?: (detail: string) => void } = {},
   ): Promise<FetchStep> {
     const countAsPriced = options.countAsPriced !== false;
     try {
       const response = await fetchSteamPrice(name, this.currency);
-      if (response.status === 0) {
-        log.warn(`Fetch timeout ${name}`);
-        if (countAsPriced) counters.failed++;
-        return "advance";
-      }
       if (response.status === 429) return "retry";
-      if (response.ok && response.entry && entryHasSellPrice(response.entry)) {
-        const entry = response.entry;
-        const nameIdService = getSteamItemNameIdService();
-        const resolved = await nameIdService.resolve(name);
-        if (resolved.status === 429) return "retry";
-        const nameId = resolved.ok ? resolved.nameId : (nameIdService.getSync(name) ?? undefined);
-        if (nameId != null) {
-          const buy = await fetchSteamBuyOrder(nameId, name, this.currency);
-          if (buy.status === 429) return "retry";
-          if (buy.ok) {
-            const checkedUtc = new Date().toISOString();
-            entry.buyOrderFetched = true;
-            entry.buyOrderCheckUtc = checkedUtc;
-            entry.buyOrder = buy.buyOrder ?? null;
-            entry.rawBuyOrder = buy.rawBuyOrder ?? null;
+
+      const entry = response.ok ? response.entry : response.entry;
+      if (!entry) {
+        if (!response.ok) {
+          const detail = describeSteamPriceFailure(response);
+          options.onFail?.(detail);
+          if (countAsPriced) {
+            counters.failed++;
+            log.warn(`Price failed: ${name} (${this.currency}) - ${detail}`);
           }
         }
-        this.cache.prices[name] = entry;
-        if (countAsPriced) {
-          counters.priced++;
-          opts.onPriced?.(name);
-        }
         return "advance";
       }
-      if (countAsPriced) counters.failed++;
+
+      const buyStep = await this.attachBuyOrder(name, entry);
+      if (buyStep === "retry") return "retry";
+
+      this.cache.prices[name] = entry;
+      if (countAsPriced) {
+        if (entryHasMarketData(entry)) {
+          counters.priced++;
+          opts.onPriced?.(name);
+        } else {
+          const detail = response.ok
+            ? "no sell listing or buy orders"
+            : describeSteamPriceFailure(response as Extract<typeof response, { ok: false }>);
+          options.onFail?.(detail);
+          counters.failed++;
+          log.warn(`Price failed: ${name} (${this.currency}) - ${detail}`);
+        }
+      }
       return "advance";
-    } catch {
-      if (countAsPriced) counters.failed++;
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : "unexpected error";
+      options.onFail?.(detail);
+      if (countAsPriced) {
+        counters.failed++;
+        log.warn(`Price failed: ${name} (${this.currency}) - ${detail}`);
+      }
       return "advance";
     }
+  }
+
+  private async attachBuyOrder(name: string, entry: PriceEntry): Promise<FetchStep> {
+    const nameIdService = getSteamItemNameIdService();
+    const resolved = await nameIdService.resolve(name);
+    if (resolved.status === 429) return "retry";
+    const nameId = resolved.ok ? resolved.nameId : (nameIdService.getSync(name) ?? undefined);
+    if (nameId == null) return "advance";
+
+    const buy = await fetchSteamBuyOrder(nameId, name, this.currency);
+    if (buy.status === 429) return "retry";
+    if (!buy.ok) return "advance";
+
+    const checkedUtc = new Date().toISOString();
+    entry.buyOrderFetched = true;
+    entry.buyOrderCheckUtc = checkedUtc;
+    entry.buyOrder = buy.buyOrder ?? null;
+    entry.rawBuyOrder = buy.rawBuyOrder ?? null;
+    entry.buyOrderQuantity = buy.buyOrderQuantity ?? null;
+    return "advance";
   }
 
   private emitProgress(

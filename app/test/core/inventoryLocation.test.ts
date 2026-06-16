@@ -27,6 +27,7 @@ const row: ResolvedInventoryRow = {
   value: null,
   buyOrderRaw: null,
   buyOrderUnit: null,
+  buyOrderQuantity: null,
   buyOrderValue: null,
   buyOrderChecked: false,
   inventoryCount: 1,

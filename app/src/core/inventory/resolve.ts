@@ -1,5 +1,5 @@
 import type { GameItem } from "../gamedata";
-import { marketHashCandidates } from "../marketName";
+import { marketHashName } from "../marketName";
 import { flattenOwnedHashes, ownedPriceTargets } from "./ownedPriceTargets";
 import { pickMarketUnit } from "../steamPrice";
 import {
@@ -7,6 +7,7 @@ import {
   getTbhMarketFeeRates,
   type SteamMarketFeeRates,
 } from "../steamMarketFee";
+import { instantSellValue } from "./buyOrder";
 import type {
   InventorySnapshot,
   InventoryItemInstance,
@@ -40,12 +41,8 @@ interface MarketResolution {
   priceChecked: boolean;
   buyOrderUnit: number | null;
   buyOrderRaw: string | null;
+  buyOrderQuantity: number | null;
   buyOrderChecked: boolean;
-}
-
-interface PriceProbe {
-  hash: string;
-  price: InventoryPriceInfo;
 }
 
 const NO_MARKET: MarketResolution = {
@@ -56,6 +53,7 @@ const NO_MARKET: MarketResolution = {
   priceChecked: false,
   buyOrderUnit: null,
   buyOrderRaw: null,
+  buyOrderQuantity: null,
   buyOrderChecked: false,
 };
 
@@ -91,11 +89,13 @@ function emptyComposition(): InventoryComposition {
 function buyOrderFromPrice(price: InventoryPriceInfo): {
   unit: number | null;
   raw: string | null;
+  quantity: number | null;
   checked: boolean;
 } {
   return {
     unit: price.buyOrder ?? null,
     raw: price.rawBuyOrder ?? null,
+    quantity: price.buyOrderQuantity ?? null,
     checked: price.buyOrderFetched === true,
   };
 }
@@ -104,45 +104,36 @@ function resolveMarketHashAndPrice(
   catalogItem: GameItem,
   priceLookup?: PriceLookup,
 ): MarketResolution {
-  const candidates = marketHashCandidates(catalogItem);
-  if (candidates.length === 0) return NO_MARKET;
+  const hash = marketHashName(catalogItem);
+  if (!hash) return NO_MARKET;
 
-  const probes: PriceProbe[] = candidates
-    .map((candidateHash) => ({ hash: candidateHash, price: priceLookup?.(candidateHash) }))
-    .filter((probe): probe is PriceProbe => probe.price !== undefined);
-
-  const pricedProbe = probes.find((probe) => pickMarketUnit(probe.price).unit != null);
-  if (pricedProbe) {
-    const buy = buyOrderFromPrice(pricedProbe.price);
-    const sellRaw = sellRawFromPrice(pricedProbe.price);
+  const price = priceLookup?.(hash);
+  if (!price) {
     return {
-      hash: pricedProbe.hash,
-      unit: pickMarketUnit(pricedProbe.price),
-      rawMedian: sellRaw.rawMedian,
-      rawLowest: sellRaw.rawLowest,
-      priceChecked: true,
-      buyOrderUnit: buy.unit,
-      buyOrderRaw: buy.raw,
-      buyOrderChecked: buy.checked,
+      hash,
+      unit: EMPTY_UNIT,
+      rawMedian: null,
+      rawLowest: null,
+      priceChecked: false,
+      buyOrderUnit: null,
+      buyOrderRaw: null,
+      buyOrderQuantity: null,
+      buyOrderChecked: false,
     };
   }
 
-  const firstHash = candidates[0];
-  const firstProbe = probes.find((probe) => probe.hash === firstHash);
-  const buy = firstProbe
-    ? buyOrderFromPrice(firstProbe.price)
-    : { unit: null, raw: null, checked: false };
-  const sellRaw = firstProbe
-    ? sellRawFromPrice(firstProbe.price)
-    : { rawMedian: null, rawLowest: null };
+  const unit = pickMarketUnit(price);
+  const buy = buyOrderFromPrice(price);
+  const sellRaw = sellRawFromPrice(price);
   return {
-    hash: firstHash,
-    unit: firstProbe ? pickMarketUnit(firstProbe.price) : EMPTY_UNIT,
+    hash,
+    unit,
     rawMedian: sellRaw.rawMedian,
     rawLowest: sellRaw.rawLowest,
-    priceChecked: probes.length > 0,
+    priceChecked: true,
     buyOrderUnit: buy.unit,
     buyOrderRaw: buy.raw,
+    buyOrderQuantity: buy.quantity,
     buyOrderChecked: buy.checked,
   };
 }
@@ -176,6 +167,7 @@ function createResolvedRow(
     value: null,
     buyOrderRaw: market.buyOrderRaw,
     buyOrderUnit: market.buyOrderUnit,
+    buyOrderQuantity: market.buyOrderQuantity,
     buyOrderValue: null,
     buyOrderChecked: market.buyOrderChecked,
   };
@@ -208,6 +200,7 @@ function clearRowPricing(row: ResolvedInventoryRow): void {
   row.value = null;
   row.buyOrderRaw = null;
   row.buyOrderUnit = null;
+  row.buyOrderQuantity = null;
   row.buyOrderValue = null;
   row.buyOrderChecked = false;
 }
@@ -230,15 +223,18 @@ function accumulateCompositionRow(
   }
 
   composition.priceableCount += row.count;
-  if (row.unitPrice === null) return;
 
-  row.value = row.unitPrice * row.count;
-  composition.valuedTotal += row.value;
+  if (row.unitPrice != null) {
+    row.value = row.unitPrice * row.count;
+    composition.valuedTotal += row.value;
+  }
 
   if (row.buyOrderUnit != null) {
-    row.buyOrderValue = row.buyOrderUnit * row.count;
-    composition.buyOrderValuedTotal += row.buyOrderValue;
-    composition.buyOrderPricedRows += 1;
+    row.buyOrderValue = instantSellValue(row.buyOrderUnit, row.count, row.buyOrderQuantity);
+    if (row.buyOrderValue != null) {
+      composition.buyOrderValuedTotal += row.buyOrderValue;
+      composition.buyOrderPricedRows += 1;
+    }
   }
 }
 
@@ -348,7 +344,7 @@ export function resolveInventory(
   };
 }
 
-/** Flat market_hash_name list for cache prune (all variant letters for owned gear). */
+/** Flat market_hash_name list for cache prune (gear variant A only). */
 export function ownedMarketNames(
   snapshot: InventorySnapshot,
   lookup: (itemKey: number) => GameItem | undefined,

@@ -24,6 +24,7 @@ vi.mock("../../src/main/services/steamBuyOrderApi", () => ({
     status: 200,
     buyOrder: 0.5,
     rawBuyOrder: "$0.50",
+    buyOrderQuantity: 1,
   }),
 }));
 
@@ -145,7 +146,7 @@ describe("SteamMarketProvider", () => {
 
   it("continues after fetch timeout (status 0)", async () => {
     fetchSteamPrice
-      .mockResolvedValueOnce({ ok: false, status: 0 })
+      .mockResolvedValueOnce({ ok: false, status: 0, reason: "network" })
       .mockResolvedValueOnce({ ok: true, status: 200, entry });
 
     const provider = new SteamMarketProvider("USD");
@@ -156,7 +157,7 @@ describe("SteamMarketProvider", () => {
     expect(fetchSteamPrice).toHaveBeenCalledTimes(2);
   });
 
-  it("stops gear variant probe after first priced letter", async () => {
+  it("prices gear variant A only even when target lists extra letters", async () => {
     fetchSteamPrice.mockResolvedValue({ ok: true, status: 200, entry });
 
     const provider = new SteamMarketProvider("USD");
@@ -170,21 +171,31 @@ describe("SteamMarketProvider", () => {
     expect(fetchSteamPrice).toHaveBeenCalledWith("Sword (Legendary) A", "USD");
   });
 
-  it("tries next gear variant when earlier has no listing", async () => {
-    fetchSteamPrice
-      .mockResolvedValueOnce({ ok: false, status: 200 })
-      .mockResolvedValueOnce({ ok: true, status: 200, entry });
+  it("prices gear from buy orders on variant A when sell listing is missing", async () => {
+    const buyOnlyEntry = {
+      lowest: null,
+      median: null,
+      volume: 0,
+      rawLowest: null,
+      rawMedian: null,
+      fetchedUtc: new Date().toISOString(),
+      buyOrder: null,
+      rawBuyOrder: null,
+    };
+    fetchSteamPrice.mockResolvedValue({
+      ok: false,
+      status: 200,
+      reason: "no_sell_price",
+      entry: buyOnlyEntry,
+    });
 
     const provider = new SteamMarketProvider("USD");
-    const result = await runRefresh(
-      provider,
-      [gear("Sword (Legendary) A", "Sword (Legendary) B")],
-      { force: true },
-    );
+    const result = await runRefresh(provider, [gear("Boots (Legendary) A")], { force: true });
 
     expect(result.priced).toBe(1);
-    expect(fetchSteamPrice).toHaveBeenCalledTimes(2);
-    expect(fetchSteamPrice).toHaveBeenNthCalledWith(1, "Sword (Legendary) A", "USD");
-    expect(fetchSteamPrice).toHaveBeenNthCalledWith(2, "Sword (Legendary) B", "USD");
+    expect(result.failed).toBe(0);
+    const cached = provider.get("Boots (Legendary) A");
+    expect(cached?.buyOrder).toBeCloseTo(0.5);
+    expect(cached?.buyOrderFetched).toBe(true);
   });
 });

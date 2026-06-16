@@ -252,7 +252,7 @@ const COLUMN_DEFS: ColumnDef[] = [
       return (
         <MarketListingLink
           hash={row.marketHashName}
-          title="Total if every unit matched the current highest buy order (no extra market fee)"
+          title="Top buy price × min(your stack, units on the book at that price). No listing fees."
         >
           {row.buyOrderValue != null && Number.isFinite(row.buyOrderValue)
             ? formatMoney(row.buyOrderValue, currency)

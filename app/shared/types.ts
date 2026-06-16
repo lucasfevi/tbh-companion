@@ -208,6 +208,8 @@ export interface ResolvedInventoryRow {
   value: number | null;
   buyOrderRaw: string | null;
   buyOrderUnit: number | null;
+  /** Units on the book at the highest buy price (from histogram). */
+  buyOrderQuantity: number | null;
   buyOrderValue: number | null;
   /** True when buy-order histogram was queried for this hash. */
   buyOrderChecked: boolean;
@@ -223,6 +225,8 @@ export interface InventoryPriceInfo {
   rawLowest: string | null;
   buyOrder: number | null;
   rawBuyOrder: string | null;
+  /** Units available at the highest buy price (histogram depth). */
+  buyOrderQuantity?: number | null;
   /** True after a successful itemordershistogram response (including zero buy orders). */
   buyOrderFetched?: boolean;
 }

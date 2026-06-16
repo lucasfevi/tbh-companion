@@ -11,6 +11,8 @@ export interface PriceEntry {
   fetchedUtc: string;
   buyOrder: number | null;
   rawBuyOrder: string | null;
+  /** Units at the highest buy price when histogram was last fetched. */
+  buyOrderQuantity?: number | null;
   /** True after a successful itemordershistogram response (including zero buy orders). */
   buyOrderFetched?: boolean;
   /** ISO timestamp of last successful histogram fetch; gates cache freshness. */
