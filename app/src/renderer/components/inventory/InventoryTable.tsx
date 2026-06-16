@@ -1,13 +1,24 @@
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 import { gradeLabel, typeLabel } from "../../../core/labels";
-import { formatMoney } from "../../../core/steamPrice";
+import {
+  isInventoryColumnVisible,
+  normalizeInventoryTablePrefs,
+} from "../../../core/inventory/columnPrefs";
+import { formatMoney, formatRawMoney } from "../../../core/steamPrice";
 import { unassignedCount } from "../../../core/inventory/location";
 import { gradeColor } from "./gradeColor";
 import { MarketListingLink } from "./MarketListingLink";
-import type { ResolvedInventoryRow } from "../../../../shared/types";
+import { MarketPriceCell } from "./MarketPriceCell";
+import { ItemPriceRefreshButton } from "./ItemPriceRefreshButton";
+import type {
+  InventoryColumnId,
+  InventoryTablePrefs,
+  ResolvedInventoryRow,
+} from "../../../../shared/types";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { cn } from "../../lib/cn";
+import type { SortKey } from "../../lib/inventoryFilters";
 
 function priceSourceTitle(source: ResolvedInventoryRow["priceSource"]): string | undefined {
   if (source === "median") return "Recent sale median on Steam Market";
@@ -15,27 +26,26 @@ function priceSourceTitle(source: ResolvedInventoryRow["priceSource"]): string |
   return undefined;
 }
 
-function emptyPriceDisplay(row: ResolvedInventoryRow): { label: string; title: string } {
-  if (row.priceChecked) {
+function emptyBuyOrderDisplay(row: ResolvedInventoryRow): { label: string; title: string } {
+  if (row.buyOrderChecked) {
     return {
-      label: "No active listings",
-      title: "No active Steam Market listings or recent sales for this item",
+      label: "No buy orders",
+      title: "No buy orders on Steam Market for this item",
     };
   }
   return {
     label: "—",
-    title: "Steam price not loaded yet",
+    title: "Buy order not loaded yet",
   };
 }
 
 export interface InventoryTableProps {
   rows: ResolvedInventoryRow[];
   currency: string;
-  sortKey: "name" | "grade" | "level" | "type" | "count" | "inUse" | "price" | "value";
+  columnPrefs: InventoryTablePrefs;
+  sortKey: SortKey;
   sortDir: "asc" | "desc";
-  onSort: (
-    key: "name" | "grade" | "level" | "type" | "count" | "inUse" | "price" | "value",
-  ) => void;
+  onSort: (key: SortKey) => void;
   onClearFilters: () => void;
 }
 
@@ -50,15 +60,225 @@ const thNumClass = cn(thClass, "text-right");
 const tdClass = "px-2.5 py-1.5 border-b border-border";
 const tdNumClass = cn(tdClass, "text-right");
 
+type ColumnDef = {
+  id: InventoryColumnId | "name" | "count";
+  label: string;
+  sortKey?: SortKey;
+  align: "left" | "right";
+  alwaysVisible?: boolean;
+  render: (row: ResolvedInventoryRow, currency: string) => ReactNode;
+};
+
+const COLUMN_DEFS: ColumnDef[] = [
+  {
+    id: "name",
+    label: "Name",
+    sortKey: "name",
+    align: "left",
+    alwaysVisible: true,
+    render: (row) => (
+      <span className="inline-flex min-w-0 items-center gap-0.5">
+        <span
+          className="mr-1 inline-block size-[9px] shrink-0 rounded-full"
+          style={{ background: gradeColor(row.grade) }}
+        />
+        <span className="min-w-0 truncate">{row.name}</span>
+        {row.chaoticCount > 0 && (
+          <span className="shrink-0 text-gold" title="Chaotic">
+            {" "}
+            &#9670;
+          </span>
+        )}
+        {row.marketHashName ? (
+          <ItemPriceRefreshButton itemKey={row.itemKey} itemName={row.name} />
+        ) : null}
+      </span>
+    ),
+  },
+  {
+    id: "grade",
+    label: "Grade",
+    sortKey: "grade",
+    align: "left",
+    render: (row) => <span style={{ color: gradeColor(row.grade) }}>{gradeLabel(row.grade)}</span>,
+  },
+  {
+    id: "level",
+    label: "Level",
+    sortKey: "level",
+    align: "right",
+    render: (row) => (row.level != null ? row.level : <span className="text-muted">-</span>),
+  },
+  {
+    id: "type",
+    label: "Type",
+    sortKey: "type",
+    align: "left",
+    render: (row) => <span className="text-muted">{typeLabel(row.type)}</span>,
+  },
+  {
+    id: "count",
+    label: "Count",
+    sortKey: "count",
+    align: "right",
+    alwaysVisible: true,
+    render: (row) => row.count,
+  },
+  {
+    id: "location",
+    label: "Location",
+    align: "right",
+    render: (row) => {
+      const inUse = row.inUseCount ?? 0;
+      return (
+        <>
+          {(row.inventoryCount ?? 0) > 0 && (
+            <span className="mr-1.5 inline-block text-[11px] text-muted" title="Inventory">
+              Inv {row.inventoryCount}
+            </span>
+          )}
+          {(row.stashCount ?? 0) > 0 && (
+            <span className="mr-1.5 inline-block text-[11px] text-muted" title="Stash">
+              St {row.stashCount}
+            </span>
+          )}
+          {(row.tradingCount ?? 0) > 0 && (
+            <span className="mr-1.5 inline-block text-[11px] text-muted" title="Trading">
+              Tr {row.tradingCount}
+            </span>
+          )}
+          {inUse > 0 && (
+            <span className="mr-1.5 inline-block text-[11px] text-muted" title="Equipped">
+              Eq {inUse}
+            </span>
+          )}
+          {unassignedCount(row) > 0 && (
+            <span className="mr-1.5 inline-block text-[11px] text-muted" title="Unassigned">
+              ?
+            </span>
+          )}
+        </>
+      );
+    },
+  },
+  {
+    id: "inUse",
+    label: "In use",
+    sortKey: "inUse",
+    align: "right",
+    render: (row) => {
+      const inUse = row.inUseCount ?? 0;
+      return inUse > 0 ? (
+        <span className="text-accent">
+          {inUse}
+          {inUse < row.count ? `/${row.count}` : ""}
+        </span>
+      ) : (
+        <span className="text-muted">-</span>
+      );
+    },
+  },
+  {
+    id: "marketPrice",
+    label: "Market price",
+    sortKey: "price",
+    align: "right",
+    render: (row, currency) => {
+      if (!row.marketHashName) {
+        return (
+          <span className="text-muted" title="Not priced (non-tradable or below Legendary gear)">
+            -
+          </span>
+        );
+      }
+      return <MarketPriceCell row={row} hash={row.marketHashName} currency={currency} />;
+    },
+  },
+  {
+    id: "listValue",
+    label: "List value",
+    sortKey: "value",
+    align: "right",
+    render: (row, currency) => {
+      if (!row.marketHashName) return "-";
+      return (
+        <MarketListingLink
+          hash={row.marketHashName}
+          title={
+            row.value != null && Number.isFinite(row.value)
+              ? `${priceSourceTitle(row.priceSource) ?? "Steam Market"} · total if listed at market price`
+              : "Open on Steam Market"
+          }
+        >
+          {row.value != null && Number.isFinite(row.value) ? formatMoney(row.value, currency) : "-"}
+        </MarketListingLink>
+      );
+    },
+  },
+  {
+    id: "instantSell",
+    label: "Instant sell",
+    sortKey: "buyOrder",
+    align: "right",
+    render: (row, currency) => {
+      if (!row.marketHashName) return "-";
+      const empty = emptyBuyOrderDisplay(row);
+      if (row.buyOrderRaw) {
+        const display = formatRawMoney(row.buyOrderRaw, currency) ?? row.buyOrderRaw;
+        return (
+          <MarketListingLink
+            hash={row.marketHashName}
+            title="Highest buy order — price if you sold to the order book immediately"
+          >
+            {display}
+          </MarketListingLink>
+        );
+      }
+      return (
+        <MarketListingLink hash={row.marketHashName} title={empty.title}>
+          <span className="text-muted">{empty.label}</span>
+        </MarketListingLink>
+      );
+    },
+  },
+  {
+    id: "instantTotal",
+    label: "Instant total",
+    sortKey: "buyOrderValue",
+    align: "right",
+    render: (row, currency) => {
+      if (!row.marketHashName) return "-";
+      return (
+        <MarketListingLink
+          hash={row.marketHashName}
+          title="Total if every unit matched the current highest buy order (no extra market fee)"
+        >
+          {row.buyOrderValue != null && Number.isFinite(row.buyOrderValue)
+            ? formatMoney(row.buyOrderValue, currency)
+            : "-"}
+        </MarketListingLink>
+      );
+    },
+  },
+];
+
+function visibleColumns(prefs: InventoryTablePrefs): ColumnDef[] {
+  const normalized = normalizeInventoryTablePrefs(prefs);
+  return COLUMN_DEFS.filter((col) => {
+    if (col.alwaysVisible) return true;
+    return isInventoryColumnVisible(normalized, col.id as InventoryColumnId);
+  });
+}
+
 const InventoryRow = memo(function InventoryRow({
   row,
   currency,
+  columns,
 }: {
   row: ResolvedInventoryRow;
   currency: string;
+  columns: ColumnDef[];
 }) {
-  const inUse = row.inUseCount ?? 0;
-  const emptyPrice = row.marketHashName ? emptyPriceDisplay(row) : null;
   return (
     <tr
       className={cn(
@@ -66,99 +286,11 @@ const InventoryRow = memo(function InventoryRow({
         !row.known && "opacity-70",
       )}
     >
-      <td className={tdClass}>
-        <span
-          className="mr-1 inline-block size-[9px] shrink-0 rounded-full"
-          style={{ background: gradeColor(row.grade) }}
-        />
-        {row.name}
-        {row.chaoticCount > 0 && (
-          <span className="text-gold" title="Chaotic">
-            {" "}
-            &#9670;
-          </span>
-        )}
-      </td>
-      <td className={tdClass} style={{ color: gradeColor(row.grade) }}>
-        {gradeLabel(row.grade)}
-      </td>
-      <td className={tdNumClass}>
-        {row.level != null ? row.level : <span className="text-muted">-</span>}
-      </td>
-      <td className={cn(tdClass, "text-muted")}>{typeLabel(row.type)}</td>
-      <td className={tdNumClass}>{row.count}</td>
-      <td className={tdNumClass}>
-        {(row.inventoryCount ?? 0) > 0 && (
-          <span className="mr-1.5 inline-block text-[11px] text-muted" title="Inventory">
-            Inv {row.inventoryCount}
-          </span>
-        )}
-        {(row.stashCount ?? 0) > 0 && (
-          <span className="mr-1.5 inline-block text-[11px] text-muted" title="Stash">
-            St {row.stashCount}
-          </span>
-        )}
-        {(row.tradingCount ?? 0) > 0 && (
-          <span className="mr-1.5 inline-block text-[11px] text-muted" title="Trading">
-            Tr {row.tradingCount}
-          </span>
-        )}
-        {inUse > 0 && (
-          <span className="mr-1.5 inline-block text-[11px] text-muted" title="Equipped">
-            Eq {inUse}
-          </span>
-        )}
-        {unassignedCount(row) > 0 && (
-          <span className="mr-1.5 inline-block text-[11px] text-muted" title="Unassigned">
-            ?
-          </span>
-        )}
-      </td>
-      <td className={tdNumClass}>
-        {inUse > 0 ? (
-          <span className="text-accent">
-            {inUse}
-            {inUse < row.count ? `/${row.count}` : ""}
-          </span>
-        ) : (
-          <span className="text-muted">-</span>
-        )}
-      </td>
-      <td className={tdNumClass}>
-        {row.marketHashName ? (
-          row.priceRaw ? (
-            <MarketListingLink hash={row.marketHashName} title={priceSourceTitle(row.priceSource)}>
-              {row.priceRaw}
-            </MarketListingLink>
-          ) : (
-            <MarketListingLink hash={row.marketHashName} title={emptyPrice!.title}>
-              <span className="text-muted">{emptyPrice!.label}</span>
-            </MarketListingLink>
-          )
-        ) : (
-          <span className="text-muted" title="Not priced (non-tradable or below Legendary gear)">
-            -
-          </span>
-        )}
-      </td>
-      <td className={tdNumClass}>
-        {row.marketHashName ? (
-          <MarketListingLink
-            hash={row.marketHashName}
-            title={
-              row.value != null && Number.isFinite(row.value)
-                ? `${priceSourceTitle(row.priceSource) ?? "Steam Market"} · stack value`
-                : "Open on Steam Market"
-            }
-          >
-            {row.value != null && Number.isFinite(row.value)
-              ? formatMoney(row.value, currency)
-              : "-"}
-          </MarketListingLink>
-        ) : (
-          "-"
-        )}
-      </td>
+      {columns.map((col) => (
+        <td key={col.id} className={col.align === "right" ? tdNumClass : tdClass}>
+          {col.render(row, currency)}
+        </td>
+      ))}
     </tr>
   );
 });
@@ -166,55 +298,41 @@ const InventoryRow = memo(function InventoryRow({
 export function InventoryTable({
   rows,
   currency,
+  columnPrefs,
   sortKey,
   sortDir,
   onSort,
   onClearFilters,
 }: InventoryTableProps) {
+  const columns = visibleColumns(columnPrefs);
+
   return (
     <Card padding="none" className="min-h-[200px] flex-1 overflow-auto">
       <table className="w-full border-collapse text-[13px]">
         <thead>
           <tr>
-            <th className={thClass} onClick={() => onSort("name")}>
-              Name
-              <SortArrow active={sortKey === "name"} dir={sortDir} />
-            </th>
-            <th className={thClass} onClick={() => onSort("grade")}>
-              Grade
-              <SortArrow active={sortKey === "grade"} dir={sortDir} />
-            </th>
-            <th className={thNumClass} onClick={() => onSort("level")}>
-              Level
-              <SortArrow active={sortKey === "level"} dir={sortDir} />
-            </th>
-            <th className={thClass} onClick={() => onSort("type")}>
-              Type
-              <SortArrow active={sortKey === "type"} dir={sortDir} />
-            </th>
-            <th className={thNumClass} onClick={() => onSort("count")}>
-              Count
-              <SortArrow active={sortKey === "count"} dir={sortDir} />
-            </th>
-            <th className={thNumClass}>Location</th>
-            <th className={thNumClass} onClick={() => onSort("inUse")}>
-              In use
-              <SortArrow active={sortKey === "inUse"} dir={sortDir} />
-            </th>
-            <th className={thNumClass} onClick={() => onSort("price")}>
-              Price
-              <SortArrow active={sortKey === "price"} dir={sortDir} />
-            </th>
-            <th className={thNumClass} onClick={() => onSort("value")}>
-              Value
-              <SortArrow active={sortKey === "value"} dir={sortDir} />
-            </th>
+            {columns.map((col) => {
+              const th = col.align === "right" ? thNumClass : thClass;
+              const clickable = col.sortKey != null;
+              return (
+                <th
+                  key={col.id}
+                  className={cn(th, !clickable && "cursor-default")}
+                  onClick={col.sortKey ? () => onSort(col.sortKey!) : undefined}
+                >
+                  {col.label}
+                  {col.sortKey ? (
+                    <SortArrow active={sortKey === col.sortKey} dir={sortDir} />
+                  ) : null}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={9} className="px-3 py-6 text-center text-muted">
+              <td colSpan={columns.length} className="px-3 py-6 text-center text-muted">
                 No items match these filters.{" "}
                 <Button size="sm" className="ml-1.5" onClick={onClearFilters}>
                   Clear filters
@@ -222,7 +340,9 @@ export function InventoryTable({
               </td>
             </tr>
           ) : (
-            rows.map((row) => <InventoryRow key={row.itemKey} row={row} currency={currency} />)
+            rows.map((row) => (
+              <InventoryRow key={row.itemKey} row={row} currency={currency} columns={columns} />
+            ))
           )}
         </tbody>
       </table>

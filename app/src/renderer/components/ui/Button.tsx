@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from "react";
+import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
 
 type Variant = "default" | "primary" | "danger" | "ghost" | "success";
@@ -19,18 +19,19 @@ const sizeClasses: Record<Size, string> = {
   sm: "px-2.5 py-0.5 text-xs",
 };
 
-export function Button({
-  className,
-  variant = "default",
-  size = "default",
-  type = "button",
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: Variant;
-  size?: Size;
-}) {
+export const Button = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement> & {
+    variant?: Variant;
+    size?: Size;
+  }
+>(function Button(
+  { className, variant = "default", size = "default", type = "button", ...props },
+  ref,
+) {
   return (
     <button
+      ref={ref}
       type={type}
       className={cn(
         "inline-flex cursor-pointer items-center justify-center rounded-md border disabled:cursor-not-allowed disabled:opacity-50",
@@ -41,4 +42,4 @@ export function Button({
       {...props}
     />
   );
-}
+});
