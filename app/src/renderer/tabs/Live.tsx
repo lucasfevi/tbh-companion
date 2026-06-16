@@ -8,6 +8,8 @@ import { PanelSection } from "../components/ui/PanelSection";
 import { StatCard } from "../components/ui/StatCard";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
+import { ChestDropPanel } from "../components/live/ChestDropPanel";
+import { LiveSideBySide } from "../components/live/LiveSideBySide";
 import { cn } from "../lib/cn";
 
 const IDLE_THRESHOLD = 120;
@@ -86,59 +88,68 @@ export function Live() {
         </Button>
       </Card>
 
-      <section className="grid grid-cols-4 gap-2.5">
+      <section className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         <StatCard label="Session XP" value={fmtCompact(stats.cumulativeGained)} />
         <StatCard label="Session gold" value={fmtCompact(stats.goldGained)} />
         <StatCard label="Elapsed" value={fmtDuration(stats.elapsed)} />
         <StatCard label="Session XP/hr" value={fmtCompact(stats.sessionRate)} />
       </section>
 
-      <PanelSection title="Heroes">
-        {stats.heroes.length === 0 ? (
-          <p className="m-0 text-muted">No active heroes yet.</p>
-        ) : (
-          <DataList>
-            {stats.heroes.map((h, i) => (
-              <DataListRow
-                key={h.key}
-                index={i}
-                className="grid grid-cols-[1fr_auto_auto] items-center gap-3"
-              >
-                <span className="font-semibold">{h.name}</span>
-                <span className="text-muted">Lv {h.level}</span>
-                <span className="tabular-nums text-accent">{fmtCompact(h.rate)}/hr</span>
-              </DataListRow>
-            ))}
-          </DataList>
-        )}
-      </PanelSection>
+      <ChestDropPanel chestDrops={stats.chestDrops} />
 
-      <PanelSection
-        title={
-          <>
-            History <span className="normal-case tracking-normal text-muted">- XP changes</span>
-          </>
+      <LiveSideBySide
+        left={
+          <PanelSection title="Heroes">
+            {stats.heroes.length === 0 ? (
+              <p className="m-0 text-muted">No active heroes yet.</p>
+            ) : (
+              <DataList scrollable className="max-h-[280px]">
+                {stats.heroes.map((h, i) => (
+                  <DataListRow
+                    key={h.key}
+                    index={i}
+                    className="grid grid-cols-[1fr_auto_auto] items-center gap-3"
+                  >
+                    <span className="font-semibold">{h.name}</span>
+                    <span className="text-muted">Lv {h.level}</span>
+                    <span className="tabular-nums text-accent">{fmtCompact(h.rate)}/hr</span>
+                  </DataListRow>
+                ))}
+              </DataList>
+            )}
+          </PanelSection>
         }
-      >
-        {stats.history.length === 0 ? (
-          <p className="m-0 text-muted">No XP changes recorded yet.</p>
-        ) : (
-          <DataList scrollable className="max-h-[220px]">
-            {stats.history.map((e, i) => (
-              <DataListRow
-                key={`${e.wallTime}-${i}`}
-                index={i}
-                className="grid grid-cols-[auto_auto_auto_1fr] items-center gap-3 tabular-nums"
-              >
-                <span className="text-muted">{fmtClock(e.wallTime)}</span>
-                <span className="text-accent">+{fmtCompact(e.delta)}</span>
-                <span>{fmtCompact(e.rate)}/hr</span>
-                <span className="text-right text-muted">{stageName(e.stageKey, e.stageWave)}</span>
-              </DataListRow>
-            ))}
-          </DataList>
-        )}
-      </PanelSection>
+        right={
+          <PanelSection
+            title={
+              <>
+                History <span className="normal-case tracking-normal text-muted">- XP changes</span>
+              </>
+            }
+          >
+            {stats.history.length === 0 ? (
+              <p className="m-0 text-muted">No XP changes recorded yet.</p>
+            ) : (
+              <DataList scrollable className="max-h-[280px]">
+                {stats.history.map((e, i) => (
+                  <DataListRow
+                    key={`${e.wallTime}-${i}`}
+                    index={i}
+                    className="grid grid-cols-[auto_auto_auto_1fr] items-center gap-3 tabular-nums"
+                  >
+                    <span className="text-muted">{fmtClock(e.wallTime)}</span>
+                    <span className="text-accent">+{fmtCompact(e.delta)}</span>
+                    <span>{fmtCompact(e.rate)}/hr</span>
+                    <span className="text-right text-muted">
+                      {stageName(e.stageKey, e.stageWave)}
+                    </span>
+                  </DataListRow>
+                ))}
+              </DataList>
+            )}
+          </PanelSection>
+        }
+      />
 
       {showStatus && (
         <footer
