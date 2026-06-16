@@ -4,14 +4,17 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-06-16
+
 ### Live
 
-- **Chest drops** on the Live tab: session totals and per-hour rates in stat tiles, per-type breakdown cards, and a scrollable drop history from Player.log.
+- **Chest drops** on the **Live** tab: session totals and per-hour rates in stat tiles, per-type breakdown cards, and a scrollable drop history from Player.log (common and stage boss chests).
+- Chest drop counts and history **persist across app restarts** mid-session.
 - Heroes and XP history use matched column heights so long histories scroll inside the panel.
 
 ### Fixed
 
-- Player.log status in the header no longer turns gold when only the save file is stale.
+- **Player.log** status in the header no longer turns gold when only the save file is stale.
 
 ## [1.10.0] - 2026-06-14
 
