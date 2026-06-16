@@ -114,7 +114,7 @@ export class BoxTimerService {
     if (boxId == null) return false;
 
     log.info(
-      `Stage boss drop detected from Player.log (ItemKey ${itemKey} → Lv${this.boxById.get(boxId)?.level ?? "?"})`,
+      `Stage boss drop detected from Player.log (ItemKey ${itemKey} -> Lv${this.boxById.get(boxId)?.level ?? "?"})`,
     );
     this.markDropped(boxId);
     return true;
