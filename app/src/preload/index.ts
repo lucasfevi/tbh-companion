@@ -10,6 +10,7 @@ import type {
   ClearDiagnosticLogResult,
   GameDataRefreshResult,
   GameDataStatus,
+  NotificationSoundPayload,
   PetState,
   PriceProgress,
   PriceRefreshResult,
@@ -20,7 +21,6 @@ import type {
   TbhApi,
   UpdateStatus,
 } from "../../shared/types";
-import type { NotificationSoundId } from "../../shared/notificationCatalog";
 
 const api: TbhApi = {
   onStats(cb: (stats: Stats) => void): () => void {
@@ -90,6 +90,11 @@ const api: TbhApi = {
     ipcRenderer.on(IPC.BOX_TIMERS, listener);
     return () => ipcRenderer.removeListener(IPC.BOX_TIMERS, listener);
   },
+  onPlayNotificationSound(cb: (payload: NotificationSoundPayload) => void): () => void {
+    const listener = (_e: unknown, payload: NotificationSoundPayload): void => cb(payload);
+    ipcRenderer.on(IPC.PLAY_NOTIFICATION_SOUND, listener);
+    return () => ipcRenderer.removeListener(IPC.PLAY_NOTIFICATION_SOUND, listener);
+  },
   markBoxDropped(boxId: number): Promise<BoxTimerState> {
     return ipcRenderer.invoke(IPC.MARK_BOX_DROPPED, boxId);
   },
@@ -116,9 +121,6 @@ const api: TbhApi = {
   },
   setBoxTrackerSortOrder(sortOrder: BoxTimerState["sortOrder"]): Promise<BoxTimerState> {
     return ipcRenderer.invoke(IPC.SET_BOX_TRACKER_SORT_ORDER, sortOrder);
-  },
-  previewNotificationSound(soundId: NotificationSoundId): Promise<void> {
-    return ipcRenderer.invoke(IPC.PREVIEW_NOTIFICATION_SOUND, soundId);
   },
   pricesStatus(): Promise<PriceStatus> {
     return ipcRenderer.invoke(IPC.PRICES_STATUS);

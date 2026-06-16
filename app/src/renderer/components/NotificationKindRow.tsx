@@ -9,7 +9,7 @@ import {
   NOTIFICATION_KIND_ENTRIES,
   NOTIFICATION_SOUND_ENTRIES,
 } from "../../../shared/notificationCatalog";
-import { reportIpcError } from "../lib/reportError";
+import { playNotificationSound } from "../lib/notificationSounds";
 import { Button } from "./ui/Button";
 import { Field } from "./ui/Field";
 import { Select } from "./ui/Select";
@@ -37,13 +37,10 @@ export function NotificationKindRow({
   const kind = NOTIFICATION_KIND_ENTRIES.find((k) => k.id === kindId)!;
   const [previewBusy, setPreviewBusy] = useState(false);
 
-  async function onPreview() {
-    if (typeof window.tbh?.previewNotificationSound !== "function") return;
+  function onPreview() {
     setPreviewBusy(true);
     try {
-      await window.tbh.previewNotificationSound(pref.sound);
-    } catch (err) {
-      reportIpcError(err);
+      playNotificationSound(pref.sound, notificationVolume);
     } finally {
       setPreviewBusy(false);
     }

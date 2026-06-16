@@ -9,6 +9,12 @@ export type {
   NotificationSoundId,
 } from "./notificationCatalog";
 
+/** Main → renderer: play a bundled notification WAV at 0–100% volume. */
+export interface NotificationSoundPayload {
+  soundId: NotificationSoundId;
+  volumePercent: number;
+}
+
 export interface HeroSnapshot {
   key: string;
   level: number;
@@ -606,7 +612,7 @@ export interface TbhApi {
   clearBoxTrackerFarmStage(boxId: number): Promise<BoxTimerState>;
   setBoxTrackerNotify(boxId: number, enabled: boolean): Promise<BoxTimerState>;
   setBoxTrackerSortOrder(sortOrder: BoxTrackerSortOrder): Promise<BoxTimerState>;
-  previewNotificationSound(soundId?: NotificationSoundId): Promise<void>;
+  onPlayNotificationSound(cb: (payload: NotificationSoundPayload) => void): () => void;
   getUpdateStatus(): Promise<UpdateStatus>;
   checkForUpdates(): Promise<UpdateStatus>;
   downloadUpdate(): Promise<UpdateStatus>;

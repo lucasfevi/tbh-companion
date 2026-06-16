@@ -90,13 +90,13 @@ Two `BrowserWindow`s load the same Vite bundle on different routes:
   - **`heroLevelUp`** — when a hero's level increases between save reads (`TrackingService` →
     `showHeroLevelUp`).
 
-Each kind has `enabled` and `sound` (catalog id or `none`). Sounds play as bundled WAV files via
-PowerShell + `MediaPlayer` (volume 0–1) on Windows only; there is no OS toast for these events.
-Legacy `chestSoundVariant` in
+Each kind has `enabled` and `sound` (catalog id or `none`). Sounds play in the renderer via
+[Howler.js](https://howlerjs.com/) (bundled WAV assets, volume 0–1). Main sends
+`play-notification-sound` IPC when an alert fires. Legacy `chestSoundVariant` in
 old configs migrates to `notificationPrefs.chestReady` on load.
 
 Per-box **Notify when ready** toggles live in `box_timers.json` (Chests tab), not in `config.json`.
-Settings exposes per-kind **Preview sound** over IPC (`preview-notification-sound`).
+Settings exposes per-kind **Preview sound** in the renderer (Howler, same path as live alerts).
 
 ## Settings persistence
 

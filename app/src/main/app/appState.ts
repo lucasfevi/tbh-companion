@@ -26,7 +26,6 @@ import type {
   SessionUiSnapshot,
   WindowLayoutPrefs,
 } from "../../../shared/types";
-import type { NotificationSoundId } from "../../../shared/notificationCatalog";
 
 const appDataLog = createLogger("appData");
 import { createMainWindow as buildMainWindow } from "../windows/mainWindow";
@@ -201,8 +200,6 @@ export function getAppServices() {
     setBoxTrackerNotify: (boxId: number, enabled: boolean) =>
       boxTimers.setBoxTrackerNotify(boxId, enabled),
     setBoxTrackerSortOrder: (sortOrder: BoxTrackerSortOrder) => boxTimers.setSortOrder(sortOrder),
-    previewNotificationSound: (soundId: NotificationSoundId) =>
-      notifications.previewNotificationSound(soundId),
     gameDataStatus: () => inventory.gameDataStatus(),
     refreshGameData: () => inventory.refreshGameData(),
     pricesStatus: () => inventory.pricesStatus(),
