@@ -3,7 +3,23 @@ import {
   DEFAULT_NOTIFICATION_PREFS,
   migrateNotificationPrefs,
   sanitizeNotificationSoundId,
+  sanitizeNotificationVolume,
 } from "../../shared/notificationCatalog";
+
+describe("sanitizeNotificationVolume", () => {
+  it("defaults invalid values to 100", () => {
+    expect(sanitizeNotificationVolume(undefined)).toBe(100);
+    expect(sanitizeNotificationVolume("loud")).toBe(100);
+    expect(sanitizeNotificationVolume(Number.NaN)).toBe(100);
+  });
+
+  it("clamps and rounds to 0–100", () => {
+    expect(sanitizeNotificationVolume(-5)).toBe(0);
+    expect(sanitizeNotificationVolume(150)).toBe(100);
+    expect(sanitizeNotificationVolume(67.8)).toBe(68);
+    expect(sanitizeNotificationVolume(0)).toBe(0);
+  });
+});
 
 describe("sanitizeNotificationSoundId", () => {
   it("accepts catalog ids and none", () => {

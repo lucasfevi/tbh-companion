@@ -6,6 +6,7 @@ import { app } from "electron";
 import {
   DEFAULT_NOTIFICATION_PREFS,
   migrateNotificationPrefs,
+  sanitizeNotificationVolume,
   type LegacyChestSoundVariant,
 } from "../../shared/notificationCatalog";
 import type { AppConfig, NotificationPrefs } from "../../shared/types";
@@ -32,15 +33,22 @@ const DEFAULTS: AppConfig = {
   currency: "USD",
   notificationsEnabled: true,
   notifyOnUpdateAvailable: true,
+  notificationVolume: 100,
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
 };
 
 type RawConfig = Partial<AppConfig> & { chestSoundVariant?: LegacyChestSoundVariant };
 
 function normalizeConfig(raw: RawConfig): AppConfig {
-  const { chestSoundVariant: _legacy, notificationPrefs: _prefs, ...rest } = raw;
+  const {
+    chestSoundVariant: _legacy,
+    notificationPrefs: _prefs,
+    notificationVolume: _volume,
+    ...rest
+  } = raw;
   const notificationPrefs: NotificationPrefs = migrateNotificationPrefs(raw);
-  return { ...DEFAULTS, ...rest, notificationPrefs };
+  const notificationVolume = sanitizeNotificationVolume(raw.notificationVolume);
+  return { ...DEFAULTS, ...rest, notificationPrefs, notificationVolume };
 }
 
 /** Normalizes raw config JSON (migration + validation). Exported for tests. */
@@ -102,6 +110,6 @@ export function saveConfig(config: AppConfig): void {
     }
   }
   mkdirSync(dirname(target), { recursive: true });
-  const { chestSoundVariant: _legacy, ...toSave } = { ...existing, ...config } as RawConfig;
+  const toSave = normalizeConfig({ ...existing, ...config });
   writeFileSync(target, JSON.stringify(toSave, null, 2));
 }

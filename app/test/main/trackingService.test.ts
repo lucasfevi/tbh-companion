@@ -50,6 +50,7 @@ const baseConfig = {
   currency: "USD",
   notificationsEnabled: true,
   notifyOnUpdateAvailable: true,
+  notificationVolume: 100,
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
 };
 

@@ -351,6 +351,8 @@ export interface AppConfig {
   currency: string;
   notificationsEnabled: boolean;
   notifyOnUpdateAvailable: boolean;
+  /** Global notification sound volume, 0 (silent) to 100 (full). */
+  notificationVolume: number;
   notificationPrefs: NotificationPrefs;
   windowLayout?: WindowLayoutPrefs;
   inventoryTable?: InventoryTablePrefs;

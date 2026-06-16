@@ -73,6 +73,12 @@ const VALID_SOUND_IDS = new Set<NotificationSoundId>([
   ...NOTIFICATION_SOUND_ENTRIES.map((s) => s.id),
 ]);
 
+/** Clamps notification volume to an integer percent 0–100; defaults to 100. */
+export function sanitizeNotificationVolume(value: unknown): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) return 100;
+  return Math.min(100, Math.max(0, Math.round(value)));
+}
+
 export function sanitizeNotificationSoundId(
   sound: string | undefined,
   fallback: NotificationSoundId,
