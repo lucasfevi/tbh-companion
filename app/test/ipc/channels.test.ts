@@ -26,6 +26,7 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.SAVE_CONFIG");
     expect(preload).toContain("IPC.PICK_SAVE_FILE");
     expect(preload).toContain("IPC.PRICES_REFRESH");
+    expect(preload).toContain("IPC.PRICES_REFRESH_ITEM");
     expect(preload).toContain("IPC.GET_DATA_PATHS");
     expect(preload).toContain("IPC.CLEAR_APP_DATA");
     expect(preload).toContain("IPC.CLEAR_DIAGNOSTIC_LOGS");
@@ -45,6 +46,7 @@ describe("IPC channel registry", () => {
     expect(config).toContain("IPC.SAVE_CONFIG");
     expect(config).toContain("IPC.PICK_SAVE_FILE");
     expect(market).toContain("IPC.PRICES_REFRESH");
+    expect(market).toContain("IPC.PRICES_REFRESH_ITEM");
     expect(data).toContain("IPC.GET_DATA_PATHS");
     expect(data).toContain("IPC.CLEAR_APP_DATA");
     const logHandler = readFileSync(join(__dirname, "../../src/main/ipc/handlers/log.ts"), "utf-8");

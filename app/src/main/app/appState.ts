@@ -198,6 +198,7 @@ export function getAppServices() {
     refreshGameData: () => inventory.refreshGameData(),
     pricesStatus: () => inventory.pricesStatus(),
     refreshPrices: (force?: boolean) => inventory.refreshPrices(force),
+    refreshItemPrices: (itemKey: number) => inventory.refreshItemPrices(itemKey),
     cancelPrices: () => inventory.cancelPrices(),
     setCurrency: (iso: string) => {
       config.currency = iso;

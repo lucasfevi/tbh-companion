@@ -30,6 +30,7 @@ export async function fetchSteamPrice(
   };
   if (!data.success) return { ok: false, status: res.status };
 
+  const fetchedUtc = new Date().toISOString();
   return {
     ok: true,
     status: res.status,
@@ -39,7 +40,9 @@ export async function fetchSteamPrice(
       volume: data.volume ? Number(data.volume.replace(/[^0-9]/g, "")) : 0,
       rawLowest: data.lowest_price ?? null,
       rawMedian: data.median_price ?? null,
-      fetchedUtc: new Date().toISOString(),
+      fetchedUtc,
+      buyOrder: null,
+      rawBuyOrder: null,
     },
   };
 }

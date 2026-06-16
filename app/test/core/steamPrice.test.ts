@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
 import {
   parseMoney,
+  parseMinorUnits,
   currencyCode,
   currencyByIso,
   currencyPrefix,
   formatMoney,
+  formatRawMoney,
   pickMarketUnit,
   STEAM_CURRENCIES,
 } from "../../src/core/steamPrice";
@@ -54,6 +56,14 @@ describe("parseMoney", () => {
   });
 });
 
+describe("parseMinorUnits", () => {
+  it("parses histogram minor units", () => {
+    expect(parseMinorUnits("3")).toBeCloseTo(0.03);
+    expect(parseMinorUnits("0")).toBeNull();
+    expect(parseMinorUnits(null)).toBeNull();
+  });
+});
+
 describe("currency map", () => {
   it("lists all live Steam wallet currencies", () => {
     expect(STEAM_CURRENCIES).toHaveLength(43);
@@ -97,12 +107,21 @@ describe("currency map", () => {
     expect(formatMoney(0.04, "BRL")).toBe("R$ 0,04");
     expect(formatMoney(120, "JPY")).toBe("¥120");
     expect(formatMoney(6.49, "PHP")).toBe("P6.49");
-    expect(formatMoney(123039, "IDR")).toBe("Rp 123039.00");
-    expect(formatMoney(181500, "VND")).toBe("181500,00");
+    expect(formatMoney(123039, "IDR")).toBe("Rp 123,039.00");
+    expect(formatMoney(181500, "VND")).toBe("181.500,00");
     expect(formatMoney(3.24, "UAH")).toBe("3,24");
     expect(formatMoney(257.74, "MYR")).toBe("RM257.74");
     expect(formatMoney(107.55, "NZD")).toBe("NZ$ 107.55");
-    expect(formatMoney(55695.47, "CLP")).toBe("CLP$ 55695,47");
+    expect(formatMoney(55695.47, "CLP")).toBe("CLP$ 55.695,47");
+    expect(formatMoney(1234.56, "USD")).toBe("$1,234.56");
+    expect(formatMoney(1500, "KRW")).toBe("₩1,500");
+  });
+
+  it("re-formats raw Steam prices with grouping", () => {
+    expect(formatRawMoney("$714.15", "USD")).toBe("$714.15");
+    expect(formatRawMoney("$1234.56", "USD")).toBe("$1,234.56");
+    expect(formatRawMoney("R$ 1234,56", "BRL")).toBe("R$ 1.234,56");
+    expect(formatRawMoney("181.500₫", "VND")).toBe("181.500,00₫");
   });
 });
 

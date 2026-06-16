@@ -1,6 +1,12 @@
 import { GameDataProvider } from "../gameDataProvider";
 import { SteamMarketProvider } from "../steamMarketProvider";
-import { resolveInventory, ownedMarketNames, parseInventory } from "../../core/inventory";
+import {
+  resolveInventory,
+  ownedPriceTargets,
+  ownedPriceTargetForItem,
+  parseInventory,
+} from "../../core/inventory";
+import type { OwnedPriceTarget } from "../../core/inventory/ownedPriceTargets";
 import type {
   InventorySnapshot,
   ResolvedInventory,
@@ -24,6 +30,7 @@ export class InventoryService {
   private lastInventory: ResolvedInventory | null = null;
   private priceRefreshQueued = false;
   private priceRefreshForceQueued = false;
+  private priceRefreshPendingTargets: OwnedPriceTarget[] = [];
 
   initMarket(currency: string): void {
     this.market = new SteamMarketProvider(currency);
@@ -58,13 +65,17 @@ export class InventoryService {
     return this.gameData.isStageBox(itemKey);
   }
 
-  private currentOwnedMarketNames(): string[] {
+  private currentOwnedPriceTargets(): OwnedPriceTarget[] {
     if (!this.lastInventoryRaw) return [];
-    return ownedMarketNames(
+    return ownedPriceTargets(
       this.lastInventoryRaw,
       (key) => this.gameData.get(key),
       (key) => this.excludeFromInventoryListing(key),
     );
+  }
+
+  private targetKey(target: OwnedPriceTarget): string {
+    return target.kind === "material" ? target.hash : (target.candidates[0] ?? "");
   }
 
   parseFromSave(text: string, mtime: number): InventorySnapshot {
@@ -92,7 +103,7 @@ export class InventoryService {
   }
 
   pricesStatus(): PriceStatus {
-    return this.market!.status(this.currentOwnedMarketNames());
+    return this.market!.status(this.currentOwnedPriceTargets());
   }
 
   cancelPrices(): void {
@@ -111,6 +122,13 @@ export class InventoryService {
     if (force) this.priceRefreshForceQueued = true;
     log.info("Price refresh queued (already running)");
     return {
+      ...this.queuePriceRefreshResult(),
+      status: this.pricesStatus(),
+    };
+  }
+
+  private queuePriceRefreshResult(): PriceRefreshResult {
+    return {
       ok: true,
       priced: 0,
       skipped: 0,
@@ -118,7 +136,6 @@ export class InventoryService {
       stopped: "completed",
       currency: this.market!.status().currency,
       queued: true,
-      status: this.pricesStatus(),
     };
   }
 
@@ -128,10 +145,10 @@ export class InventoryService {
       return this.queuePriceRefresh(wantsForce);
     }
 
-    const names = this.currentOwnedMarketNames();
-    this.market!.pruneCache(names);
+    const targets = this.currentOwnedPriceTargets();
+    this.market!.pruneCacheTargets(targets);
 
-    const result = await this.market!.refresh(names, this.priceRefreshCallbacks(wantsForce));
+    const result = await this.market!.refresh(targets, this.priceRefreshCallbacks(wantsForce));
     this.resolveAndPushInventory();
     const status = this.pricesStatus();
     if (result.ok && !result.queued && !result.noop) {
@@ -140,6 +157,68 @@ export class InventoryService {
       );
     } else if (!result.ok) {
       log.warn(`Price refresh failed: ${result.error ?? "unknown"}`);
+    }
+    return { ...result, status };
+  }
+
+  async refreshItemPrices(itemKey: number): Promise<PriceRefreshResult & { status: PriceStatus }> {
+    const item = this.gameData.get(itemKey);
+    if (!item) {
+      return {
+        ok: false,
+        priced: 0,
+        skipped: 0,
+        failed: 0,
+        stopped: "completed",
+        currency: this.market!.status().currency,
+        error: "unknown item",
+        status: this.pricesStatus(),
+      };
+    }
+
+    const target = ownedPriceTargetForItem(item);
+    if (!target) {
+      return {
+        ok: false,
+        priced: 0,
+        skipped: 0,
+        failed: 0,
+        stopped: "completed",
+        currency: this.market!.status().currency,
+        error: "not priceable",
+        status: this.pricesStatus(),
+      };
+    }
+
+    return this.refreshPricesForTargets([target]);
+  }
+
+  private async refreshPricesForTargets(
+    targets: OwnedPriceTarget[],
+  ): Promise<PriceRefreshResult & { status: PriceStatus }> {
+    if (this.market!.status().running) {
+      for (const target of targets) {
+        const key = this.targetKey(target);
+        if (!this.priceRefreshPendingTargets.some((t) => this.targetKey(t) === key)) {
+          this.priceRefreshPendingTargets.push(target);
+        }
+      }
+      log.info(`Price refresh queued for ${targets.length} item(s) (already running)`);
+      return {
+        ...this.queuePriceRefreshResult(),
+        status: this.pricesStatus(),
+      };
+    }
+
+    const result = await this.market!.refresh(targets, this.priceRefreshCallbacks(true));
+    this.resolveAndPushInventory();
+    const status = this.pricesStatus();
+    if (result.ok && !result.queued && !result.noop) {
+      log.info(
+        `Item price refresh ${result.stopped}: priced=${result.priced} failed=${result.failed} skipped=${result.skipped}`,
+      );
+    } else if (!result.ok) {
+      log.warn(`Item price refresh failed: ${result.error ?? "unknown"}`);
     }
     return { ...result, status };
   }
@@ -173,17 +252,22 @@ export class InventoryService {
       return;
     }
 
-    const names = this.currentOwnedMarketNames();
-    this.market.pruneCache(names);
+    const targets = this.currentOwnedPriceTargets();
+    this.market.pruneCacheTargets(targets);
 
-    const pending = this.market.pendingNames(names, force);
+    const pending = this.market.pendingTargets(targets, force);
     if (!force && pending.length === 0) return;
 
-    await this.market.refresh(names, this.priceRefreshCallbacks(force));
+    await this.market.refresh(targets, this.priceRefreshCallbacks(force));
     this.resolveAndPushInventory();
   }
 
   private drainPriceRefreshQueue(): void {
+    if (this.priceRefreshPendingTargets.length > 0) {
+      const targets = this.priceRefreshPendingTargets.splice(0);
+      void this.refreshPricesForTargets(targets);
+      return;
+    }
     if (!this.priceRefreshQueued) return;
     const queuedForce = this.priceRefreshForceQueued;
     this.priceRefreshQueued = false;
@@ -203,6 +287,9 @@ export class InventoryService {
       lowest: e.lowest,
       rawMedian: e.rawMedian ?? null,
       rawLowest: e.rawLowest ?? (e as { raw?: string | null }).raw ?? null,
+      buyOrder: e.buyOrder ?? null,
+      rawBuyOrder: e.rawBuyOrder ?? null,
+      buyOrderFetched: e.buyOrderFetched === true,
     };
   }
 

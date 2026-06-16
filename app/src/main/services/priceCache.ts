@@ -9,6 +9,12 @@ export interface PriceEntry {
   rawLowest: string | null;
   rawMedian: string | null;
   fetchedUtc: string;
+  buyOrder: number | null;
+  rawBuyOrder: string | null;
+  /** True after a successful itemordershistogram response (including zero buy orders). */
+  buyOrderFetched?: boolean;
+  /** ISO timestamp of last successful histogram fetch; gates cache freshness. */
+  buyOrderCheckUtc?: string;
 }
 
 export interface PriceCache {
