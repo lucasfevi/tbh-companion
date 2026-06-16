@@ -80,6 +80,7 @@ Two `BrowserWindow`s load the same Vite bundle on different routes:
 `NotificationService` (main) reads `AppConfig` notification fields:
 
 - **`notificationsEnabled`** — master gate for all notification behavior.
+- **`notificationVolume`** — global sound volume **0–100** (default 100). At 0, WAV alerts are silent.
 - **`notifyOnUpdateAvailable`** — when enabled, `UpdateService` triggers a Windows OS
   notification (Electron `Notification`) for a new GitHub release; click focuses the main window.
 - **`notificationPrefs`** — per-kind sound settings (see `shared/notificationCatalog.ts`):
@@ -90,7 +91,8 @@ Two `BrowserWindow`s load the same Vite bundle on different routes:
     `showHeroLevelUp`).
 
 Each kind has `enabled` and `sound` (catalog id or `none`). Sounds play as bundled WAV files via
-PowerShell on Windows only; there is no OS toast for these events. Legacy `chestSoundVariant` in
+PowerShell + `MediaPlayer` (volume 0–1) on Windows only; there is no OS toast for these events.
+Legacy `chestSoundVariant` in
 old configs migrates to `notificationPrefs.chestReady` on load.
 
 Per-box **Notify when ready** toggles live in `box_timers.json` (Chests tab), not in `config.json`.
