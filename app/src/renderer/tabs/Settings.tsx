@@ -389,11 +389,32 @@ export function Settings() {
               />
             </Field>
 
+            <Field
+              label={`Sound volume (${cfg.notificationVolume}%)`}
+              hint={
+                !cfg.notificationsEnabled
+                  ? "Enable notifications above first."
+                  : "Applies to all notification sounds below. Windows update toasts are not affected."
+              }
+            >
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={1}
+                value={cfg.notificationVolume}
+                disabled={!cfg.notificationsEnabled || saveBusy}
+                onChange={(e) => void savePartial({ notificationVolume: Number(e.target.value) })}
+                className="h-2 w-full cursor-pointer accent-accent disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </Field>
+
             <Accordion variant="panel" title="Notification sounds">
               <NotificationSoundAccordion
                 prefs={cfg.notificationPrefs}
                 disabled={!cfg.notificationsEnabled}
                 saveBusy={saveBusy}
+                notificationVolume={cfg.notificationVolume}
                 onKindChange={(kindId: NotificationKindId, next: NotificationKindPreference) =>
                   void savePartial({
                     notificationPrefs: {

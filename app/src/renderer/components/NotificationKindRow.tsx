@@ -24,12 +24,14 @@ export function NotificationKindRow({
   pref,
   disabled,
   saveBusy,
+  notificationVolume = 100,
   onChange,
 }: {
   kindId: NotificationKindId;
   pref: NotificationKindPreference;
   disabled: boolean;
   saveBusy: boolean;
+  notificationVolume?: number;
   onChange: (next: NotificationKindPreference) => void;
 }) {
   const kind = NOTIFICATION_KIND_ENTRIES.find((k) => k.id === kindId)!;
@@ -75,7 +77,14 @@ export function NotificationKindRow({
         </Select>
       </Field>
       <Button
-        disabled={disabled || !pref.enabled || pref.sound === "none" || previewBusy || saveBusy}
+        disabled={
+          disabled ||
+          !pref.enabled ||
+          pref.sound === "none" ||
+          notificationVolume <= 0 ||
+          previewBusy ||
+          saveBusy
+        }
         onClick={() => void onPreview()}
       >
         {previewBusy ? "Playing…" : "Preview sound"}
@@ -88,11 +97,13 @@ export function NotificationSoundAccordion({
   prefs,
   disabled,
   saveBusy,
+  notificationVolume = 100,
   onKindChange,
 }: {
   prefs: NotificationPrefs;
   disabled: boolean;
   saveBusy: boolean;
+  notificationVolume?: number;
   onKindChange: (kindId: NotificationKindId, next: NotificationKindPreference) => void;
 }) {
   return (
@@ -104,6 +115,7 @@ export function NotificationSoundAccordion({
           pref={prefs[kind.id]}
           disabled={disabled}
           saveBusy={saveBusy}
+          notificationVolume={notificationVolume}
           onChange={(next) => onKindChange(kind.id, next)}
         />
       ))}
