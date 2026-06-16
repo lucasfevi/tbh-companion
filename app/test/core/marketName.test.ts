@@ -4,6 +4,8 @@ import {
   marketHashName,
   marketHashMatch,
   marketHashCandidates,
+  limitGearVariantHashes,
+  GEAR_MARKET_VARIANT_LETTERS,
 } from "../../src/core/marketName";
 import type { GameItem } from "../../src/core/gamedata";
 
@@ -88,14 +90,20 @@ describe("marketHashName", () => {
     expect(marketHashMatch(boots)?.name).toBe("Mystic Boots (Legendary) A");
   });
 
-  it("lists gear variant letters A–E for Steam probing", () => {
-    expect(marketHashCandidates(gearLeg)).toEqual([
-      "Knight Sword (Legendary) A",
-      "Knight Sword (Legendary) B",
-      "Knight Sword (Legendary) C",
-      "Knight Sword (Legendary) D",
-      "Knight Sword (Legendary) E",
-    ]);
+  it("lists variant A only for gear Steam probing", () => {
+    expect(GEAR_MARKET_VARIANT_LETTERS).toEqual(["A"]);
+    expect(marketHashCandidates(gearLeg)).toEqual(["Knight Sword (Legendary) A"]);
     expect(marketHashCandidates(mat)).toEqual(["Iron Ingot"]);
+  });
+
+  it("drops non-A gear variant hashes from stale inputs", () => {
+    expect(
+      limitGearVariantHashes([
+        "Knight Sword (Legendary) A",
+        "Knight Sword (Legendary) B",
+        "Knight Sword (Legendary) C",
+        "Iron Ingot",
+      ]),
+    ).toEqual(["Knight Sword (Legendary) A", "Iron Ingot"]);
   });
 });

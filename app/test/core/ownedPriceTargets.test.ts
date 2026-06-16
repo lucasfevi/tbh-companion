@@ -30,7 +30,7 @@ function snap(items: InventorySnapshot["items"]): InventorySnapshot {
 }
 
 describe("ownedPriceTargets", () => {
-  it("returns one gear target with A–E candidates per owned piece", () => {
+  it("returns one gear target with variant A candidate per owned piece", () => {
     const lookup = (key: number) => (key === 303071 ? gearLeg : undefined);
     const targets = ownedPriceTargets(
       snap([{ itemKey: 303071, isChaotic: false, inUse: false, location: "inventory" }]),
@@ -39,13 +39,7 @@ describe("ownedPriceTargets", () => {
     expect(targets).toHaveLength(1);
     expect(targets[0]).toEqual({
       kind: "gear",
-      candidates: [
-        "Knight Sword (Legendary) A",
-        "Knight Sword (Legendary) B",
-        "Knight Sword (Legendary) C",
-        "Knight Sword (Legendary) D",
-        "Knight Sword (Legendary) E",
-      ],
+      candidates: ["Knight Sword (Legendary) A"],
     });
   });
 
@@ -63,7 +57,7 @@ describe("ownedPriceTargets", () => {
     expect(target?.kind).toBe("gear");
     if (target?.kind !== "gear") return;
     const flat = flattenOwnedHashes([target]);
-    expect(flat).toHaveLength(5);
+    expect(flat).toHaveLength(1);
     expect(flat[0]).toContain(" A");
   });
 });

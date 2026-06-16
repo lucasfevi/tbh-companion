@@ -1,7 +1,7 @@
 // Owned items to refresh on Steam Market — one logical target per catalog piece.
 
 import type { GameItem } from "../gamedata";
-import { marketHashCandidates } from "../marketName";
+import { marketHashCandidates, limitGearVariantHashes } from "../marketName";
 import type { InventorySnapshot } from "../../../shared/types";
 
 export type OwnedPriceTarget =
@@ -25,7 +25,7 @@ export function ownedPriceTargetForItem(item: GameItem): OwnedPriceTarget | null
   const candidates = marketHashCandidates(item);
   if (candidates.length === 0) return null;
   if (item.type === "MATERIAL") return { kind: "material", hash: candidates[0] };
-  return { kind: "gear", candidates };
+  return { kind: "gear", candidates: limitGearVariantHashes(candidates) };
 }
 
 export function ownedPriceTargets(
