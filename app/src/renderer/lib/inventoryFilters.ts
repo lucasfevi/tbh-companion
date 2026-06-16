@@ -2,7 +2,17 @@ import { GRADE_ORDER, GRADE_RANK } from "../../core/grades";
 import { rowMatchesLocation } from "../../core/inventory/location";
 import type { ItemLocation, ResolvedInventory, ResolvedInventoryRow } from "../../../shared/types";
 
-export type SortKey = "name" | "grade" | "level" | "type" | "count" | "inUse" | "price" | "value";
+export type SortKey =
+  | "name"
+  | "grade"
+  | "level"
+  | "type"
+  | "count"
+  | "inUse"
+  | "price"
+  | "value"
+  | "buyOrder"
+  | "buyOrderValue";
 export type LocationFilter = "ALL" | ItemLocation;
 
 export interface InventoryFilterState {
@@ -54,6 +64,9 @@ export function filterAndSortRows(
     else if (state.sortKey === "inUse") cmp = (a.inUseCount ?? 0) - (b.inUseCount ?? 0);
     else if (state.sortKey === "price") cmp = (a.unitPrice ?? -1) - (b.unitPrice ?? -1);
     else if (state.sortKey === "value") cmp = (a.value ?? -1) - (b.value ?? -1);
+    else if (state.sortKey === "buyOrder") cmp = (a.buyOrderUnit ?? -1) - (b.buyOrderUnit ?? -1);
+    else if (state.sortKey === "buyOrderValue")
+      cmp = (a.buyOrderValue ?? -1) - (b.buyOrderValue ?? -1);
     else cmp = (GRADE_RANK[a.grade] ?? -1) - (GRADE_RANK[b.grade] ?? -1);
     if (cmp === 0) cmp = b.count - a.count;
     return cmp * dir;

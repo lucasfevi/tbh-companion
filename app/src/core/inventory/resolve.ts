@@ -1,6 +1,12 @@
 import type { GameItem } from "../gamedata";
 import { marketHashCandidates } from "../marketName";
+import { flattenOwnedHashes, ownedPriceTargets } from "./ownedPriceTargets";
 import { pickMarketUnit } from "../steamPrice";
+import {
+  aggregateSellerProceeds,
+  TBH_MARKET_FEE_RATES,
+  type SteamMarketFeeRates,
+} from "../steamMarketFee";
 import type {
   InventorySnapshot,
   InventoryItemInstance,
@@ -18,6 +24,8 @@ export interface PriceLookup {
 export interface ResolveInventoryOptions {
   /** Omit rows from the inventory table and composition (e.g. stage boxes). */
   excludeItemKey?: (itemKey: number) => boolean;
+  /** Steam market fee rates for net-after-fees totals. Defaults to TBH bundled rates. */
+  marketFeeRates?: SteamMarketFeeRates;
 }
 
 const EMPTY_UNIT = { unit: null, raw: null, source: null } as const;
@@ -27,7 +35,12 @@ type MarketUnit = ReturnType<typeof pickMarketUnit>;
 interface MarketResolution {
   hash: string | null;
   unit: MarketUnit;
+  rawMedian: string | null;
+  rawLowest: string | null;
   priceChecked: boolean;
+  buyOrderUnit: number | null;
+  buyOrderRaw: string | null;
+  buyOrderChecked: boolean;
 }
 
 interface PriceProbe {
@@ -35,7 +48,26 @@ interface PriceProbe {
   price: InventoryPriceInfo;
 }
 
-const NO_MARKET: MarketResolution = { hash: null, unit: EMPTY_UNIT, priceChecked: false };
+const NO_MARKET: MarketResolution = {
+  hash: null,
+  unit: EMPTY_UNIT,
+  rawMedian: null,
+  rawLowest: null,
+  priceChecked: false,
+  buyOrderUnit: null,
+  buyOrderRaw: null,
+  buyOrderChecked: false,
+};
+
+function sellRawFromPrice(price: InventoryPriceInfo): {
+  rawMedian: string | null;
+  rawLowest: string | null;
+} {
+  return {
+    rawMedian: price.rawMedian ?? null,
+    rawLowest: price.rawLowest ?? null,
+  };
+}
 
 function emptyComposition(): InventoryComposition {
   return {
@@ -48,7 +80,23 @@ function emptyComposition(): InventoryComposition {
     inUseCount: 0,
     priceableCount: 0,
     valuedTotal: 0,
+    feeTotal: 0,
+    netAfterFeesTotal: 0,
+    buyOrderValuedTotal: 0,
+    buyOrderPricedRows: 0,
     currency: null,
+  };
+}
+
+function buyOrderFromPrice(price: InventoryPriceInfo): {
+  unit: number | null;
+  raw: string | null;
+  checked: boolean;
+} {
+  return {
+    unit: price.buyOrder ?? null,
+    raw: price.rawBuyOrder ?? null,
+    checked: price.buyOrderFetched === true,
   };
 }
 
@@ -65,19 +113,37 @@ function resolveMarketHashAndPrice(
 
   const pricedProbe = probes.find((probe) => pickMarketUnit(probe.price).unit != null);
   if (pricedProbe) {
+    const buy = buyOrderFromPrice(pricedProbe.price);
+    const sellRaw = sellRawFromPrice(pricedProbe.price);
     return {
       hash: pricedProbe.hash,
       unit: pickMarketUnit(pricedProbe.price),
+      rawMedian: sellRaw.rawMedian,
+      rawLowest: sellRaw.rawLowest,
       priceChecked: true,
+      buyOrderUnit: buy.unit,
+      buyOrderRaw: buy.raw,
+      buyOrderChecked: buy.checked,
     };
   }
 
   const firstHash = candidates[0];
   const firstProbe = probes.find((probe) => probe.hash === firstHash);
+  const buy = firstProbe
+    ? buyOrderFromPrice(firstProbe.price)
+    : { unit: null, raw: null, checked: false };
+  const sellRaw = firstProbe
+    ? sellRawFromPrice(firstProbe.price)
+    : { rawMedian: null, rawLowest: null };
   return {
     hash: firstHash,
     unit: firstProbe ? pickMarketUnit(firstProbe.price) : EMPTY_UNIT,
+    rawMedian: sellRaw.rawMedian,
+    rawLowest: sellRaw.rawLowest,
     priceChecked: probes.length > 0,
+    buyOrderUnit: buy.unit,
+    buyOrderRaw: buy.raw,
+    buyOrderChecked: buy.checked,
   };
 }
 
@@ -102,10 +168,16 @@ function createResolvedRow(
     chaoticCount: 0,
     known: Boolean(catalogItem),
     priceRaw: market.unit.raw,
+    rawMedian: market.rawMedian,
+    rawLowest: market.rawLowest,
     unitPrice: market.unit.unit,
     priceSource: market.unit.source,
     priceChecked: market.priceChecked,
     value: null,
+    buyOrderRaw: market.buyOrderRaw,
+    buyOrderUnit: market.buyOrderUnit,
+    buyOrderValue: null,
+    buyOrderChecked: market.buyOrderChecked,
   };
 }
 
@@ -128,10 +200,16 @@ function applyInstance(row: ResolvedInventoryRow, instance: InventoryItemInstanc
 
 function clearRowPricing(row: ResolvedInventoryRow): void {
   row.priceRaw = null;
+  row.rawMedian = null;
+  row.rawLowest = null;
   row.unitPrice = null;
   row.priceSource = null;
   row.priceChecked = false;
   row.value = null;
+  row.buyOrderRaw = null;
+  row.buyOrderUnit = null;
+  row.buyOrderValue = null;
+  row.buyOrderChecked = false;
 }
 
 function accumulateCompositionRow(
@@ -156,11 +234,29 @@ function accumulateCompositionRow(
 
   row.value = row.unitPrice * row.count;
   composition.valuedTotal += row.value;
+
+  if (row.buyOrderUnit != null) {
+    row.buyOrderValue = row.buyOrderUnit * row.count;
+    composition.buyOrderValuedTotal += row.buyOrderValue;
+    composition.buyOrderPricedRows += 1;
+  }
 }
 
-function finalizeRows(rows: ResolvedInventoryRow[]): InventoryComposition {
+function finalizeRows(
+  rows: ResolvedInventoryRow[],
+  feeRates: SteamMarketFeeRates,
+): InventoryComposition {
   const composition = emptyComposition();
   rows.forEach((row) => accumulateCompositionRow(composition, row));
+
+  const feeLines = rows
+    .filter((row) => row.unitPrice != null && row.count > 0)
+    .map((row) => ({ buyerUnitPrice: row.unitPrice!, count: row.count }));
+
+  const proceeds = aggregateSellerProceeds(feeLines, feeRates);
+  composition.feeTotal = proceeds.feeTotal;
+  composition.netAfterFeesTotal = proceeds.netTotal;
+
   return composition;
 }
 
@@ -224,6 +320,7 @@ export function resolveInventory(
   options?: ResolveInventoryOptions,
 ): ResolvedInventory {
   const excludeItemKey = options?.excludeItemKey;
+  const feeRates = options?.marketFeeRates ?? TBH_MARKET_FEE_RATES;
   const rowsByItemKey = new Map<number, ResolvedInventoryRow>();
 
   accumulateInstances(rowsByItemKey, snapshot.items, lookup, priceLookup, excludeItemKey);
@@ -239,7 +336,7 @@ export function resolveInventory(
   }
 
   const rows = [...rowsByItemKey.values()];
-  const composition = finalizeRows(rows);
+  const composition = finalizeRows(rows, feeRates);
 
   return {
     rows,
@@ -251,24 +348,11 @@ export function resolveInventory(
   };
 }
 
+/** Flat market_hash_name list for cache prune (all variant letters for owned gear). */
 export function ownedMarketNames(
   snapshot: InventorySnapshot,
   lookup: (itemKey: number) => GameItem | undefined,
   excludeItemKey?: (itemKey: number) => boolean,
 ): string[] {
-  const names = new Set<string>();
-  const seenItemKeys = new Set<number>();
-
-  snapshot.items.forEach((instance) => {
-    if (excludeItemKey?.(instance.itemKey)) return;
-    if (seenItemKeys.has(instance.itemKey)) return;
-    seenItemKeys.add(instance.itemKey);
-
-    const catalogItem = lookup(instance.itemKey);
-    if (!catalogItem) return;
-
-    marketHashCandidates(catalogItem).forEach((marketHash) => names.add(marketHash));
-  });
-
-  return [...names];
+  return flattenOwnedHashes(ownedPriceTargets(snapshot, lookup, excludeItemKey));
 }

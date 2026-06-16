@@ -199,11 +199,18 @@ export interface ResolvedInventoryRow {
   chaoticCount: number;
   known: boolean;
   priceRaw: string | null;
+  rawMedian: string | null;
+  rawLowest: string | null;
   unitPrice: number | null;
   priceSource: "median" | "lowest" | null;
   /** True when Steam was queried for this hash (even if no listing/sale price came back). */
   priceChecked: boolean;
   value: number | null;
+  buyOrderRaw: string | null;
+  buyOrderUnit: number | null;
+  buyOrderValue: number | null;
+  /** True when buy-order histogram was queried for this hash. */
+  buyOrderChecked: boolean;
   inventoryCount: number;
   stashCount: number;
   tradingCount: number;
@@ -214,6 +221,10 @@ export interface InventoryPriceInfo {
   lowest: number | null;
   rawMedian: string | null;
   rawLowest: string | null;
+  buyOrder: number | null;
+  rawBuyOrder: string | null;
+  /** True after a successful itemordershistogram response (including zero buy orders). */
+  buyOrderFetched?: boolean;
 }
 
 export interface InventoryComposition {
@@ -226,6 +237,11 @@ export interface InventoryComposition {
   inUseCount: number;
   priceableCount: number;
   valuedTotal: number;
+  feeTotal: number;
+  netAfterFeesTotal: number;
+  buyOrderValuedTotal: number;
+  /** Distinct priced rows with a non-null buy order unit. */
+  buyOrderPricedRows: number;
   currency: string | null;
 }
 
@@ -306,6 +322,21 @@ export interface WindowLayoutPrefs {
   boxTracker?: WindowLayoutEntry;
 }
 
+export type InventoryColumnId =
+  | "grade"
+  | "level"
+  | "type"
+  | "location"
+  | "inUse"
+  | "marketPrice"
+  | "listValue"
+  | "instantSell"
+  | "instantTotal";
+
+export interface InventoryTablePrefs {
+  visibleColumns: InventoryColumnId[];
+}
+
 export interface AppConfig {
   savePath: string;
   es3Password: string;
@@ -318,6 +349,7 @@ export interface AppConfig {
   notifyOnUpdateAvailable: boolean;
   notificationPrefs: NotificationPrefs;
   windowLayout?: WindowLayoutPrefs;
+  inventoryTable?: InventoryTablePrefs;
 }
 
 /** Scoped targets for Settings → Data & cache clear actions. */
@@ -538,6 +570,7 @@ export interface TbhApi {
   onInventory(cb: (inv: ResolvedInventory) => void): () => void;
   pricesStatus(): Promise<PriceStatus>;
   refreshPrices(force?: boolean): Promise<PriceRefreshResult & { status: PriceStatus }>;
+  refreshItemPrices(itemKey: number): Promise<PriceRefreshResult & { status: PriceStatus }>;
   cancelPrices(): void;
   setCurrency(iso: string): Promise<PriceStatus>;
   onPricesProgress(cb: (p: PriceProgress) => void): () => void;

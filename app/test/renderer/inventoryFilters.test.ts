@@ -20,10 +20,16 @@ const inv: ResolvedInventory = {
       chaoticCount: 0,
       known: true,
       priceRaw: "$1.00",
+      rawMedian: "$1.00",
+      rawLowest: "$0.90",
       unitPrice: 1,
       priceSource: "median",
       priceChecked: true,
       value: 5,
+      buyOrderRaw: null,
+      buyOrderUnit: null,
+      buyOrderValue: null,
+      buyOrderChecked: false,
     },
     {
       itemKey: 2,
@@ -41,10 +47,16 @@ const inv: ResolvedInventory = {
       chaoticCount: 0,
       known: true,
       priceRaw: "$10.00",
+      rawMedian: "$10.00",
+      rawLowest: "$10.00",
       unitPrice: 10,
       priceSource: "median",
       priceChecked: true,
       value: 10,
+      buyOrderRaw: "$8.00",
+      buyOrderUnit: 8,
+      buyOrderValue: 8,
+      buyOrderChecked: true,
     },
   ],
   composition: {
@@ -57,6 +69,10 @@ const inv: ResolvedInventory = {
     inUseCount: 1,
     priceableCount: 6,
     valuedTotal: 15,
+    feeTotal: 0.75,
+    netAfterFeesTotal: 14.25,
+    buyOrderValuedTotal: 8,
+    buyOrderPricedRows: 1,
     currency: "USD",
   },
   chests: [],
@@ -90,6 +106,20 @@ describe("inventoryFilters", () => {
       typeFilter: "ALL",
       locationFilter: "ALL",
       sortKey: "value",
+      sortDir: "desc",
+    });
+    expect(rows[0].name).toBe("Void Staff");
+  });
+
+  it("sorts by buy order value", () => {
+    const rows = filterAndSortRows(inv, {
+      query: "",
+      tradableOnly: false,
+      inUseOnly: false,
+      gradeFilter: "ALL",
+      typeFilter: "ALL",
+      locationFilter: "ALL",
+      sortKey: "buyOrderValue",
       sortDir: "desc",
     });
     expect(rows[0].name).toBe("Void Staff");

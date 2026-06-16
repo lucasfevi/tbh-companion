@@ -110,7 +110,15 @@ describe("resolveInventory", () => {
     const snap = parseInventory(wrapPlayer(playerInner), 0, isMaterial);
     const priceLookup = (name: string) =>
       name === "Iron Ingot"
-        ? { median: 0.05, lowest: 0.04, rawMedian: "$0.05", rawLowest: "$0.04" }
+        ? {
+            median: 0.05,
+            lowest: 0.04,
+            rawMedian: "$0.05",
+            rawLowest: "$0.04",
+            buyOrder: 0.03,
+            rawBuyOrder: "$0.03",
+            buyOrderFetched: true,
+          }
         : undefined;
     const res = resolveInventory(snap, lookup, true, priceLookup);
 
@@ -129,8 +137,12 @@ describe("resolveInventory", () => {
     expect(ingot.marketHashName).toBe("Iron Ingot");
     expect(ingot.inventoryCount).toBe(1);
     expect(ingot.priceRaw).toBe("$0.05");
+    expect(ingot.rawMedian).toBe("$0.05");
+    expect(ingot.rawLowest).toBe("$0.04");
     expect(ingot.priceSource).toBe("median");
     expect(ingot.value).toBeCloseTo(0.05);
+    expect(ingot.buyOrderUnit).toBeCloseTo(0.03);
+    expect(ingot.buyOrderValue).toBeCloseTo(0.03);
 
     const sword = res.rows.find((r) => r.itemKey === 303071)!;
     expect(sword.marketHashName).toBe("Knight Sword (Legendary) A");
@@ -139,6 +151,9 @@ describe("resolveInventory", () => {
     expect(res.composition.inUseCount).toBe(1);
     expect(res.composition.priceableCount).toBe(7);
     expect(res.composition.valuedTotal).toBeCloseTo(0.05);
+    expect(res.composition.buyOrderValuedTotal).toBeCloseTo(0.03);
+    expect(res.composition.buyOrderPricedRows).toBe(1);
+    expect(res.composition.netAfterFeesTotal).toBeLessThan(res.composition.valuedTotal);
   });
 
   it("excludes stage boxes from rows and composition when requested", () => {
