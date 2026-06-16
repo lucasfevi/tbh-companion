@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { XpTracker } from "../../src/core/tracker";
+import { ChestDropTracker } from "../../src/core/chestDropTracker";
 import { DEFAULT_NOTIFICATION_PREFS } from "../../shared/notificationCatalog";
 import type { AppConfig, SaveSnapshot } from "../../shared/types";
 import { SESSION_STATE_FILE } from "../../src/main/services/appData";
@@ -61,8 +62,11 @@ describe("SessionStateService", () => {
     tracker.update(snap(1000, 0));
     tracker.update(snap(1060, 600));
 
+    const chestDropTracker = new ChestDropTracker();
+    chestDropTracker.recordLogDrop(910151);
+
     const svc = await loadService();
-    svc.persist(tracker, snap(1060, 600), config);
+    svc.persist(tracker, chestDropTracker, snap(1060, 600), config);
 
     const path = join(userDataDir, SESSION_STATE_FILE);
     expect(existsSync(path)).toBe(true);
@@ -70,10 +74,12 @@ describe("SessionStateService", () => {
     const svc2 = await loadService();
     svc2.load(config);
     const fresh = new XpTracker(300);
-    expect(svc2.tryRestoreOnSnapshot(fresh, snap(1060, 600))).toBe("restored");
+    const freshChest = new ChestDropTracker();
+    expect(svc2.tryRestoreOnSnapshot(fresh, freshChest, snap(1060, 600))).toBe("restored");
     fresh.update(snap(1060, 600));
     expect(fresh.cumulativeGained).toBe(600);
     expect(fresh.history).toHaveLength(1);
+    expect(freshChest.getStats(3600, true).commonTotal).toBe(1);
   });
 
   it("discards snapshot when save mtime rolled back", async () => {
@@ -82,12 +88,14 @@ describe("SessionStateService", () => {
     tracker.update(snap(2060, 500));
 
     const svc = await loadService();
-    svc.persist(tracker, snap(2060, 500), config);
+    svc.persist(tracker, new ChestDropTracker(), snap(2060, 500), config);
 
     const svc2 = await loadService();
     svc2.load(config);
     const fresh = new XpTracker(300);
-    expect(svc2.tryRestoreOnSnapshot(fresh, snap(1999, 500))).toBe("discarded");
+    expect(svc2.tryRestoreOnSnapshot(fresh, new ChestDropTracker(), snap(1999, 500))).toBe(
+      "discarded",
+    );
     expect(svc2.getStatusOverride()).toBe("New session");
     expect(existsSync(join(userDataDir, SESSION_STATE_FILE))).toBe(false);
   });
@@ -116,11 +124,13 @@ describe("SessionStateService", () => {
     tracker.update(snap(1000, 0));
     tracker.update(snap(1060, 600));
 
+    const chestDropTracker = new ChestDropTracker();
     const svc = await loadService();
     svc.setMiniOverlayOpen(true);
-    svc.persist(tracker, snap(1060, 600), config);
+    svc.persist(tracker, chestDropTracker, snap(1060, 600), config);
     tracker.reset();
-    svc.onTrackerReset(tracker, config, snap(1060, 600));
+    chestDropTracker.reset();
+    svc.onTrackerReset(tracker, chestDropTracker, config, snap(1060, 600));
 
     const raw = JSON.parse(readFileSync(join(userDataDir, SESSION_STATE_FILE), "utf-8")) as {
       tracker: { cumulativeGained: number };

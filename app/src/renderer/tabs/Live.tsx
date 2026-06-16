@@ -3,11 +3,16 @@ import { fmtCompact, fmtDuration, fmtXpUpdated, fmtClock } from "../lib/format";
 import { stageName } from "../../core/stages";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
-import { DataList, DataListRow } from "../components/ui/DataList";
+import { DataListRow } from "../components/ui/DataList";
 import { PanelSection } from "../components/ui/PanelSection";
 import { StatCard } from "../components/ui/StatCard";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
+import { ChestDropPanel } from "../components/live/ChestDropPanel";
+import { LiveHistoryPanel } from "../components/live/LiveHistoryPanel";
+import { LiveMatchedPair } from "../components/live/LiveMatchedPair";
+import { LivePanelList } from "../components/live/LivePanelList";
+import { LiveChestStatValue } from "../lib/liveChestStat";
 import { cn } from "../lib/cn";
 
 const IDLE_THRESHOLD = 120;
@@ -18,6 +23,8 @@ const RATE_TIP =
 const GOLD_TIP =
   "Gold earned per hour. Counts gold gained only; spending (upgrades, Cube, " +
   "runes) is ignored, so it's accurate while farming.";
+const CHEST_RATE_TIP =
+  "Drop rates from Player.log lines this session. Only counts while the companion is running.";
 
 export function Live() {
   const stats = useStats();
@@ -33,6 +40,9 @@ export function Live() {
 
   const idle = stats.secondsSinceGain !== null && stats.secondsSinceGain > IDLE_THRESHOLD;
   const showStatus = stats.status !== "Tracking";
+  const { commonTotal, rareTotal, commonPerHour, rarePerHour, playerLogAvailable } =
+    stats.chestDrops;
+  const chestStatsInactive = !playerLogAvailable;
 
   return (
     <TabPage>
@@ -86,59 +96,84 @@ export function Live() {
         </Button>
       </Card>
 
-      <section className="grid grid-cols-4 gap-2.5">
+      <section className="grid grid-cols-3 gap-2.5">
         <StatCard label="Session XP" value={fmtCompact(stats.cumulativeGained)} />
         <StatCard label="Session gold" value={fmtCompact(stats.goldGained)} />
         <StatCard label="Elapsed" value={fmtDuration(stats.elapsed)} />
         <StatCard label="Session XP/hr" value={fmtCompact(stats.sessionRate)} />
+        <StatCard
+          label="Common chests"
+          value={
+            <LiveChestStatValue
+              total={commonTotal}
+              perHour={commonPerHour}
+              inactive={chestStatsInactive}
+            />
+          }
+          title={CHEST_RATE_TIP}
+        />
+        <StatCard
+          label="Stage boss chests"
+          value={
+            <LiveChestStatValue
+              total={rareTotal}
+              perHour={rarePerHour}
+              countClassName="text-status-info"
+              inactive={chestStatsInactive}
+            />
+          }
+          title={CHEST_RATE_TIP}
+        />
       </section>
 
-      <PanelSection title="Heroes">
-        {stats.heroes.length === 0 ? (
-          <p className="m-0 text-muted">No active heroes yet.</p>
-        ) : (
-          <DataList>
-            {stats.heroes.map((h, i) => (
-              <DataListRow
-                key={h.key}
-                index={i}
-                className="grid grid-cols-[1fr_auto_auto] items-center gap-3"
-              >
-                <span className="font-semibold">{h.name}</span>
-                <span className="text-muted">Lv {h.level}</span>
-                <span className="tabular-nums text-accent">{fmtCompact(h.rate)}/hr</span>
-              </DataListRow>
-            ))}
-          </DataList>
-        )}
-      </PanelSection>
+      <ChestDropPanel chestDrops={stats.chestDrops} />
 
-      <PanelSection
-        title={
-          <>
-            History <span className="normal-case tracking-normal text-muted">- XP changes</span>
-          </>
+      <LiveMatchedPair
+        left={
+          <PanelSection title="Heroes" boxed>
+            <LivePanelList empty={stats.heroes.length === 0 ? "No active heroes yet." : undefined}>
+              {stats.heroes.map((h, i) => (
+                <DataListRow
+                  key={h.key}
+                  index={i}
+                  className="grid grid-cols-[1fr_auto_auto] items-center gap-3"
+                >
+                  <span className="font-semibold">{h.name}</span>
+                  <span className="text-muted">Lv {h.level}</span>
+                  <span className="tabular-nums text-accent">{fmtCompact(h.rate)}/hr</span>
+                </DataListRow>
+              ))}
+            </LivePanelList>
+          </PanelSection>
         }
-      >
-        {stats.history.length === 0 ? (
-          <p className="m-0 text-muted">No XP changes recorded yet.</p>
-        ) : (
-          <DataList scrollable className="max-h-[220px]">
+        right={
+          <LiveHistoryPanel
+            title={
+              <>
+                History <span className="normal-case tracking-normal text-muted">- XP changes</span>
+              </>
+            }
+            empty={
+              stats.history.length === 0 ? (
+                <p className="m-0">No XP changes recorded yet.</p>
+              ) : undefined
+            }
+          >
             {stats.history.map((e, i) => (
               <DataListRow
                 key={`${e.wallTime}-${i}`}
                 index={i}
                 className="grid grid-cols-[auto_auto_auto_1fr] items-center gap-3 tabular-nums"
               >
-                <span className="text-muted">{fmtClock(e.wallTime)}</span>
+                <span className="shrink-0 tabular-nums text-muted">{fmtClock(e.wallTime)}</span>
                 <span className="text-accent">+{fmtCompact(e.delta)}</span>
                 <span>{fmtCompact(e.rate)}/hr</span>
                 <span className="text-right text-muted">{stageName(e.stageKey, e.stageWave)}</span>
               </DataListRow>
             ))}
-          </DataList>
-        )}
-      </PanelSection>
+          </LiveHistoryPanel>
+        }
+      />
 
       {showStatus && (
         <footer

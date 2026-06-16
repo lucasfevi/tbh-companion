@@ -2,6 +2,7 @@
 
 import type { Stats, SaveSnapshot } from "../../shared/types";
 
+import type { ChestDropTracker } from "../core/chestDropTracker";
 import type { XpTracker } from "../core/tracker";
 
 import { heroName } from "../core/heroes";
@@ -16,11 +17,10 @@ function nowSeconds(): number {
 
 export function buildStats(
   tracker: XpTracker,
-
+  chestDropTracker: ChestDropTracker,
+  playerLogAvailable: boolean,
   lastSnap: SaveSnapshot | null,
-
   lastError: string | null,
-
   statusOverride: string | null = null,
 ): Stats {
   const sourceHeroes = lastSnap?.heroes ?? tracker.heroes;
@@ -87,5 +87,6 @@ export function buildStats(
     heroes,
 
     history: tracker.history.slice(-HISTORY_VISIBLE).reverse(),
+    chestDrops: chestDropTracker.getStats(tracker.elapsed, playerLogAvailable),
   };
 }

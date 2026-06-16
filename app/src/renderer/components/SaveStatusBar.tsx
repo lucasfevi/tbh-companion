@@ -21,31 +21,28 @@ export function SaveStatusBar() {
 
   return (
     <div
-      className={cn(
-        "flex items-center justify-between gap-3 border-b border-border px-3.5 py-1.5 text-xs",
-        idle && "text-gold",
-      )}
+      className="flex items-center justify-between gap-3 border-b border-border px-3.5 py-1.5 text-xs"
       role="status"
     >
-      <div className="flex min-w-0 items-center gap-2">
+      <div className={cn("flex min-w-0 items-center gap-2", idle ? "text-gold" : "text-fg")}>
         <span
           className={cn("size-2 shrink-0 rounded-full bg-accent", idle && "bg-gold")}
           aria-hidden
         />
         <span>{saveText}</span>
-        {idle ? <span className="text-gold">- is the game running?</span> : null}
+        {idle ? <span>- is the game running?</span> : null}
       </div>
       {showPlayerLog ? (
         <div
           className={cn(
             "flex shrink-0 items-center gap-2",
-            !idle && (playerLogAvailable ? "text-fg" : "text-muted"),
+            playerLogAvailable ? "text-fg" : "text-gold",
           )}
         >
           <span
             className={cn(
               "size-2 shrink-0 rounded-full",
-              playerLogAvailable ? "bg-accent" : "bg-muted",
+              playerLogAvailable ? "bg-accent" : "bg-gold",
             )}
             aria-hidden
           />

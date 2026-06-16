@@ -31,8 +31,9 @@ describe("playerLog", () => {
 GetBoxCount Success Count : 1 // ItemKey : 920501
 UnityEngine.Debug:Log(Object)
 GetBoxCount Success Count : 1 // ItemKey : 920151
+GetBoxCount Success Count : 1 // ItemKey : 910151
 `;
-    expect(parseGetBoxCountItemKeys(chunk)).toEqual([920501, 920151]);
+    expect(parseGetBoxCountItemKeys(chunk)).toEqual([920501, 920151, 910151]);
   });
 
   it("ignores unrelated log lines", () => {

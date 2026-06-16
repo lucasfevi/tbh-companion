@@ -1,4 +1,4 @@
-// Tails Unity Player.log for stage boss box drop lines (GetBoxCount Success).
+// Tails Unity Player.log for chest drop lines (GetBoxCount Success).
 // Polling matches SaveWatcher — robust on Windows when the game rewrites the log.
 
 import { statSync } from "node:fs";
@@ -57,7 +57,7 @@ export class PlayerLogWatcher {
     this.available = available;
     this.opts.onAvailability?.(available);
     if (available && !this.loggedReady) {
-      log.info("Player.log available — watching for stage boss drops");
+      log.info("Player.log available — watching for chest drops");
       this.loggedReady = true;
     }
   }

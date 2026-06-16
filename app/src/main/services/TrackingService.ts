@@ -5,6 +5,7 @@ import { playerLogPathFromSave } from "../../core/playerLog";
 import { buildStats } from "../stats";
 import { makeHistoryLogger } from "../historyLog";
 import { XpTracker } from "../../core/tracker";
+import { ChestDropTracker } from "../../core/chestDropTracker";
 import type { AppConfig, InventorySnapshot, SaveSnapshot } from "../../../shared/types";
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
@@ -23,6 +24,8 @@ export interface PlayerLogHooks {
 
 export class TrackingService {
   private tracker!: XpTracker;
+  private chestDropTracker!: ChestDropTracker;
+  private playerLogAvailable = false;
   private watcher: SaveWatcher | null = null;
   private playerLogWatcher: PlayerLogWatcher | null = null;
   private tickTimer: NodeJS.Timeout | null = null;
@@ -48,6 +51,7 @@ export class TrackingService {
   start(config: AppConfig): void {
     this.config = config;
     this.tracker = new XpTracker(config.rollingWindowMinutes * 60);
+    this.chestDropTracker = new ChestDropTracker();
     if (config.logHistoryCsv) {
       this.tracker.onHistory = makeHistoryLogger();
     }
@@ -59,6 +63,7 @@ export class TrackingService {
     this.tickTimer = setInterval(() => this.pushStats(), 1000);
     this.sessionState?.startAutosave(() => ({
       tracker: this.tracker,
+      chestDropTracker: this.chestDropTracker,
       lastSnap: this.lastSnap,
       config: this.config,
     }));
@@ -81,6 +86,8 @@ export class TrackingService {
   getStats() {
     return buildStats(
       this.tracker,
+      this.chestDropTracker,
+      this.playerLogAvailable,
       this.lastSnap,
       this.lastError,
       this.sessionState?.getStatusOverride() ?? null,
@@ -89,12 +96,18 @@ export class TrackingService {
 
   reset(): void {
     this.tracker.reset();
-    this.sessionState?.onTrackerReset(this.tracker, this.config, this.lastSnap);
+    this.chestDropTracker.reset();
+    this.sessionState?.onTrackerReset(
+      this.tracker,
+      this.chestDropTracker,
+      this.config,
+      this.lastSnap,
+    );
     this.pushStats();
   }
 
   flushSession(): void {
-    this.sessionState?.flush(this.tracker, this.lastSnap, this.config);
+    this.sessionState?.flush(this.tracker, this.chestDropTracker, this.lastSnap, this.config);
   }
 
   getTracker(): XpTracker {
@@ -127,10 +140,17 @@ export class TrackingService {
     this.restoreApplied = false;
     this.sessionState?.invalidatePending();
     this.tracker.reset();
+    this.chestDropTracker.reset();
     this.sessionState?.notifyNewSession();
-    this.sessionState?.onTrackerReset(this.tracker, this.config, null);
+    this.sessionState?.onTrackerReset(this.tracker, this.chestDropTracker, this.config, null);
     this.pushStats();
     this.restartPlayerLogWatcher();
+  }
+
+  onChestLogDrop(itemKey: number): void {
+    if (this.chestDropTracker.recordLogDrop(itemKey)) {
+      this.pushStats();
+    }
   }
 
   private restartPlayerLogWatcher(): void {
@@ -157,7 +177,7 @@ export class TrackingService {
         this.lastSnap = snap;
         this.lastError = null;
         if (!this.restoreApplied && this.sessionState) {
-          this.sessionState.tryRestoreOnSnapshot(this.tracker, snap);
+          this.sessionState.tryRestoreOnSnapshot(this.tracker, this.chestDropTracker, snap);
           this.restoreApplied = true;
         }
         this.tracker.update(snap);
@@ -179,8 +199,15 @@ export class TrackingService {
     return new PlayerLogWatcher({
       path,
       pollMs: PLAYER_LOG_POLL_MS,
-      onDrop: (itemKey) => this.playerLog?.onDrop(itemKey),
-      onAvailability: (available) => this.playerLog?.onAvailability(path, available),
+      onDrop: (itemKey) => {
+        this.onChestLogDrop(itemKey);
+        this.playerLog?.onDrop(itemKey);
+      },
+      onAvailability: (available) => {
+        this.playerLogAvailable = available;
+        this.playerLog?.onAvailability(path, available);
+        this.pushStats();
+      },
     });
   }
 }

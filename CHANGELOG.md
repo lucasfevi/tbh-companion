@@ -4,6 +4,15 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+### Live
+
+- **Chest drops** on the Live tab: session totals and per-hour rates in stat tiles, per-type breakdown cards, and a scrollable drop history from Player.log.
+- Heroes and XP history use matched column heights so long histories scroll inside the panel.
+
+### Fixed
+
+- Player.log status in the header no longer turns gold when only the save file is stale.
+
 ## [1.10.0] - 2026-06-14
 
 ### Market
