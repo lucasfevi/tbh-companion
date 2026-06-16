@@ -179,7 +179,16 @@ export function Settings() {
 
   useEffect(
     () => () => {
-      if (volumeSaveTimerRef.current) clearTimeout(volumeSaveTimerRef.current);
+      if (volumeSaveTimerRef.current) {
+        clearTimeout(volumeSaveTimerRef.current);
+        volumeSaveTimerRef.current = null;
+      }
+      const value = pendingVolumeRef.current;
+      if (value === null) return;
+      pendingVolumeRef.current = null;
+      if (typeof window.tbh?.saveConfig === "function") {
+        void window.tbh.saveConfig({ notificationVolume: value });
+      }
     },
     [],
   );

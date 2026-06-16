@@ -65,6 +65,22 @@ describe("NotificationService", () => {
     expect(notificationCtor).not.toHaveBeenCalled();
   });
 
+  it("skips update notification when update toggle is off", () => {
+    const service = new NotificationService(
+      () => ({ ...baseConfig, notifyOnUpdateAvailable: false }),
+      vi.fn(),
+    );
+    service.showUpdateAvailable("2.0.0");
+    expect(notificationCtor).not.toHaveBeenCalled();
+  });
+
+  it("dedupes update notifications per version", () => {
+    const service = new NotificationService(() => baseConfig, vi.fn());
+    service.showUpdateAvailable("2.0.0");
+    service.showUpdateAvailable("2.0.0");
+    expect(notificationCtor).toHaveBeenCalledTimes(1);
+  });
+
   it("plays chest ready sound via renderer IPC", () => {
     const service = new NotificationService(() => baseConfig, vi.fn());
     service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
@@ -83,9 +99,63 @@ describe("NotificationService", () => {
     });
   });
 
+  it("plays hero level up sound for heroLevelUp kind", () => {
+    const service = new NotificationService(() => baseConfig, vi.fn());
+    service.showHeroLevelUp([{ key: "101", previousLevel: 5, newLevel: 6 }]);
+    expect(sendNotificationSoundMock).toHaveBeenCalledWith({
+      soundId: "level-triumph",
+      volumePercent: 100,
+    });
+  });
+
+  it("plays hero level up sound once for a batch of level-ups", () => {
+    const service = new NotificationService(() => baseConfig, vi.fn());
+    service.showHeroLevelUp([
+      { key: "101", previousLevel: 5, newLevel: 6 },
+      { key: "201", previousLevel: 2, newLevel: 3 },
+    ]);
+    expect(sendNotificationSoundMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips hero level up sound for an empty batch", () => {
+    const service = new NotificationService(() => baseConfig, vi.fn());
+    service.showHeroLevelUp([]);
+    expect(sendNotificationSoundMock).not.toHaveBeenCalled();
+  });
+
   it("skips kind sound when master toggle is off", () => {
     const service = new NotificationService(
       () => ({ ...baseConfig, notificationsEnabled: false }),
+      vi.fn(),
+    );
+    service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
+    expect(sendNotificationSoundMock).not.toHaveBeenCalled();
+  });
+
+  it("skips kind sound when kind is disabled", () => {
+    const service = new NotificationService(
+      () => ({
+        ...baseConfig,
+        notificationPrefs: {
+          ...baseConfig.notificationPrefs,
+          chestReady: { enabled: false, sound: "soft-chime" },
+        },
+      }),
+      vi.fn(),
+    );
+    service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
+    expect(sendNotificationSoundMock).not.toHaveBeenCalled();
+  });
+
+  it("skips sound when kind sound is none", () => {
+    const service = new NotificationService(
+      () => ({
+        ...baseConfig,
+        notificationPrefs: {
+          ...baseConfig.notificationPrefs,
+          chestReady: { enabled: true, sound: "none" },
+        },
+      }),
       vi.fn(),
     );
     service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
@@ -110,6 +180,18 @@ describe("NotificationService", () => {
     expect(sendNotificationSoundMock).toHaveBeenCalledWith({
       soundId: "soft-chime",
       volumePercent: 25,
+    });
+  });
+
+  it("defaults volume when notificationVolume is missing from config", () => {
+    const service = new NotificationService(
+      () => ({ ...baseConfig, notificationVolume: undefined as unknown as number }),
+      vi.fn(),
+    );
+    service.showChestReady({ boxId: 920151, name: "Test box", level: 15 });
+    expect(sendNotificationSoundMock).toHaveBeenCalledWith({
+      soundId: "soft-chime",
+      volumePercent: 100,
     });
   });
 });
