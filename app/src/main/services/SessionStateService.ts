@@ -7,8 +7,10 @@ import {
   snapshotContinuesSession,
 } from "../../core/sessionState";
 import type { XpTracker } from "../../core/tracker";
+import type { ChestDropTracker } from "../../core/chestDropTracker";
 import type {
   AppConfig,
+  ChestDropTrackerSnapshot,
   PersistedSessionState,
   SaveSnapshot,
   SessionUiSnapshot,
@@ -26,6 +28,7 @@ export type SessionRestoreResult = "restored" | "fresh" | "discarded";
 
 export class SessionStateService {
   private pendingTracker: TrackerSnapshot | null = null;
+  private pendingChestDropTracker: ChestDropTrackerSnapshot | null = null;
   private pendingLastSaveMtime: number | null = null;
   private lastSaveMtime: number | null = null;
   private saveTimer: NodeJS.Timeout | null = null;
@@ -37,6 +40,7 @@ export class SessionStateService {
   load(config: AppConfig): SessionUiSnapshot {
     this.savePath = expandPath(config.savePath);
     this.pendingTracker = null;
+    this.pendingChestDropTracker = null;
     this.pendingLastSaveMtime = null;
     this.lastSaveMtime = null;
 
@@ -61,6 +65,7 @@ export class SessionStateService {
       }
 
       this.pendingTracker = raw.tracker;
+      this.pendingChestDropTracker = raw.chestDropTracker ?? null;
       this.pendingLastSaveMtime = raw.lastSaveMtime;
       this.lastSaveMtime = raw.lastSaveMtime;
       log.info("Session snapshot loaded; waiting for save read to restore");
@@ -74,6 +79,7 @@ export class SessionStateService {
   startAutosave(
     getContext: () => {
       tracker: XpTracker;
+      chestDropTracker: ChestDropTracker;
       lastSnap: SaveSnapshot | null;
       config: AppConfig;
     },
@@ -81,7 +87,7 @@ export class SessionStateService {
     this.stopAutosave();
     this.saveTimer = setInterval(() => {
       const ctx = getContext();
-      this.persist(ctx.tracker, ctx.lastSnap, ctx.config);
+      this.persist(ctx.tracker, ctx.chestDropTracker, ctx.lastSnap, ctx.config);
     }, SAVE_INTERVAL_MS);
   }
 
@@ -91,7 +97,11 @@ export class SessionStateService {
   }
 
   /** Apply pending tracker restore on the first save snapshot (or discard if stale). */
-  tryRestoreOnSnapshot(tracker: XpTracker, snap: SaveSnapshot): SessionRestoreResult {
+  tryRestoreOnSnapshot(
+    tracker: XpTracker,
+    chestDropTracker: ChestDropTracker,
+    snap: SaveSnapshot,
+  ): SessionRestoreResult {
     if (!this.pendingTracker || this.pendingLastSaveMtime === null) {
       this.lastSaveMtime = snap.saveMtime;
       return "fresh";
@@ -102,6 +112,7 @@ export class SessionStateService {
         `Session discarded (save mtime ${snap.saveMtime} < snapshot ${this.pendingLastSaveMtime})`,
       );
       this.pendingTracker = null;
+      this.pendingChestDropTracker = null;
       this.pendingLastSaveMtime = null;
       this.lastSaveMtime = snap.saveMtime;
       this.setStatusOverride("New session");
@@ -110,14 +121,23 @@ export class SessionStateService {
     }
 
     tracker.applySnapshot(this.pendingTracker);
+    if (this.pendingChestDropTracker) {
+      chestDropTracker.applySnapshot(this.pendingChestDropTracker);
+    }
     this.pendingTracker = null;
+    this.pendingChestDropTracker = null;
     this.pendingLastSaveMtime = null;
     this.lastSaveMtime = snap.saveMtime;
     log.info("Session stats restored from snapshot");
     return "restored";
   }
 
-  persist(tracker: XpTracker, lastSnap: SaveSnapshot | null, config: AppConfig): void {
+  persist(
+    tracker: XpTracker,
+    chestDropTracker: ChestDropTracker,
+    lastSnap: SaveSnapshot | null,
+    config: AppConfig,
+  ): void {
     const mtime = lastSnap?.saveMtime ?? this.lastSaveMtime;
     if (mtime === null && !tracker.isInitialized && this.pendingTracker === null) return;
 
@@ -131,6 +151,7 @@ export class SessionStateService {
       lastSaveMtime: storedMtime,
       rollingWindowMinutes: config.rollingWindowMinutes,
       tracker: tracker.captureSnapshot(),
+      chestDropTracker: chestDropTracker.captureSnapshot(),
       ui: { ...this.ui },
     };
 
@@ -143,18 +164,21 @@ export class SessionStateService {
     }
   }
 
-  clearSession(tracker: XpTracker, config: AppConfig): void {
+  clearSession(tracker: XpTracker, chestDropTracker: ChestDropTracker, config: AppConfig): void {
     this.pendingTracker = null;
+    this.pendingChestDropTracker = null;
     this.pendingLastSaveMtime = null;
     this.lastSaveMtime = null;
     this.statusOverride = null;
     this.clearStatusTimer();
     tracker.reset();
-    this.persist(tracker, null, config);
+    chestDropTracker.reset();
+    this.persist(tracker, chestDropTracker, null, config);
   }
 
   invalidatePending(): void {
     this.pendingTracker = null;
+    this.pendingChestDropTracker = null;
     this.pendingLastSaveMtime = null;
   }
 
@@ -180,23 +204,35 @@ export class SessionStateService {
     this.setStatusOverride("New session");
   }
 
-  flush(tracker: XpTracker, lastSnap: SaveSnapshot | null, config: AppConfig): void {
-    this.persist(tracker, lastSnap, config);
+  flush(
+    tracker: XpTracker,
+    chestDropTracker: ChestDropTracker,
+    lastSnap: SaveSnapshot | null,
+    config: AppConfig,
+  ): void {
+    this.persist(tracker, chestDropTracker, lastSnap, config);
   }
 
-  onTrackerReset(tracker: XpTracker, config: AppConfig, lastSnap: SaveSnapshot | null): void {
+  onTrackerReset(
+    tracker: XpTracker,
+    chestDropTracker: ChestDropTracker,
+    config: AppConfig,
+    lastSnap: SaveSnapshot | null,
+  ): void {
     this.pendingTracker = null;
+    this.pendingChestDropTracker = null;
     this.pendingLastSaveMtime = null;
     this.statusOverride = null;
     this.clearStatusTimer();
     if (lastSnap) {
       this.lastSaveMtime = lastSnap.saveMtime;
     }
-    this.persist(tracker, lastSnap, config);
+    this.persist(tracker, chestDropTracker, lastSnap, config);
   }
 
   onFileDeleted(): void {
     this.pendingTracker = null;
+    this.pendingChestDropTracker = null;
     this.pendingLastSaveMtime = null;
     this.lastSaveMtime = null;
     this.statusOverride = null;
