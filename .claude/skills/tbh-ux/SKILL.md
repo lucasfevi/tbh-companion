@@ -57,7 +57,7 @@ Each tab should have:
 1. **`<TabHeader>`** from [`components/ui/TabHeader.tsx`](../../app/src/renderer/components/ui/TabHeader.tsx) — short `<h1>` title (**18px / semibold**) plus one muted intro line (**4px** below title when present).
 2. **Primary controls next** — summary cards, filters, or the main CTA before long lists.
 
-Wrap the tab root in **`<TabPage>`** for **14px** vertical section spacing (`gap-3.5`). Form-heavy tabs (Settings, About): inner column `max-w-md`. The main window is **900px wide** (fixed — no horizontal resize); height remains resizable from 480px. Section subtitles use **`Section`** or **4px** between `h2` and content.
+Wrap the tab root in **`<TabPage>`** for **14px** vertical section spacing (`gap-3.5`). Form-heavy tabs (Settings, About): inner column `max-w-md`. The main window defaults to **1100×720** with **fixed width** and **480px** minimum height. Section subtitles use **`Section`** or **4px** between `h2` and content.
 
 Placeholder state (no data yet): same `<h1>` + muted wait message — see Inventory and Chests loading states.
 
@@ -72,7 +72,7 @@ Avoid walls of copy; move rune breakdowns and capacity math into `<details>` or 
 - **3-column grid** on wide layouts (`grid-cols-3`); stack on narrow (`max-[720px]:grid-cols-1`).
 - Each category: `Card` with title + `quantity / capacity` + `CapacityBar` + optional `Badge` Full.
 - **Box tracker CTA at top** of `TabHeader` children, not only at page footer.
-- Goal at 900×640: all three chest categories visible without scrolling.
+- Goal at 1100×720: all three chest categories visible without scrolling.
 
 ## Overlays (Mini + Box tracker)
 

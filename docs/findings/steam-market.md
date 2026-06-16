@@ -101,3 +101,43 @@ materials/resources/soulstones.
   then the refresh can seed against the marketable catalog snapshot.
 - Non-marketable items (not present in the catalog) get value 0 / "not
   marketable".
+
+### Buy orders: `market/itemordershistogram`
+
+```
+GET https://steamcommunity.com/market/itemordershistogram?norender=1&country=US&language=english&currency=<id>&item_nameid=<numeric>&two_factor=0
+```
+
+- Returns `highest_buy_order` / `buy_order_price` (buy side) and `lowest_sell_order` /
+  `sell_order_price` (lowest listing — **not** 24h median or volume).
+- **Honors `currency` param** (unlike `orderbook`; see spike below).
+- Requires **`item_nameid`**. Bundled map: `data/steam_item_nameids.json` from tbh-data
+  `npm run build:steam-nameids` (legacy listing HTML via `Cookie: bMarketOptOut=1`).
+  Bundle is **partial** (A/B gear letters + materials); companion fills gaps at refresh
+  time with the same scrape (`SteamItemNameIdService` → `userData/steam_item_nameids.json`).
+- Gear variant letters **A→E** are probed at refresh: `priceoverview` tries A first, then
+  B…E only when the prior variant has no sell listing; nameid + histogram run on the
+  winning hash only.
+- Set `Referer` to the item listing URL; throttle like `priceoverview`.
+
+**Companion refresh:** `priceoverview` (median + lowest + volume) then histogram when
+`item_nameid` is known. Market price column shows **both** median and lowest when they
+differ; list value / totals still prefer median via `pickMarketUnit`.
+
+### `market/orderbook` — spiked, not used (2026-06-14)
+
+```
+GET https://steamcommunity.com/market/orderbook?q=Load&qp=[3678970,"Wood"]
+```
+
+No `item_nameid`, but **`eCurrency` is session/region-locked** — not controllable like
+`priceoverview`. From Brazil, always `eCurrency: 7` (BRL) regardless of `currency` /
+`country` query params or `steamCountry=US` cookie. Default companion config is USD, so
+orderbook buy orders would not match sell prices from `priceoverview`. **Rejected** in
+favor of histogram + tbh-data nameid map.
+
+### TBH market fee (estimate)
+
+Sample from `search/render`: `sell_price_text` R$ 1,01 vs `sale_price_text` R$ 0,96
+≈ **5%** total (not the CS2-style 15%). Bundled in `data/steam_market_fee.json`;
+Inventory shows net-after-fees as an **estimate** — Steam listing UI is authoritative.
