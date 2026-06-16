@@ -5,12 +5,18 @@ export function DataList({
   children,
   className,
   scrollable = false,
+  shell = "border",
   ...props
-}: HTMLAttributes<HTMLDivElement> & { scrollable?: boolean }) {
+}: HTMLAttributes<HTMLDivElement> & {
+  scrollable?: boolean;
+  /** Border frame when the list stands alone; use `none` inside `PanelSection boxed`. */
+  shell?: "border" | "none";
+}) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border border-border",
+        "overflow-hidden",
+        shell === "border" && "rounded-lg border border-border",
         scrollable && "overflow-y-auto",
         className,
       )}

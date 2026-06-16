@@ -35,7 +35,8 @@ export function fmtClock(epochSeconds: number): string {
   const h24 = d.getHours();
   const h = h24 % 12 || 12;
   const ampm = h24 < 12 ? "AM" : "PM";
+  const hh = String(h).padStart(2, "0");
   const mm = String(d.getMinutes()).padStart(2, "0");
   const ss = String(d.getSeconds()).padStart(2, "0");
-  return `${h}:${mm}:${ss} ${ampm}`;
+  return `${hh}:${mm}:${ss} ${ampm}`;
 }
