@@ -22,8 +22,8 @@ stage boxes from the Inventory tab** (unopened counts remain in `BoxData`).
 
 ## 2026-06-09 - Phase 9 inventory improvements
 
-- **Gear Steam variants:** pricing probes hash suffixes `A`–`E` and uses the
-  first variant with a cached Steam price (save letter not decoded yet).
+- **Gear Steam variants:** pricing uses hash suffix **`A`** only (save letter not
+  decoded yet; non-A variants dropped after phantom B listings on Steam).
 - **Material stacks:** `aggregateSaveDatas` Type `0` rows merge when SubKey
   maps to a catalog ItemKey (direct id or `140000 + SubKey % 10000`). Many
   live-save SubKeys (e.g. `10021`) remain unmapped.
@@ -77,8 +77,7 @@ Steam prices on the Inventory tab target **owned** items only (not the full
 ~650-item catalog). **Materials** are priced at any grade (1:1 on display name).
 **Gear** is priced only at **Legendary and above**; Rare or lower gear is
 skipped (low value + ambiguous Steam variant mapping). Gear hashes use
-`<name> (<Grade>) <A–E>`; the app probes Steam for the first variant with a
-price. Background refresh runs on save load, backs off on HTTP 429 until the
+`<name> (<Grade>) A`. Background refresh runs on save load, backs off on HTTP 429 until the
 queue finishes, and re-pushes inventory rows as prices arrive.
 
 ## 2026-06 - ~~Hero-class items via bundled supplement catalog~~ (superseded)
@@ -89,10 +88,24 @@ Steam).~~ **Superseded 2026-06-09:** the `9xxxxx` gap is **stage boxes**
 (STAGEBOX), not hero gear. See `data/stage_boxes.json` and the stage-box ADR above.
 `hero_items.json` was removed after incorrect manual entries.
 
-## 2026-06 - Gear Steam mapping (exact match only)
+## 2026-06 - Inventory market columns: buy orders, fees, column picker
 
-Gear prices use `<name> (<Grade>) <letter>` with letters `A`–`E` probed on
-Steam at price time (2026-06-09 update). Materials map 1:1 by name. Gear below
+Inventory shows **Market price** / **List value** (sell-side), **Instant sell** /
+**Instant total** (buy-order histogram), plus summary cards for market value,
+estimated **After Steam fees**, and instant-sell total. Column visibility persists
+in `config.inventoryTable`. Sell-side from `priceoverview` (median + lowest); buy
+orders from `itemordershistogram` + bundled `data/steam_item_nameids.json` (tbh-data
+`npm run build:steam-nameids`) with **on-demand lazy scrape** for missing ids (same
+`bMarketOptOut=1` listing HTML). **No Steam login** for market polling. Gear uses
+variant **A** at refresh and display resolve (bundled nameids are A-only).
+Market
+price column shows median and lowest listing when both differ (e.g. `$15.42`
+`($714.15)`); list value still uses median-first `pickMarketUnit`. Orderbook API
+spiked and rejected (session-locked currency). TBH fee default ~5% in
+`data/steam_market_fee.json` — estimates only; Steam listing UI is authoritative.
+
+
+Gear prices use `<name> (<Grade>) A`. Materials map 1:1 by name. Gear below
 Legendary is not priced. Valuation uses `median_price` when available, otherwise
 `lowest_price`.
 

@@ -1,5 +1,8 @@
 // Steam Market price provider — orchestrates cache + API fetches.
 
+import type { OwnedPriceTarget } from "../core/inventory/ownedPriceTargets";
+import { flattenOwnedHashes } from "../core/inventory/ownedPriceTargets";
+import { limitGearVariantHashes } from "../core/marketName";
 import type { PriceStatus, PriceProgress, PriceRefreshResult } from "../../shared/types";
 import {
   type PriceEntry,
@@ -7,7 +10,9 @@ import {
   loadPriceCache,
   persistPriceCache,
 } from "./services/priceCache";
-import { fetchSteamPrice } from "./services/steamPriceApi";
+import { fetchSteamPrice, describeSteamPriceFailure } from "./services/steamPriceApi";
+import { fetchSteamBuyOrder } from "./services/steamBuyOrderApi";
+import { getSteamItemNameIdService } from "./services/steamItemNameId";
 import { FRESH_TTL_MS } from "./services/steamMarketConstants";
 import { createLogger } from "./log";
 
@@ -57,19 +62,16 @@ function emptyRefreshResult(currency: string): PriceRefreshResult {
   };
 }
 
-function countOwnedFreshness(
-  ownedNames: string[],
-  isFresh: (name: string, now: number) => boolean,
-  now: number,
-): Pick<PriceStatus, "freshCount" | "staleCount"> {
-  return ownedNames.reduce(
-    (counts, name) => {
-      if (isFresh(name, now)) counts.freshCount++;
-      else counts.staleCount++;
-      return counts;
-    },
-    { freshCount: 0, staleCount: 0 },
-  );
+function entryHasSellPrice(entry: PriceEntry): boolean {
+  return entry.median != null || entry.lowest != null;
+}
+
+function entryHasBuyOrder(entry: PriceEntry): boolean {
+  return entry.buyOrderFetched === true && entry.buyOrder != null;
+}
+
+function entryHasMarketData(entry: PriceEntry): boolean {
+  return entryHasSellPrice(entry) || entryHasBuyOrder(entry);
 }
 
 function finalizeStopped(
@@ -80,6 +82,11 @@ function finalizeStopped(
   if (cancelled) return "cancelled";
   if (sawRateLimit && counters.priced === 0 && counters.failed > 0) return "rate-limited";
   return "completed";
+}
+
+function targetLabel(target: OwnedPriceTarget): string {
+  if (target.kind === "material") return target.hash;
+  return target.candidates[0] ?? "gear";
 }
 
 export class SteamMarketProvider {
@@ -112,17 +119,32 @@ export class SteamMarketProvider {
   isFresh(name: string, now = Date.now()): boolean {
     const entry = this.cache.prices[name];
     if (!entry) return false;
-    return now - Date.parse(entry.fetchedUtc) < FRESH_TTL_MS;
+    const hasSell = entryHasSellPrice(entry);
+    const hasBuy = entryHasBuyOrder(entry);
+    if (!hasSell && !hasBuy) return false;
+    if (hasSell && now - Date.parse(entry.fetchedUtc) >= FRESH_TTL_MS) return false;
+    if (hasBuy) {
+      if (!entry.buyOrderCheckUtc) return false;
+      if (now - Date.parse(entry.buyOrderCheckUtc) >= FRESH_TTL_MS) return false;
+    } else if (!entry.buyOrderCheckUtc) {
+      return false;
+    }
+    return true;
   }
 
-  pendingNames(names: string[], force = false, now = Date.now()): string[] {
-    if (force) return names.slice();
-    return names.filter((name) => !this.isFresh(name, now));
+  isFreshTarget(target: OwnedPriceTarget, now = Date.now()): boolean {
+    if (target.kind === "material") return this.isFresh(target.hash, now);
+    return target.candidates.some((hash) => this.isFresh(hash, now));
+  }
+
+  pendingTargets(targets: OwnedPriceTarget[], force = false, now = Date.now()): OwnedPriceTarget[] {
+    if (force) return targets.slice();
+    return targets.filter((target) => !this.isFreshTarget(target, now));
   }
 
   /** Remove cache entries not in the current owned set. Returns count removed. */
-  pruneCache(ownedNames: string[]): number {
-    const owned = new Set(ownedNames);
+  pruneCache(ownedHashes: string[]): number {
+    const owned = new Set(ownedHashes);
     let removed = 0;
     for (const key of Object.keys(this.cache.prices)) {
       if (owned.has(key)) continue;
@@ -135,18 +157,23 @@ export class SteamMarketProvider {
     return removed;
   }
 
-  status(ownedNames?: string[]): PriceStatus {
+  pruneCacheTargets(targets: OwnedPriceTarget[]): number {
+    return this.pruneCache(flattenOwnedHashes(targets));
+  }
+
+  status(ownedTargets?: OwnedPriceTarget[]): PriceStatus {
     const now = Date.now();
-    const owned = ownedNames ?? [];
-    const { freshCount, staleCount } = countOwnedFreshness(
-      owned,
-      (name) => this.isFresh(name, now),
-      now,
-    );
+    const targets = ownedTargets ?? [];
+    let freshCount = 0;
+    let staleCount = 0;
+    for (const target of targets) {
+      if (this.isFreshTarget(target, now)) freshCount++;
+      else staleCount++;
+    }
     return {
       currency: this.currency,
-      count: owned.length > 0 ? freshCount + staleCount : Object.keys(this.cache.prices).length,
-      ownedTargets: owned.length,
+      count: targets.length > 0 ? freshCount + staleCount : Object.keys(this.cache.prices).length,
+      ownedTargets: targets.length,
       freshCount,
       staleCount,
       fetchedUtc: this.cache.fetchedUtc,
@@ -159,7 +186,7 @@ export class SteamMarketProvider {
   }
 
   async refresh(
-    names: string[] | undefined,
+    targets: OwnedPriceTarget[] | undefined,
     opts: RefreshCallbacks = {},
   ): Promise<PriceRefreshResult> {
     if (this.running) {
@@ -171,27 +198,27 @@ export class SteamMarketProvider {
       };
     }
 
-    const targets = names?.length ? names.slice() : [];
+    const list = targets?.length ? targets.slice() : [];
     let result = emptyRefreshResult(this.currency);
 
     this.running = true;
     this.cancelled = false;
 
     try {
-      if (targets.length === 0) return result;
+      if (list.length === 0) return result;
 
       const force = Boolean(opts.force);
-      const staleTargets = this.pendingNames(targets, force);
+      const staleTargets = this.pendingTargets(list, force);
       if (!force && staleTargets.length === 0) {
-        result = { ...emptyRefreshResult(this.currency), skipped: targets.length, noop: true };
+        result = { ...emptyRefreshResult(this.currency), skipped: list.length, noop: true };
         return result;
       }
 
       log.info(
-        `Refresh start currency=${this.currency} targets=${targets.length} stale=${staleTargets.length} force=${force}`,
+        `Refresh start currency=${this.currency} targets=${list.length} stale=${staleTargets.length} force=${force}`,
       );
 
-      const counters = await this.fetchAllTargets(targets, force, opts);
+      const counters = await this.fetchAllTargets(list, force, opts);
       const stopped = finalizeStopped(counters, counters.sawRateLimit, this.cancelled);
 
       if (counters.priced > 0) this.cache.fetchedUtc = new Date().toISOString();
@@ -225,7 +252,7 @@ export class SteamMarketProvider {
   }
 
   private async fetchAllTargets(
-    targets: string[],
+    targets: OwnedPriceTarget[],
     force: boolean,
     opts: RefreshCallbacks,
   ): Promise<RefreshCounters & { sawRateLimit: boolean }> {
@@ -237,24 +264,24 @@ export class SteamMarketProvider {
     for (let index = 0; index < targets.length; ) {
       if (this.cancelled) break;
 
-      const name = targets[index];
-      if (!force && this.isFresh(name, now)) {
+      const target = targets[index];
+      if (!force && this.isFreshTarget(target, now)) {
         counters.skipped++;
-        this.emitProgress(opts, targets.length, index + 1, name, counters);
+        this.emitProgress(opts, targets.length, index + 1, targetLabel(target), counters);
         index++;
         continue;
       }
 
-      const step = await this.priceOneTarget(name, counters, opts);
+      const step = await this.priceTarget(target, counters, opts);
       if (step === "retry") {
         sawRateLimit = true;
         delayMs = Math.min(delayMs * 2, MAX_DELAY_MS);
-        log.warn(`Rate-limited ${name} backoff=${Math.round(delayMs / 1000)}s`);
+        log.warn(`Rate-limited ${targetLabel(target)} backoff=${Math.round(delayMs / 1000)}s`);
         this.emitProgress(
           opts,
           targets.length,
           index + 1,
-          `${name} (rate-limited, waiting ${Math.round(delayMs / 1000)}s)`,
+          `${targetLabel(target)} (rate-limited, waiting ${Math.round(delayMs / 1000)}s)`,
           counters,
         );
         await sleepUntil(delayMs, () => this.cancelled);
@@ -262,7 +289,7 @@ export class SteamMarketProvider {
       }
 
       delayMs = DEFAULT_DELAY_MS;
-      this.emitProgress(opts, targets.length, index + 1, name, counters);
+      this.emitProgress(opts, targets.length, index + 1, targetLabel(target), counters);
       if (counters.priced > 0 && counters.priced % PERSIST_EVERY_PRICED === 0) {
         persistPriceCache(this.cache);
       }
@@ -273,31 +300,93 @@ export class SteamMarketProvider {
     return { ...counters, sawRateLimit };
   }
 
-  private async priceOneTarget(
-    name: string,
+  private async priceTarget(
+    target: OwnedPriceTarget,
     counters: RefreshCounters,
     opts: RefreshCallbacks,
   ): Promise<FetchStep> {
-    try {
-      const response = await fetchSteamPrice(name, this.currency);
-      if (response.status === 0) {
-        log.warn(`Fetch timeout ${name}`);
-        counters.failed++;
-        return "advance";
-      }
-      if (response.status === 429) return "retry";
-      if (response.ok && response.entry) {
-        this.cache.prices[name] = response.entry;
-        counters.priced++;
-        opts.onPriced?.(name);
-        return "advance";
-      }
-      counters.failed++;
-      return "advance";
-    } catch {
+    if (target.kind === "material") {
+      return this.priceOneHash(target.hash, counters, opts);
+    }
+    const hash = limitGearVariantHashes(target.candidates)[0];
+    if (!hash) {
       counters.failed++;
       return "advance";
     }
+    return this.priceOneHash(hash, counters, opts);
+  }
+
+  private async priceOneHash(
+    name: string,
+    counters: RefreshCounters,
+    opts: RefreshCallbacks,
+    options: { countAsPriced?: boolean; onFail?: (detail: string) => void } = {},
+  ): Promise<FetchStep> {
+    const countAsPriced = options.countAsPriced !== false;
+    try {
+      const response = await fetchSteamPrice(name, this.currency);
+      if (response.status === 429) return "retry";
+
+      const entry = response.ok ? response.entry : response.entry;
+      if (!entry) {
+        if (!response.ok) {
+          const detail = describeSteamPriceFailure(response);
+          options.onFail?.(detail);
+          if (countAsPriced) {
+            counters.failed++;
+            log.warn(`Price failed: ${name} (${this.currency}) - ${detail}`);
+          }
+        }
+        return "advance";
+      }
+
+      const buyStep = await this.attachBuyOrder(name, entry);
+      if (buyStep === "retry") return "retry";
+
+      this.cache.prices[name] = entry;
+      if (countAsPriced) {
+        if (entryHasMarketData(entry)) {
+          counters.priced++;
+          opts.onPriced?.(name);
+        } else {
+          const detail = response.ok
+            ? "no sell listing or buy orders"
+            : describeSteamPriceFailure(response as Extract<typeof response, { ok: false }>);
+          options.onFail?.(detail);
+          counters.failed++;
+          log.warn(`Price failed: ${name} (${this.currency}) - ${detail}`);
+        }
+      }
+      return "advance";
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : "unexpected error";
+      options.onFail?.(detail);
+      if (countAsPriced) {
+        counters.failed++;
+        log.warn(`Price failed: ${name} (${this.currency}) - ${detail}`);
+      }
+      return "advance";
+    }
+  }
+
+  private async attachBuyOrder(name: string, entry: PriceEntry): Promise<FetchStep> {
+    const nameIdService = getSteamItemNameIdService();
+    const resolved = await nameIdService.resolve(name);
+    if (resolved.status === 429) return "retry";
+    const nameId = resolved.ok ? resolved.nameId : (nameIdService.getSync(name) ?? undefined);
+    if (nameId == null) return "advance";
+
+    const buy = await fetchSteamBuyOrder(nameId, name, this.currency);
+    if (buy.status === 429) return "retry";
+    if (!buy.ok) return "advance";
+
+    const checkedUtc = new Date().toISOString();
+    entry.buyOrderFetched = true;
+    entry.buyOrderCheckUtc = checkedUtc;
+    entry.buyOrder = buy.buyOrder ?? null;
+    entry.rawBuyOrder = buy.rawBuyOrder ?? null;
+    entry.buyOrderQuantity = buy.buyOrderQuantity ?? null;
+    return "advance";
   }
 
   private emitProgress(

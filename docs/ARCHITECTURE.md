@@ -117,7 +117,7 @@ prompts for confirmation in the renderer because it resets live session stats vi
 1. Same save read also runs `parseInventory` (with catalog-aware aggregate merge).
 2. `InventoryService.resolveAndPushInventory` resolves rows against `GameDataProvider`
    + Steam price cache, then broadcasts `ResolvedInventory`.
-3. Price refresh probes gear variant letters A–E on Steam when needed.
+3. Price refresh uses gear market hash suffix **A** only (`core/marketName.ts`).
 
 ## Tests
 

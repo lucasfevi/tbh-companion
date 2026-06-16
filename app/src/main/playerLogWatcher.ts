@@ -57,7 +57,7 @@ export class PlayerLogWatcher {
     this.available = available;
     this.opts.onAvailability?.(available);
     if (available && !this.loggedReady) {
-      log.info("Player.log available — watching for chest drops");
+      log.info("Player.log available - watching for chest drops");
       this.loggedReady = true;
     }
   }

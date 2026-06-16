@@ -126,6 +126,9 @@ const api: TbhApi = {
   refreshPrices(force?: boolean): Promise<PriceRefreshResult & { status: PriceStatus }> {
     return ipcRenderer.invoke(IPC.PRICES_REFRESH, force);
   },
+  refreshItemPrices(itemKey: number): Promise<PriceRefreshResult & { status: PriceStatus }> {
+    return ipcRenderer.invoke(IPC.PRICES_REFRESH_ITEM, itemKey);
+  },
   cancelPrices(): void {
     ipcRenderer.send(IPC.PRICES_CANCEL);
   },

@@ -110,7 +110,16 @@ describe("resolveInventory", () => {
     const snap = parseInventory(wrapPlayer(playerInner), 0, isMaterial);
     const priceLookup = (name: string) =>
       name === "Iron Ingot"
-        ? { median: 0.05, lowest: 0.04, rawMedian: "$0.05", rawLowest: "$0.04" }
+        ? {
+            median: 0.05,
+            lowest: 0.04,
+            rawMedian: "$0.05",
+            rawLowest: "$0.04",
+            buyOrder: 0.03,
+            rawBuyOrder: "$0.03",
+            buyOrderQuantity: 1,
+            buyOrderFetched: true,
+          }
         : undefined;
     const res = resolveInventory(snap, lookup, true, priceLookup);
 
@@ -129,8 +138,12 @@ describe("resolveInventory", () => {
     expect(ingot.marketHashName).toBe("Iron Ingot");
     expect(ingot.inventoryCount).toBe(1);
     expect(ingot.priceRaw).toBe("$0.05");
+    expect(ingot.rawMedian).toBe("$0.05");
+    expect(ingot.rawLowest).toBe("$0.04");
     expect(ingot.priceSource).toBe("median");
     expect(ingot.value).toBeCloseTo(0.05);
+    expect(ingot.buyOrderUnit).toBeCloseTo(0.03);
+    expect(ingot.buyOrderValue).toBeCloseTo(0.03);
 
     const sword = res.rows.find((r) => r.itemKey === 303071)!;
     expect(sword.marketHashName).toBe("Knight Sword (Legendary) A");
@@ -139,6 +152,29 @@ describe("resolveInventory", () => {
     expect(res.composition.inUseCount).toBe(1);
     expect(res.composition.priceableCount).toBe(7);
     expect(res.composition.valuedTotal).toBeCloseTo(0.05);
+    expect(res.composition.buyOrderValuedTotal).toBeCloseTo(0.03);
+    expect(res.composition.buyOrderPricedRows).toBe(1);
+    expect(res.composition.netAfterFeesTotal).toBeLessThan(res.composition.valuedTotal);
+  });
+
+  it("caps instant sell total at buy-order book depth", () => {
+    const snap = parseInventory(wrapPlayer(playerInner), 0, isMaterial);
+    const priceLookup = (name: string) =>
+      name === "Stone"
+        ? {
+            median: 0.05,
+            lowest: 0.04,
+            buyOrder: 0.03,
+            rawBuyOrder: "$0.03",
+            buyOrderQuantity: 2,
+            buyOrderFetched: true,
+          }
+        : undefined;
+    const res = resolveInventory(snap, lookup, true, priceLookup);
+    const stone = res.rows.find((r) => r.itemKey === 140002)!;
+    expect(stone.count).toBe(5);
+    expect(stone.buyOrderValue).toBeCloseTo(0.06);
+    expect(res.composition.buyOrderValuedTotal).toBeCloseTo(0.06);
   });
 
   it("excludes stage boxes from rows and composition when requested", () => {
@@ -163,16 +199,37 @@ describe("resolveInventory", () => {
     expect(res.composition.total).toBe(10);
   });
 
-  it("picks the gear variant letter that has a Steam price", () => {
+  it("prices gear from variant A market hash", () => {
     const snap = parseInventory(wrapPlayer(playerInner), 0);
     const priceLookup = (name: string) =>
-      name === "Knight Sword (Legendary) B"
+      name === "Knight Sword (Legendary) A"
         ? { median: 1.5, lowest: 1.4, rawMedian: "$1.50", rawLowest: "$1.40" }
         : undefined;
     const res = resolveInventory(snap, lookup, true, priceLookup);
     const sword = res.rows.find((r) => r.itemKey === 303071)!;
-    expect(sword.marketHashName).toBe("Knight Sword (Legendary) B");
+    expect(sword.marketHashName).toBe("Knight Sword (Legendary) A");
     expect(sword.unitPrice).toBe(1.5);
+  });
+
+  it("shows buy orders for gear when no variant has a sell listing", () => {
+    const snap = parseInventory(wrapPlayer(playerInner), 0);
+    const priceLookup = (name: string) =>
+      name === "Knight Sword (Legendary) A"
+        ? {
+            median: null,
+            lowest: null,
+            buyOrder: 12,
+            rawBuyOrder: "R$ 12,00",
+            buyOrderQuantity: 1,
+            buyOrderFetched: true,
+          }
+        : undefined;
+    const res = resolveInventory(snap, lookup, true, priceLookup);
+    const sword = res.rows.find((r) => r.itemKey === 303071)!;
+    expect(sword.marketHashName).toBe("Knight Sword (Legendary) A");
+    expect(sword.unitPrice).toBeNull();
+    expect(sword.buyOrderUnit).toBe(12);
+    expect(sword.buyOrderValue).toBe(12);
   });
 
   it("resolves suffixed ItemKeys against the catalog", () => {

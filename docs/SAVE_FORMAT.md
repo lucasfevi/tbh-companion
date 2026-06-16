@@ -123,4 +123,4 @@ formation (passives apply whether equipped or not).
   are named via `data/stage_boxes.json`, omitted from the inventory tab, and show
   location `unknown` when not referenced by a slot array.
 - Steam pricing uses `ItemKey -> market_hash_name` rules in `core/marketName.ts`
-  (gear probes variant letters `A`–`E`). See `docs/findings/item-mapping.md`.
+  (gear uses market hash suffix `A` only). See `docs/findings/item-mapping.md`.

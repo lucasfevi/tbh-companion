@@ -1,22 +1,26 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { normalizeInventoryTablePrefs } from "../../core/inventory/columnPrefs";
 import { useInventory } from "../lib/useInventory";
 import { SteamPriceProgress } from "../components/market/SteamPriceProgress";
-import { rowMatchesAnyLocation } from "../../core/inventory/location";
 import {
   filterAndSortRows,
   gradeOptionsFromInventory,
   typeOptionsFromInventory,
   defaultSortDir,
+  emptyInventoryFilterMessage,
   type SortKey,
   type LocationFilter,
 } from "../lib/inventoryFilters";
 import { InventorySummary } from "../components/inventory/InventorySummary";
 import { InventoryFilters } from "../components/inventory/InventoryFilters";
+import { InventoryColumnPicker } from "../components/inventory/InventoryColumnPicker";
 import { InventoryTable } from "../components/inventory/InventoryTable";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
+import type { InventoryTablePrefs } from "../../../shared/types";
+import { reportIpcError } from "../lib/reportError";
 
-export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
+export function Inventory() {
   const inv = useInventory();
   const [query, setQuery] = useState("");
   const [tradableOnly, setTradableOnly] = useState(false);
@@ -26,6 +30,30 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
   const [locationFilter, setLocationFilter] = useState<LocationFilter>("ALL");
   const [sortKey, setSortKey] = useState<SortKey>("value");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [columnPrefs, setColumnPrefs] = useState<InventoryTablePrefs>(() =>
+    normalizeInventoryTablePrefs(undefined),
+  );
+  const columnSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (typeof window.tbh?.getConfig !== "function") return;
+    void window.tbh
+      .getConfig()
+      .then((config) => {
+        if (config.inventoryTable) {
+          setColumnPrefs(normalizeInventoryTablePrefs(config.inventoryTable));
+        }
+      })
+      .catch(reportIpcError);
+  }, []);
+
+  function onColumnPrefsChange(next: InventoryTablePrefs): void {
+    setColumnPrefs(next);
+    if (columnSaveTimer.current) clearTimeout(columnSaveTimer.current);
+    columnSaveTimer.current = setTimeout(() => {
+      void window.tbh.saveConfig({ inventoryTable: next }).catch(reportIpcError);
+    }, 300);
+  }
 
   useEffect(() => {
     if (!inv) return;
@@ -35,10 +63,7 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
     if (typeFilter !== "ALL" && !inv.rows.some((r) => r.type === typeFilter)) {
       setTypeFilter("ALL");
     }
-    if (locationFilter !== "ALL" && !rowMatchesAnyLocation(inv.rows, locationFilter)) {
-      setLocationFilter("ALL");
-    }
-  }, [inv, gradeFilter, typeFilter, locationFilter]);
+  }, [inv, gradeFilter, typeFilter]);
 
   const gradeOptions = useMemo(() => (inv ? gradeOptionsFromInventory(inv) : []), [inv]);
   const typeOptions = useMemo(() => (inv ? typeOptionsFromInventory(inv) : []), [inv]);
@@ -78,7 +103,6 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
     );
   }
 
-  const chestTotal = inv.chests.reduce((s, x) => s + x.quantity, 0);
   const currency = inv.currency ?? "USD";
   function toggleSort(key: SortKey) {
     if (key === sortKey) {
@@ -102,38 +126,40 @@ export function Inventory({ onOpenChests }: { onOpenChests?: () => void }) {
     <TabPage>
       <TabHeader title="Inventory" />
 
-      <InventorySummary
-        inv={inv}
-        chestTotal={chestTotal}
-        currency={currency}
-        onViewChests={chestTotal > 0 ? onOpenChests : undefined}
-      />
+      <InventorySummary inv={inv} currency={currency} />
 
       <SteamPriceProgress variant="banner" />
 
-      <InventoryFilters
-        query={query}
-        tradableOnly={tradableOnly}
-        inUseOnly={inUseOnly}
-        gradeFilter={gradeFilter}
-        typeFilter={typeFilter}
-        locationFilter={locationFilter}
-        gradeOptions={gradeOptions}
-        typeOptions={typeOptions}
-        shownCount={rows.length}
-        onQueryChange={setQuery}
-        onTradableOnlyChange={setTradableOnly}
-        onInUseOnlyChange={setInUseOnly}
-        onGradeFilterChange={setGradeFilter}
-        onTypeFilterChange={setTypeFilter}
-        onLocationFilterChange={setLocationFilter}
-      />
+      <div className="flex flex-wrap items-center gap-3">
+        <InventoryFilters
+          query={query}
+          tradableOnly={tradableOnly}
+          inUseOnly={inUseOnly}
+          gradeFilter={gradeFilter}
+          typeFilter={typeFilter}
+          locationFilter={locationFilter}
+          gradeOptions={gradeOptions}
+          typeOptions={typeOptions}
+          shownCount={rows.length}
+          onQueryChange={setQuery}
+          onTradableOnlyChange={setTradableOnly}
+          onInUseOnlyChange={setInUseOnly}
+          onGradeFilterChange={setGradeFilter}
+          onTypeFilterChange={setTypeFilter}
+          onLocationFilterChange={setLocationFilter}
+        />
+        <div className="ml-auto shrink-0">
+          <InventoryColumnPicker prefs={columnPrefs} onChange={onColumnPrefsChange} />
+        </div>
+      </div>
 
       <InventoryTable
         rows={rows}
         currency={currency}
+        columnPrefs={columnPrefs}
         sortKey={sortKey}
         sortDir={sortDir}
+        emptyMessage={emptyInventoryFilterMessage(locationFilter)}
         onSort={toggleSort}
         onClearFilters={clearFilters}
       />

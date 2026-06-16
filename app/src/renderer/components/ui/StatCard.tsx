@@ -7,6 +7,7 @@ export function StatCard({
   value,
   valueFirst = false,
   valueClassName,
+  detail,
   className,
   title,
 }: {
@@ -14,6 +15,7 @@ export function StatCard({
   value: ReactNode;
   valueFirst?: boolean;
   valueClassName?: string;
+  detail?: ReactNode;
   className?: string;
   title?: string;
 }) {
@@ -26,12 +28,14 @@ export function StatCard({
       {valueFirst ? (
         <>
           {valueNode}
+          {detail ? <div className="text-[11px] text-muted">{detail}</div> : null}
           <div className="text-[11px] uppercase tracking-wide text-muted">{label}</div>
         </>
       ) : (
         <>
           <span className="text-[11px] uppercase tracking-wide text-muted">{label}</span>
           {valueNode}
+          {detail ? <div className="text-[11px] text-muted">{detail}</div> : null}
         </>
       )}
     </Card>

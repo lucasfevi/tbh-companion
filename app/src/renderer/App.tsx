@@ -32,7 +32,7 @@ export function App() {
         <ErrorBoundary title={`${tab} tab crashed`}>
           <Suspense fallback={<TabFallback />}>
             {tab === "live" && <Live />}
-            {tab === "inventory" && <Inventory onOpenChests={() => setTab("chests")} />}
+            {tab === "inventory" && <Inventory />}
             {tab === "chests" && <Chests />}
             {tab === "pets" && <Pets />}
             {tab === "market" && <Market />}

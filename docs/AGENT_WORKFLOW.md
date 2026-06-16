@@ -16,7 +16,7 @@ See also `AGENTS.md` for QA and architecture expectations before marking work do
 **Run `cd app; npm run qa` before every push and every PR** — including changes that only touch `data/*.json`, docs, or repo metadata.
 
 - CI runs the same gate; do not open a PR with failing tests locally.
-- For bundled catalog updates (`data/gamedata.json`, `data/stage_boxes.json`, etc.): run QA and fix or revert any file that breaks tests. Not every tbh-data export is drop-in compatible with the companion (e.g. `stage_boxes.json` needs companion `tracker` metadata).
+- For bundled catalog updates (`data/gamedata.json`, `data/stage_boxes.json`, `data/steam_item_nameids.json`, etc.): run QA and fix or revert any file that breaks tests. Not every tbh-data export is drop-in compatible with the companion (e.g. `stage_boxes.json` needs companion `tracker` metadata). Steam nameids: `npm run build:steam-nameids` in **tbh-data** (emit **A-only** gear hashes), then copy from `snapshots/v{version}/companion/`.
 - Report QA results in the PR test plan (pass/fail, test count). See **tbh-qa** skill for the full checklist when `app/` code changed.
 
 ## Push — confirm first

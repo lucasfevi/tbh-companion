@@ -73,7 +73,7 @@ Import from `components/ui/` — **Market `Button` sizing is the reference**.
 
 ## Layout rules
 
-- Main window width is **900px fixed** (no horizontal resize). Do **not** add tab-level `max-width`.
+- Main window defaults to **1100×720** with **fixed width** (height resizable). Do **not** add tab-level `max-width` that fights horizontal growth.
 - Form-heavy tabs: inner column `max-w-md` inside `TabPage`.
 - Player-facing copy in tab intros; technical paths in Settings **Advanced**.
 

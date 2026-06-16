@@ -2,10 +2,10 @@ import { useStats } from "../lib/useStats";
 import { fmtCompact, fmtDuration, fmtXpUpdated, fmtClock } from "../lib/format";
 import { stageName } from "../../core/stages";
 import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
 import { DataListRow } from "../components/ui/DataList";
 import { PanelSection } from "../components/ui/PanelSection";
 import { StatCard } from "../components/ui/StatCard";
+import { TabMetricHero } from "../components/ui/TabMetricHero";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
 import { ChestDropPanel } from "../components/live/ChestDropPanel";
@@ -51,50 +51,48 @@ export function Live() {
         intro="Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer."
       />
 
-      <Card className="grid grid-cols-[auto_1fr_auto] items-center gap-x-[18px] gap-y-3.5 max-[560px]:grid-cols-[1fr_auto] max-[560px]:grid-rows-[auto_auto]">
-        <div
-          className="flex cursor-help items-baseline gap-2 max-[560px]:col-span-full"
-          title={RATE_TIP}
-        >
-          <span className="text-[40px] font-bold leading-none text-accent">
-            {fmtCompact(stats.rollingRate)}
-          </span>
-          <span className="text-[13px] tracking-wide text-muted">XP / hr</span>
-        </div>
-
-        <div className="flex min-w-0 flex-col gap-1">
-          <div
-            className="cursor-help text-[15px] font-semibold leading-tight text-gold"
-            title={GOLD_TIP}
-          >
-            {fmtCompact(stats.goldRate)} gold / hr
-          </div>
-          <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-xs text-muted">
-            <span>
-              Map{" "}
-              <b className="font-semibold text-fg">{stageName(stats.stageKey, stats.stageWave)}</b>
+      <TabMetricHero
+        primary={
+          <div className="flex cursor-help items-baseline gap-2" title={RATE_TIP}>
+            <span className="text-[40px] font-bold leading-none text-accent">
+              {fmtCompact(stats.rollingRate)}
             </span>
-            <span
-              title={
-                stats.secondsSinceGain === null
-                  ? "Connected and reading your save. Rates update when the game writes progress."
-                  : "When XP last changed in your save"
-              }
+            <span className="text-[13px] tracking-wide text-muted">XP / hr</span>
+          </div>
+        }
+        center={
+          <>
+            <div
+              className="cursor-help text-[15px] font-semibold leading-tight text-gold"
+              title={GOLD_TIP}
             >
-              <b className="font-semibold text-fg">{fmtXpUpdated(stats.secondsSinceGain)}</b>
-            </span>
-          </div>
-        </div>
-
-        <Button
-          size="sm"
-          className="self-center"
-          title="Reset session stats"
-          onClick={() => window.tbh.reset()}
-        >
-          {"\u21bb"} Reset
-        </Button>
-      </Card>
+              {fmtCompact(stats.goldRate)} gold / hr
+            </div>
+            <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-xs text-muted">
+              <span>
+                Map{" "}
+                <b className="font-semibold text-fg">
+                  {stageName(stats.stageKey, stats.stageWave)}
+                </b>
+              </span>
+              <span
+                title={
+                  stats.secondsSinceGain === null
+                    ? "Connected and reading your save. Rates update when the game writes progress."
+                    : "When XP last changed in your save"
+                }
+              >
+                <b className="font-semibold text-fg">{fmtXpUpdated(stats.secondsSinceGain)}</b>
+              </span>
+            </div>
+          </>
+        }
+        action={
+          <Button size="sm" title="Reset session stats" onClick={() => window.tbh.reset()}>
+            {"\u21bb"} Reset
+          </Button>
+        }
+      />
 
       <section className="grid grid-cols-3 gap-2.5">
         <StatCard label="Session XP" value={fmtCompact(stats.cumulativeGained)} />

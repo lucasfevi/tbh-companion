@@ -4,6 +4,27 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+### Inventory
+
+- **Inventory** tab summary matches **Live**: market value hero, estimated wallet total after Steam fees, and **instant sell** total capped by buy-order book depth (not full stack × top price).
+- Table columns for sell price, buy order, and totals; pick visible columns; refresh Steam price per item.
+- Location filters (Trading, Unknown, etc.) keep your selection and show an empty table when nothing matches.
+
+### Market
+
+- Gear Steam prices and buy orders use market variant **A** only (links, refresh, and bundled nameids).
+- Buy order prices from the Steam order histogram even when there is no sell listing; formatted prices use thousand separators.
+- After upgrading: use **Force refresh** on Inventory (or delete `userData/prices.<currency>.json`) once to clear stale cached B–E variant rows.
+
+### App
+
+- Main window is **1100×720** (fixed width) to fit the inventory table and summary cards.
+
+### Fixed
+
+- Item catalog **market tradable** flags corrected so non-tradable gear is not priced on Steam Market.
+- Diagnostic log messages use ASCII punctuation on Windows.
+
 ## [1.11.0] - 2026-06-16
 
 ### Live

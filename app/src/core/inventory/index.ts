@@ -10,4 +10,10 @@ export {
   type PriceLookup,
   type ResolveInventoryOptions,
 } from "./resolve";
+export {
+  ownedPriceTargets,
+  ownedPriceTargetForItem,
+  flattenOwnedHashes,
+  type OwnedPriceTarget,
+} from "./ownedPriceTargets";
 export { unassignedCount, rowMatchesLocation, rowMatchesAnyLocation } from "./location";

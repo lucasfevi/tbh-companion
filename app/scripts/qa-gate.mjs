@@ -55,6 +55,8 @@ const requiredDataFiles = [
   "stage_boxes.json",
   "box_types.json",
   "rune_box_cap.json",
+  "steam_item_nameids.json",
+  "steam_market_fee.json",
 ];
 for (const file of requiredDataFiles) {
   const path = join(dataDir, file);

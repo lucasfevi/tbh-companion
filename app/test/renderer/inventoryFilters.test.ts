@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { filterAndSortRows } from "../../src/renderer/lib/inventoryFilters";
+import {
+  emptyInventoryFilterMessage,
+  filterAndSortRows,
+} from "../../src/renderer/lib/inventoryFilters";
 import type { ResolvedInventory } from "../../shared/types";
 
 const inv: ResolvedInventory = {
@@ -20,10 +23,17 @@ const inv: ResolvedInventory = {
       chaoticCount: 0,
       known: true,
       priceRaw: "$1.00",
+      rawMedian: "$1.00",
+      rawLowest: "$0.90",
       unitPrice: 1,
       priceSource: "median",
       priceChecked: true,
       value: 5,
+      buyOrderRaw: null,
+      buyOrderUnit: null,
+      buyOrderQuantity: null,
+      buyOrderValue: null,
+      buyOrderChecked: false,
     },
     {
       itemKey: 2,
@@ -41,10 +51,17 @@ const inv: ResolvedInventory = {
       chaoticCount: 0,
       known: true,
       priceRaw: "$10.00",
+      rawMedian: "$10.00",
+      rawLowest: "$10.00",
       unitPrice: 10,
       priceSource: "median",
       priceChecked: true,
       value: 10,
+      buyOrderRaw: "$8.00",
+      buyOrderUnit: 8,
+      buyOrderQuantity: 1,
+      buyOrderValue: 8,
+      buyOrderChecked: true,
     },
   ],
   composition: {
@@ -57,6 +74,10 @@ const inv: ResolvedInventory = {
     inUseCount: 1,
     priceableCount: 6,
     valuedTotal: 15,
+    feeTotal: 0.75,
+    netAfterFeesTotal: 14.25,
+    buyOrderValuedTotal: 8,
+    buyOrderPricedRows: 1,
     currency: "USD",
   },
   chests: [],
@@ -93,5 +114,44 @@ describe("inventoryFilters", () => {
       sortDir: "desc",
     });
     expect(rows[0].name).toBe("Void Staff");
+  });
+
+  it("sorts by buy order value", () => {
+    const rows = filterAndSortRows(inv, {
+      query: "",
+      tradableOnly: false,
+      inUseOnly: false,
+      gradeFilter: "ALL",
+      typeFilter: "ALL",
+      locationFilter: "ALL",
+      sortKey: "buyOrderValue",
+      sortDir: "desc",
+    });
+    expect(rows[0].name).toBe("Void Staff");
+  });
+
+  it("returns no rows for an empty location filter without error", () => {
+    const rows = filterAndSortRows(inv, {
+      query: "",
+      tradableOnly: false,
+      inUseOnly: false,
+      gradeFilter: "ALL",
+      typeFilter: "ALL",
+      locationFilter: "trading",
+      sortKey: "name",
+      sortDir: "asc",
+    });
+    expect(rows).toHaveLength(0);
+  });
+});
+
+describe("emptyInventoryFilterMessage", () => {
+  it("names the location when filtered", () => {
+    expect(emptyInventoryFilterMessage("trading")).toBe("No items in Trading.");
+    expect(emptyInventoryFilterMessage("unknown")).toBe("No items in Unknown.");
+  });
+
+  it("uses generic copy for all locations", () => {
+    expect(emptyInventoryFilterMessage("ALL")).toBe("No items match these filters.");
   });
 });

@@ -25,16 +25,20 @@ const entry = {
   rawLowest: "$1",
   rawMedian: "$2",
   fetchedUtc: new Date().toISOString(),
+  buyOrder: null,
+  rawBuyOrder: null,
+  buyOrderFetched: true,
+  buyOrderCheckUtc: new Date().toISOString(),
 };
 
 fetchSteamPrice.mockResolvedValue({ ok: true, status: 200, entry });
 
 const provider = new SteamMarketProvider("USD");
-await provider.refresh(["Cached Item"], { force: true });
+await provider.refresh([{ kind: "material", hash: "Cached Item" }], { force: true });
 
 describe("steam refresh", () => {
   bench("refresh all cached (noop)", async () => {
-    await provider.refresh(["Cached Item"], { force: false });
+    await provider.refresh([{ kind: "material", hash: "Cached Item" }], { force: false });
   });
 });
 

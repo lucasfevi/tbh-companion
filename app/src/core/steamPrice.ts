@@ -124,16 +124,49 @@ const COMMA_DECIMAL = new Set([
 /** ISO codes shown without fractional digits (whole units). */
 const INTEGER_MONEY = new Set(["JPY", "KRW"]);
 
+/** Steam suffix currencies (prefix empty in our table; symbol trails the amount). */
+const STEAM_MONEY_SUFFIX: Partial<Record<string, string>> = {
+  PLN: " zł",
+  VND: "₫",
+  UAH: "₴",
+};
+
+function moneyGroupingLocale(iso: string): string {
+  return COMMA_DECIMAL.has(iso) ? "de-DE" : "en-US";
+}
+
+function formatMoneyBody(amount: number, iso: string): string {
+  const sign = amount < 0 ? "−" : "";
+  const abs = Math.abs(amount);
+  const locale = moneyGroupingLocale(iso);
+  if (INTEGER_MONEY.has(iso)) {
+    return sign + abs.toLocaleString(locale, { maximumFractionDigits: 0 });
+  }
+  return sign + abs.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 /** Format a numeric amount for display in the chosen currency. */
 export function formatMoney(amount: number, iso: string): string {
   const code = iso.toUpperCase();
-  const prefix = currencyPrefix(code);
-  if (INTEGER_MONEY.has(code)) {
-    return `${prefix}${Math.round(amount).toLocaleString("en-US")}`;
+  return `${currencyPrefix(code)}${formatMoneyBody(amount, code)}`;
+}
+
+/**
+ * Re-format a Steam market price string with thousand grouping.
+ * Parses via {@link parseMoney}; falls back to the original text when parsing fails.
+ */
+export function formatRawMoney(raw: string | null | undefined, iso: string): string | null {
+  if (!raw?.trim()) return null;
+  const trimmed = raw.trim();
+  const parsed = parseMoney(trimmed);
+  if (parsed == null) return trimmed;
+  const code = iso.toUpperCase();
+  const base = formatMoney(parsed, code);
+  const suffix = STEAM_MONEY_SUFFIX[code];
+  if (suffix && !base.endsWith(suffix.trim())) {
+    return `${base}${suffix}`;
   }
-  const fixed = amount.toFixed(2);
-  const body = COMMA_DECIMAL.has(code) ? fixed.replace(".", ",") : fixed;
-  return `${prefix}${body}`;
+  return base;
 }
 
 /**
@@ -162,4 +195,12 @@ export function parseMoney(text: string | null | undefined): number | null {
     value = Number(`${intPart}.${fracPart}`);
   }
   return Number.isFinite(value) ? value : null;
+}
+
+/** Parse Steam histogram `highest_buy_order` minor units (cents) to major units. */
+export function parseMinorUnits(minor: string | null | undefined): number | null {
+  if (minor == null || minor === "" || minor === "0") return null;
+  const n = Number(minor.replace(/[^0-9]/g, ""));
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return n / 100;
 }
