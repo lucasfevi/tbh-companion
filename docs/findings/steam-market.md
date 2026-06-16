@@ -113,11 +113,12 @@ GET https://steamcommunity.com/market/itemordershistogram?norender=1&country=US&
 - **Honors `currency` param** (unlike `orderbook`; see spike below).
 - Requires **`item_nameid`**. Bundled map: `data/steam_item_nameids.json` from tbh-data
   `npm run build:steam-nameids` (legacy listing HTML via `Cookie: bMarketOptOut=1`).
-  Bundle is **partial** (A/B gear letters + materials); companion fills gaps at refresh
+  Bundle is **partial** (gear **A** letters + materials); companion fills gaps at refresh
   time with the same scrape (`SteamItemNameIdService` → `userData/steam_item_nameids.json`).
-- Gear variant letters **A→E** are probed at refresh: `priceoverview` tries A first, then
-  B…E only when the prior variant has no sell listing; nameid + histogram run on the
-  winning hash only.
+  tbh-data `build:steam-nameids` should emit **A-only** gear hashes (non-A rows are stale).
+- Gear uses market hash suffix **A** only at refresh; `priceoverview` and histogram run on
+  that hash. After upgrading from multi-variant probing, **force refresh** (Inventory toolbar
+  or delete `userData/prices.<currency>.json`) to drop cached B–E rows.
 - Set `Referer` to the item listing URL; throttle like `priceoverview`.
 
 **Companion refresh:** `priceoverview` (median + lowest + volume) then histogram when

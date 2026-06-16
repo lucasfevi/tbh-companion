@@ -9,7 +9,7 @@ produced them. Keep each file focused and factual.
 - `item-mapping.md` - the confirmed `ItemKey -> name/rarity/type/level` source,
   the save data model, catalog refresh strategy, **stage boxes (`910`/`920`/`930`
   STAGEBOX)**, and remaining gaps (partial aggregate SubKey map, gear variant
-  probing on Steam).
+  letter from save not decoded — pricing uses Steam suffix `A` only).
 
 Related data artifacts (repo root `data/`):
 

@@ -109,9 +109,8 @@ Stage-box rows in `itemSaveDatas` that are not in a slot array have location
 Build `market_hash_name` from gamedata fields; `priceoverview` confirms the listing:
 
 - **Materials / resources / soulstones**: `market_hash_name == <name>` exactly.
-- **Gear** (Legendary+ tradable only): `"<Name> (<Rarity>) <letter>"` where
-  `<letter>` is `A`–`E`. Pricing probes each variant on Steam and uses the first
-  with a cached price (save letter not decoded yet; display defaults to `A`).
+- **Gear** (Legendary+ tradable only): `"<Name> (<Rarity>) A"` (save letter not
+  decoded yet; non-A Steam suffixes are not probed — B listings were often phantom).
 
 If Steam returns no price for that hash, the row shows no value (exact grade only,
 no cross-grade fallback).
@@ -127,9 +126,8 @@ or Node `fs.writeFileSync` (never `Set-Content -Encoding UTF8` on PS 5.1).
 
 ## Known risks / open questions
 
-- **Gear variant letter** (` A`, ` B`, ...): save field not decoded; we probe
-  Steam listings `A`–`E` at price time. Per-instance letter from datamine would
-  improve link accuracy.
+- **Gear variant letter** (` A`, ` B`, ...): save field not decoded; pricing and
+  links use **`A` only**. Per-instance letter from datamine would improve accuracy.
 - **aggregateSaveDatas SubKeys**: Type `0` encoding partly mapped; many live-save
   SubKeys still unknown (see `SAVE_FORMAT.md`).
 - **Duplicate plain names** with different `classid`s appear in the catalog

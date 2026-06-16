@@ -14,6 +14,7 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 - Gear Steam prices and buy orders use market variant **A** only (links, refresh, and bundled nameids).
 - Buy order prices from the Steam order histogram even when there is no sell listing; formatted prices use thousand separators.
+- After upgrading: use **Force refresh** on Inventory (or delete `userData/prices.<currency>.json`) once to clear stale cached B–E variant rows.
 
 ### App
 
