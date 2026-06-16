@@ -47,6 +47,7 @@ export interface InventoryTableProps {
   sortDir: "asc" | "desc";
   onSort: (key: SortKey) => void;
   onClearFilters: () => void;
+  emptyMessage?: string;
 }
 
 function SortArrow({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
@@ -303,6 +304,7 @@ export function InventoryTable({
   sortDir,
   onSort,
   onClearFilters,
+  emptyMessage = "No items match these filters.",
 }: InventoryTableProps) {
   const columns = visibleColumns(columnPrefs);
 
@@ -333,7 +335,7 @@ export function InventoryTable({
           {rows.length === 0 ? (
             <tr>
               <td colSpan={columns.length} className="px-3 py-6 text-center text-muted">
-                No items match these filters.{" "}
+                {emptyMessage}{" "}
                 <Button size="sm" className="ml-1.5" onClick={onClearFilters}>
                   Clear filters
                 </Button>

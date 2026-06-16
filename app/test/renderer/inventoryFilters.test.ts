@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { filterAndSortRows } from "../../src/renderer/lib/inventoryFilters";
+import {
+  emptyInventoryFilterMessage,
+  filterAndSortRows,
+} from "../../src/renderer/lib/inventoryFilters";
 import type { ResolvedInventory } from "../../shared/types";
 
 const inv: ResolvedInventory = {
@@ -123,5 +126,30 @@ describe("inventoryFilters", () => {
       sortDir: "desc",
     });
     expect(rows[0].name).toBe("Void Staff");
+  });
+
+  it("returns no rows for an empty location filter without error", () => {
+    const rows = filterAndSortRows(inv, {
+      query: "",
+      tradableOnly: false,
+      inUseOnly: false,
+      gradeFilter: "ALL",
+      typeFilter: "ALL",
+      locationFilter: "trading",
+      sortKey: "name",
+      sortDir: "asc",
+    });
+    expect(rows).toHaveLength(0);
+  });
+});
+
+describe("emptyInventoryFilterMessage", () => {
+  it("names the location when filtered", () => {
+    expect(emptyInventoryFilterMessage("trading")).toBe("No items in Trading.");
+    expect(emptyInventoryFilterMessage("unknown")).toBe("No items in Unknown.");
+  });
+
+  it("uses generic copy for all locations", () => {
+    expect(emptyInventoryFilterMessage("ALL")).toBe("No items match these filters.");
   });
 });

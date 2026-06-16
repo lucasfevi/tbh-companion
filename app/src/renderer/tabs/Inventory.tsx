@@ -2,12 +2,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { normalizeInventoryTablePrefs } from "../../core/inventory/columnPrefs";
 import { useInventory } from "../lib/useInventory";
 import { SteamPriceProgress } from "../components/market/SteamPriceProgress";
-import { rowMatchesAnyLocation } from "../../core/inventory/location";
 import {
   filterAndSortRows,
   gradeOptionsFromInventory,
   typeOptionsFromInventory,
   defaultSortDir,
+  emptyInventoryFilterMessage,
   type SortKey,
   type LocationFilter,
 } from "../lib/inventoryFilters";
@@ -63,10 +63,7 @@ export function Inventory() {
     if (typeFilter !== "ALL" && !inv.rows.some((r) => r.type === typeFilter)) {
       setTypeFilter("ALL");
     }
-    if (locationFilter !== "ALL" && !rowMatchesAnyLocation(inv.rows, locationFilter)) {
-      setLocationFilter("ALL");
-    }
-  }, [inv, gradeFilter, typeFilter, locationFilter]);
+  }, [inv, gradeFilter, typeFilter]);
 
   const gradeOptions = useMemo(() => (inv ? gradeOptionsFromInventory(inv) : []), [inv]);
   const typeOptions = useMemo(() => (inv ? typeOptionsFromInventory(inv) : []), [inv]);
@@ -162,6 +159,7 @@ export function Inventory() {
         columnPrefs={columnPrefs}
         sortKey={sortKey}
         sortDir={sortDir}
+        emptyMessage={emptyInventoryFilterMessage(locationFilter)}
         onSort={toggleSort}
         onClearFilters={clearFilters}
       />

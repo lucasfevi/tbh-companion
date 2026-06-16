@@ -15,6 +15,21 @@ export type SortKey =
   | "buyOrderValue";
 export type LocationFilter = "ALL" | ItemLocation;
 
+const LOCATION_FILTER_LABEL: Record<ItemLocation, string> = {
+  inventory: "Inventory",
+  stash: "Stash",
+  trading: "Trading",
+  equipped: "Equipped",
+  unknown: "Unknown",
+};
+
+export function emptyInventoryFilterMessage(locationFilter: LocationFilter): string {
+  if (locationFilter !== "ALL") {
+    return `No items in ${LOCATION_FILTER_LABEL[locationFilter]}.`;
+  }
+  return "No items match these filters.";
+}
+
 export interface InventoryFilterState {
   query: string;
   tradableOnly: boolean;
