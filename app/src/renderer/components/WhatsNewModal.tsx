@@ -1,0 +1,111 @@
+import { useCallback, useEffect, useState } from "react";
+import { githubReleaseUrl } from "../lib/externalLinks";
+import { reportIpcError } from "../lib/reportError";
+import {
+  markWhatsNewSeen,
+  readLastSeenWhatsNewVersion,
+  whatsNewForVersion,
+  type WhatsNewEntry,
+} from "../lib/whatsNew";
+import { Button } from "./ui/Button";
+import { ExternalLink } from "./ui/ExternalLink";
+
+interface VisibleWhatsNew {
+  version: string;
+  entry: WhatsNewEntry;
+}
+
+export function WhatsNewModal() {
+  const [visible, setVisible] = useState<VisibleWhatsNew | null>(null);
+
+  const dismiss = useCallback((): void => {
+    if (!visible) return;
+    markWhatsNewSeen(visible.version);
+    setVisible(null);
+  }, [visible]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    void window.tbh
+      .getUpdateStatus()
+      .then((status) => {
+        if (!mounted) return;
+
+        const entry = whatsNewForVersion(status.currentVersion);
+        if (!entry) return;
+
+        const seenVersion = readLastSeenWhatsNewVersion();
+        if (seenVersion === entry.version) return;
+
+        setVisible({ version: entry.version, entry });
+      })
+      .catch(reportIpcError);
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") dismiss();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [dismiss, visible]);
+
+  if (!visible) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 p-5"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) dismiss();
+      }}
+    >
+      <section
+        aria-labelledby="whats-new-title"
+        aria-modal="true"
+        className="w-full max-w-md rounded-lg border border-border bg-panel p-5 shadow-2xl"
+        role="dialog"
+      >
+        <div className="flex flex-col gap-3">
+          <div>
+            <p className="m-0 text-xs font-semibold uppercase text-accent">Updated</p>
+            <h2 id="whats-new-title" className="m-0 mt-1 text-lg font-semibold text-fg">
+              {visible.entry.title}
+            </h2>
+          </div>
+
+          <ul className="m-0 flex list-disc flex-col gap-2 pl-5 text-sm text-muted">
+            {visible.entry.bullets.map((bullet) => (
+              <li key={bullet}>{bullet}</li>
+            ))}
+          </ul>
+
+          <ExternalLink href={githubReleaseUrl(visible.version)} variant="accent">
+            Full release notes on GitHub
+          </ExternalLink>
+
+          <div className="mt-1 flex flex-wrap justify-end gap-2">
+            {visible.entry.action && (
+              <ExternalLink
+                href={visible.entry.action.href}
+                onClick={dismiss}
+                variant="primaryButton"
+              >
+                {visible.entry.action.label}
+              </ExternalLink>
+            )}
+            <Button onClick={dismiss}>Got it</Button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

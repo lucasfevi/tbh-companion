@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from "react";
 import { ErrorBoundary } from "./lib/ErrorBoundary";
 import { AppTabBar, type TabId } from "./components/AppTabBar";
 import { SaveStatusBar } from "./components/SaveStatusBar";
+import { WhatsNewModal } from "./components/WhatsNewModal";
 
 const Live = lazy(() => import("./tabs/Live").then((m) => ({ default: m.Live })));
 const Inventory = lazy(() => import("./tabs/Inventory").then((m) => ({ default: m.Inventory })));
@@ -41,6 +42,7 @@ export function App() {
           </Suspense>
         </ErrorBoundary>
       </main>
+      <WhatsNewModal />
     </div>
   );
 }
