@@ -16,11 +16,11 @@ export const WHATS_NEW_STORAGE_KEY = "tbh.whatsNew.lastSeenVersion";
 
 const WHATS_NEW_ENTRIES: WhatsNewEntry[] = [
   {
-    version: "1.12.0",
-    title: "What's new in v1.12.0",
+    version: "1.13.0",
+    title: "What's new in v1.13.0",
     bullets: [
       "New Discord button on About for community help and release chatter.",
-      "What's New now appears once after updates when a release includes bundled notes.",
+      "What's New appears once after updates when a release includes bundled notes.",
     ],
     action: {
       label: "Join Discord",

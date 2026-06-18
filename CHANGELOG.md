@@ -4,6 +4,17 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-06-18
+
+### About
+
+- **Discord** button on **About** next to **GitHub** — opens the TBH Companion community server.
+- **GitHub** and **Discord** links use clearer button styling with icons.
+
+### App
+
+- **What's New** modal after updates when a release includes bundled in-app notes; shown once per version, with a link to full release notes on GitHub and optional actions (e.g. **Join Discord**).
+
 ## [1.12.0] - 2026-06-16
 
 ### Inventory
