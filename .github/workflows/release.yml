@@ -140,6 +140,18 @@ jobs:
           files: app/release/*
           body_path: release_body.md
 
+      - name: Notify Discord
+        if: success()
+        working-directory: ${{ github.workspace }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL }}
+        run: |
+          node .github/scripts/notify-discord-release.mjs \
+            "${{ env.RELEASE_VERSION }}" \
+            "${{ env.RELEASE_TAG }}" \
+            "${{ github.repository }}" \
+            release_body.md
+
       - name: Commit website release manifest to main
         shell: bash
         working-directory: ${{ github.workspace }}
