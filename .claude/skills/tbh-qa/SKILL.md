@@ -94,7 +94,7 @@ Quit dev when done (close Electron + stop terminal).
 | `main/paths.ts`, `main/windows/` | bundle check + dev not blank |
 | `renderer/` only | dev smoke + no console errors |
 | research spike / new `data/` or save parsing | remove `probe-*`, `spike-*`, scratch dumps; findings in tests, `data/`, or `docs/findings/` |
-| new bundled JSON under `data/` | add to `REQUIRED_BUNDLED_DATA_FILES` in `core/bundledData.ts`; load via `readBundledJson` / `bundledDataCandidates` — never `process.cwd()` alone |
+| new bundled JSON under `data/` | registration and loading conventions — see **tbh-data** |
 
 Full checklist: [references/checklist.md](references/checklist.md) — read when debugging failures or testing Settings/Inventory/overlay.
 
@@ -148,8 +148,8 @@ Actions:
 3. **Never open a PR without running Step 1 locally** and noting the result in the test plan.
 4. **Paths**: preload/renderer via `app/src/main/paths.ts` (`../preload`, `../renderer` from `out/main/`).
 5. **PowerShell**: chain with `;` not `&&`.
-6. **PR bodies on Windows**: use `gh pr create --body-file` — never inline `--body "..."` (see `docs/AGENT_WORKFLOW.md`).
-7. **No personal data** in commits (`.es3`, decrypted saves).
+6. **PR bodies on Windows**: use `gh pr create --body-file` — never inline `--body "..."`.
+7. **No personal data** in commits — see `docs/AGENT_WORKFLOW.md`.
 
 ## Reference
 

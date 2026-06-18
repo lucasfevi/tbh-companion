@@ -97,19 +97,21 @@ button in the tab bar; restore from the overlay's expand button.
 
 Skills live under **`.cursor/skills/`** (Cursor) and **`.claude/skills/`** (Claude Code — mirror). **Edit canonical files in `.cursor/skills/`**, then run `npm run sync:skills` from repo root and commit both trees.
 
-**Read the relevant `SKILL.md` before coding** — enforced by `.cursor/rules/project-skills.mdc` (`alwaysApply: true`). Claude: see `CLAUDE.md`.
+**Read the relevant `SKILL.md` before coding** — enforced by `.cursor/rules/project-skills.mdc` (`alwaysApply: true`).
 
 | Skill | Cursor | Claude | When |
 |-------|--------|--------|------|
 | **coding-guidelines** | `.cursor/skills/coding-guidelines/SKILL.md` | `.claude/skills/coding-guidelines/SKILL.md` | Every feature, bugfix, refactor |
 | **tbh-qa** | `.cursor/skills/tbh-qa/SKILL.md` | `.claude/skills/tbh-qa/SKILL.md` | Before marking any `app/` work done |
 | **tbh-main** | `.cursor/skills/tbh-main/SKILL.md` | `.claude/skills/tbh-main/SKILL.md` | Main, preload, IPC, CSP, network |
+| **tbh-core** | `.cursor/skills/tbh-core/SKILL.md` | `.claude/skills/tbh-core/SKILL.md` | Pure logic, parsers, calculators in `core/` |
+| **tbh-data** | `.cursor/skills/tbh-data/SKILL.md` | `.claude/skills/tbh-data/SKILL.md` | Bundled `data/*.json` catalogs |
 | **tbh-renderer** | `.cursor/skills/tbh-renderer/SKILL.md` | `.claude/skills/tbh-renderer/SKILL.md` | Renderer React performance |
 | **tbh-ux** | `.cursor/skills/tbh-ux/SKILL.md` | `.claude/skills/tbh-ux/SKILL.md` | Tab chrome, overlays, layout |
 | **tbh-changelog** | `.cursor/skills/tbh-changelog/SKILL.md` | `.claude/skills/tbh-changelog/SKILL.md` | CHANGELOG, semver, releases |
 | **tbh-reviewer** | `.cursor/skills/tbh-reviewer/SKILL.md` | `.claude/skills/tbh-reviewer/SKILL.md` | `/review-pr <N>` advisory PR review |
 
-Do not skip skills for “small” diffs. Match skill to layer: renderer → **tbh-renderer** + **tbh-ux**; main/preload → **tbh-main**; release → **tbh-changelog**.
+Do not skip skills for “small” diffs. Match skill to layer: renderer → **tbh-renderer** + **tbh-ux**; main/preload → **tbh-main**; core logic → **tbh-core**; bundled catalogs → **tbh-data**; release → **tbh-changelog**.
 
 Deprecated (not synced): `best-practices`, `react-best-practices` — replaced by **tbh-main** and **tbh-renderer**.
 - **Commits:** use Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`,
@@ -136,7 +138,7 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 | **preload** | `app/src/preload/` | Thin `contextBridge` only; import channels from `shared/ipc.ts`. |
 | **renderer** | `app/src/renderer/` | React UI via `window.tbh`. Filter/sort in `renderer/lib/` or `core/` pure helpers. |
 
-**Adding features:** read **coding-guidelines** + **tbh-qa** first; add **tbh-renderer** + **tbh-ux** or **tbh-main** when touching renderer or main/preload. New IPC → `shared/ipc.ts` + `main/ipc/registerIpc.ts` + preload + `test/ipc/channels.test.ts`. New save fields → parse in `core/`, read bytes in `main/` only. New main services → log lifecycle/errors per `docs/DIAGNOSTIC_LOGGING.md` (`createLogger` in main only; renderer uses `reportIpcError`).
+**Adding features:** read **coding-guidelines** + **tbh-qa** first; add **tbh-renderer** + **tbh-ux** or **tbh-main** when touching renderer or main/preload, **tbh-core** for pure logic/parsers, **tbh-data** for bundled `data/*.json` catalogs. New IPC → `shared/ipc.ts` + `main/ipc/registerIpc.ts` + preload + `test/ipc/channels.test.ts`. New save fields → parse in `core/`, read bytes in `main/` only. New main services → log lifecycle/errors per `docs/DIAGNOSTIC_LOGGING.md` (`createLogger` in main only; renderer uses `reportIpcError`).
 
 **Refactor:** move without behavior change first; tests travel with code. No duplicate types (`AppConfig` lives in `shared/types.ts`). No new globals in `main/index.ts` — use `app/appState.ts` or services. Read **coding-guidelines** plus the layer skills above; keep diffs surgical (no drive-by rewrites).
 
