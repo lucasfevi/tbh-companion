@@ -1,24 +1,15 @@
 import { useState } from "react";
+import { SiDiscord, SiGithub } from "react-icons/si";
 import type { UpdateStatus } from "../../../shared/types";
 import { useUpdate } from "../lib/useUpdate";
 import { reportIpcError } from "../lib/reportError";
 import { Button } from "../components/ui/Button";
+import { ExternalLink } from "../components/ui/ExternalLink";
 import { ProgressBar } from "../components/ui/ProgressBar";
 import { Section } from "../components/ui/Section";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
-import { DISCORD_URL, GITHUB_RELEASES, GITHUB_REPO } from "../lib/externalLinks";
-
-function githubReleaseUrl(version: string): string {
-  const tag = version.startsWith("v") ? version : `v${version}`;
-  return `${GITHUB_RELEASES}/tag/${tag}`;
-}
-
-function releaseNotesUrl(currentVersion: string | undefined): string {
-  if (!currentVersion || currentVersion === "…") return GITHUB_RELEASES;
-  const base = currentVersion.replace(/-dev$/, "");
-  return githubReleaseUrl(base);
-}
+import { DISCORD_URL, GITHUB_REPO, githubReleaseUrl } from "../lib/externalLinks";
 
 function fmtBytes(bytes: number | undefined): string {
   if (!bytes || bytes <= 0) return "";
@@ -50,11 +41,6 @@ function statusMessage(status: UpdateStatus): string | null {
       return null;
   }
 }
-
-const externalLinkClass =
-  "text-muted no-underline hover:text-accent hover:underline focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
-const externalButtonClass =
-  "inline-flex items-center justify-center rounded-md border border-border bg-card px-2.5 py-0.5 text-xs text-fg no-underline hover:border-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export function About() {
   const status = useUpdate();
@@ -108,37 +94,15 @@ export function About() {
           <p className="m-0">
             <strong>v{status?.currentVersion ?? "…"}</strong>
           </p>
-          <p className="m-0 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs">
-            <a
-              href={GITHUB_REPO}
-              className={externalLinkClass}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </a>
-            <span className="text-muted opacity-55" aria-hidden>
-              ·
-            </span>
-            <a
-              href={releaseNotesUrl(status?.currentVersion)}
-              className={externalLinkClass}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Release notes
-            </a>
-            <span className="text-muted opacity-55" aria-hidden>
-              {"\u00b7"}
-            </span>
-            <a
-              href={DISCORD_URL}
-              className={externalButtonClass}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Discord
-            </a>
+          <p className="m-0 flex flex-wrap items-center gap-2 text-xs">
+            <ExternalLink href={GITHUB_REPO} variant="button">
+              <SiGithub className="size-3.5" aria-hidden />
+              <span>GitHub</span>
+            </ExternalLink>
+            <ExternalLink href={DISCORD_URL} variant="button">
+              <SiDiscord className="size-3.5" aria-hidden />
+              <span>Discord</span>
+            </ExternalLink>
           </p>
           <p className="m-0 max-w-2xl text-xs text-muted">
             Not affiliated with Tesseract Studio. Fan-made companion for personal stats and
@@ -168,14 +132,9 @@ export function About() {
 
             {showReleaseLink && (
               <p className="m-0 text-xs">
-                <a
-                  href={githubReleaseUrl(status.availableVersion!)}
-                  className={externalLinkClass}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <ExternalLink href={githubReleaseUrl(status.availableVersion!)}>
                   v{status.availableVersion} on GitHub
-                </a>
+                </ExternalLink>
               </p>
             )}
 

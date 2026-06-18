@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "./ui/Button";
+import { githubReleaseUrl } from "../lib/externalLinks";
 import { reportIpcError } from "../lib/reportError";
 import {
   markWhatsNewSeen,
@@ -7,6 +7,8 @@ import {
   whatsNewForVersion,
   type WhatsNewEntry,
 } from "../lib/whatsNew";
+import { Button } from "./ui/Button";
+import { ExternalLink } from "./ui/ExternalLink";
 
 interface VisibleWhatsNew {
   version: string;
@@ -80,23 +82,25 @@ export function WhatsNewModal() {
             </h2>
           </div>
 
-          <ul className="m-0 flex flex-col gap-2 pl-4 text-sm text-muted">
+          <ul className="m-0 flex list-disc flex-col gap-2 pl-5 text-sm text-muted">
             {visible.entry.bullets.map((bullet) => (
               <li key={bullet}>{bullet}</li>
             ))}
           </ul>
 
+          <ExternalLink href={githubReleaseUrl(visible.version)} variant="accent">
+            Full release notes on GitHub
+          </ExternalLink>
+
           <div className="mt-1 flex flex-wrap justify-end gap-2">
             {visible.entry.action && (
-              <a
-                className="inline-flex items-center justify-center rounded-md border border-accent bg-accent px-3.5 py-1.5 text-[13px] font-semibold text-accent-fg no-underline hover:brightness-[1.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              <ExternalLink
                 href={visible.entry.action.href}
-                rel="noopener noreferrer"
-                target="_blank"
                 onClick={dismiss}
+                variant="primaryButton"
               >
                 {visible.entry.action.label}
-              </a>
+              </ExternalLink>
             )}
             <Button onClick={dismiss}>Got it</Button>
           </div>
