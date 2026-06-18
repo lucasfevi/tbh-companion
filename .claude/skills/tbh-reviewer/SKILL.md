@@ -93,6 +93,8 @@ By changed paths:
 |-------|-----------|
 | `app/src/renderer/**` | tbh-renderer, tbh-ux, `docs/STYLING.md` |
 | `app/src/main/**`, `preload/**`, `shared/ipc.ts` | tbh-main |
+| `app/src/core/**` | tbh-core |
+| `data/*.json`, `core/bundledData.ts` | tbh-data |
 | `CHANGELOG.md`, release | tbh-changelog |
 | `app/**` broadly | tbh-qa expectations (author should have run qa) |
 
@@ -100,23 +102,22 @@ By changed paths:
 
 **Architecture & security (blockers in advisory sense — flag for maintainer)**
 
-- [ ] `core/` has no `electron`, `node:fs`, `fetch`, React imports
+- [ ] `core/` purity respected — see **tbh-core** § Hard rule: stay pure
 - [ ] Save file remains read-only — no write paths to game saves
 - [ ] New/changed IPC → `shared/ipc.ts`, preload, `registerIpc`, `test/ipc/channels.test.ts`
-- [ ] No `*.es3`, decrypted saves, or personal `sample/` in the diff
+- [ ] No personal save data in the diff — see `docs/AGENT_WORKFLOW.md`
 - [ ] Spike/probe scripts (`probe-*`, `spike-*`) not left in `app/scripts/` unless intentional
-- [ ] New `data/*.json` → `REQUIRED_BUNDLED_DATA_FILES` if bundled
+- [ ] New `data/*.json` registered correctly — see **tbh-data** § Adding or changing a catalog file
 
 **Tests & QA**
 
-- [ ] `core/` behavior changes have Vitest coverage
+- [ ] `core/` behavior changes have Vitest coverage — see **tbh-core** § Testing
 - [ ] IPC/config changes have `test/main/` or `test/ipc/` updates
 - [ ] UI/main/preload changes: PR or author should note dev smoke (tabs not blank)
 
 **UX (if renderer)**
 
-- [ ] Tab bar navigation only — actions in toolbar/tab content per tbh-ux
-- [ ] Uses `components/ui/` and theme tokens
+- [ ] Matches **tbh-ux** § Review checklist (tab bar navigation, theme tokens, overlay entry points)
 
 **Docs**
 
