@@ -7,9 +7,7 @@ import { ProgressBar } from "../components/ui/ProgressBar";
 import { Section } from "../components/ui/Section";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
-
-const GITHUB_REPO = "https://github.com/lucasfevi/tbh-companion";
-const GITHUB_RELEASES = `${GITHUB_REPO}/releases`;
+import { DISCORD_URL, GITHUB_RELEASES, GITHUB_REPO } from "../lib/externalLinks";
 
 function githubReleaseUrl(version: string): string {
   const tag = version.startsWith("v") ? version : `v${version}`;
@@ -55,6 +53,8 @@ function statusMessage(status: UpdateStatus): string | null {
 
 const externalLinkClass =
   "text-muted no-underline hover:text-accent hover:underline focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+const externalButtonClass =
+  "inline-flex items-center justify-center rounded-md border border-border bg-card px-2.5 py-0.5 text-xs text-fg no-underline hover:border-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export function About() {
   const status = useUpdate();
@@ -127,6 +127,17 @@ export function About() {
               rel="noopener noreferrer"
             >
               Release notes
+            </a>
+            <span className="text-muted opacity-55" aria-hidden>
+              {"\u00b7"}
+            </span>
+            <a
+              href={DISCORD_URL}
+              className={externalButtonClass}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Discord
             </a>
           </p>
           <p className="m-0 max-w-2xl text-xs text-muted">

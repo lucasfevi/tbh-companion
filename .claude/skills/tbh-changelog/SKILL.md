@@ -1,6 +1,6 @@
 ---
 name: tbh-changelog
-description: Update TBH Companion CHANGELOG.md with user-facing release notes and recommend the next semver version (MAJOR.MINOR.PATCH per semver.org). Use when shipping a release, preparing Release prepare, adding unreleased notes after a feature merge, deciding 1.1.1 vs 1.2.0, or when the user asks to update the changelog or bump version. Always compare the latest release tag to main, confirm proposed changelog text before editing CHANGELOG.md, commit changelog work on main only, and confirm before push. Not for raw git commit lists in GitHub releases (see write-release-notes.sh), app code changes without release notes, or library API semver for npm consumers.
+description: Update TBH Companion CHANGELOG.md with user-facing release notes, draft bundled in-app "What's new" modal copy, and recommend the next semver version (MAJOR.MINOR.PATCH per semver.org). Use when shipping a release, preparing Release prepare, adding unreleased notes after a feature merge, preparing in-app What's New content, deciding 1.1.1 vs 1.2.0, or when the user asks to update the changelog or bump version. Always compare the latest release tag to main, confirm proposed changelog and What's New text before editing files, commit changelog/release work on main only, and confirm before push. Not for raw git commit lists in GitHub releases (see write-release-notes.sh), app code changes without release notes, or library API semver for npm consumers.
 license: CC-BY-4.0
 metadata:
   author: tbh-project
@@ -9,14 +9,16 @@ metadata:
 
 # TBH Companion — Changelog & semver
 
-Keep `CHANGELOG.md` as the **user-facing** source of truth. Release automation (`.github/scripts/write-release-notes.sh`) copies the matching `## [VERSION]` section into GitHub Releases and appends a compare link. **Release prepare** fails if that section is missing.
+Keep `CHANGELOG.md` as the **long-form user-facing** source of truth. Release automation (`.github/scripts/write-release-notes.sh`) copies the matching `## [VERSION]` section into GitHub Releases and appends a compare link. **Release prepare** fails if that section is missing.
+
+When preparing a release, also draft concise bundled **What's new** modal copy from the same user-facing analysis. Modal copy is a curated summary for the app, not a full duplicate of the changelog.
 
 Read [references/semver-guide.md](references/semver-guide.md) when classifying changes or the bump is ambiguous.
 
 ## Hard rules (never skip)
 
 1. **Compare latest release → main.** Every run starts by diffing the latest shipped tag against `main` (not the current feature branch). User-facing bullets must reflect what landed on `main` since that tag.
-2. **Confirm text before editing.** Present the full proposed `[Unreleased]` or promoted section in chat. Edit `CHANGELOG.md` only after the user approves the wording.
+2. **Confirm text before editing.** Present the full proposed `[Unreleased]` or promoted section and any What's New modal copy in chat. Edit files only after the user approves the wording.
 3. **Commit on `main` only.** Changelog updates and release-promotion commits belong on `main`. Switch to `main`, sync with origin, then commit. Do not leave changelog-only commits on feature branches.
 4. **Confirm before push.** Summarize branch, commits, and scope; ask explicitly. Push only after the user says yes (see `docs/AGENT_WORKFLOW.md` and `.cursor/rules/git-remote-confirm.mdc`).
 
@@ -25,8 +27,9 @@ Read [references/semver-guide.md](references/semver-guide.md) when classifying c
 | Trigger | Action |
 |---------|--------|
 | Feature/fix merged to `main` | Draft bullets for `[Unreleased]`, confirm, commit on `main` |
-| User asks to release / tag / ship | Compare tag→main, draft promoted section, confirm, commit on `main`, hand off to Release prepare |
+| User asks to release / tag / ship | Compare tag→main, draft promoted section + What's New copy, confirm, commit on `main`, hand off to Release prepare |
 | PR merged with user-visible behavior | Update `[Unreleased]` on `main` after merge (confirm text first) |
+| User asks for in-app What's New copy | Draft modal copy from the same tag→main analysis and keep it aligned with `CHANGELOG.md` |
 
 **Skip** for docs-only spikes under `docs/findings/` with no app behavior change, unless the user explicitly wants a note.
 
@@ -65,8 +68,9 @@ Progress:
 - [ ] Step 0: On main and synced
 - [ ] Step 1: Compare latest release tag → main
 - [ ] Step 2: Draft changelog text (do not edit file yet)
-- [ ] Step 3: User confirms text
-- [ ] Step 4: Update CHANGELOG.md
+- [ ] Step 2b: Draft What's New modal copy (release prep only)
+- [ ] Step 3: User confirms changelog and What's New text
+- [ ] Step 4: Update CHANGELOG.md and bundled What's New data when present
 - [ ] Step 5: Commit on main (if user asked for a commit)
 - [ ] Step 6: Recommend semver; confirm before push
 - [ ] Step 7: Report next steps
@@ -111,13 +115,39 @@ Current shipped version: `app/package.json` → `version` (must match latest git
 
 Post the complete proposed markdown block in chat.
 
+### Step 2b — Draft What's New modal copy (release prep only)
+
+When cutting a release or preparing bundled in-app release notes, draft modal copy alongside the changelog:
+
+- Reuse the same user-facing themes as `CHANGELOG.md`.
+- Keep it shorter: title plus **2-5 bullets** focused on features users should notice.
+- Prefer player-facing labels and app surfaces: **About**, **Inventory**, **Mini**, **Settings**, etc.
+- Include action suggestions when useful, e.g. a `Join Discord` action for an About Discord button.
+- Do not include internal refactors, CI, tests, release automation, or raw commit subjects.
+
+Post it in chat as a separate block after the changelog draft:
+
+```markdown
+What's New modal draft:
+Title: What's new in vX.Y.Z
+Bullets:
+- ...
+- ...
+Actions:
+- Join Discord -> https://...
+```
+
+If the app already has a bundled `whatsNew` data file, plan to update it after approval. If it does not exist yet, only draft the modal text in chat and note that the app feature must add the bundled source before it can be shipped.
+
 ### Step 3 — User confirms text
 
-Stop and wait for approval. If the user edits wording, redraft and ask again. **Do not write to `CHANGELOG.md` until they confirm.**
+Stop and wait for approval. If the user edits wording, redraft and ask again. **Do not write to `CHANGELOG.md` or bundled What's New data until they confirm both.**
 
-### Step 4 — Update `CHANGELOG.md`
+### Step 4 — Update `CHANGELOG.md` and bundled What's New data
 
 Apply only the confirmed text. For release cuts: move content under `## [SUGGESTED_VERSION] - TODAY_ISO` and clear `[Unreleased]` (keep the heading).
+
+If a bundled `whatsNew` data file exists, update it with the confirmed modal title, bullets, and actions for the same target version. Keep the app content concise and offline-safe. Do not create the app feature or data file during changelog-only work unless the user explicitly asks for implementation.
 
 Do **not** edit `app/package.json` locally unless asked — Release prepare bumps version and tags.
 
@@ -165,6 +195,7 @@ Include:
 
 - “Since last release” summary (tag → main)
 - Confirmed changelog edits applied
+- Confirmed What's New modal copy applied, or the drafted copy if the app data file does not exist yet
 - Recommended version with semver rationale (one short paragraph)
 - Next manual step: “Run **Release prepare** with `{version}` on GitHub Actions” (release cuts only)
 
@@ -190,9 +221,10 @@ Actions:
 
 1. On `main`, run tag→main compare and `version-hint.mjs`.
 2. Draft full `## [1.2.0] - 2026-06-11` section from `[Unreleased]` + anything missing from compare.
-3. User confirms text → apply promotion, clear `[Unreleased]`.
-4. Commit on `main` if asked; recommend version; ask before push.
-5. Tell user to run Release prepare with `1.2.0`.
+3. Draft What's New modal copy from the same user-facing themes, e.g. "New Discord button on **About**" and "What's New appears once after updates."
+4. User confirms text → apply promotion, clear `[Unreleased]`, and update bundled What's New data if it exists.
+5. Commit on `main` if asked; recommend version; ask before push.
+6. Tell user to run Release prepare with `1.2.0`.
 
 ### Example 3: Agent started on a feature branch
 
