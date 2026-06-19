@@ -1,4 +1,4 @@
-import { ToolbarButton } from "./ui/ToolbarButton";
+import { Button } from "../design-system/primitives/Button/Button";
 
 function MiniOverlayIcon() {
   return (
@@ -46,17 +46,22 @@ function BoxTrackerIcon() {
 export function AppToolbar() {
   return (
     <div className="flex shrink-0 gap-1 pb-1.5" role="toolbar" aria-label="Overlays">
-      <ToolbarButton title="Open mini stats overlay" onClick={() => window.tbh.openOverlay()}>
+      <Button
+        variant="toolbar"
+        title="Open mini stats overlay"
+        onClick={() => window.tbh.openOverlay()}
+      >
         <MiniOverlayIcon />
         Mini
-      </ToolbarButton>
-      <ToolbarButton
+      </Button>
+      <Button
+        variant="toolbar"
         title="Open Stage boss chest tracker"
         onClick={() => window.tbh.openBoxTracker()}
       >
         <BoxTrackerIcon />
         Boss chests
-      </ToolbarButton>
+      </Button>
     </div>
   );
 }

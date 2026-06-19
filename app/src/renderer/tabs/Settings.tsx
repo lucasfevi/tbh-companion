@@ -8,7 +8,7 @@ import type { AppConfig, AppDataClearTarget, AppDataPaths } from "../../../share
 import { reportIpcError } from "../lib/reportError";
 import { Accordion } from "../components/ui/Accordion";
 import { NotificationSoundAccordion } from "../components/NotificationKindRow";
-import { Button } from "../components/ui/Button";
+import { Button } from "../design-system/primitives/Button/Button";
 import { Card } from "../components/ui/Card";
 import { Field } from "../components/ui/Field";
 import { NumberInput } from "../components/ui/NumberInput";

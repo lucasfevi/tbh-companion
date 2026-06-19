@@ -4,7 +4,7 @@ import { usePriceProgress, usePriceStatus } from "./lib/usePrices";
 import { fmtCompact } from "./lib/format";
 import { formatMoney } from "../core/steamPrice";
 import { stageName } from "../core/stages";
-import { IconButton } from "./components/ui/IconButton";
+import { Button } from "./design-system/primitives/Button/Button";
 import { OverlayFrame } from "./components/ui/OverlayFrame";
 
 const RATE_TIP =
@@ -34,23 +34,26 @@ export function Overlay() {
           TBH Companion
         </span>
         <div className="no-drag flex gap-1">
-          <IconButton
+          <Button
+            variant="icon"
             type="button"
             className="text-xs"
             title="Reset session stats"
             onClick={() => window.tbh.reset()}
           >
             {"\u21bb"}
-          </IconButton>
-          <IconButton
+          </Button>
+          <Button
+            variant="icon"
             type="button"
             className="text-xs"
             title="Open full window"
             onClick={() => window.tbh.showMain()}
           >
             {"\u2922"}
-          </IconButton>
-          <IconButton
+          </Button>
+          <Button
+            variant="icon"
             type="button"
             edge="end"
             className="text-xs"
@@ -58,7 +61,7 @@ export function Overlay() {
             onClick={() => window.tbh.closeOverlay()}
           >
             {"\u2715"}
-          </IconButton>
+          </Button>
         </div>
       </div>
 
