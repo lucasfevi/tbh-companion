@@ -12,7 +12,8 @@ export type SortKey =
   | "price"
   | "value"
   | "buyOrder"
-  | "buyOrderValue";
+  | "buyOrderValue"
+  | "buyOrderAverage";
 export type LocationFilter = "ALL" | ItemLocation;
 
 const LOCATION_FILTER_LABEL: Record<ItemLocation, string> = {
@@ -33,12 +34,18 @@ export function emptyInventoryFilterMessage(locationFilter: LocationFilter): str
 export interface InventoryFilterState {
   query: string;
   tradableOnly: boolean;
-  inUseOnly: boolean;
+  unequippedOnly: boolean;
   gradeFilter: string;
   typeFilter: string;
   locationFilter: LocationFilter;
   sortKey: SortKey;
   sortDir: "asc" | "desc";
+}
+
+/** Average price per unit actually realized across the order-book levels used to fill the stack. */
+export function buyOrderAverage(row: ResolvedInventoryRow): number | null {
+  if (!row.buyOrderCoveredCount || row.buyOrderValue == null) return null;
+  return row.buyOrderValue / row.buyOrderCoveredCount;
 }
 
 export function gradeOptionsFromInventory(inv: ResolvedInventory): string[] {
@@ -60,7 +67,9 @@ export function filterAndSortRows(
   let rows = inv.rows.filter((row) => {
     const inUse = row.inUseCount ?? 0;
     if (state.tradableOnly && !row.marketTradable) return false;
-    if (state.inUseOnly && inUse <= 0) return false;
+    // Rows are grouped by item type, so a row can mix equipped + stashed copies.
+    // Only hide it when every copy is equipped — otherwise the unequipped ones disappear too.
+    if (state.unequippedOnly && inUse >= row.count) return false;
     if (state.gradeFilter !== "ALL" && row.grade !== state.gradeFilter) return false;
     if (state.typeFilter !== "ALL" && row.type !== state.typeFilter) return false;
     if (state.locationFilter !== "ALL" && !rowMatchesLocation(row, state.locationFilter))
@@ -82,6 +91,8 @@ export function filterAndSortRows(
     else if (state.sortKey === "buyOrder") cmp = (a.buyOrderUnit ?? -1) - (b.buyOrderUnit ?? -1);
     else if (state.sortKey === "buyOrderValue")
       cmp = (a.buyOrderValue ?? -1) - (b.buyOrderValue ?? -1);
+    else if (state.sortKey === "buyOrderAverage")
+      cmp = (buyOrderAverage(a) ?? -1) - (buyOrderAverage(b) ?? -1);
     else cmp = (GRADE_RANK[a.grade] ?? -1) - (GRADE_RANK[b.grade] ?? -1);
     if (cmp === 0) cmp = b.count - a.count;
     return cmp * dir;

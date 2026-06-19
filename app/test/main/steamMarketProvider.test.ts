@@ -25,6 +25,7 @@ vi.mock("../../src/main/services/steamBuyOrderApi", () => ({
     buyOrder: 0.5,
     rawBuyOrder: "$0.50",
     buyOrderQuantity: 1,
+    buyOrderLevels: [{ price: 0.5, quantity: 1 }],
   }),
 }));
 

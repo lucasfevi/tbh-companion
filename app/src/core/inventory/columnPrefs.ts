@@ -10,6 +10,7 @@ export const INVENTORY_COLUMN_IDS: InventoryColumnId[] = [
   "listValue",
   "instantSell",
   "instantTotal",
+  "instantSellAverage",
 ];
 
 export const DEFAULT_VISIBLE_INVENTORY_COLUMNS: InventoryColumnId[] = [

@@ -327,6 +327,7 @@ export class InventoryService {
       buyOrder: e.buyOrder ?? null,
       rawBuyOrder: e.rawBuyOrder ?? null,
       buyOrderQuantity: e.buyOrderQuantity ?? null,
+      buyOrderLevels: e.buyOrderLevels ?? null,
       buyOrderFetched: e.buyOrderFetched === true,
     };
   }

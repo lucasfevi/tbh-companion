@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { parseInventory, resolveInventory } from "../../src/core/inventory";
+import {
+  parseInventory,
+  resolveInventory,
+  computeInventoryComposition,
+} from "../../src/core/inventory";
 import type { GameItem } from "../../src/core/gamedata";
+import { TBH_MARKET_FEE_RATES } from "../../src/core/steamMarketFee";
 
 function wrapPlayer(inner: string): string {
   return JSON.stringify({ PlayerSaveData: { value: inner } });
@@ -133,6 +138,7 @@ describe("resolveInventory", () => {
             buyOrder: 0.03,
             rawBuyOrder: "$0.03",
             buyOrderQuantity: 1,
+            buyOrderLevels: [{ price: 0.03, quantity: 1 }],
             buyOrderFetched: true,
           }
         : undefined;
@@ -170,6 +176,12 @@ describe("resolveInventory", () => {
     expect(res.composition.buyOrderValuedTotal).toBeCloseTo(0.03);
     expect(res.composition.buyOrderPricedRows).toBe(1);
     expect(res.composition.netAfterFeesTotal).toBeLessThan(res.composition.valuedTotal);
+
+    const ingotOnly = computeInventoryComposition([ingot], TBH_MARKET_FEE_RATES);
+    expect(ingotOnly.valuedTotal).toBeCloseTo(ingot.value!);
+    expect(ingotOnly.buyOrderValuedTotal).toBeCloseTo(ingot.buyOrderValue!);
+    expect(ingotOnly.buyOrderPricedRows).toBe(1);
+    expect(ingotOnly.total).toBe(ingot.count);
   });
 
   it("caps instant sell total at buy-order book depth", () => {
@@ -182,6 +194,7 @@ describe("resolveInventory", () => {
             buyOrder: 0.03,
             rawBuyOrder: "$0.03",
             buyOrderQuantity: 2,
+            buyOrderLevels: [{ price: 0.03, quantity: 2 }],
             buyOrderFetched: true,
           }
         : undefined;
@@ -189,7 +202,32 @@ describe("resolveInventory", () => {
     const stone = res.rows.find((r) => r.itemKey === 140002)!;
     expect(stone.count).toBe(5);
     expect(stone.buyOrderValue).toBeCloseTo(0.06);
+    expect(stone.buyOrderCoveredCount).toBe(2);
     expect(res.composition.buyOrderValuedTotal).toBeCloseTo(0.06);
+  });
+
+  it("walks multiple order-book levels when the top level doesn't cover the stack", () => {
+    const snap = parseInventory(wrapPlayer(playerInner), 0, isMaterial);
+    const priceLookup = (name: string) =>
+      name === "Stone"
+        ? {
+            median: 0.05,
+            lowest: 0.04,
+            buyOrder: 0.03,
+            rawBuyOrder: "$0.03",
+            buyOrderQuantity: 2,
+            buyOrderLevels: [
+              { price: 0.03, quantity: 2 },
+              { price: 0.02, quantity: 3 },
+            ],
+            buyOrderFetched: true,
+          }
+        : undefined;
+    const res = resolveInventory(snap, lookup, true, priceLookup);
+    const stone = res.rows.find((r) => r.itemKey === 140002)!;
+    expect(stone.count).toBe(5);
+    expect(stone.buyOrderValue).toBeCloseTo(0.03 * 2 + 0.02 * 3);
+    expect(stone.buyOrderCoveredCount).toBe(5);
   });
 
   it("excludes stage boxes from rows and composition when requested", () => {
@@ -236,6 +274,7 @@ describe("resolveInventory", () => {
             buyOrder: 12,
             rawBuyOrder: "R$ 12,00",
             buyOrderQuantity: 1,
+            buyOrderLevels: [{ price: 12, quantity: 1 }],
             buyOrderFetched: true,
           }
         : undefined;

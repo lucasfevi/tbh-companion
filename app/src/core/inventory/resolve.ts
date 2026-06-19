@@ -2,20 +2,17 @@ import type { GameItem } from "../gamedata";
 import { marketHashName } from "../marketName";
 import { flattenOwnedHashes, ownedPriceTargets } from "./ownedPriceTargets";
 import { pickMarketUnit } from "../steamPrice";
-import {
-  aggregateSellerProceeds,
-  getTbhMarketFeeRates,
-  type SteamMarketFeeRates,
-} from "../steamMarketFee";
-import { instantSellValue } from "./buyOrder";
+import type { SteamMarketFeeRates } from "../steamMarketFee";
+import { getTbhMarketFeeRates } from "../steamMarketFeeBundled";
+import { computeInventoryComposition } from "./composition";
 import type {
   InventorySnapshot,
   InventoryItemInstance,
   ItemLocation,
   ResolvedInventory,
   ResolvedInventoryRow,
-  InventoryComposition,
   InventoryPriceInfo,
+  BuyOrderLevel,
 } from "../../../shared/types";
 
 export interface PriceLookup {
@@ -42,6 +39,7 @@ interface MarketResolution {
   buyOrderUnit: number | null;
   buyOrderRaw: string | null;
   buyOrderQuantity: number | null;
+  buyOrderLevels: BuyOrderLevel[] | null;
   buyOrderChecked: boolean;
 }
 
@@ -54,6 +52,7 @@ const NO_MARKET: MarketResolution = {
   buyOrderUnit: null,
   buyOrderRaw: null,
   buyOrderQuantity: null,
+  buyOrderLevels: null,
   buyOrderChecked: false,
 };
 
@@ -67,35 +66,18 @@ function sellRawFromPrice(price: InventoryPriceInfo): {
   };
 }
 
-function emptyComposition(): InventoryComposition {
-  return {
-    total: 0,
-    byGrade: {},
-    byType: {},
-    tradableCount: 0,
-    unknownCount: 0,
-    chaoticCount: 0,
-    inUseCount: 0,
-    priceableCount: 0,
-    valuedTotal: 0,
-    feeTotal: 0,
-    netAfterFeesTotal: 0,
-    buyOrderValuedTotal: 0,
-    buyOrderPricedRows: 0,
-    currency: null,
-  };
-}
-
 function buyOrderFromPrice(price: InventoryPriceInfo): {
   unit: number | null;
   raw: string | null;
   quantity: number | null;
+  levels: BuyOrderLevel[] | null;
   checked: boolean;
 } {
   return {
     unit: price.buyOrder ?? null,
     raw: price.rawBuyOrder ?? null,
     quantity: price.buyOrderQuantity ?? null,
+    levels: price.buyOrderLevels ?? null,
     checked: price.buyOrderFetched === true,
   };
 }
@@ -118,6 +100,7 @@ function resolveMarketHashAndPrice(
       buyOrderUnit: null,
       buyOrderRaw: null,
       buyOrderQuantity: null,
+      buyOrderLevels: null,
       buyOrderChecked: false,
     };
   }
@@ -134,6 +117,7 @@ function resolveMarketHashAndPrice(
     buyOrderUnit: buy.unit,
     buyOrderRaw: buy.raw,
     buyOrderQuantity: buy.quantity,
+    buyOrderLevels: buy.levels,
     buyOrderChecked: buy.checked,
   };
 }
@@ -168,7 +152,9 @@ function createResolvedRow(
     buyOrderRaw: market.buyOrderRaw,
     buyOrderUnit: market.buyOrderUnit,
     buyOrderQuantity: market.buyOrderQuantity,
+    buyOrderLevels: market.buyOrderLevels,
     buyOrderValue: null,
+    buyOrderCoveredCount: null,
     buyOrderChecked: market.buyOrderChecked,
   };
 }
@@ -188,72 +174,6 @@ function applyInstance(row: ResolvedInventoryRow, instance: InventoryItemInstanc
   if (instance.isChaotic) row.chaoticCount++;
   const countKey = locationCountKey(instance.location);
   if (countKey) row[countKey]++;
-}
-
-function clearRowPricing(row: ResolvedInventoryRow): void {
-  row.priceRaw = null;
-  row.rawMedian = null;
-  row.rawLowest = null;
-  row.unitPrice = null;
-  row.priceSource = null;
-  row.priceChecked = false;
-  row.value = null;
-  row.buyOrderRaw = null;
-  row.buyOrderUnit = null;
-  row.buyOrderQuantity = null;
-  row.buyOrderValue = null;
-  row.buyOrderChecked = false;
-}
-
-function accumulateCompositionRow(
-  composition: InventoryComposition,
-  row: ResolvedInventoryRow,
-): void {
-  composition.inUseCount += row.inUseCount;
-  composition.total += row.count;
-  composition.byGrade[row.grade] = (composition.byGrade[row.grade] ?? 0) + row.count;
-  composition.byType[row.type] = (composition.byType[row.type] ?? 0) + row.count;
-  if (row.marketTradable) composition.tradableCount += row.count;
-  if (!row.known) composition.unknownCount += row.count;
-  composition.chaoticCount += row.chaoticCount;
-
-  if (!row.marketHashName) {
-    clearRowPricing(row);
-    return;
-  }
-
-  composition.priceableCount += row.count;
-
-  if (row.unitPrice != null) {
-    row.value = row.unitPrice * row.count;
-    composition.valuedTotal += row.value;
-  }
-
-  if (row.buyOrderUnit != null) {
-    row.buyOrderValue = instantSellValue(row.buyOrderUnit, row.count, row.buyOrderQuantity);
-    if (row.buyOrderValue != null) {
-      composition.buyOrderValuedTotal += row.buyOrderValue;
-      composition.buyOrderPricedRows += 1;
-    }
-  }
-}
-
-function finalizeRows(
-  rows: ResolvedInventoryRow[],
-  feeRates: SteamMarketFeeRates,
-): InventoryComposition {
-  const composition = emptyComposition();
-  rows.forEach((row) => accumulateCompositionRow(composition, row));
-
-  const feeLines = rows
-    .filter((row) => row.unitPrice != null && row.count > 0)
-    .map((row) => ({ buyerUnitPrice: row.unitPrice!, count: row.count }));
-
-  const proceeds = aggregateSellerProceeds(feeLines, feeRates);
-  composition.feeTotal = proceeds.feeTotal;
-  composition.netAfterFeesTotal = proceeds.netTotal;
-
-  return composition;
 }
 
 function ensureRow(
@@ -332,7 +252,7 @@ export function resolveInventory(
   }
 
   const rows = [...rowsByItemKey.values()];
-  const composition = finalizeRows(rows, feeRates);
+  const composition = computeInventoryComposition(rows, feeRates);
 
   return {
     rows,

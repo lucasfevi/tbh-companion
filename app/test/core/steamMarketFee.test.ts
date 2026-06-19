@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import {
   aggregateSellerProceeds,
   buyerPriceFromSellerAmount,
-  getTbhMarketFeeRates,
   sellerProceedsFromBuyerPrice,
   TBH_MARKET_FEE_RATES,
 } from "../../src/core/steamMarketFee";
+import { getTbhMarketFeeRates } from "../../src/core/steamMarketFeeBundled";
 
 describe("steamMarketFee", () => {
   it("computes buyer price from seller amount with TBH 5% rate", () => {
