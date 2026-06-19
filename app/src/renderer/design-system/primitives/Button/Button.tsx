@@ -12,7 +12,7 @@ import { cn, cva, type VariantProps } from "../../lib/variants";
  * (they never had a size axis in the original components either).
  */
 export const buttonVariants = cva(
-  "inline-flex cursor-pointer items-center justify-center rounded-md border disabled:cursor-not-allowed disabled:opacity-50",
+  "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md border disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
@@ -38,7 +38,7 @@ export const buttonVariants = cva(
       },
     },
     compoundVariants: [
-      { variant: "toolbar", class: "gap-1.5 px-2.5 py-1.5 text-xs" },
+      { variant: "toolbar", class: "px-2.5 py-1.5 text-xs" },
       { variant: "link", class: "p-0 font-inherit" },
       { variant: "icon", class: "px-1 py-0 text-[13px] leading-none" },
     ],
