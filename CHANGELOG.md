@@ -7,7 +7,7 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 ### Live
 
 - **Inventory fill prediction** on the Live tab: estimate when unlocked inventory slots fill up from held chest auto-open (with companion toggles for common and stage boss chests) and session drop rates from Player.log.
-- Tooltip explains the queue model and that each chest counts as one slot (opening can yield multiple items in-game).
+- Tooltip explains the queue model (one opened chest uses one inventory slot).
 
 ### Notifications
 

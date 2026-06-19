@@ -44,11 +44,11 @@ const CHEST_RATE_TIP =
 const INVENTORY_PREDICTION_TIP =
   "Estimates when your unlocked inventory slots fill up. For each chest type you've marked " +
   "auto-open below, we model a serial auto-open queue: held chests drain at their open speed " +
-  "(faster with reduction runes) while Player.log drops add more chests to the queue. Each chest " +
-  "counts as one slot here (opening can yield multiple items in-game, so treat this as a rough " +
-  "guide). We can't detect the in-game auto-open toggle, so set it here — only common and stage " +
-  "boss chests count, since Player.log doesn't report act boss drops. Based on the save file, so " +
-  "it can take a few minutes to catch up after you change a toggle or open chests in-game.";
+  "(faster with reduction runes) while Player.log drops add more chests to the queue. Each " +
+  "opened chest uses one inventory slot. We can't detect the in-game auto-open toggle, so set " +
+  "it here — only common and stage boss chests count, since Player.log doesn't report act boss " +
+  "drops. Based on the save file, so it can take a few minutes to catch up after you change a " +
+  "toggle or open chests in-game.";
 
 export function Live() {
   const stats = useStats();

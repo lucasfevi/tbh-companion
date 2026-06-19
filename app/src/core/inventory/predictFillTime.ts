@@ -67,10 +67,8 @@ function buildSegments(sources: ChestFillSource[]): FillSegment[] {
  * Estimates time until the inventory is full from auto-opened chests.
  *
  * Each enabled type is modeled as a serial auto-open queue: drops add chests,
- * the opener removes them at `3600 / autoOpenSecondsPerChest` chests/hour. Inventory
- * receives one slot per chest opened (same unit as Player.log drop counts). Opening
- * a chest can yield multiple gear pieces in-game, so this is a rough lower bound on
- * fill pressure from held stock.
+ * the opener removes them at `3600 / autoOpenSecondsPerChest` chests/hour. Each
+ * opened chest consumes one inventory slot (same unit as Player.log drop counts).
  *
  * Act boss chests are excluded by the caller: Player.log doesn't report act boss
  * drops. Types with auto-open off don't appear in `sources`.
