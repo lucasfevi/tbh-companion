@@ -27,7 +27,6 @@ const DEFAULT_SAVE = join(
 const DEFAULT_CHEST_AUTO_OPEN: ChestAutoOpenPrefs = {
   common: false,
   stageBoss: false,
-  actBoss: false,
 };
 
 const DEFAULTS: AppConfig = {
@@ -54,7 +53,6 @@ function sanitizeChestAutoOpenPrefs(
   return {
     common: Boolean(raw?.common),
     stageBoss: Boolean(raw?.stageBoss),
-    actBoss: Boolean(raw?.actBoss),
   };
 }
 

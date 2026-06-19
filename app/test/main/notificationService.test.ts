@@ -45,7 +45,7 @@ const baseConfig: AppConfig = {
   notificationVolume: 100,
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
   inventoryAlmostFullThresholdPercent: 90,
-  chestAutoOpenEnabled: { common: false, stageBoss: false, actBoss: false },
+  chestAutoOpenEnabled: { common: false, stageBoss: false },
 };
 
 describe("NotificationService", () => {
@@ -113,6 +113,10 @@ describe("NotificationService", () => {
   it("plays inventory almost full sound for inventoryAlmostFull kind", () => {
     const service = new NotificationService(() => baseConfig, vi.fn());
     service.showInventoryAlmostFull({ used: 90, capacity: 100 });
+    expect(notificationCtor).toHaveBeenCalledWith({
+      title: "Inventory almost full",
+      body: "90/100 slots used (90%).",
+    });
     expect(sendNotificationSoundMock).toHaveBeenCalledWith({
       soundId: "happy-ping",
       volumePercent: 100,

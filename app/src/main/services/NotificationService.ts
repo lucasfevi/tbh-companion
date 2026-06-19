@@ -75,8 +75,24 @@ export class NotificationService {
     this.playKindSound("heroLevelUp");
   }
 
-  showInventoryAlmostFull(_payload: InventoryAlmostFullPayload): void {
-    this.playKindSound("inventoryAlmostFull");
+  showInventoryAlmostFull(payload: InventoryAlmostFullPayload): void {
+    const config = this.getConfig();
+    if (!config.notificationsEnabled) return;
+    const pref = config.notificationPrefs.inventoryAlmostFull;
+    if (!pref.enabled) return;
+
+    if (this.isSupported() && payload.capacity > 0) {
+      const percent = Math.round((payload.used / payload.capacity) * 100);
+      const notification = new Notification({
+        title: "Inventory almost full",
+        body: `${payload.used}/${payload.capacity} slots used (${percent}%).`,
+      });
+      notification.on("click", () => this.focusMainWindow());
+      notification.show();
+    }
+
+    const volumePercent = sanitizeNotificationVolume(config.notificationVolume);
+    this.playSound(pref.sound, volumePercent);
   }
 
   private playKindSound(kind: NotificationKindId): void {

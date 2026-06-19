@@ -29,7 +29,7 @@ const config: AppConfig = {
   notificationVolume: 100,
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
   inventoryAlmostFullThresholdPercent: 90,
-  chestAutoOpenEnabled: { common: false, stageBoss: false, actBoss: false },
+  chestAutoOpenEnabled: { common: false, stageBoss: false },
 };
 
 function snap(mtime: number, heroExp: number): SaveSnapshot {

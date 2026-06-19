@@ -356,7 +356,6 @@ export interface InventoryTablePrefs {
 export interface ChestAutoOpenPrefs {
   common: boolean;
   stageBoss: boolean;
-  actBoss: boolean;
 }
 
 export interface AppConfig {

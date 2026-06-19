@@ -57,7 +57,6 @@ describe("normalizeConfigFromRaw", () => {
     expect(mod.normalizeConfigFromRaw({}).chestAutoOpenEnabled).toEqual({
       common: false,
       stageBoss: false,
-      actBoss: false,
     });
   });
 
@@ -66,7 +65,7 @@ describe("normalizeConfigFromRaw", () => {
       mod.normalizeConfigFromRaw({
         chestAutoOpenEnabled: { common: true } as never,
       }).chestAutoOpenEnabled,
-    ).toEqual({ common: true, stageBoss: false, actBoss: false });
+    ).toEqual({ common: true, stageBoss: false });
   });
 
   it("clamps inventoryAlmostFullThresholdPercent to 50-100", () => {

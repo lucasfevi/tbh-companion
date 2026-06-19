@@ -69,7 +69,8 @@ function parseSlotUniqueIds(playerStr: string, arrayKey: string): Set<string> {
 
 const SLOT_OBJECT_RE = /\{[^{}]*\}/g;
 
-/** Counts unlocked inventory slots and how many hold an item, from a flat slot-object array. */
+/** Counts unlocked inventory slots and how many hold an item, from a flat slot-object array.
+ *  Assumes each slot entry is a shallow JSON object (no nested braces), matching save layout. */
 function parseSlotCapacity(arrText: string): { capacity: number; used: number } {
   let capacity = 0;
   let used = 0;

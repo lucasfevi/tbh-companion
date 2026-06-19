@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useStats } from "../lib/useStats";
 import { useInventory } from "../lib/useInventory";
 import { useChests } from "../lib/useChests";
@@ -31,7 +31,7 @@ import type { ChestAutoOpenPrefs } from "../../../shared/types";
 
 const IDLE_THRESHOLD = 120;
 
-const DEFAULT_AUTO_OPEN: ChestAutoOpenPrefs = { common: false, stageBoss: false, actBoss: false };
+const DEFAULT_AUTO_OPEN: ChestAutoOpenPrefs = { common: false, stageBoss: false };
 
 const RATE_TIP =
   "XP/hour updates only when the game writes new XP to the save (often up to " +
@@ -43,11 +43,12 @@ const CHEST_RATE_TIP =
   "Drop rates from Player.log lines this session. Only counts while the companion is running.";
 const INVENTORY_PREDICTION_TIP =
   "Estimates when your unlocked inventory slots fill up. For each chest type you've marked " +
-  "auto-open below, we drain your held chests into the inventory at their auto-open speed " +
-  "(faster with reduction runes) and add the Player.log drop rate on top. We can't detect the " +
-  "in-game auto-open toggle, so set it here — and only common and stage boss chests count, " +
-  "since Player.log doesn't report act boss drops. Based on the save file, so it can take a few " +
-  "minutes to catch up after you change a toggle or open chests in-game.";
+  "auto-open below, we model a serial auto-open queue: held chests drain at their open speed " +
+  "(faster with reduction runes) while Player.log drops add more chests to the queue. Each chest " +
+  "counts as one slot here (opening can yield multiple items in-game, so treat this as a rough " +
+  "guide). We can't detect the in-game auto-open toggle, so set it here — only common and stage " +
+  "boss chests count, since Player.log doesn't report act boss drops. Based on the save file, so " +
+  "it can take a few minutes to catch up after you change a toggle or open chests in-game.";
 
 export function Live() {
   const stats = useStats();
@@ -57,10 +58,21 @@ export function Live() {
 
   useEffect(() => {
     if (typeof window.tbh?.getConfig !== "function") return;
-    void window.tbh
-      .getConfig()
-      .then((config) => setAutoOpenEnabled(config.chestAutoOpenEnabled))
-      .catch(reportIpcError);
+
+    const syncAutoOpenPrefs = (): void => {
+      void window.tbh
+        .getConfig()
+        .then((config) => setAutoOpenEnabled(config.chestAutoOpenEnabled))
+        .catch(reportIpcError);
+    };
+
+    syncAutoOpenPrefs();
+
+    const onVisibilityChange = (): void => {
+      if (document.visibilityState === "visible") syncAutoOpenPrefs();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
   }, []);
 
   function toggleAutoOpen(key: keyof ChestAutoOpenPrefs, checked: boolean): void {
@@ -112,6 +124,26 @@ export function Live() {
           sources: fillSources,
         })
       : null;
+
+  const renderFillEstimate = (): ReactNode => {
+    if (fillPrediction?.hoursUntilFull === null) {
+      return "Turn on an auto-open toggle below and play a session to estimate when it'll be full.";
+    }
+    if (fillPrediction && fillPrediction.hoursUntilFull !== null) {
+      return (
+        <>
+          Full in about{" "}
+          <span className="font-semibold text-fg">
+            {fmtHoursUntilFull(fillPrediction.hoursUntilFull)}
+          </span>{" "}
+          — around{" "}
+          <span className="font-semibold text-fg">{fmtFillEta(fillPrediction.hoursUntilFull)}</span>
+          .
+        </>
+      );
+    }
+    return null;
+  };
 
   return (
     <TabPage>
@@ -223,23 +255,7 @@ export function Live() {
           ) : null}
           {/* min-h reserves room for the longer "turn on a toggle" message so swapping
               between states doesn't resize the card. */}
-          <p className="m-0 min-h-[2.6em]">
-            {fillPrediction?.hoursUntilFull === null ? (
-              "Turn on an auto-open toggle below and play a session to estimate when it'll be full."
-            ) : fillPrediction && fillPrediction.hoursUntilFull !== null ? (
-              <>
-                Full in about{" "}
-                <span className="font-semibold text-fg">
-                  {fmtHoursUntilFull(fillPrediction.hoursUntilFull)}
-                </span>{" "}
-                — around{" "}
-                <span className="font-semibold text-fg">
-                  {fmtFillEta(fillPrediction.hoursUntilFull)}
-                </span>
-                .
-              </>
-            ) : null}
-          </p>
+          <p className="m-0 min-h-[2.6em]">{renderFillEstimate()}</p>
           {/* Always mounted (invisible when empty) so toggling held chests in/out
               doesn't change the card's height. */}
           <p
