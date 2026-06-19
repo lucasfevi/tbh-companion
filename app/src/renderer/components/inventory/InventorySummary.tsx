@@ -12,7 +12,7 @@ const LIST_VALUE_TIP = "Total list value at Steam market prices (what buyers pay
 const NET_FEES_TIP =
   "Estimated wallet proceeds if you listed everything at market prices. Steam listing UI is authoritative.";
 const INSTANT_SELL_TIP =
-  "Sum of instant sell per row: highest buy order price × min(your stack, units on the book at that price). No listing fees.";
+  "Sum of instant sell per row: selling into the order book level-by-level, best price first, until your stack is covered or the book runs dry. No listing fees.";
 
 export function InventorySummary({ inv, currency }: { inv: ResolvedInventory; currency: string }) {
   const c = inv.composition;

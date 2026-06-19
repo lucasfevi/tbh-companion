@@ -1,6 +1,7 @@
 import { app } from "electron";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import type { BuyOrderLevel } from "../../../shared/types";
 
 export interface PriceEntry {
   lowest: number | null;
@@ -13,6 +14,8 @@ export interface PriceEntry {
   rawBuyOrder: string | null;
   /** Units at the highest buy price when histogram was last fetched. */
   buyOrderQuantity?: number | null;
+  /** Full buy-side order book when histogram was last fetched, sorted descending by price. */
+  buyOrderLevels?: BuyOrderLevel[] | null;
   /** True after a successful itemordershistogram response (including zero buy orders). */
   buyOrderFetched?: boolean;
   /** ISO timestamp of last successful histogram fetch; gates cache freshness. */

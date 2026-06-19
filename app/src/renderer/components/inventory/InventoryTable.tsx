@@ -15,6 +15,7 @@ import type {
   InventoryTablePrefs,
   ResolvedInventoryRow,
 } from "../../../../shared/types";
+import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { cn } from "../../lib/cn";
@@ -249,14 +250,21 @@ const COLUMN_DEFS: ColumnDef[] = [
     align: "right",
     render: (row, currency) => {
       if (!row.marketHashName) return "-";
+      const covered = row.buyOrderCoveredCount ?? 0;
+      const capped = row.buyOrderValue != null && covered < row.count;
+      const title = capped
+        ? `Selling into the order book level-by-level — covers ${covered.toLocaleString()} of ${row.count.toLocaleString()} owned; no buy orders deep enough for the rest. No listing fees.`
+        : "Selling into the order book level-by-level, best price first. No listing fees.";
       return (
-        <MarketListingLink
-          hash={row.marketHashName}
-          title="Top buy price × min(your stack, units on the book at that price). No listing fees."
-        >
+        <MarketListingLink hash={row.marketHashName} title={title}>
           {row.buyOrderValue != null && Number.isFinite(row.buyOrderValue)
             ? formatMoney(row.buyOrderValue, currency)
             : "-"}
+          {capped ? (
+            <Badge variant="muted" className="ml-1.5">
+              {covered.toLocaleString()} / {row.count.toLocaleString()}
+            </Badge>
+          ) : null}
         </MarketListingLink>
       );
     },

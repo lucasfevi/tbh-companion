@@ -16,6 +16,7 @@ import type {
   ResolvedInventoryRow,
   InventoryComposition,
   InventoryPriceInfo,
+  BuyOrderLevel,
 } from "../../../shared/types";
 
 export interface PriceLookup {
@@ -42,6 +43,7 @@ interface MarketResolution {
   buyOrderUnit: number | null;
   buyOrderRaw: string | null;
   buyOrderQuantity: number | null;
+  buyOrderLevels: BuyOrderLevel[] | null;
   buyOrderChecked: boolean;
 }
 
@@ -54,6 +56,7 @@ const NO_MARKET: MarketResolution = {
   buyOrderUnit: null,
   buyOrderRaw: null,
   buyOrderQuantity: null,
+  buyOrderLevels: null,
   buyOrderChecked: false,
 };
 
@@ -90,12 +93,14 @@ function buyOrderFromPrice(price: InventoryPriceInfo): {
   unit: number | null;
   raw: string | null;
   quantity: number | null;
+  levels: BuyOrderLevel[] | null;
   checked: boolean;
 } {
   return {
     unit: price.buyOrder ?? null,
     raw: price.rawBuyOrder ?? null,
     quantity: price.buyOrderQuantity ?? null,
+    levels: price.buyOrderLevels ?? null,
     checked: price.buyOrderFetched === true,
   };
 }
@@ -118,6 +123,7 @@ function resolveMarketHashAndPrice(
       buyOrderUnit: null,
       buyOrderRaw: null,
       buyOrderQuantity: null,
+      buyOrderLevels: null,
       buyOrderChecked: false,
     };
   }
@@ -134,6 +140,7 @@ function resolveMarketHashAndPrice(
     buyOrderUnit: buy.unit,
     buyOrderRaw: buy.raw,
     buyOrderQuantity: buy.quantity,
+    buyOrderLevels: buy.levels,
     buyOrderChecked: buy.checked,
   };
 }
@@ -168,7 +175,9 @@ function createResolvedRow(
     buyOrderRaw: market.buyOrderRaw,
     buyOrderUnit: market.buyOrderUnit,
     buyOrderQuantity: market.buyOrderQuantity,
+    buyOrderLevels: market.buyOrderLevels,
     buyOrderValue: null,
+    buyOrderCoveredCount: null,
     buyOrderChecked: market.buyOrderChecked,
   };
 }
@@ -201,7 +210,9 @@ function clearRowPricing(row: ResolvedInventoryRow): void {
   row.buyOrderRaw = null;
   row.buyOrderUnit = null;
   row.buyOrderQuantity = null;
+  row.buyOrderLevels = null;
   row.buyOrderValue = null;
+  row.buyOrderCoveredCount = null;
   row.buyOrderChecked = false;
 }
 
@@ -229,8 +240,10 @@ function accumulateCompositionRow(
     composition.valuedTotal += row.value;
   }
 
-  if (row.buyOrderUnit != null) {
-    row.buyOrderValue = instantSellValue(row.buyOrderUnit, row.count, row.buyOrderQuantity);
+  if (row.buyOrderLevels?.length) {
+    const result = instantSellValue(row.count, row.buyOrderLevels);
+    row.buyOrderValue = result.value;
+    row.buyOrderCoveredCount = result.coveredCount;
     if (row.buyOrderValue != null) {
       composition.buyOrderValuedTotal += row.buyOrderValue;
       composition.buyOrderPricedRows += 1;

@@ -386,6 +386,7 @@ export class SteamMarketProvider {
     entry.buyOrder = buy.buyOrder ?? null;
     entry.rawBuyOrder = buy.rawBuyOrder ?? null;
     entry.buyOrderQuantity = buy.buyOrderQuantity ?? null;
+    entry.buyOrderLevels = buy.buyOrderLevels ?? null;
     return "advance";
   }
 

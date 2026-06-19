@@ -192,6 +192,11 @@ export interface InventorySnapshot {
 }
 
 // Owned items grouped by ItemKey and resolved against the game catalog.
+export interface BuyOrderLevel {
+  price: number;
+  quantity: number;
+}
+
 export interface ResolvedInventoryRow {
   itemKey: number;
   name: string; // "Unknown #<key>" when not in the catalog
@@ -216,7 +221,11 @@ export interface ResolvedInventoryRow {
   buyOrderUnit: number | null;
   /** Units on the book at the highest buy price (from histogram). */
   buyOrderQuantity: number | null;
+  /** Full buy-side order book, sorted descending by price. */
+  buyOrderLevels: BuyOrderLevel[] | null;
   buyOrderValue: number | null;
+  /** Units actually covered by buyOrderValue, capped at count (may be less than count if the book runs dry). */
+  buyOrderCoveredCount: number | null;
   /** True when buy-order histogram was queried for this hash. */
   buyOrderChecked: boolean;
   inventoryCount: number;
@@ -233,6 +242,8 @@ export interface InventoryPriceInfo {
   rawBuyOrder: string | null;
   /** Units available at the highest buy price (histogram depth). */
   buyOrderQuantity?: number | null;
+  /** Full buy-side order book, sorted descending by price. */
+  buyOrderLevels?: BuyOrderLevel[] | null;
   /** True after a successful itemordershistogram response (including zero buy orders). */
   buyOrderFetched?: boolean;
 }
