@@ -7,6 +7,7 @@ export const REQUIRED_BUNDLED_DATA_FILES = [
   "stage_boxes.json",
   "box_types.json",
   "rune_box_cap.json",
+  "rune_auto_open.json",
   "pets.json",
   "steam_item_nameids.json",
   "steam_market_fee.json",

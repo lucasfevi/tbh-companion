@@ -1,11 +1,14 @@
 export {
   loadBoxTypeCatalog,
   loadRuneBoxCapCatalog,
+  loadRuneAutoOpenCatalog,
   boxTypeIndex,
   type BoxTypeEntry,
   type BoxTypeCatalog,
   type RuneBoxCapCatalog,
   type ChestCapDefinition,
+  type RuneAutoOpenCatalog,
+  type AutoOpenDefinition,
   type BoxCategory,
 } from "./catalog";
 export {
@@ -13,6 +16,8 @@ export {
   purchasedRuneIds,
   runeCapacityBonus,
   purchasedCapRuneNodes,
+  runeAutoOpenReductionSeconds,
+  effectiveAutoOpenSeconds,
   type RunePurchase,
 } from "./runes";
 export {

@@ -26,7 +26,7 @@ const mat: GameItem = {
 };
 
 function snap(items: InventorySnapshot["items"]): InventorySnapshot {
-  return { items, chests: [], saveMtime: 0 };
+  return { items, chests: [], saveMtime: 0, inventoryCapacity: 0, inventoryUsed: 0 };
 }
 
 describe("ownedPriceTargets", () => {

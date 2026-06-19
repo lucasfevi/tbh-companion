@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   DEFAULT_NOTIFICATION_PREFS,
   migrateNotificationPrefs,
+  sanitizeInventoryAlmostFullThresholdPercent,
   sanitizeNotificationSoundId,
   sanitizeNotificationVolume,
 } from "../../shared/notificationCatalog";
@@ -33,9 +34,33 @@ describe("sanitizeNotificationSoundId", () => {
   });
 });
 
+describe("sanitizeInventoryAlmostFullThresholdPercent", () => {
+  it("defaults invalid values to 90", () => {
+    expect(sanitizeInventoryAlmostFullThresholdPercent(undefined)).toBe(90);
+    expect(sanitizeInventoryAlmostFullThresholdPercent("high")).toBe(90);
+    expect(sanitizeInventoryAlmostFullThresholdPercent(Number.NaN)).toBe(90);
+  });
+
+  it("clamps and rounds to 50-100", () => {
+    expect(sanitizeInventoryAlmostFullThresholdPercent(10)).toBe(50);
+    expect(sanitizeInventoryAlmostFullThresholdPercent(150)).toBe(100);
+    expect(sanitizeInventoryAlmostFullThresholdPercent(75.4)).toBe(75);
+  });
+});
+
 describe("migrateNotificationPrefs", () => {
   it("returns defaults when no legacy or new prefs exist", () => {
     expect(migrateNotificationPrefs({})).toEqual(DEFAULT_NOTIFICATION_PREFS);
+  });
+
+  it("merges partial inventoryAlmostFull prefs over defaults", () => {
+    expect(
+      migrateNotificationPrefs({
+        notificationPrefs: {
+          inventoryAlmostFull: { enabled: false, sound: "wood-tick" },
+        },
+      }).inventoryAlmostFull,
+    ).toEqual({ enabled: false, sound: "wood-tick" });
   });
 
   it("merges partial notificationPrefs over defaults", () => {

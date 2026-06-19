@@ -7,6 +7,7 @@ import {
   actBossBoxCapacity,
   stageBossBoxCapacity,
   loadBoxTypeCatalog,
+  loadRuneAutoOpenCatalog,
   loadRuneBoxCapCatalog,
   parseRuneSaveData,
 } from "../../src/core/boxes";
@@ -76,6 +77,7 @@ run("real save (local only)", () => {
       mtime,
       loadBoxTypeCatalog(),
       runeCapCatalog,
+      loadRuneAutoOpenCatalog(),
     );
 
     expect(chestState.totalHeld).toBeGreaterThanOrEqual(0);

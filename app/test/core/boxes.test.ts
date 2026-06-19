@@ -9,6 +9,9 @@ import {
   boxSlotState,
   loadBoxTypeCatalog,
   loadRuneBoxCapCatalog,
+  loadRuneAutoOpenCatalog,
+  runeAutoOpenReductionSeconds,
+  effectiveAutoOpenSeconds,
   type RunePurchase,
 } from "../../src/core/boxes";
 
@@ -17,6 +20,8 @@ import type { ChestHolding } from "../../shared/types";
 const boxTypes = loadBoxTypeCatalog();
 
 const runeCap = loadRuneBoxCapCatalog();
+
+const autoOpen = loadRuneAutoOpenCatalog();
 
 describe("resolveChestHoldings", () => {
   it("aggregates duplicate BoxTypes and labels from catalog", () => {
@@ -104,6 +109,35 @@ describe("boxSlotState", () => {
   });
 });
 
+describe("auto-open reduction runes", () => {
+  it("has zero reduction with no runes", () => {
+    expect(runeAutoOpenReductionSeconds([], autoOpen.common)).toBe(0);
+    expect(effectiveAutoOpenSeconds([], autoOpen.common)).toBe(autoOpen.common.baseSeconds);
+  });
+
+  it("sums seconds per level for matched common-chest rune nodes", () => {
+    const purchases: RunePurchase[] = [
+      { runeKey: 130021, level: 2 },
+      { runeKey: 22, level: 5 },
+    ];
+    expect(runeAutoOpenReductionSeconds(purchases, autoOpen.common)).toBe(6);
+    expect(effectiveAutoOpenSeconds(purchases, autoOpen.common)).toBe(
+      autoOpen.common.baseSeconds - 6,
+    );
+  });
+
+  it("clamps effective seconds at 0 when reduction exceeds base", () => {
+    const purchases: RunePurchase[] = [{ runeKey: 19020011, level: 100 }];
+    expect(effectiveAutoOpenSeconds(purchases, autoOpen.actBoss)).toBe(0);
+  });
+
+  it("matches stage boss rune nodes independently from common", () => {
+    const purchases: RunePurchase[] = [{ runeKey: 150011, level: 1 }];
+    expect(runeAutoOpenReductionSeconds(purchases, autoOpen.stageBoss)).toBe(5);
+    expect(runeAutoOpenReductionSeconds(purchases, autoOpen.common)).toBe(0);
+  });
+});
+
 describe("buildChestState", () => {
   it("builds full chest state from fixture holdings", () => {
     const chests: ChestHolding[] = [
@@ -120,7 +154,7 @@ describe("buildChestState", () => {
       { runeKey: 11003, level: 1 },
     ];
 
-    const state = buildChestState(chests, purchases, 100, boxTypes, runeCap);
+    const state = buildChestState(chests, purchases, 100, boxTypes, runeCap, autoOpen);
 
     expect(state.totalHeld).toBe(5);
 
@@ -137,6 +171,9 @@ describe("buildChestState", () => {
     expect(state.capacity.common.runeLabel).toBe("Rune of Containment");
 
     expect(state.capacity.stageBoss.runeLabel).toBe("Rune of the Vault");
+
+    // No auto-open reduction runes purchased here, so effective = base seconds.
+    expect(state.autoOpen).toEqual({ common: 300, stageBoss: 600, actBoss: 60 });
 
     expect(state.saveMtime).toBe(100);
   });

@@ -6,10 +6,11 @@ import { app } from "electron";
 import {
   DEFAULT_NOTIFICATION_PREFS,
   migrateNotificationPrefs,
+  sanitizeInventoryAlmostFullThresholdPercent,
   sanitizeNotificationVolume,
   type LegacyChestSoundVariant,
 } from "../../shared/notificationCatalog";
-import type { AppConfig, NotificationPrefs } from "../../shared/types";
+import type { AppConfig, ChestAutoOpenPrefs, NotificationPrefs } from "../../shared/types";
 import { DEFAULT_PASSWORD } from "../core/es3";
 
 export type { AppConfig };
@@ -23,6 +24,12 @@ const DEFAULT_SAVE = join(
   "SaveFile_Live.es3",
 );
 
+const DEFAULT_CHEST_AUTO_OPEN: ChestAutoOpenPrefs = {
+  common: false,
+  stageBoss: false,
+  actBoss: false,
+};
+
 const DEFAULTS: AppConfig = {
   savePath: DEFAULT_SAVE,
   es3Password: DEFAULT_PASSWORD,
@@ -35,20 +42,45 @@ const DEFAULTS: AppConfig = {
   notifyOnUpdateAvailable: true,
   notificationVolume: 100,
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
+  inventoryAlmostFullThresholdPercent: 90,
+  chestAutoOpenEnabled: DEFAULT_CHEST_AUTO_OPEN,
 };
 
 type RawConfig = Partial<AppConfig> & { chestSoundVariant?: LegacyChestSoundVariant };
+
+function sanitizeChestAutoOpenPrefs(
+  raw: Partial<ChestAutoOpenPrefs> | undefined,
+): ChestAutoOpenPrefs {
+  return {
+    common: Boolean(raw?.common),
+    stageBoss: Boolean(raw?.stageBoss),
+    actBoss: Boolean(raw?.actBoss),
+  };
+}
 
 function normalizeConfig(raw: RawConfig): AppConfig {
   const {
     chestSoundVariant: _legacy,
     notificationPrefs: _prefs,
     notificationVolume: _volume,
+    inventoryAlmostFullThresholdPercent: _threshold,
+    chestAutoOpenEnabled: _autoOpen,
     ...rest
   } = raw;
   const notificationPrefs: NotificationPrefs = migrateNotificationPrefs(raw);
   const notificationVolume = sanitizeNotificationVolume(raw.notificationVolume);
-  return { ...DEFAULTS, ...rest, notificationPrefs, notificationVolume };
+  const inventoryAlmostFullThresholdPercent = sanitizeInventoryAlmostFullThresholdPercent(
+    raw.inventoryAlmostFullThresholdPercent,
+  );
+  const chestAutoOpenEnabled = sanitizeChestAutoOpenPrefs(raw.chestAutoOpenEnabled);
+  return {
+    ...DEFAULTS,
+    ...rest,
+    notificationPrefs,
+    notificationVolume,
+    inventoryAlmostFullThresholdPercent,
+    chestAutoOpenEnabled,
+  };
 }
 
 /** Normalizes raw config JSON (migration + validation). Exported for tests. */

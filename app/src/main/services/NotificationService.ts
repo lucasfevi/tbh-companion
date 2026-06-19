@@ -23,6 +23,11 @@ export interface HeroLevelUpPayload {
   newLevel: number;
 }
 
+export interface InventoryAlmostFullPayload {
+  used: number;
+  capacity: number;
+}
+
 export class NotificationService {
   private readonly getConfig: () => AppConfig;
   private readonly focusMainWindow: () => void;
@@ -68,6 +73,10 @@ export class NotificationService {
   showHeroLevelUp(events: HeroLevelUpPayload[]): void {
     if (events.length === 0) return;
     this.playKindSound("heroLevelUp");
+  }
+
+  showInventoryAlmostFull(_payload: InventoryAlmostFullPayload): void {
+    this.playKindSound("inventoryAlmostFull");
   }
 
   private playKindSound(kind: NotificationKindId): void {

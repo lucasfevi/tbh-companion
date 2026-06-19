@@ -57,3 +57,26 @@ export function purchasedCapRuneNodes(
   const capSet = new Set(capCatalog.runeKeys);
   return purchases.filter((p) => p.level > 0 && capSet.has(p.runeKey));
 }
+
+/** Total seconds shaved off a chest type's auto-open timer by purchased reduction runes. */
+export function runeAutoOpenReductionSeconds(
+  purchases: RunePurchase[],
+  autoOpenCatalog: { perLevelSeconds: Record<string, number> },
+): number {
+  let reduction = 0;
+  for (const p of purchases) {
+    const perLevel = autoOpenCatalog.perLevelSeconds[String(p.runeKey)];
+    if (perLevel === undefined) continue;
+    reduction += p.level * perLevel;
+  }
+  return reduction;
+}
+
+/** Effective auto-open seconds for a chest type: base minus rune reduction, clamped to 0. */
+export function effectiveAutoOpenSeconds(
+  purchases: RunePurchase[],
+  autoOpenCatalog: { baseSeconds: number; perLevelSeconds: Record<string, number> },
+): number {
+  const reduction = runeAutoOpenReductionSeconds(purchases, autoOpenCatalog);
+  return Math.max(0, autoOpenCatalog.baseSeconds - reduction);
+}

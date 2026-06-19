@@ -67,6 +67,23 @@ function parseSlotUniqueIds(playerStr: string, arrayKey: string): Set<string> {
   return ids;
 }
 
+const SLOT_OBJECT_RE = /\{[^{}]*\}/g;
+
+/** Counts unlocked inventory slots and how many hold an item, from a flat slot-object array. */
+function parseSlotCapacity(arrText: string): { capacity: number; used: number } {
+  let capacity = 0;
+  let used = 0;
+  for (const m of arrText.matchAll(SLOT_OBJECT_RE)) {
+    const obj = m[0];
+    const isUnlock = /"IsUnlock"\s*:\s*true/.test(obj);
+    if (!isUnlock) continue;
+    capacity++;
+    const idMatch = /"ItemUniqueId"\s*:\s*(\d+)/.exec(obj);
+    if (idMatch && idMatch[1] !== "0") used++;
+  }
+  return { capacity, used };
+}
+
 const ITEM_TRIPLE_RE =
   /"ItemKey"\s*:\s*(\d+)\s*,\s*"UniqueId"\s*:\s*(\d+)\s*,\s*"IsChaotic"\s*:\s*(true|false)/g;
 
@@ -163,5 +180,20 @@ export function parseInventory(
     materialStacks = materialStacksFromAggregates(parseAggregateEntries(player), isMaterialItemKey);
   }
 
-  return { items, chests, saveMtime, materialStacks };
+  let inventoryCapacity = 0;
+  let inventoryUsed = 0;
+  if (playerStr) {
+    const arr = sliceJsonArray(playerStr, '"inventorySaveDatas":');
+    ({ capacity: inventoryCapacity, used: inventoryUsed } = parseSlotCapacity(arr));
+  } else if (player && Array.isArray(player.inventorySaveDatas)) {
+    for (const raw of player.inventorySaveDatas) {
+      if (!raw || typeof raw !== "object") continue;
+      const row = raw as Record<string, unknown>;
+      if (!row.IsUnlock) continue;
+      inventoryCapacity++;
+      if (toNum(row.ItemUniqueId, 0) !== 0) inventoryUsed++;
+    }
+  }
+
+  return { items, chests, saveMtime, materialStacks, inventoryCapacity, inventoryUsed };
 }

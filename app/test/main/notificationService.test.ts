@@ -44,6 +44,8 @@ const baseConfig: AppConfig = {
   notifyOnUpdateAvailable: true,
   notificationVolume: 100,
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
+  inventoryAlmostFullThresholdPercent: 90,
+  chestAutoOpenEnabled: { common: false, stageBoss: false, actBoss: false },
 };
 
 describe("NotificationService", () => {
@@ -104,6 +106,15 @@ describe("NotificationService", () => {
     service.showHeroLevelUp([{ key: "101", previousLevel: 5, newLevel: 6 }]);
     expect(sendNotificationSoundMock).toHaveBeenCalledWith({
       soundId: "level-triumph",
+      volumePercent: 100,
+    });
+  });
+
+  it("plays inventory almost full sound for inventoryAlmostFull kind", () => {
+    const service = new NotificationService(() => baseConfig, vi.fn());
+    service.showInventoryAlmostFull({ used: 90, capacity: 100 });
+    expect(sendNotificationSoundMock).toHaveBeenCalledWith({
+      soundId: "happy-ping",
       volumePercent: 100,
     });
   });

@@ -104,6 +104,8 @@ export function Settings() {
   const [clearLogsBusy, setClearLogsBusy] = useState(false);
   const pendingVolumeRef = useRef<number | null>(null);
   const volumeSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingThresholdRef = useRef<number | null>(null);
+  const thresholdSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function refreshDataPaths(): Promise<void> {
     if (typeof window.tbh?.getDataPaths !== "function") return;
@@ -177,6 +179,23 @@ export function Settings() {
     volumeSaveTimerRef.current = setTimeout(flushVolumeSave, 300);
   }
 
+  function flushThresholdSave(): void {
+    if (thresholdSaveTimerRef.current) {
+      clearTimeout(thresholdSaveTimerRef.current);
+      thresholdSaveTimerRef.current = null;
+    }
+    const value = pendingThresholdRef.current;
+    if (value === null) return;
+    pendingThresholdRef.current = null;
+    void savePartial({ inventoryAlmostFullThresholdPercent: value }, undefined, { silent: true });
+  }
+
+  function scheduleThresholdSave(value: number): void {
+    pendingThresholdRef.current = value;
+    if (thresholdSaveTimerRef.current) clearTimeout(thresholdSaveTimerRef.current);
+    thresholdSaveTimerRef.current = setTimeout(flushThresholdSave, 300);
+  }
+
   useEffect(
     () => () => {
       if (volumeSaveTimerRef.current) {
@@ -184,10 +203,22 @@ export function Settings() {
         volumeSaveTimerRef.current = null;
       }
       const value = pendingVolumeRef.current;
-      if (value === null) return;
-      pendingVolumeRef.current = null;
-      if (typeof window.tbh?.saveConfig === "function") {
-        void window.tbh.saveConfig({ notificationVolume: value });
+      if (value !== null) {
+        pendingVolumeRef.current = null;
+        if (typeof window.tbh?.saveConfig === "function") {
+          void window.tbh.saveConfig({ notificationVolume: value });
+        }
+      }
+      if (thresholdSaveTimerRef.current) {
+        clearTimeout(thresholdSaveTimerRef.current);
+        thresholdSaveTimerRef.current = null;
+      }
+      const thresholdValue = pendingThresholdRef.current;
+      if (thresholdValue !== null) {
+        pendingThresholdRef.current = null;
+        if (typeof window.tbh?.saveConfig === "function") {
+          void window.tbh.saveConfig({ inventoryAlmostFullThresholdPercent: thresholdValue });
+        }
       }
     },
     [],
@@ -447,6 +478,32 @@ export function Settings() {
                 }}
                 onPointerUp={flushVolumeSave}
                 onBlur={flushVolumeSave}
+                className="h-2 w-full cursor-pointer accent-accent disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </Field>
+
+            <Field
+              label={`Inventory almost full threshold (${cfg.inventoryAlmostFullThresholdPercent}%)`}
+              hint={
+                !cfg.notificationsEnabled
+                  ? "Enable notifications above first."
+                  : "Notifies once your unlocked inventory slots reach this fill percentage."
+              }
+            >
+              <input
+                type="range"
+                min={50}
+                max={100}
+                step={1}
+                value={cfg.inventoryAlmostFullThresholdPercent}
+                disabled={!cfg.notificationsEnabled || saveBusy}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  setCfg({ ...cfg, inventoryAlmostFullThresholdPercent: value });
+                  scheduleThresholdSave(value);
+                }}
+                onPointerUp={flushThresholdSave}
+                onBlur={flushThresholdSave}
                 className="h-2 w-full cursor-pointer accent-accent disabled:cursor-not-allowed disabled:opacity-50"
               />
             </Field>

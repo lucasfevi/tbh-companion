@@ -1,6 +1,7 @@
 import {
   buildChestState,
   loadBoxTypeCatalog,
+  loadRuneAutoOpenCatalog,
   loadRuneBoxCapCatalog,
   parseRuneSaveData,
 } from "../../core/boxes";
@@ -14,6 +15,7 @@ const log = createLogger("chests");
 export class ChestService {
   private readonly boxTypes = loadBoxTypeCatalog();
   private readonly runeCap = loadRuneBoxCapCatalog();
+  private readonly runeAutoOpen = loadRuneAutoOpenCatalog();
   private lastChests: ChestState | null = null;
 
   onSave(text: string, mtime: number, chests: ChestHolding[]): void {
@@ -27,7 +29,14 @@ export class ChestService {
   private resolveAndPush(chests: ChestHolding[], text: string, mtime: number): void {
     try {
       const purchases = parseRuneSaveData(text);
-      this.lastChests = buildChestState(chests, purchases, mtime, this.boxTypes, this.runeCap);
+      this.lastChests = buildChestState(
+        chests,
+        purchases,
+        mtime,
+        this.boxTypes,
+        this.runeCap,
+        this.runeAutoOpen,
+      );
       broadcast(IPC.CHESTS, this.lastChests);
     } catch (err) {
       log.error(`resolveAndPush chests failed: ${String(err)}`);

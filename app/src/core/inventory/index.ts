@@ -17,3 +17,9 @@ export {
   type OwnedPriceTarget,
 } from "./ownedPriceTargets";
 export { unassignedCount, rowMatchesLocation, rowMatchesAnyLocation } from "./location";
+export {
+  predictFillTime,
+  type ChestFillSource,
+  type PredictFillTimeInput,
+  type PredictFillTimeResult,
+} from "./predictFillTime";

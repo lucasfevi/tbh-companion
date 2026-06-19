@@ -65,6 +65,10 @@ const updates = new UpdateService({
 
 boxTimers.setOnChestReady((payload) => notifications.showChestReady(payload));
 boxTimers.setOnChestDropped((payload) => notifications.showChestDrop(payload));
+inventory.setOnAlmostFull(
+  (payload) => notifications.showInventoryAlmostFull(payload),
+  () => normalizeConfigFromRaw(config).inventoryAlmostFullThresholdPercent,
+);
 const tracking = new TrackingService(
   (snap) => inventory.onInventory(snap),
   (text, mtime) => {

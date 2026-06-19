@@ -1,8 +1,21 @@
+import { useEffect, useState } from "react";
 import { useStats } from "../lib/useStats";
-import { fmtCompact, fmtDuration, fmtXpUpdated, fmtClock } from "../lib/format";
+import { useInventory } from "../lib/useInventory";
+import { useChests } from "../lib/useChests";
+import {
+  fmtCompact,
+  fmtDuration,
+  fmtXpUpdated,
+  fmtClock,
+  fmtHoursUntilFull,
+  fmtFillEta,
+} from "../lib/format";
+import { predictFillTime, type ChestFillSource } from "../../core/inventory/predictFillTime";
+import { reportIpcError } from "../lib/reportError";
 import { stageName } from "../../core/stages";
 import { Button } from "../components/ui/Button";
 import { DataListRow } from "../components/ui/DataList";
+import { Field } from "../components/ui/Field";
 import { PanelSection } from "../components/ui/PanelSection";
 import { StatCard } from "../components/ui/StatCard";
 import { TabMetricHero } from "../components/ui/TabMetricHero";
@@ -14,8 +27,11 @@ import { LiveMatchedPair } from "../components/live/LiveMatchedPair";
 import { LivePanelList } from "../components/live/LivePanelList";
 import { LiveChestStatValue } from "../lib/liveChestStat";
 import { cn } from "../lib/cn";
+import type { ChestAutoOpenPrefs } from "../../../shared/types";
 
 const IDLE_THRESHOLD = 120;
+
+const DEFAULT_AUTO_OPEN: ChestAutoOpenPrefs = { common: false, stageBoss: false, actBoss: false };
 
 const RATE_TIP =
   "XP/hour updates only when the game writes new XP to the save (often up to " +
@@ -25,9 +41,37 @@ const GOLD_TIP =
   "runes) is ignored, so it's accurate while farming.";
 const CHEST_RATE_TIP =
   "Drop rates from Player.log lines this session. Only counts while the companion is running.";
+const INVENTORY_PREDICTION_TIP =
+  "Estimates when your unlocked inventory slots fill up. For each chest type you've marked " +
+  "auto-open below, we drain your held chests into the inventory at their auto-open speed " +
+  "(faster with reduction runes) and add the Player.log drop rate on top. We can't detect the " +
+  "in-game auto-open toggle, so set it here — and only common and stage boss chests count, " +
+  "since Player.log doesn't report act boss drops. Based on the save file, so it can take a few " +
+  "minutes to catch up after you change a toggle or open chests in-game.";
 
 export function Live() {
   const stats = useStats();
+  const inventory = useInventory();
+  const chests = useChests();
+  const [autoOpenEnabled, setAutoOpenEnabled] = useState<ChestAutoOpenPrefs>(DEFAULT_AUTO_OPEN);
+
+  useEffect(() => {
+    if (typeof window.tbh?.getConfig !== "function") return;
+    void window.tbh
+      .getConfig()
+      .then((config) => setAutoOpenEnabled(config.chestAutoOpenEnabled))
+      .catch(reportIpcError);
+  }, []);
+
+  function toggleAutoOpen(key: keyof ChestAutoOpenPrefs, checked: boolean): void {
+    const previous = autoOpenEnabled;
+    const next = { ...previous, [key]: checked };
+    setAutoOpenEnabled(next);
+    void window.tbh.saveConfig({ chestAutoOpenEnabled: next }).catch((err: unknown) => {
+      reportIpcError(err);
+      setAutoOpenEnabled(previous);
+    });
+  }
 
   if (!stats) {
     return (
@@ -43,6 +87,31 @@ export function Live() {
   const { commonTotal, rareTotal, commonPerHour, rarePerHour, playerLogAvailable } =
     stats.chestDrops;
   const chestStatsInactive = !playerLogAvailable;
+
+  const fillSources: ChestFillSource[] = [];
+  if (chests && autoOpenEnabled.common) {
+    fillSources.push({
+      heldChests: chests.common.quantity,
+      autoOpenSecondsPerChest: chests.autoOpen.common,
+      dropsPerHour: commonPerHour,
+    });
+  }
+  if (chests && autoOpenEnabled.stageBoss) {
+    fillSources.push({
+      heldChests: chests.stageBoss.quantity,
+      autoOpenSecondsPerChest: chests.autoOpen.stageBoss,
+      dropsPerHour: rarePerHour,
+    });
+  }
+
+  const fillPrediction =
+    inventory && chests
+      ? predictFillTime({
+          inventoryCapacity: inventory.inventoryCapacity,
+          inventoryUsed: inventory.inventoryUsed,
+          sources: fillSources,
+        })
+      : null;
 
   return (
     <TabPage>
@@ -125,6 +194,83 @@ export function Live() {
       </section>
 
       <ChestDropPanel chestDrops={stats.chestDrops} />
+
+      <PanelSection
+        title={
+          <span className="inline-flex items-center gap-1.5">
+            Inventory fill prediction
+            <span
+              className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-border text-[10px] normal-case leading-none tracking-normal text-muted"
+              title={INVENTORY_PREDICTION_TIP}
+            >
+              ?
+            </span>
+          </span>
+        }
+        boxed
+        className="max-w-lg"
+        contentClassName="flex flex-col gap-3 p-3"
+      >
+        <div className="flex flex-col gap-1.5 text-[13px] text-muted">
+          {inventory && inventory.inventoryCapacity > 0 ? (
+            <p className="m-0">
+              Inventory:{" "}
+              <span className="font-semibold text-fg">
+                {inventory.inventoryUsed}/{inventory.inventoryCapacity}
+              </span>{" "}
+              slots used.
+            </p>
+          ) : null}
+          {/* min-h reserves room for the longer "turn on a toggle" message so swapping
+              between states doesn't resize the card. */}
+          <p className="m-0 min-h-[2.6em]">
+            {fillPrediction?.hoursUntilFull === null ? (
+              "Turn on an auto-open toggle below and play a session to estimate when it'll be full."
+            ) : fillPrediction && fillPrediction.hoursUntilFull !== null ? (
+              <>
+                Full in about{" "}
+                <span className="font-semibold text-fg">
+                  {fmtHoursUntilFull(fillPrediction.hoursUntilFull)}
+                </span>{" "}
+                — around{" "}
+                <span className="font-semibold text-fg">
+                  {fmtFillEta(fillPrediction.hoursUntilFull)}
+                </span>
+                .
+              </>
+            ) : null}
+          </p>
+          {/* Always mounted (invisible when empty) so toggling held chests in/out
+              doesn't change the card's height. */}
+          <p
+            className={cn(
+              "m-0",
+              (!fillPrediction || fillPrediction.heldChestItems <= 0) && "invisible",
+            )}
+          >
+            Includes{" "}
+            <span className="font-semibold text-fg">{fillPrediction?.heldChestItems ?? 0}</span>{" "}
+            held chest{fillPrediction?.heldChestItems === 1 ? "" : "s"} waiting to auto-open.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-border pt-3">
+          <Field label="Common chests auto-open" checkbox>
+            <input
+              type="checkbox"
+              checked={autoOpenEnabled.common}
+              onChange={(e) => toggleAutoOpen("common", e.target.checked)}
+            />
+          </Field>
+          <Field label="Stage boss chests auto-open" checkbox>
+            <input
+              type="checkbox"
+              checked={autoOpenEnabled.stageBoss}
+              onChange={(e) => toggleAutoOpen("stageBoss", e.target.checked)}
+            />
+          </Field>
+        </div>
+      </PanelSection>
 
       <LiveMatchedPair
         left={

@@ -37,6 +37,11 @@ export const NOTIFICATION_KIND_ENTRIES = [
     label: "Hero level up",
     description: "When a hero gains a level in the save file.",
   },
+  {
+    id: "inventoryAlmostFull",
+    label: "Inventory almost full",
+    description: "When your unlocked inventory slots reach the configured fill threshold.",
+  },
 ] as const;
 
 export type NotificationKindId = (typeof NOTIFICATION_KIND_ENTRIES)[number]["id"];
@@ -60,7 +65,14 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
   chestDrop: { enabled: true, sound: "treasure-fanfare" },
   chestReady: { enabled: true, sound: "soft-chime" },
   heroLevelUp: { enabled: true, sound: "level-triumph" },
+  inventoryAlmostFull: { enabled: true, sound: "happy-ping" },
 };
+
+/** Clamps the inventory-almost-full fill threshold to 50-100%; defaults to 90. */
+export function sanitizeInventoryAlmostFullThresholdPercent(value: unknown): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) return 90;
+  return Math.min(100, Math.max(50, Math.round(value)));
+}
 
 export function notificationSoundFile(soundId: NotificationSoundId): string {
   if (soundId === "none") return "";
@@ -106,6 +118,7 @@ export function sanitizeNotificationPrefs(prefs: NotificationPrefs): Notificatio
     chestDrop: sanitizeKindPreference("chestDrop", prefs.chestDrop),
     chestReady: sanitizeKindPreference("chestReady", prefs.chestReady),
     heroLevelUp: sanitizeKindPreference("heroLevelUp", prefs.heroLevelUp),
+    inventoryAlmostFull: sanitizeKindPreference("inventoryAlmostFull", prefs.inventoryAlmostFull),
   };
 }
 
@@ -124,6 +137,10 @@ export function migrateNotificationPrefs(
       heroLevelUp: {
         ...DEFAULT_NOTIFICATION_PREFS.heroLevelUp,
         ...raw.notificationPrefs.heroLevelUp,
+      },
+      inventoryAlmostFull: {
+        ...DEFAULT_NOTIFICATION_PREFS.inventoryAlmostFull,
+        ...raw.notificationPrefs.inventoryAlmostFull,
       },
     });
   }

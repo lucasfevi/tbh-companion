@@ -48,4 +48,35 @@ describe("normalizeConfigFromRaw", () => {
     expect(mod.normalizeConfigFromRaw({ notificationVolume: -1 }).notificationVolume).toBe(0);
     expect(mod.normalizeConfigFromRaw({ notificationVolume: 42.6 }).notificationVolume).toBe(43);
   });
+
+  it("defaults inventoryAlmostFullThresholdPercent to 90", () => {
+    expect(mod.normalizeConfigFromRaw({}).inventoryAlmostFullThresholdPercent).toBe(90);
+  });
+
+  it("defaults chestAutoOpenEnabled to all false", () => {
+    expect(mod.normalizeConfigFromRaw({}).chestAutoOpenEnabled).toEqual({
+      common: false,
+      stageBoss: false,
+      actBoss: false,
+    });
+  });
+
+  it("sanitizes partial/malformed chestAutoOpenEnabled", () => {
+    expect(
+      mod.normalizeConfigFromRaw({
+        chestAutoOpenEnabled: { common: true } as never,
+      }).chestAutoOpenEnabled,
+    ).toEqual({ common: true, stageBoss: false, actBoss: false });
+  });
+
+  it("clamps inventoryAlmostFullThresholdPercent to 50-100", () => {
+    expect(
+      mod.normalizeConfigFromRaw({ inventoryAlmostFullThresholdPercent: 10 })
+        .inventoryAlmostFullThresholdPercent,
+    ).toBe(50);
+    expect(
+      mod.normalizeConfigFromRaw({ inventoryAlmostFullThresholdPercent: 150 })
+        .inventoryAlmostFullThresholdPercent,
+    ).toBe(100);
+  });
 });
