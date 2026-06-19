@@ -19,6 +19,7 @@ run("npm run typecheck");
 run("npm run lint");
 run("npm run format:check");
 run("npm test");
+run("npm run test:dom");
 run("npm run build");
 
 const mainBundle = join(appRoot, "out/main/index.js");
@@ -96,5 +97,7 @@ if (catalogSource.includes("process.cwd()")) {
   process.exit(1);
 }
 
-console.log("\nQA gate passed (typecheck + lint + format + tests + build + bundle path checks).");
+console.log(
+  "\nQA gate passed (typecheck + lint + format + tests + dom tests + build + bundle path checks).",
+);
 console.log("Still required: npm run dev — confirm the window is NOT blank (see tbh-qa skill).");

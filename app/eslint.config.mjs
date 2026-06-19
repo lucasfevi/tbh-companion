@@ -35,6 +35,31 @@ export default tseslint.config(
     },
   },
   {
+    // design-system/ must stay portable (no Electron/Node/main/preload
+    // coupling) so it could be mechanically extracted into a standalone
+    // package later if a second (e.g. web) consumer ever exists. Components
+    // here receive data via props, never via useTbhContext()/window.tbh.
+    files: ["src/renderer/design-system/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["electron", "electron/*"],
+              message: "design-system/ must stay portable — no Electron imports.",
+            },
+            { group: ["node:*"], message: "design-system/ must stay portable — no Node builtins." },
+            {
+              group: ["**/main/**", "**/preload/**"],
+              message: "design-system/ cannot depend on main/preload.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["src/**/*.{ts,tsx}"],
     plugins: {
       "react-hooks": reactHooks,
