@@ -142,6 +142,7 @@ jobs:
 
       - name: Notify Discord
         if: success()
+        shell: bash
         working-directory: ${{ github.workspace }}
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL }}
