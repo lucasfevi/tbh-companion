@@ -27,5 +27,5 @@
       1056, 1133, 1182, 1203, 1222, 1252, 1262, 1282, 12821, 11004
     ]
   },
-  "note": "BoxData BoxTypes 0/1/2 map to common/stage boss/act boss slots. Rune keys from taskbarhero.wiki runes.json IconPath (MaxAmount*Chest)."
+  "note": "BoxData BoxTypes 0/1/2 map to common/stage boss/act boss slots."
 }
