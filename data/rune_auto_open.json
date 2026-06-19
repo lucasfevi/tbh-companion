@@ -1,0 +1,31 @@
+{
+  "common": {
+    "baseSeconds": 300,
+    "runeLabel": "Rune of Lubrication",
+    "perLevelSeconds": {
+      "130021": 3,
+      "190301": 2,
+      "190501": 2,
+      "1905011": 2
+    }
+  },
+  "stageBoss": {
+    "baseSeconds": 600,
+    "runeLabel": "Rune of Lubrication",
+    "perLevelSeconds": {
+      "150011": 5,
+      "190302": 4,
+      "190502": 4,
+      "1905021": 4
+    }
+  },
+  "actBoss": {
+    "baseSeconds": 60,
+    "runeLabel": "Rune of Lubrication",
+    "perLevelSeconds": {
+      "19020011": 1,
+      "190401": 1
+    }
+  },
+  "note": "baseSeconds confirmed by user (5/10/1 min, app v1.00.14). Per-level reduction seconds vary by rune node, unlike chest-capacity runes."
+}

@@ -23,6 +23,11 @@ export interface HeroLevelUpPayload {
   newLevel: number;
 }
 
+export interface InventoryAlmostFullPayload {
+  used: number;
+  capacity: number;
+}
+
 export class NotificationService {
   private readonly getConfig: () => AppConfig;
   private readonly focusMainWindow: () => void;
@@ -68,6 +73,26 @@ export class NotificationService {
   showHeroLevelUp(events: HeroLevelUpPayload[]): void {
     if (events.length === 0) return;
     this.playKindSound("heroLevelUp");
+  }
+
+  showInventoryAlmostFull(payload: InventoryAlmostFullPayload): void {
+    const config = this.getConfig();
+    if (!config.notificationsEnabled) return;
+    const pref = config.notificationPrefs.inventoryAlmostFull;
+    if (!pref.enabled) return;
+
+    if (this.isSupported() && payload.capacity > 0) {
+      const percent = Math.round((payload.used / payload.capacity) * 100);
+      const notification = new Notification({
+        title: "Inventory almost full",
+        body: `${payload.used}/${payload.capacity} slots used (${percent}%).`,
+      });
+      notification.on("click", () => this.focusMainWindow());
+      notification.show();
+    }
+
+    const volumePercent = sanitizeNotificationVolume(config.notificationVolume);
+    this.playSound(pref.sound, volumePercent);
   }
 
   private playKindSound(kind: NotificationKindId): void {

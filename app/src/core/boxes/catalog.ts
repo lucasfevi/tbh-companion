@@ -28,12 +28,30 @@ export interface RuneBoxCapCatalog {
   note?: string;
 }
 
+export interface AutoOpenDefinition {
+  baseSeconds: number;
+  runeLabel: string;
+  /** Seconds shaved off per purchased level, keyed by rune node id. */
+  perLevelSeconds: Record<string, number>;
+}
+
+export interface RuneAutoOpenCatalog {
+  common: AutoOpenDefinition;
+  stageBoss: AutoOpenDefinition;
+  actBoss: AutoOpenDefinition;
+  note?: string;
+}
+
 export function loadBoxTypeCatalog(): BoxTypeCatalog {
   return readBundledJson<BoxTypeCatalog>("box_types.json");
 }
 
 export function loadRuneBoxCapCatalog(): RuneBoxCapCatalog {
   return readBundledJson<RuneBoxCapCatalog>("rune_box_cap.json");
+}
+
+export function loadRuneAutoOpenCatalog(): RuneAutoOpenCatalog {
+  return readBundledJson<RuneAutoOpenCatalog>("rune_auto_open.json");
 }
 
 export function boxTypeIndex(catalog: BoxTypeCatalog): Map<number, BoxTypeEntry> {

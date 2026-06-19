@@ -91,6 +91,21 @@ describe("parseInventory", () => {
     const snap = parseInventory(JSON.stringify({}), 0);
     expect(snap.items).toEqual([]);
     expect(snap.chests).toEqual([]);
+    expect(snap.inventoryCapacity).toBe(0);
+    expect(snap.inventoryUsed).toBe(0);
+  });
+
+  it("computes inventoryCapacity/inventoryUsed from IsUnlock and ItemUniqueId", () => {
+    const inner = `{
+      "inventorySaveDatas":[
+        {"Index":0,"ItemUniqueId":514119247890000300,"IsUnlock":true,"IsUnlockedByRune":false},
+        {"Index":1,"ItemUniqueId":0,"IsUnlock":true,"IsUnlockedByRune":false},
+        {"Index":2,"ItemUniqueId":0,"IsUnlock":false,"IsUnlockedByRune":false}
+      ]
+    }`;
+    const snap = parseInventory(wrapPlayer(inner), 0);
+    expect(snap.inventoryCapacity).toBe(2);
+    expect(snap.inventoryUsed).toBe(1);
   });
 
   it("normalizes suffixed ItemKeys from newer saves", () => {

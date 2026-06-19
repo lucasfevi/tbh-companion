@@ -19,6 +19,8 @@ const config: AppConfig = {
   notifyOnUpdateAvailable: true,
   notificationVolume: 100,
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
+  inventoryAlmostFullThresholdPercent: 90,
+  chestAutoOpenEnabled: { common: false, stageBoss: false },
 };
 
 describe("sessionState", () => {

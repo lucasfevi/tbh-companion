@@ -341,6 +341,8 @@ export function resolveInventory(
     saveMtime: snapshot.saveMtime,
     gameDataLoaded,
     currency: null,
+    inventoryCapacity: snapshot.inventoryCapacity,
+    inventoryUsed: snapshot.inventoryUsed,
   };
 }
 

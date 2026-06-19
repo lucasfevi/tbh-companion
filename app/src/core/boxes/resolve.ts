@@ -5,9 +5,20 @@ import type {
   ResolvedChestRow,
   ChestState,
 } from "../../../shared/types";
-import type { BoxCategory, BoxTypeCatalog, ChestCapDefinition, RuneBoxCapCatalog } from "./catalog";
+import type {
+  BoxCategory,
+  BoxTypeCatalog,
+  ChestCapDefinition,
+  RuneAutoOpenCatalog,
+  RuneBoxCapCatalog,
+} from "./catalog";
 import { boxTypeIndex } from "./catalog";
-import { purchasedCapRuneNodes, runeCapacityBonus, type RunePurchase } from "./runes";
+import {
+  effectiveAutoOpenSeconds,
+  purchasedCapRuneNodes,
+  runeCapacityBonus,
+  type RunePurchase,
+} from "./runes";
 import {
   actBossBoxCapacity,
   boxSlotState,
@@ -89,6 +100,7 @@ export function buildChestState(
   saveMtime: number,
   boxTypeCatalog: BoxTypeCatalog,
   runeCapCatalog: RuneBoxCapCatalog,
+  runeAutoOpenCatalog: RuneAutoOpenCatalog,
 ): ChestState {
   const rows = resolveChestHoldings(chests, boxTypeCatalog);
 
@@ -107,12 +119,19 @@ export function buildChestState(
     totalRunePurchases: purchases.length,
   };
 
+  const autoOpen = {
+    common: effectiveAutoOpenSeconds(purchases, runeAutoOpenCatalog.common),
+    stageBoss: effectiveAutoOpenSeconds(purchases, runeAutoOpenCatalog.stageBoss),
+    actBoss: effectiveAutoOpenSeconds(purchases, runeAutoOpenCatalog.actBoss),
+  };
+
   return {
     rows,
     common,
     stageBoss,
     actBoss,
     capacity,
+    autoOpen,
     totalHeld: rows.reduce((s, r) => s + r.quantity, 0),
     saveMtime,
     runeBonusSlots: capacity.common.runeBonus,

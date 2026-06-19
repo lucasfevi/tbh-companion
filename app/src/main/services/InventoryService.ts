@@ -31,6 +31,9 @@ export class InventoryService {
   private priceRefreshQueued = false;
   private priceRefreshForceQueued = false;
   private priceRefreshPendingTargets: OwnedPriceTarget[] = [];
+  private onAlmostFull?: (payload: { used: number; capacity: number }) => void;
+  private getAlmostFullThresholdPercent: () => number = () => 90;
+  private wasAboveAlmostFullThreshold = false;
 
   initMarket(currency: string): void {
     this.market = new SteamMarketProvider(currency);
@@ -59,6 +62,26 @@ export class InventoryService {
     this.lastInventoryRaw = snap;
     this.resolveAndPushInventory();
     void this.ensureOwnedPrices();
+    this.checkAlmostFull(snap);
+  }
+
+  /** Fires once per rising edge across the configured fill threshold. */
+  setOnAlmostFull(
+    callback: (payload: { used: number; capacity: number }) => void,
+    getThresholdPercent: () => number,
+  ): void {
+    this.onAlmostFull = callback;
+    this.getAlmostFullThresholdPercent = getThresholdPercent;
+  }
+
+  private checkAlmostFull(snap: InventorySnapshot): void {
+    if (!this.onAlmostFull || snap.inventoryCapacity <= 0) return;
+    const thresholdRatio = Math.min(1, Math.max(0, this.getAlmostFullThresholdPercent() / 100));
+    const isAbove = snap.inventoryUsed / snap.inventoryCapacity >= thresholdRatio;
+    if (isAbove && !this.wasAboveAlmostFullThreshold) {
+      this.onAlmostFull({ used: snap.inventoryUsed, capacity: snap.inventoryCapacity });
+    }
+    this.wasAboveAlmostFullThreshold = isAbove;
   }
 
   private excludeFromInventoryListing(itemKey: number): boolean {

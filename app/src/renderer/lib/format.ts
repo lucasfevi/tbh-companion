@@ -40,3 +40,21 @@ export function fmtClock(epochSeconds: number): string {
   const ss = String(d.getSeconds()).padStart(2, "0");
   return `${hh}:${mm}:${ss} ${ampm}`;
 }
+
+/** Inventory fill prediction: duration until full, e.g. "45 min", "3.2 hours", "2d 5h". */
+export function fmtHoursUntilFull(hours: number): string {
+  if (hours < 1) return `${Math.round(hours * 60)} min`;
+  if (hours < 24) return `${hours.toFixed(1)} hours`;
+  const days = Math.floor(hours / 24);
+  const rem = Math.round(hours % 24);
+  return `${days}d ${rem}h`;
+}
+
+/** Inventory fill prediction: clock time it will hit full, e.g. "today at 4:30 PM". */
+export function fmtFillEta(hours: number, now: Date = new Date()): string {
+  const eta = new Date(now.getTime() + hours * 3600 * 1000);
+  const time = eta.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  if (eta.toDateString() === now.toDateString()) return `today at ${time}`;
+  const dateStr = eta.toLocaleDateString([], { month: "short", day: "numeric" });
+  return `${dateStr} at ${time}`;
+}

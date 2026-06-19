@@ -189,6 +189,10 @@ export interface InventorySnapshot {
   saveMtime: number;
   /** Stack counts from aggregateSaveDatas when decoded (materials only). */
   materialStacks?: Map<number, number>;
+  /** Count of inventorySaveDatas slots with IsUnlock true. */
+  inventoryCapacity: number;
+  /** Count of unlocked slots holding an item (ItemUniqueId !== 0). */
+  inventoryUsed: number;
 }
 
 // Owned items grouped by ItemKey and resolved against the game catalog.
@@ -262,6 +266,8 @@ export interface ResolvedInventory {
   saveMtime: number;
   gameDataLoaded: boolean;
   currency: string | null;
+  inventoryCapacity: number;
+  inventoryUsed: number;
 }
 
 export interface PriceStatus {
@@ -347,6 +353,11 @@ export interface InventoryTablePrefs {
   visibleColumns: InventoryColumnId[];
 }
 
+export interface ChestAutoOpenPrefs {
+  common: boolean;
+  stageBoss: boolean;
+}
+
 export interface AppConfig {
   savePath: string;
   es3Password: string;
@@ -357,9 +368,10 @@ export interface AppConfig {
   currency: string;
   notificationsEnabled: boolean;
   notifyOnUpdateAvailable: boolean;
-  /** Global notification sound volume, 0 (silent) to 100 (full). */
   notificationVolume: number;
   notificationPrefs: NotificationPrefs;
+  inventoryAlmostFullThresholdPercent: number;
+  chestAutoOpenEnabled: ChestAutoOpenPrefs;
   windowLayout?: WindowLayoutPrefs;
   inventoryTable?: InventoryTablePrefs;
 }
@@ -443,6 +455,12 @@ export interface ChestState {
     stageBoss: ChestCapacityBreakdown;
     actBoss: ChestCapacityBreakdown;
     totalRunePurchases: number;
+  };
+  /** Effective seconds to auto-open one chest of each type (base minus rune reduction). */
+  autoOpen: {
+    common: number;
+    stageBoss: number;
+    actBoss: number;
   };
   totalHeld: number;
   saveMtime: number;
