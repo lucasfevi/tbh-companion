@@ -4,18 +4,15 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-06-19
+
 ### Live
 
 - **Inventory fill prediction** on the Live tab: estimate when unlocked inventory slots fill up from held chest auto-open (with companion toggles for common and stage boss chests) and session drop rates from Player.log.
-- Tooltip explains the queue model (one opened chest uses one inventory slot).
 
 ### Notifications
 
 - **Inventory almost full** alert with configurable fill threshold (Settings, default 90%) and **Happy ping** sound; shows a Windows toast with used/capacity when OS notifications are supported.
-
-### App
-
-- Bundled **`rune_auto_open.json`** catalog for chest auto-open base times and rune reduction values used in fill estimates.
 
 ## [1.13.0] - 2026-06-18
 
