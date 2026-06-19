@@ -2,7 +2,7 @@ import type { BoxTimerCatalogEntry } from "../../../shared/types";
 import { formatCooldownMinutes, parseCooldownMinutesInput } from "../lib/boxTrackerUi";
 import { TrackerFarmStageSelect } from "./TrackerFarmStageSelect";
 import { Field } from "./ui/Field";
-import { LinkButton } from "./ui/LinkButton";
+import { Button } from "../design-system/primitives/Button/Button";
 import { NumberField } from "./ui/NumberInput";
 import { cn } from "../lib/cn";
 
@@ -60,7 +60,8 @@ export function TrackerConfigRow({
             }
           }}
           footer={
-            <LinkButton
+            <Button
+              variant="link"
               className={cn(
                 "text-[10px]",
                 !entry.cooldownIsCustom && "pointer-events-none invisible",
@@ -68,7 +69,7 @@ export function TrackerConfigRow({
               onClick={() => void window.tbh.clearBoxTrackerCooldown(entry.boxId)}
             >
               Reset to {formatCooldownMinutes(defaultCooldownSeconds)}
-            </LinkButton>
+            </Button>
           }
         />
       </div>

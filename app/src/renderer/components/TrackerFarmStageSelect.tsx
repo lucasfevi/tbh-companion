@@ -1,5 +1,5 @@
 import type { BoxTimerCatalogEntry } from "../../../shared/types";
-import { LinkButton } from "./ui/LinkButton";
+import { Button } from "../design-system/primitives/Button/Button";
 import { SelectField } from "./ui/SelectField";
 import { cn } from "../lib/cn";
 
@@ -24,12 +24,13 @@ export function TrackerFarmStageSelect({ entry }: { entry: BoxTimerCatalogEntry 
           void window.tbh.setBoxTrackerFarmStage(entry.boxId, key);
         }}
         footer={
-          <LinkButton
+          <Button
+            variant="link"
             className={cn(!entry.idealStageIsCustom && "pointer-events-none invisible")}
             onClick={() => void window.tbh.clearBoxTrackerFarmStage(entry.boxId)}
           >
             Reset farm to {entry.defaultIdealStageLabel}
-          </LinkButton>
+          </Button>
         }
       />
     </div>

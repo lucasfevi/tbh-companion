@@ -4,7 +4,7 @@ import { useLastPriceRefreshMessage, usePriceStatus, usePriceActions } from "../
 import { formatPriceRefreshMessage } from "../lib/formatPriceRefreshMessage";
 import { reportIpcError } from "../lib/reportError";
 import { SteamPriceProgress } from "../components/market/SteamPriceProgress";
-import { Button } from "../components/ui/Button";
+import { Button } from "../design-system/primitives/Button/Button";
 import { Card } from "../components/ui/Card";
 import { Field } from "../components/ui/Field";
 import { Select } from "../components/ui/Select";

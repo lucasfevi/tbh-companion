@@ -3,7 +3,7 @@ import { SiDiscord, SiGithub } from "react-icons/si";
 import type { UpdateStatus } from "../../../shared/types";
 import { useUpdate } from "../lib/useUpdate";
 import { reportIpcError } from "../lib/reportError";
-import { Button } from "../components/ui/Button";
+import { Button, ButtonLink } from "../design-system/primitives/Button/Button";
 import { ExternalLink } from "../components/ui/ExternalLink";
 import { ProgressBar } from "../components/ui/ProgressBar";
 import { Section } from "../components/ui/Section";
@@ -95,14 +95,14 @@ export function About() {
             <strong>v{status?.currentVersion ?? "…"}</strong>
           </p>
           <p className="m-0 flex flex-wrap items-center gap-2 text-xs">
-            <ExternalLink href={GITHUB_REPO} variant="button">
+            <ButtonLink href={GITHUB_REPO} size="sm">
               <SiGithub className="size-3.5" aria-hidden />
               <span>GitHub</span>
-            </ExternalLink>
-            <ExternalLink href={DISCORD_URL} variant="button">
+            </ButtonLink>
+            <ButtonLink href={DISCORD_URL} size="sm">
               <SiDiscord className="size-3.5" aria-hidden />
               <span>Discord</span>
-            </ExternalLink>
+            </ButtonLink>
           </p>
           <p className="m-0 max-w-2xl text-xs text-muted">
             Not affiliated with Tesseract Studio. Fan-made companion for personal stats and

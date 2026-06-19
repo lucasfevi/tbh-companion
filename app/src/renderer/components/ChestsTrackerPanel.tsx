@@ -12,7 +12,7 @@ import {
   TRACKER_PRESETS,
 } from "../lib/boxTrackerUi";
 import { TrackerConfigRow } from "./TrackerConfigRow";
-import { Button } from "./ui/Button";
+import { Button } from "../design-system/primitives/Button/Button";
 import { Field } from "./ui/Field";
 import { PanelSection } from "./ui/PanelSection";
 import { Select } from "./ui/Select";

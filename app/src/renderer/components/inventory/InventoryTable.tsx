@@ -16,7 +16,7 @@ import type {
   ResolvedInventoryRow,
 } from "../../../../shared/types";
 import { Badge } from "../ui/Badge";
-import { Button } from "../ui/Button";
+import { Button } from "../../design-system/primitives/Button/Button";
 import { Card } from "../ui/Card";
 import { cn } from "../../lib/cn";
 import { buyOrderAverage, type SortKey } from "../../lib/inventoryFilters";

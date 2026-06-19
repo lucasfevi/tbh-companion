@@ -6,12 +6,10 @@ import {
   boxTrackerSectionOrder,
   formatCooldownMinutes,
 } from "./lib/boxTrackerUi";
-import { Button } from "./components/ui/Button";
+import { Button } from "./design-system/primitives/Button/Button";
 import { Badge } from "./components/ui/Badge";
 import { CapacityBar } from "./components/ui/CapacityBar";
 import { Card } from "./components/ui/Card";
-import { IconButton } from "./components/ui/IconButton";
-import { LinkButton } from "./components/ui/LinkButton";
 import { OverlayFrame } from "./components/ui/OverlayFrame";
 import { cn } from "./lib/cn";
 
@@ -111,24 +109,31 @@ export function BoxTracker() {
           Stage boss chest tracker
         </span>
         <div className="no-drag flex gap-1">
-          <IconButton
+          <Button
+            variant="icon"
             type="button"
             title="Minimize"
             onClick={() => window.tbh.minimizeBoxTracker()}
           >
             {"\u2212"}
-          </IconButton>
-          <IconButton type="button" title="Open full window" onClick={() => window.tbh.showMain()}>
+          </Button>
+          <Button
+            variant="icon"
+            type="button"
+            title="Open full window"
+            onClick={() => window.tbh.showMain()}
+          >
             {"\u2922"}
-          </IconButton>
-          <IconButton
+          </Button>
+          <Button
+            variant="icon"
             type="button"
             edge="end"
             title="Close"
             onClick={() => window.tbh.closeBoxTracker()}
           >
             {"\u2715"}
-          </IconButton>
+          </Button>
         </div>
       </div>
 
@@ -167,9 +172,13 @@ export function BoxTracker() {
         </div>
       )}
 
-      <LinkButton className="no-drag self-start text-[10px]" onClick={() => window.tbh.showMain()}>
+      <Button
+        variant="link"
+        className="no-drag self-start text-[10px]"
+        onClick={() => window.tbh.showMain()}
+      >
         Configure on Chests tab
-      </LinkButton>
+      </Button>
     </OverlayFrame>
   );
 }

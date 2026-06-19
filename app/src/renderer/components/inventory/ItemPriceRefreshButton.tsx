@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IconButton } from "../ui/IconButton";
+import { Button } from "../../design-system/primitives/Button/Button";
 import { cn } from "../../lib/cn";
 import { reportIpcError } from "../../lib/reportError";
 
@@ -44,7 +44,8 @@ export function ItemPriceRefreshButton({
   }
 
   return (
-    <IconButton
+    <Button
+      variant="icon"
       type="button"
       edge="end"
       className="shrink-0 text-muted hover:text-fg disabled:opacity-50"
@@ -54,6 +55,6 @@ export function ItemPriceRefreshButton({
       onClick={() => void onRefresh()}
     >
       <RefreshIcon spinning={pending} />
-    </IconButton>
+    </Button>
   );
 }

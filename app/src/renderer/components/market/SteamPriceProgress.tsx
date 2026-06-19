@@ -1,5 +1,5 @@
 import { usePriceProgress, usePriceStatus } from "../../lib/usePrices";
-import { Button } from "../ui/Button";
+import { Button } from "../../design-system/primitives/Button/Button";
 import { HintBanner } from "../ui/HintBanner";
 import { ProgressBar } from "../ui/ProgressBar";
 

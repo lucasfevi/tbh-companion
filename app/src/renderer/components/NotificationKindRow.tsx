@@ -10,7 +10,7 @@ import {
   NOTIFICATION_SOUND_ENTRIES,
 } from "../../../shared/notificationCatalog";
 import { playNotificationSound } from "../lib/notificationSounds";
-import { Button } from "./ui/Button";
+import { Button } from "../design-system/primitives/Button/Button";
 import { Field } from "./ui/Field";
 import { Select } from "./ui/Select";
 

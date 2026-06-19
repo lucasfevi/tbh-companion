@@ -3,7 +3,7 @@ import { formatMoney } from "../../../core/steamPrice";
 import { GradeBars } from "./GradeBars";
 import type { InventoryComposition } from "../../../../shared/types";
 import { reportIpcError } from "../../lib/reportError";
-import { Button } from "../ui/Button";
+import { Button } from "../../design-system/primitives/Button/Button";
 import { HintBanner } from "../ui/HintBanner";
 import { MetricCard } from "../ui/MetricCard";
 

@@ -6,7 +6,7 @@ import {
   normalizeInventoryTablePrefs,
 } from "../../../core/inventory/columnPrefs";
 import { AnchoredPanel } from "../ui/AnchoredPanel";
-import { Button } from "../ui/Button";
+import { Button } from "../../design-system/primitives/Button/Button";
 import { Field } from "../ui/Field";
 
 const COLUMN_LABELS: Record<InventoryColumnId, string> = {

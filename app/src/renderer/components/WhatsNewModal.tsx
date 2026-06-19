@@ -7,7 +7,7 @@ import {
   whatsNewForVersion,
   type WhatsNewEntry,
 } from "../lib/whatsNew";
-import { Button } from "../design-system/primitives/Button/Button";
+import { Button, ButtonLink } from "../design-system/primitives/Button/Button";
 import { ExternalLink } from "./ui/ExternalLink";
 
 interface VisibleWhatsNew {
@@ -94,13 +94,9 @@ export function WhatsNewModal() {
 
           <div className="mt-1 flex flex-wrap justify-end gap-2">
             {visible.entry.action && (
-              <ExternalLink
-                href={visible.entry.action.href}
-                onClick={dismiss}
-                variant="primaryButton"
-              >
+              <ButtonLink href={visible.entry.action.href} onClick={dismiss} variant="primary">
                 {visible.entry.action.label}
-              </ExternalLink>
+              </ButtonLink>
             )}
             <Button onClick={dismiss}>Got it</Button>
           </div>
