@@ -9,6 +9,7 @@ app/dist/
 app/out/
 app/release/
 app/.electron-cache/
+app/storybook-static/
 app/bench-results.json
 app/*-bench.json
 *.log

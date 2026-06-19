@@ -7,7 +7,7 @@ import {
   whatsNewForVersion,
   type WhatsNewEntry,
 } from "../lib/whatsNew";
-import { Button } from "./ui/Button";
+import { Button } from "../design-system/primitives/Button/Button";
 import { ExternalLink } from "./ui/ExternalLink";
 
 interface VisibleWhatsNew {

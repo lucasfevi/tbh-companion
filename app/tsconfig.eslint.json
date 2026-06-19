@@ -1,15 +1,20 @@
 {
   "extends": "./tsconfig.json",
+  "exclude": [],
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "shared/**/*.ts",
     "test/**/*.ts",
+    "test/**/*.tsx",
     "scripts/**/*.ts",
     "scripts/**/*.test.ts",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
     "electron.vite.config.ts",
     "vitest.config.ts",
     "vitest.regenerate.config.ts",
-    "vitest.bench.config.ts"
+    "vitest.bench.config.ts",
+    "vitest.dom.config.ts"
   ]
 }
