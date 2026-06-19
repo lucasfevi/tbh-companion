@@ -14,7 +14,7 @@ const COLUMN_LABELS: Record<InventoryColumnId, string> = {
   level: "Level",
   type: "Type",
   location: "Location",
-  inUse: "In use",
+  inUse: "Equipped",
   marketPrice: "Market price",
   listValue: "Market total",
   instantSell: "Instant sell",

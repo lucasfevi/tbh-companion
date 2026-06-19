@@ -67,19 +67,49 @@ const inv: ResolvedInventory = {
       buyOrderCoveredCount: 1,
       buyOrderChecked: true,
     },
+    {
+      itemKey: 3,
+      name: "Iron Helm",
+      grade: "UNCOMMON",
+      type: "GEAR",
+      level: 10,
+      marketTradable: true,
+      marketHashName: "Iron Helm (Uncommon) A",
+      count: 4,
+      inUseCount: 1,
+      inventoryCount: 0,
+      stashCount: 3,
+      tradingCount: 0,
+      chaoticCount: 0,
+      known: true,
+      priceRaw: "$2.00",
+      rawMedian: "$2.00",
+      rawLowest: "$1.80",
+      unitPrice: 2,
+      priceSource: "median",
+      priceChecked: true,
+      value: 8,
+      buyOrderRaw: null,
+      buyOrderUnit: null,
+      buyOrderQuantity: null,
+      buyOrderLevels: null,
+      buyOrderValue: null,
+      buyOrderCoveredCount: null,
+      buyOrderChecked: false,
+    },
   ],
   composition: {
-    total: 6,
-    byGrade: { UNCOMMON: 5, RARE: 1 },
-    byType: { MATERIAL: 5, GEAR: 1 },
-    tradableCount: 6,
+    total: 10,
+    byGrade: { UNCOMMON: 9, RARE: 1 },
+    byType: { MATERIAL: 5, GEAR: 5 },
+    tradableCount: 10,
     unknownCount: 0,
     chaoticCount: 0,
-    inUseCount: 1,
-    priceableCount: 6,
-    valuedTotal: 15,
-    feeTotal: 0.75,
-    netAfterFeesTotal: 14.25,
+    inUseCount: 2,
+    priceableCount: 10,
+    valuedTotal: 23,
+    feeTotal: 1.15,
+    netAfterFeesTotal: 21.85,
     buyOrderValuedTotal: 8,
     buyOrderPricedRows: 1,
     currency: "USD",
@@ -102,8 +132,7 @@ describe("inventoryFilters", () => {
       sortKey: "name",
       sortDir: "asc",
     });
-    expect(rows).toHaveLength(1);
-    expect(rows[0].name).toBe("Void Staff");
+    expect(rows.map((r) => r.name)).toEqual(["Iron Helm", "Void Staff"]);
   });
 
   it("sorts by value descending by default pattern", () => {
@@ -148,7 +177,7 @@ describe("inventoryFilters", () => {
     expect(rows).toHaveLength(0);
   });
 
-  it("unequippedOnly keeps only rows with no in-use count", () => {
+  it("unequippedOnly hides only fully-equipped rows, keeping rows with mixed equipped/stash copies", () => {
     const rows = filterAndSortRows(inv, {
       query: "",
       tradableOnly: false,
@@ -159,7 +188,9 @@ describe("inventoryFilters", () => {
       sortKey: "name",
       sortDir: "asc",
     });
-    expect(rows.map((r) => r.name)).toEqual(["Iron Ingot"]);
+    // Iron Helm has 1 equipped + 3 in stash, so it must still show; Void Staff (fully
+    // equipped, 1/1) is the only row hidden.
+    expect(rows.map((r) => r.name)).toEqual(["Iron Helm", "Iron Ingot"]);
   });
 
   it("sorts by instant sell average", () => {

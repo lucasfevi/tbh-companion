@@ -93,7 +93,11 @@ export function InventoryFilters({
           onChange={(e) => onTradableOnlyChange(e.target.checked)}
         />
       </Field>
-      <Field label="Unequipped only" checkbox>
+      <Field
+        label="Unequipped only"
+        checkbox
+        title="Hides only items where every copy you own is equipped. Items with some copies equipped and some in your inventory/stash still show."
+      >
         <input
           type="checkbox"
           checked={unequippedOnly}

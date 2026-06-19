@@ -67,7 +67,9 @@ export function filterAndSortRows(
   let rows = inv.rows.filter((row) => {
     const inUse = row.inUseCount ?? 0;
     if (state.tradableOnly && !row.marketTradable) return false;
-    if (state.unequippedOnly && inUse > 0) return false;
+    // Rows are grouped by item type, so a row can mix equipped + stashed copies.
+    // Only hide it when every copy is equipped — otherwise the unequipped ones disappear too.
+    if (state.unequippedOnly && inUse >= row.count) return false;
     if (state.gradeFilter !== "ALL" && row.grade !== state.gradeFilter) return false;
     if (state.typeFilter !== "ALL" && row.type !== state.typeFilter) return false;
     if (state.locationFilter !== "ALL" && !rowMatchesLocation(row, state.locationFilter))

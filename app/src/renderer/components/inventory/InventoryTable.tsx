@@ -165,18 +165,21 @@ const COLUMN_DEFS: ColumnDef[] = [
   },
   {
     id: "inUse",
-    label: "In use",
+    label: "Equipped",
     sortKey: "inUse",
     align: "right",
     render: (row) => {
       const inUse = row.inUseCount ?? 0;
-      return inUse > 0 ? (
-        <span className="text-accent">
+      if (inUse <= 0) return <span className="text-muted">-</span>;
+      const title =
+        inUse < row.count
+          ? `${inUse} of ${row.count} owned are currently equipped; the rest are in your inventory/stash`
+          : "All owned copies are currently equipped";
+      return (
+        <span className="text-accent" title={title}>
           {inUse}
           {inUse < row.count ? `/${row.count}` : ""}
         </span>
-      ) : (
-        <span className="text-muted">-</span>
       );
     },
   },
