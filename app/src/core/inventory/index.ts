@@ -10,6 +10,7 @@ export {
   type PriceLookup,
   type ResolveInventoryOptions,
 } from "./resolve";
+export { computeInventoryComposition } from "./composition";
 export {
   ownedPriceTargets,
   ownedPriceTargetForItem,

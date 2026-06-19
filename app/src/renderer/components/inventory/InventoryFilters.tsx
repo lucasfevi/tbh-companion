@@ -7,7 +7,7 @@ import { Select } from "../ui/Select";
 export interface InventoryFiltersProps {
   query: string;
   tradableOnly: boolean;
-  inUseOnly: boolean;
+  unequippedOnly: boolean;
   gradeFilter: string;
   typeFilter: string;
   locationFilter: LocationFilter;
@@ -16,7 +16,7 @@ export interface InventoryFiltersProps {
   shownCount: number;
   onQueryChange: (q: string) => void;
   onTradableOnlyChange: (v: boolean) => void;
-  onInUseOnlyChange: (v: boolean) => void;
+  onUnequippedOnlyChange: (v: boolean) => void;
   onGradeFilterChange: (g: string) => void;
   onTypeFilterChange: (t: string) => void;
   onLocationFilterChange: (l: LocationFilter) => void;
@@ -25,7 +25,7 @@ export interface InventoryFiltersProps {
 export function InventoryFilters({
   query,
   tradableOnly,
-  inUseOnly,
+  unequippedOnly,
   gradeFilter,
   typeFilter,
   locationFilter,
@@ -34,7 +34,7 @@ export function InventoryFilters({
   shownCount,
   onQueryChange,
   onTradableOnlyChange,
-  onInUseOnlyChange,
+  onUnequippedOnlyChange,
   onGradeFilterChange,
   onTypeFilterChange,
   onLocationFilterChange,
@@ -93,11 +93,11 @@ export function InventoryFilters({
           onChange={(e) => onTradableOnlyChange(e.target.checked)}
         />
       </Field>
-      <Field label="In use only" checkbox>
+      <Field label="Unequipped only" checkbox>
         <input
           type="checkbox"
-          checked={inUseOnly}
-          onChange={(e) => onInUseOnlyChange(e.target.checked)}
+          checked={unequippedOnly}
+          onChange={(e) => onUnequippedOnlyChange(e.target.checked)}
         />
       </Field>
       <span className="text-xs text-muted">{shownCount} shown</span>

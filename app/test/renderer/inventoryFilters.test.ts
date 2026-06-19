@@ -95,7 +95,7 @@ describe("inventoryFilters", () => {
     const rows = filterAndSortRows(inv, {
       query: "",
       tradableOnly: true,
-      inUseOnly: false,
+      unequippedOnly: false,
       gradeFilter: "ALL",
       typeFilter: "ALL",
       locationFilter: "equipped",
@@ -110,7 +110,7 @@ describe("inventoryFilters", () => {
     const rows = filterAndSortRows(inv, {
       query: "",
       tradableOnly: false,
-      inUseOnly: false,
+      unequippedOnly: false,
       gradeFilter: "ALL",
       typeFilter: "ALL",
       locationFilter: "ALL",
@@ -124,7 +124,7 @@ describe("inventoryFilters", () => {
     const rows = filterAndSortRows(inv, {
       query: "",
       tradableOnly: false,
-      inUseOnly: false,
+      unequippedOnly: false,
       gradeFilter: "ALL",
       typeFilter: "ALL",
       locationFilter: "ALL",
@@ -138,7 +138,7 @@ describe("inventoryFilters", () => {
     const rows = filterAndSortRows(inv, {
       query: "",
       tradableOnly: false,
-      inUseOnly: false,
+      unequippedOnly: false,
       gradeFilter: "ALL",
       typeFilter: "ALL",
       locationFilter: "trading",
@@ -146,6 +146,34 @@ describe("inventoryFilters", () => {
       sortDir: "asc",
     });
     expect(rows).toHaveLength(0);
+  });
+
+  it("unequippedOnly keeps only rows with no in-use count", () => {
+    const rows = filterAndSortRows(inv, {
+      query: "",
+      tradableOnly: false,
+      unequippedOnly: true,
+      gradeFilter: "ALL",
+      typeFilter: "ALL",
+      locationFilter: "ALL",
+      sortKey: "name",
+      sortDir: "asc",
+    });
+    expect(rows.map((r) => r.name)).toEqual(["Iron Ingot"]);
+  });
+
+  it("sorts by instant sell average", () => {
+    const rows = filterAndSortRows(inv, {
+      query: "",
+      tradableOnly: false,
+      unequippedOnly: false,
+      gradeFilter: "ALL",
+      typeFilter: "ALL",
+      locationFilter: "ALL",
+      sortKey: "buyOrderAverage",
+      sortDir: "desc",
+    });
+    expect(rows[0].name).toBe("Void Staff");
   });
 });
 

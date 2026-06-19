@@ -19,7 +19,7 @@ import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { cn } from "../../lib/cn";
-import type { SortKey } from "../../lib/inventoryFilters";
+import { buyOrderAverage, type SortKey } from "../../lib/inventoryFilters";
 
 function priceSourceTitle(source: ResolvedInventoryRow["priceSource"]): string | undefined {
   if (source === "median") return "Recent sale median on Steam Market";
@@ -198,7 +198,7 @@ const COLUMN_DEFS: ColumnDef[] = [
   },
   {
     id: "listValue",
-    label: "List value",
+    label: "Market total",
     sortKey: "value",
     align: "right",
     render: (row, currency) => {
@@ -265,6 +265,24 @@ const COLUMN_DEFS: ColumnDef[] = [
               {covered.toLocaleString()} / {row.count.toLocaleString()}
             </Badge>
           ) : null}
+        </MarketListingLink>
+      );
+    },
+  },
+  {
+    id: "instantSellAverage",
+    label: "Instant avg",
+    sortKey: "buyOrderAverage",
+    align: "right",
+    render: (row, currency) => {
+      if (!row.marketHashName) return "-";
+      const average = buyOrderAverage(row);
+      return (
+        <MarketListingLink
+          hash={row.marketHashName}
+          title="Average price per unit across the order-book levels used to fill this stack."
+        >
+          {average != null && Number.isFinite(average) ? formatMoney(average, currency) : "-"}
         </MarketListingLink>
       );
     },

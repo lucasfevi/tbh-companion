@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { formatMoney } from "../../../core/steamPrice";
 import { GradeBars } from "./GradeBars";
-import type { ResolvedInventory } from "../../../../shared/types";
+import type { InventoryComposition } from "../../../../shared/types";
 import { reportIpcError } from "../../lib/reportError";
 import { Button } from "../ui/Button";
 import { HintBanner } from "../ui/HintBanner";
-import { StatCard } from "../ui/StatCard";
-import { TabMetricHero } from "../ui/TabMetricHero";
+import { MetricCard } from "../ui/MetricCard";
 
 const LIST_VALUE_TIP = "Total list value at Steam market prices (what buyers pay)";
 const NET_FEES_TIP =
@@ -14,8 +13,14 @@ const NET_FEES_TIP =
 const INSTANT_SELL_TIP =
   "Sum of instant sell per row: selling into the order book level-by-level, best price first, until your stack is covered or the book runs dry. No listing fees.";
 
-export function InventorySummary({ inv, currency }: { inv: ResolvedInventory; currency: string }) {
-  const c = inv.composition;
+export function InventorySummary({
+  composition,
+  currency,
+}: {
+  composition: InventoryComposition;
+  currency: string;
+}) {
+  const c = composition;
   const [catalogBusy, setCatalogBusy] = useState(false);
   const [catalogMessage, setCatalogMessage] = useState<string | null>(null);
 
@@ -29,6 +34,11 @@ export function InventorySummary({ inv, currency }: { inv: ResolvedInventory; cu
     hasListValue && c.netAfterFeesTotal != null && Number.isFinite(c.netAfterFeesTotal)
       ? formatMoney(c.netAfterFeesTotal, currency)
       : "-";
+
+  const hasInstantValue =
+    c.buyOrderValuedTotal != null &&
+    Number.isFinite(c.buyOrderValuedTotal) &&
+    c.buyOrderValuedTotal > 0;
 
   async function onRefreshCatalog() {
     setCatalogBusy(true);
@@ -55,43 +65,25 @@ export function InventorySummary({ inv, currency }: { inv: ResolvedInventory; cu
 
   return (
     <>
-      <TabMetricHero
-        primary={
-          <div className="flex cursor-help items-baseline gap-2" title={LIST_VALUE_TIP}>
-            <span className="text-[40px] font-bold leading-none text-accent">
-              {hasListValue ? formatMoney(c.valuedTotal, currency) : "-"}
+      <div className="grid grid-cols-2 gap-2.5 max-[560px]:grid-cols-1">
+        <MetricCard
+          label="Market value"
+          title={LIST_VALUE_TIP}
+          value={hasListValue ? formatMoney(c.valuedTotal, currency) : "-"}
+          detail={
+            <span title={NET_FEES_TIP}>
+              <span className="font-semibold text-gold">{netAfterFees}</span> after Steam fees
+              {feeDetail ? <span className="block">{feeDetail}</span> : null}
             </span>
-            <span className="text-[13px] tracking-wide text-muted">Market value</span>
-          </div>
-        }
-        center={
-          <>
-            <div
-              className="cursor-help text-[15px] font-semibold leading-tight text-gold"
-              title={NET_FEES_TIP}
-            >
-              {netAfterFees} after Steam fees
-            </div>
-            {feeDetail ? <div className="text-xs text-muted">{feeDetail}</div> : null}
-          </>
-        }
-      />
-
-      <section className="grid grid-cols-3 gap-2.5">
-        <StatCard label="Items owned" value={(c.total ?? 0).toLocaleString()} />
-        <StatCard label="Distinct" value={inv.rows.length.toLocaleString()} />
-        <StatCard
-          label="Instant sell total"
-          title={INSTANT_SELL_TIP}
-          value={
-            c.buyOrderValuedTotal != null &&
-            Number.isFinite(c.buyOrderValuedTotal) &&
-            c.buyOrderValuedTotal > 0
-              ? formatMoney(c.buyOrderValuedTotal, currency)
-              : "-"
           }
         />
-      </section>
+
+        <MetricCard
+          label="Instant total"
+          title={INSTANT_SELL_TIP}
+          value={hasInstantValue ? formatMoney(c.buyOrderValuedTotal, currency) : "-"}
+        />
+      </div>
 
       <GradeBars composition={c} />
       {(c.unknownCount ?? 0) > 0 && (

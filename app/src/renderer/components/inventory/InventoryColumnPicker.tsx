@@ -16,9 +16,10 @@ const COLUMN_LABELS: Record<InventoryColumnId, string> = {
   location: "Location",
   inUse: "In use",
   marketPrice: "Market price",
-  listValue: "List value",
+  listValue: "Market total",
   instantSell: "Instant sell",
   instantTotal: "Instant total",
+  instantSellAverage: "Instant avg",
 };
 
 export interface InventoryColumnPickerProps {

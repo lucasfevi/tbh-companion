@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { parseInventory, resolveInventory } from "../../src/core/inventory";
+import {
+  parseInventory,
+  resolveInventory,
+  computeInventoryComposition,
+} from "../../src/core/inventory";
 import type { GameItem } from "../../src/core/gamedata";
+import { TBH_MARKET_FEE_RATES } from "../../src/core/steamMarketFee";
 
 function wrapPlayer(inner: string): string {
   return JSON.stringify({ PlayerSaveData: { value: inner } });
@@ -156,6 +161,12 @@ describe("resolveInventory", () => {
     expect(res.composition.buyOrderValuedTotal).toBeCloseTo(0.03);
     expect(res.composition.buyOrderPricedRows).toBe(1);
     expect(res.composition.netAfterFeesTotal).toBeLessThan(res.composition.valuedTotal);
+
+    const ingotOnly = computeInventoryComposition([ingot], TBH_MARKET_FEE_RATES);
+    expect(ingotOnly.valuedTotal).toBeCloseTo(ingot.value!);
+    expect(ingotOnly.buyOrderValuedTotal).toBeCloseTo(ingot.buyOrderValue!);
+    expect(ingotOnly.buyOrderPricedRows).toBe(1);
+    expect(ingotOnly.total).toBe(ingot.count);
   });
 
   it("caps instant sell total at buy-order book depth", () => {

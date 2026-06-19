@@ -11,6 +11,8 @@ import {
   type SortKey,
   type LocationFilter,
 } from "../lib/inventoryFilters";
+import { computeInventoryComposition } from "../../core/inventory/composition";
+import { TBH_MARKET_FEE_RATES } from "../../core/steamMarketFee";
 import { InventorySummary } from "../components/inventory/InventorySummary";
 import { InventoryFilters } from "../components/inventory/InventoryFilters";
 import { InventoryColumnPicker } from "../components/inventory/InventoryColumnPicker";
@@ -24,7 +26,7 @@ export function Inventory() {
   const inv = useInventory();
   const [query, setQuery] = useState("");
   const [tradableOnly, setTradableOnly] = useState(false);
-  const [inUseOnly, setInUseOnly] = useState(false);
+  const [unequippedOnly, setUnequippedOnly] = useState(false);
   const [gradeFilter, setGradeFilter] = useState("ALL");
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [locationFilter, setLocationFilter] = useState<LocationFilter>("ALL");
@@ -73,7 +75,7 @@ export function Inventory() {
     return filterAndSortRows(inv, {
       query,
       tradableOnly,
-      inUseOnly,
+      unequippedOnly,
       gradeFilter,
       typeFilter,
       locationFilter,
@@ -84,13 +86,18 @@ export function Inventory() {
     inv,
     query,
     tradableOnly,
-    inUseOnly,
+    unequippedOnly,
     gradeFilter,
     typeFilter,
     locationFilter,
     sortKey,
     sortDir,
   ]);
+
+  const composition = useMemo(
+    () => computeInventoryComposition(rows, TBH_MARKET_FEE_RATES),
+    [rows],
+  );
 
   if (!inv) {
     return (
@@ -116,7 +123,7 @@ export function Inventory() {
   function clearFilters() {
     setQuery("");
     setTradableOnly(false);
-    setInUseOnly(false);
+    setUnequippedOnly(false);
     setGradeFilter("ALL");
     setTypeFilter("ALL");
     setLocationFilter("ALL");
@@ -126,7 +133,7 @@ export function Inventory() {
     <TabPage>
       <TabHeader title="Inventory" />
 
-      <InventorySummary inv={inv} currency={currency} />
+      <InventorySummary composition={composition} currency={currency} />
 
       <SteamPriceProgress variant="banner" />
 
@@ -134,7 +141,7 @@ export function Inventory() {
         <InventoryFilters
           query={query}
           tradableOnly={tradableOnly}
-          inUseOnly={inUseOnly}
+          unequippedOnly={unequippedOnly}
           gradeFilter={gradeFilter}
           typeFilter={typeFilter}
           locationFilter={locationFilter}
@@ -143,7 +150,7 @@ export function Inventory() {
           shownCount={rows.length}
           onQueryChange={setQuery}
           onTradableOnlyChange={setTradableOnly}
-          onInUseOnlyChange={setInUseOnly}
+          onUnequippedOnlyChange={setUnequippedOnly}
           onGradeFilterChange={setGradeFilter}
           onTypeFilterChange={setTypeFilter}
           onLocationFilterChange={setLocationFilter}

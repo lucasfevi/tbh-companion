@@ -352,7 +352,8 @@ export type InventoryColumnId =
   | "marketPrice"
   | "listValue"
   | "instantSell"
-  | "instantTotal";
+  | "instantTotal"
+  | "instantSellAverage";
 
 export interface InventoryTablePrefs {
   visibleColumns: InventoryColumnId[];
