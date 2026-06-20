@@ -5,7 +5,7 @@ import type { InventoryComposition } from "../../../../shared/types";
 import { reportIpcError } from "../../lib/reportError";
 import { Button } from "../../design-system/primitives/Button/Button";
 import { HintBanner } from "../../design-system/primitives/HintBanner/HintBanner";
-import { MetricCard } from "../ui/MetricCard";
+import { StatCard } from "../../design-system/primitives/StatCard/StatCard";
 
 const LIST_VALUE_TIP = "Total list value at Steam market prices (what buyers pay)";
 const NET_FEES_TIP =
@@ -66,7 +66,8 @@ export function InventorySummary({
   return (
     <>
       <div className="grid grid-cols-2 gap-2.5 max-[560px]:grid-cols-1">
-        <MetricCard
+        <StatCard
+          variant="highlight"
           label="Market value"
           title={LIST_VALUE_TIP}
           value={hasListValue ? formatMoney(c.valuedTotal, currency) : "-"}
@@ -78,7 +79,8 @@ export function InventorySummary({
           }
         />
 
-        <MetricCard
+        <StatCard
+          variant="highlight"
           label="Instant total"
           title={INSTANT_SELL_TIP}
           value={hasInstantValue ? formatMoney(c.buyOrderValuedTotal, currency) : "-"}
