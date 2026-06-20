@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
-import { Dialog, DialogClose, DialogTitle } from "./Dialog";
+import { Dialog } from "./Dialog";
+import { DialogClose, DialogTitle } from "./DialogParts";
 import { Button } from "../Button/Button";
 
 function ControlledDialog({ onOpenChange }: { onOpenChange?: (open: boolean) => void }) {
@@ -56,11 +57,17 @@ describe("Dialog", () => {
     // rendered as siblings of the dialog popup (not descendants), so
     // toContainElement would be the wrong assertion — what actually matters
     // is that focus never lands back on content outside the dialog (e.g.
-    // the trigger that opened it) while cycling through Tab stops.
+    // the trigger that opened it) while cycling through Tab stops. The
+    // guard-to-content redirect happens asynchronously (rAF/microtask), so
+    // each check needs to tolerate a brief in-flight moment where activeElement
+    // is transiently the guard sentinel or document.body — wrap in waitFor
+    // rather than asserting immediately (this was flaky in CI without it).
     for (let i = 0; i < 6; i++) {
       await user.tab();
-      expect(document.activeElement).not.toBe(outsideTrigger);
-      expect(document.activeElement).not.toBe(document.body);
+      await waitFor(() => {
+        expect(document.activeElement).not.toBe(outsideTrigger);
+        expect(document.activeElement).not.toBe(document.body);
+      });
     }
   });
 

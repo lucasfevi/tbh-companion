@@ -28,7 +28,13 @@ export function Popover({
     <BasePopover.Root open={open} onOpenChange={onOpenChange}>
       <BasePopover.Trigger render={trigger} />
       <BasePopover.Portal>
-        <BasePopover.Positioner side="bottom" align="end" sideOffset={4} collisionPadding={8}>
+        <BasePopover.Positioner
+          side="bottom"
+          align="end"
+          sideOffset={4}
+          collisionPadding={8}
+          className="z-50"
+        >
           <BasePopover.Popup
             aria-label={ariaLabel}
             className={cn(

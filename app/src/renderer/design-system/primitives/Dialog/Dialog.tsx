@@ -7,8 +7,8 @@ import { cn } from "../../lib/variants";
  * Dialog — gains a real focus trap, scroll lock, and focus restoration to
  * the trigger on close, none of which the old hand-rolled WhatsNewModal had
  * (it only listened for Escape and backdrop mousedown). Consumers compose
- * their own content as children, using `DialogTitle`/`DialogClose` for the
- * accessible heading and close affordance.
+ * their own content as children, using `DialogTitle`/`DialogClose` (from
+ * `./DialogParts`) for the accessible heading and close affordance.
  */
 export function Dialog({
   open,
@@ -37,6 +37,3 @@ export function Dialog({
     </BaseDialog.Root>
   );
 }
-
-export const DialogTitle = BaseDialog.Title;
-export const DialogClose = BaseDialog.Close;

@@ -8,7 +8,8 @@ import {
   type WhatsNewEntry,
 } from "../lib/whatsNew";
 import { Button, ButtonLink } from "../design-system/primitives/Button/Button";
-import { Dialog, DialogClose, DialogTitle } from "../design-system/primitives/Dialog/Dialog";
+import { Dialog } from "../design-system/primitives/Dialog/Dialog";
+import { DialogClose, DialogTitle } from "../design-system/primitives/Dialog/DialogParts";
 import { ExternalLink } from "./ui/ExternalLink";
 
 interface VisibleWhatsNew {
