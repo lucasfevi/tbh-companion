@@ -7,7 +7,7 @@ import { SteamPriceProgress } from "../components/market/SteamPriceProgress";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Card } from "../components/ui/Card";
 import { Field } from "../components/ui/Field";
-import { Select } from "../components/ui/Select";
+import { Select } from "../design-system/primitives/Select/Select";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
 
@@ -98,14 +98,12 @@ export function Market() {
             <Select
               value={status?.currency ?? "USD"}
               disabled={running}
-              onChange={(e) => void onCurrencyChange(e.target.value)}
-            >
-              {STEAM_CURRENCIES.map((c) => (
-                <option key={c.iso} value={c.iso}>
-                  {c.iso} - {c.label}
-                </option>
-              ))}
-            </Select>
+              onValueChange={(value) => void onCurrencyChange(String(value))}
+              options={STEAM_CURRENCIES.map((c) => ({
+                value: c.iso,
+                label: `${c.iso} - ${c.label}`,
+              }))}
+            />
           </Field>
 
           {!running ? (

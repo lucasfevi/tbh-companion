@@ -64,6 +64,7 @@ export function Select({
   value,
   onValueChange,
   disabled,
+  title,
 }: {
   label?: ReactNode;
   footer?: ReactNode;
@@ -73,6 +74,7 @@ export function Select({
   value: string | number;
   onValueChange: (value: string | number) => void;
   disabled?: boolean;
+  title?: string;
 } & VariantProps<typeof triggerVariants>) {
   return (
     <div className={cn("flex flex-col gap-1", className)}>
@@ -90,7 +92,7 @@ export function Select({
             {label}
           </BaseSelect.Label>
         ) : null}
-        <BaseSelect.Trigger className={cn(triggerVariants({ variant }), "group")}>
+        <BaseSelect.Trigger title={title} className={cn(triggerVariants({ variant }), "group")}>
           <BaseSelect.Value className="min-w-0 truncate" />
           <span className="flex w-6 shrink-0 items-center justify-center">
             <SelectChevron />
