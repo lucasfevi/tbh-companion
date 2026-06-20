@@ -6,7 +6,7 @@ import { reportIpcError } from "../lib/reportError";
 import { SteamPriceProgress } from "../components/market/SteamPriceProgress";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Card } from "../components/ui/Card";
-import { Field } from "../components/ui/Field";
+import { Field } from "../design-system/primitives/Field/Field";
 import { Select } from "../design-system/primitives/Select/Select";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
