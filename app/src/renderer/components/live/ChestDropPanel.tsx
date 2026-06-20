@@ -1,6 +1,6 @@
 import type { ChestDropBreakdownRow, ChestDropStats } from "../../../../shared/types";
 import { DataListRow } from "../ui/DataList";
-import { HintBanner } from "../ui/HintBanner";
+import { HintBanner } from "../../design-system/primitives/HintBanner/HintBanner";
 import { PanelSection } from "../ui/PanelSection";
 import { fmtClock } from "../../lib/format";
 import { cn } from "../../lib/cn";

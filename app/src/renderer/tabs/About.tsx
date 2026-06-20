@@ -5,7 +5,7 @@ import { useUpdate } from "../lib/useUpdate";
 import { reportIpcError } from "../lib/reportError";
 import { Button, ButtonLink } from "../design-system/primitives/Button/Button";
 import { ExternalLink } from "../components/ui/ExternalLink";
-import { ProgressBar } from "../components/ui/ProgressBar";
+import { ProgressBar } from "../design-system/primitives/ProgressBar/ProgressBar";
 import { Section } from "../components/ui/Section";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
