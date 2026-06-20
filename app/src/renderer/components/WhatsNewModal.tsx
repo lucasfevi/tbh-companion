@@ -8,6 +8,8 @@ import {
   type WhatsNewEntry,
 } from "../lib/whatsNew";
 import { Button, ButtonLink } from "../design-system/primitives/Button/Button";
+import { Dialog } from "../design-system/primitives/Dialog/Dialog";
+import { DialogClose, DialogTitle } from "../design-system/primitives/Dialog/DialogParts";
 import { ExternalLink } from "./ui/ExternalLink";
 
 interface VisibleWhatsNew {
@@ -47,61 +49,42 @@ export function WhatsNewModal() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!visible) return;
-
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") dismiss();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [dismiss, visible]);
-
   if (!visible) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 p-5"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) dismiss();
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) dismiss();
       }}
     >
-      <section
-        aria-labelledby="whats-new-title"
-        aria-modal="true"
-        className="w-full max-w-md rounded-lg border border-border bg-panel p-5 shadow-2xl"
-        role="dialog"
-      >
-        <div className="flex flex-col gap-3">
-          <div>
-            <p className="m-0 text-xs font-semibold uppercase text-accent">Updated</p>
-            <h2 id="whats-new-title" className="m-0 mt-1 text-lg font-semibold text-fg">
-              {visible.entry.title}
-            </h2>
-          </div>
-
-          <ul className="m-0 flex list-disc flex-col gap-2 pl-5 text-sm text-muted">
-            {visible.entry.bullets.map((bullet) => (
-              <li key={bullet}>{bullet}</li>
-            ))}
-          </ul>
-
-          <ExternalLink href={githubReleaseUrl(visible.version)} variant="accent">
-            Full release notes on GitHub
-          </ExternalLink>
-
-          <div className="mt-1 flex flex-wrap justify-end gap-2">
-            {visible.entry.action && (
-              <ButtonLink href={visible.entry.action.href} onClick={dismiss} variant="primary">
-                {visible.entry.action.label}
-              </ButtonLink>
-            )}
-            <Button onClick={dismiss}>Got it</Button>
-          </div>
+      <div className="flex flex-col gap-3">
+        <div>
+          <p className="m-0 text-xs font-semibold uppercase text-accent">Updated</p>
+          <DialogTitle className="m-0 mt-1 text-lg font-semibold text-fg">
+            {visible.entry.title}
+          </DialogTitle>
         </div>
-      </section>
-    </div>
+
+        <ul className="m-0 flex list-disc flex-col gap-2 pl-5 text-sm text-muted">
+          {visible.entry.bullets.map((bullet) => (
+            <li key={bullet}>{bullet}</li>
+          ))}
+        </ul>
+
+        <ExternalLink href={githubReleaseUrl(visible.version)} variant="accent">
+          Full release notes on GitHub
+        </ExternalLink>
+
+        <div className="mt-1 flex flex-wrap justify-end gap-2">
+          {visible.entry.action && (
+            <ButtonLink href={visible.entry.action.href} onClick={dismiss} variant="primary">
+              {visible.entry.action.label}
+            </ButtonLink>
+          )}
+          <DialogClose render={<Button>Got it</Button>} />
+        </div>
+      </div>
+    </Dialog>
   );
 }

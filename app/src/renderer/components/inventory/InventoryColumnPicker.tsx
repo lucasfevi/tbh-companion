@@ -5,7 +5,7 @@ import {
   INVENTORY_COLUMN_IDS,
   normalizeInventoryTablePrefs,
 } from "../../../core/inventory/columnPrefs";
-import { AnchoredPanel } from "../ui/AnchoredPanel";
+import { Popover } from "../../design-system/primitives/Popover/Popover";
 import { Button } from "../../design-system/primitives/Button/Button";
 import { Field } from "../ui/Field";
 
@@ -45,14 +45,15 @@ export function InventoryColumnPicker({ prefs, onChange }: InventoryColumnPicker
   }
 
   return (
-    <AnchoredPanel
+    <Popover
       open={open}
       onOpenChange={setOpen}
-      trigger={({ ref, onClick, ...aria }) => (
-        <Button ref={ref} size="sm" type="button" onClick={onClick} {...aria}>
+      aria-label="Visible columns"
+      trigger={
+        <Button size="sm" type="button">
           Columns
         </Button>
-      )}
+      }
     >
       <div className="mb-2 flex flex-col gap-1.5">
         {INVENTORY_COLUMN_IDS.map((id) => (
@@ -68,6 +69,6 @@ export function InventoryColumnPicker({ prefs, onChange }: InventoryColumnPicker
       <Button size="sm" variant="ghost" className="w-full" onClick={reset}>
         Reset to default
       </Button>
-    </AnchoredPanel>
+    </Popover>
   );
 }
