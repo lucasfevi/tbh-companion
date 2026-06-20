@@ -14,10 +14,10 @@ import { predictFillTime, type ChestFillSource } from "../../core/inventory/pred
 import { reportIpcError } from "../lib/reportError";
 import { stageName } from "../../core/stages";
 import { Button } from "../design-system/primitives/Button/Button";
-import { DataListRow } from "../components/ui/DataList";
+import { DataListRow } from "../design-system/primitives/DataList/DataList";
 import { Field } from "../design-system/primitives/Field/Field";
 import { PanelSection } from "../components/ui/PanelSection";
-import { StatCard } from "../components/ui/StatCard";
+import { StatCard } from "../design-system/primitives/StatCard/StatCard";
 import { TabMetricHero } from "../components/ui/TabMetricHero";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { DataList } from "../ui/DataList";
+import { DataList } from "../../design-system/primitives/DataList/DataList";
 import { cn } from "../../lib/cn";
 
 /** Scrollable history column body; fills matched-height panel card via flex. */
