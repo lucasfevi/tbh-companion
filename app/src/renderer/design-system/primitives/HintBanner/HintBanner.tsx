@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cn } from "../../lib/cn";
+import { cn } from "../../lib/variants";
 
 export function HintBanner({ children, className }: { children: ReactNode; className?: string }) {
   return (

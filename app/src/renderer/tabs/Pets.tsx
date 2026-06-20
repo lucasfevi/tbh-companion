@@ -1,7 +1,7 @@
 import { aggregatePassiveBonuses } from "../../core/pets/bonuses";
 import type { PetBestStage, PetRow } from "../../../shared/types";
 import { Badge } from "../components/ui/Badge";
-import { CapacityBar } from "../components/ui/CapacityBar";
+import { CapacityBar } from "../design-system/primitives/CapacityBar/CapacityBar";
 import { Accordion } from "../design-system/primitives/Accordion/Accordion";
 import { Card } from "../components/ui/Card";
 import { Section } from "../components/ui/Section";

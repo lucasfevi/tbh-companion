@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from "react";
-import { cn } from "../../lib/cn";
+import { cn } from "../../lib/variants";
 
 const fillClasses = {
   gray: "bg-status-muted",

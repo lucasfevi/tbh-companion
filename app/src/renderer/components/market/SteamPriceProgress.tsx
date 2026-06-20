@@ -1,7 +1,7 @@
 import { usePriceProgress, usePriceStatus } from "../../lib/usePrices";
 import { Button } from "../../design-system/primitives/Button/Button";
-import { HintBanner } from "../ui/HintBanner";
-import { ProgressBar } from "../ui/ProgressBar";
+import { HintBanner } from "../../design-system/primitives/HintBanner/HintBanner";
+import { ProgressBar } from "../../design-system/primitives/ProgressBar/ProgressBar";
 
 function progressLabel(progress: NonNullable<ReturnType<typeof usePriceProgress>>): string {
   return `${progress.done}/${progress.total} — priced ${progress.priced}, failed ${progress.failed} — ${progress.current || "starting…"}`;

@@ -4,7 +4,7 @@ import { GradeBars } from "./GradeBars";
 import type { InventoryComposition } from "../../../../shared/types";
 import { reportIpcError } from "../../lib/reportError";
 import { Button } from "../../design-system/primitives/Button/Button";
-import { HintBanner } from "../ui/HintBanner";
+import { HintBanner } from "../../design-system/primitives/HintBanner/HintBanner";
 import { MetricCard } from "../ui/MetricCard";
 
 const LIST_VALUE_TIP = "Total list value at Steam market prices (what buyers pay)";

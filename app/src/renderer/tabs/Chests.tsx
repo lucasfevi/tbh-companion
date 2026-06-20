@@ -1,7 +1,7 @@
 import { useChests } from "../lib/useChests";
 import type { BoxSlotStatus, ChestCapacityBreakdown } from "../../../shared/types";
 import { Badge } from "../components/ui/Badge";
-import { CapacityBar } from "../components/ui/CapacityBar";
+import { CapacityBar } from "../design-system/primitives/CapacityBar/CapacityBar";
 import { Accordion } from "../design-system/primitives/Accordion/Accordion";
 import { Card } from "../components/ui/Card";
 import { TabHeader } from "../components/ui/TabHeader";
