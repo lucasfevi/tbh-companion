@@ -6,16 +6,19 @@ import { cn } from "../../lib/variants";
  * Styled wrappers for Tabs.Root's children — kept out of Tabs.tsx so that
  * file only exports its one named component (co-locating multiple component
  * exports in one file breaks Fast Refresh boundary detection,
- * react-refresh/only-export-components). Visual treatment mirrors
- * AppTabBar.tsx's current look (active: bg-card text-fg; inactive: muted)
- * so a future AppTabBar migration is a drop-in style match, not a re-skin.
+ * react-refresh/only-export-components). Active tab gets an accent
+ * underline (Base UI's Indicator part, baked into TabsList so consumers
+ * don't have to think about it) rather than relying on AppTabBar's subtle
+ * bg-card/bg-panel contrast, which is too low-contrast to read as "active"
+ * outside that file's specific page context.
  */
 export function TabsList({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <BaseTabs.List
-      className={cn("flex min-w-0 gap-0.5 border-b border-border bg-panel", className)}
+      className={cn("relative flex min-w-0 gap-0.5 border-b border-border bg-panel", className)}
     >
       {children}
+      <BaseTabs.Indicator className="absolute bottom-0 h-0.5 rounded-full bg-accent transition-all duration-200 ease-out left-(--active-tab-left) w-(--active-tab-width)" />
     </BaseTabs.List>
   );
 }
@@ -36,7 +39,7 @@ export function TabsTab({
       value={value}
       disabled={disabled}
       className={cn(
-        "cursor-pointer rounded-t-md border-none px-3.5 py-2 text-[13px] text-muted hover:text-fg data-[selected]:bg-card data-[selected]:text-fg disabled:cursor-not-allowed disabled:opacity-50",
+        "cursor-pointer rounded-t-md border-none px-3.5 py-2 text-[13px] text-muted hover:text-fg data-[selected]:font-semibold data-[selected]:text-fg data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
         className,
       )}
     >

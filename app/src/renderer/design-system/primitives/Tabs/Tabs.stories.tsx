@@ -7,10 +7,12 @@ import { TabsList, TabsPanel, TabsTab } from "./TabsParts";
  * Accessible tabs built on Base UI's Tabs — full `role="tablist"`/
  * `role="tab"`/`role="tabpanel"` semantics and arrow-key navigation, neither
  * of which `AppTabBar.tsx` has today (it's a plain `<nav>` of `<button>`s).
- * Styled to match `AppTabBar`'s current look so a future migration is a
- * drop-in. **Not migrated in this phase** — `AppTabBar` also renders
- * `AppToolbar` (non-tab buttons) in the same row, so folding it onto this
- * primitive is left as an explicit future task, not done here.
+ * The active tab gets an accent underline (`TabsList` renders Base UI's
+ * `Tabs.Indicator` automatically) rather than `AppTabBar`'s subtle
+ * bg-card/bg-panel contrast, which reads as "active" only in that file's
+ * specific page context. **Not migrated in this phase** — `AppTabBar` also
+ * renders `AppToolbar` (non-tab buttons) in the same row, so folding it onto
+ * this primitive is left as an explicit future task, not done here.
  */
 function ControlledTabs() {
   const [value, setValue] = useState("live");

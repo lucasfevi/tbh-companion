@@ -62,6 +62,14 @@ describe("Tabs", () => {
     expect(screen.getByRole("tab", { name: "Settings" })).toHaveAttribute("aria-disabled", "true");
   });
 
+  it("does not select a disabled tab on click", async () => {
+    const user = userEvent.setup();
+    render(<ControlledTabs />);
+    await user.click(screen.getByRole("tab", { name: "Settings" }));
+    expect(screen.getByRole("tab", { name: "Settings" })).toHaveAttribute("aria-selected", "false");
+    expect(screen.getByRole("tab", { name: "Live" })).toHaveAttribute("aria-selected", "true");
+  });
+
   it("reports value changes via onValueChange", async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();
