@@ -7,9 +7,9 @@ import {
   formatCooldownMinutes,
 } from "./lib/boxTrackerUi";
 import { Button } from "./design-system/primitives/Button/Button";
-import { Badge } from "./components/ui/Badge";
+import { Badge } from "./design-system/primitives/Badge/Badge";
 import { CapacityBar } from "./design-system/primitives/CapacityBar/CapacityBar";
-import { Card } from "./components/ui/Card";
+import { Card } from "./design-system/primitives/Card/Card";
 import { OverlayFrame } from "./components/ui/OverlayFrame";
 import { cn } from "./lib/cn";
 

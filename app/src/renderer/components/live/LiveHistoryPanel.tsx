@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { PanelSection } from "../ui/PanelSection";
+import { PanelSection } from "../../design-system/primitives/PanelSection/PanelSection";
 import { LiveScrollList } from "./LiveScrollList";
 
 export function LiveHistoryPanel({

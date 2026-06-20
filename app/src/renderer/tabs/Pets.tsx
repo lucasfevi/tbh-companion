@@ -1,12 +1,12 @@
 import { aggregatePassiveBonuses } from "../../core/pets/bonuses";
 import type { PetBestStage, PetRow } from "../../../shared/types";
-import { Badge } from "../components/ui/Badge";
+import { Badge } from "../design-system/primitives/Badge/Badge";
 import { CapacityBar } from "../design-system/primitives/CapacityBar/CapacityBar";
 import { Accordion } from "../design-system/primitives/Accordion/Accordion";
-import { Card } from "../components/ui/Card";
-import { Section } from "../components/ui/Section";
-import { TabHeader } from "../components/ui/TabHeader";
-import { TabPage } from "../components/ui/TabPage";
+import { Card } from "../design-system/primitives/Card/Card";
+import { Section } from "../design-system/primitives/Section/Section";
+import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
+import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 import { usePets } from "../lib/usePets";
 
 function formatKillsPerClear(value: number): string {

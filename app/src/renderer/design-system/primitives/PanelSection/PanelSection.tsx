@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { cn } from "../../lib/cn";
-import { Card } from "./Card";
+import { cn } from "../../lib/variants";
+import { Card } from "../Card/Card";
 
 export function PanelSection({
   title,
