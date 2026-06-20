@@ -15,7 +15,7 @@ import { TrackerConfigRow } from "./TrackerConfigRow";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Field } from "./ui/Field";
 import { PanelSection } from "./ui/PanelSection";
-import { Select } from "./ui/Select";
+import { Select } from "../design-system/primitives/Select/Select";
 import { cn } from "../lib/cn";
 
 export function ChestsTrackerPanel() {
@@ -86,13 +86,14 @@ export function ChestsTrackerPanel() {
           <Select
             className="max-w-xs"
             value={state.sortOrder}
-            onChange={(e) =>
-              void window.tbh.setBoxTrackerSortOrder(normalizeBoxTrackerSortOrder(e.target.value))
+            onValueChange={(value) =>
+              void window.tbh.setBoxTrackerSortOrder(normalizeBoxTrackerSortOrder(String(value)))
             }
-          >
-            <option value="cooldown-first">On cooldown</option>
-            <option value="ready-first">Ready to mark</option>
-          </Select>
+            options={[
+              { value: "cooldown-first", label: "On cooldown" },
+              { value: "ready-first", label: "Ready to mark" },
+            ]}
+          />
         </Field>
       </PanelSection>
 

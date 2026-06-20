@@ -11,9 +11,9 @@ import { NotificationSoundAccordion } from "../components/NotificationKindRow";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Card } from "../components/ui/Card";
 import { Field } from "../components/ui/Field";
-import { NumberInput } from "../components/ui/NumberInput";
+import { NumberInput } from "../design-system/primitives/NumberField/NumberField";
 import { Section } from "../components/ui/Section";
-import { Select } from "../components/ui/Select";
+import { Select } from "../design-system/primitives/Select/Select";
 import { TabHeader } from "../components/ui/TabHeader";
 import { TabPage } from "../components/ui/TabPage";
 
@@ -417,14 +417,12 @@ export function Settings() {
             <Select
               value={cfg.currency}
               disabled={saveBusy}
-              onChange={(e) => void savePartial({ currency: e.target.value })}
-            >
-              {STEAM_CURRENCIES.map((c) => (
-                <option key={c.iso} value={c.iso}>
-                  {c.iso} - {c.label}
-                </option>
-              ))}
-            </Select>
+              onValueChange={(value) => void savePartial({ currency: String(value) })}
+              options={STEAM_CURRENCIES.map((c) => ({
+                value: c.iso,
+                label: `${c.iso} - ${c.label}`,
+              }))}
+            />
           </Field>
         </Section>
 

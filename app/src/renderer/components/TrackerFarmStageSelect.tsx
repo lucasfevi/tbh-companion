@@ -1,12 +1,12 @@
 import type { BoxTimerCatalogEntry } from "../../../shared/types";
 import { Button } from "../design-system/primitives/Button/Button";
-import { SelectField } from "./ui/SelectField";
+import { Select } from "../design-system/primitives/Select/Select";
 import { cn } from "../lib/cn";
 
 export function TrackerFarmStageSelect({ entry }: { entry: BoxTimerCatalogEntry }) {
   return (
     <div className="rounded-md border border-ideal/25 bg-ideal/10 px-2.5 py-2">
-      <SelectField
+      <Select
         label="Farm at"
         variant="ideal"
         value={entry.idealStageKey}

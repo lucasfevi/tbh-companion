@@ -2,7 +2,7 @@ import { gradeLabel, typeLabel } from "../../../core/labels";
 import type { LocationFilter, SortKey } from "../../lib/inventoryFilters";
 import { Field } from "../ui/Field";
 import { Input } from "../ui/Input";
-import { Select } from "../ui/Select";
+import { Select } from "../../design-system/primitives/Select/Select";
 
 export interface InventoryFiltersProps {
   query: string;
@@ -50,42 +50,37 @@ export function InventoryFilters({
       <Select
         className="min-w-0"
         value={gradeFilter}
-        onChange={(e) => onGradeFilterChange(e.target.value)}
+        onValueChange={(value) => onGradeFilterChange(String(value))}
         title="Filter by grade"
-      >
-        <option value="ALL">All grades</option>
-        {gradeOptions.map((g) => (
-          <option key={g} value={g}>
-            {gradeLabel(g)}
-          </option>
-        ))}
-      </Select>
+        options={[
+          { value: "ALL", label: "All grades" },
+          ...gradeOptions.map((g) => ({ value: g, label: gradeLabel(g) })),
+        ]}
+      />
       <Select
         className="min-w-0"
         value={typeFilter}
-        onChange={(e) => onTypeFilterChange(e.target.value)}
+        onValueChange={(value) => onTypeFilterChange(String(value))}
         title="Filter by type"
-      >
-        <option value="ALL">All types</option>
-        {typeOptions.map((t) => (
-          <option key={t} value={t}>
-            {typeLabel(t)}
-          </option>
-        ))}
-      </Select>
+        options={[
+          { value: "ALL", label: "All types" },
+          ...typeOptions.map((t) => ({ value: t, label: typeLabel(t) })),
+        ]}
+      />
       <Select
         className="min-w-0"
         value={locationFilter}
-        onChange={(e) => onLocationFilterChange(e.target.value as LocationFilter)}
+        onValueChange={(value) => onLocationFilterChange(value as LocationFilter)}
         title="Filter by storage location"
-      >
-        <option value="ALL">All locations</option>
-        <option value="inventory">Inventory</option>
-        <option value="stash">Stash</option>
-        <option value="trading">Trading</option>
-        <option value="equipped">Equipped</option>
-        <option value="unknown">Unknown</option>
-      </Select>
+        options={[
+          { value: "ALL", label: "All locations" },
+          { value: "inventory", label: "Inventory" },
+          { value: "stash", label: "Stash" },
+          { value: "trading", label: "Trading" },
+          { value: "equipped", label: "Equipped" },
+          { value: "unknown", label: "Unknown" },
+        ]}
+      />
       <Field label="Tradable only" checkbox>
         <input
           type="checkbox"

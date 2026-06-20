@@ -12,7 +12,7 @@ import {
 import { playNotificationSound } from "../lib/notificationSounds";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Field } from "./ui/Field";
-import { Select } from "./ui/Select";
+import { Select } from "../design-system/primitives/Select/Select";
 
 const SOUND_OPTIONS: { value: NotificationSoundId; label: string }[] = [
   ...NOTIFICATION_SOUND_ENTRIES.map((s) => ({ value: s.id, label: s.label })),
@@ -64,14 +64,9 @@ export function NotificationKindRow({
         <Select
           value={pref.sound}
           disabled={disabled || !pref.enabled || saveBusy}
-          onChange={(e) => onChange({ ...pref, sound: e.target.value as NotificationSoundId })}
-        >
-          {SOUND_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </Select>
+          onValueChange={(value) => onChange({ ...pref, sound: value as NotificationSoundId })}
+          options={SOUND_OPTIONS}
+        />
       </Field>
       <Button
         disabled={
