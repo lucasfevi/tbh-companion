@@ -83,6 +83,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: "release.yml",
-              ref: "main",
+              ref: `v${version}`,
               inputs: { tag: `v${version}` },
             });
