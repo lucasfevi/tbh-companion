@@ -20,6 +20,13 @@ describe("Input", () => {
     expect(screen.getByPlaceholderText("Search")).toHaveClass("max-w-xs", "rounded-md");
   });
 
+  it("shows a not-allowed cursor when disabled, matching Button/Select/NumberField", () => {
+    render(<Input disabled placeholder="Search" />);
+    const input = screen.getByPlaceholderText("Search");
+    expect(input).toBeDisabled();
+    expect(input).toHaveClass("disabled:cursor-not-allowed", "disabled:opacity-50");
+  });
+
   it("has no detectable accessibility violations", async () => {
     const { container } = render(<Input aria-label="Search items" />);
     expect(await axe(container)).toHaveNoViolations();
