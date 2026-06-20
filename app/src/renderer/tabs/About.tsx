@@ -6,9 +6,9 @@ import { reportIpcError } from "../lib/reportError";
 import { Button, ButtonLink } from "../design-system/primitives/Button/Button";
 import { ExternalLink } from "../components/ui/ExternalLink";
 import { ProgressBar } from "../design-system/primitives/ProgressBar/ProgressBar";
-import { Section } from "../components/ui/Section";
-import { TabHeader } from "../components/ui/TabHeader";
-import { TabPage } from "../components/ui/TabPage";
+import { Section } from "../design-system/primitives/Section/Section";
+import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
+import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 import { DISCORD_URL, GITHUB_REPO, githubReleaseUrl } from "../lib/externalLinks";
 
 function fmtBytes(bytes: number | undefined): string {

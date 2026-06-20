@@ -1,11 +1,11 @@
 import { useChests } from "../lib/useChests";
 import type { BoxSlotStatus, ChestCapacityBreakdown } from "../../../shared/types";
-import { Badge } from "../components/ui/Badge";
+import { Badge } from "../design-system/primitives/Badge/Badge";
 import { CapacityBar } from "../design-system/primitives/CapacityBar/CapacityBar";
 import { Accordion } from "../design-system/primitives/Accordion/Accordion";
-import { Card } from "../components/ui/Card";
-import { TabHeader } from "../components/ui/TabHeader";
-import { TabPage } from "../components/ui/TabPage";
+import { Card } from "../design-system/primitives/Card/Card";
+import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
+import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 import { ChestsTrackerPanel } from "../components/ChestsTrackerPanel";
 
 function capacityParts(breakdown: ChestCapacityBreakdown): string[] {

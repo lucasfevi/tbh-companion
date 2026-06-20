@@ -9,13 +9,13 @@ import { reportIpcError } from "../lib/reportError";
 import { Accordion } from "../design-system/primitives/Accordion/Accordion";
 import { NotificationSoundAccordion } from "../components/NotificationKindRow";
 import { Button } from "../design-system/primitives/Button/Button";
-import { Card } from "../components/ui/Card";
+import { Card } from "../design-system/primitives/Card/Card";
 import { Field } from "../design-system/primitives/Field/Field";
 import { NumberInput } from "../design-system/primitives/NumberField/NumberField";
-import { Section } from "../components/ui/Section";
+import { Section } from "../design-system/primitives/Section/Section";
 import { Select } from "../design-system/primitives/Select/Select";
-import { TabHeader } from "../components/ui/TabHeader";
-import { TabPage } from "../components/ui/TabPage";
+import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
+import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 
 const CLEAR_ACTIONS: {
   target: AppDataClearTarget;

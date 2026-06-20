@@ -17,8 +17,8 @@ import { InventorySummary } from "../components/inventory/InventorySummary";
 import { InventoryFilters } from "../components/inventory/InventoryFilters";
 import { InventoryColumnPicker } from "../components/inventory/InventoryColumnPicker";
 import { InventoryTable } from "../components/inventory/InventoryTable";
-import { TabHeader } from "../components/ui/TabHeader";
-import { TabPage } from "../components/ui/TabPage";
+import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
+import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 import type { InventoryTablePrefs } from "../../../shared/types";
 import { reportIpcError } from "../lib/reportError";
 

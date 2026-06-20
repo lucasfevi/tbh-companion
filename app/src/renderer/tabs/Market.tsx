@@ -5,11 +5,11 @@ import { formatPriceRefreshMessage } from "../lib/formatPriceRefreshMessage";
 import { reportIpcError } from "../lib/reportError";
 import { SteamPriceProgress } from "../components/market/SteamPriceProgress";
 import { Button } from "../design-system/primitives/Button/Button";
-import { Card } from "../components/ui/Card";
+import { Card } from "../design-system/primitives/Card/Card";
 import { Field } from "../design-system/primitives/Field/Field";
 import { Select } from "../design-system/primitives/Select/Select";
-import { TabHeader } from "../components/ui/TabHeader";
-import { TabPage } from "../components/ui/TabPage";
+import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
+import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 
 function fmtAge(iso: string | null): string {
   if (!iso) return "never";

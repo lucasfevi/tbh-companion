@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Card } from "./Card";
+import { Card } from "../../design-system/primitives/Card/Card";
 import { cn } from "../../lib/cn";
 
 /** Headline metric card for side-by-side pairs (label, big value, optional detail line). */

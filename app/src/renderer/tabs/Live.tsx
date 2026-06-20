@@ -16,11 +16,11 @@ import { stageName } from "../../core/stages";
 import { Button } from "../design-system/primitives/Button/Button";
 import { DataListRow } from "../design-system/primitives/DataList/DataList";
 import { Field } from "../design-system/primitives/Field/Field";
-import { PanelSection } from "../components/ui/PanelSection";
+import { PanelSection } from "../design-system/primitives/PanelSection/PanelSection";
 import { StatCard } from "../design-system/primitives/StatCard/StatCard";
-import { TabMetricHero } from "../components/ui/TabMetricHero";
-import { TabHeader } from "../components/ui/TabHeader";
-import { TabPage } from "../components/ui/TabPage";
+import { MetricHero } from "../design-system/primitives/MetricHero/MetricHero";
+import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
+import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 import { ChestDropPanel } from "../components/live/ChestDropPanel";
 import { LiveHistoryPanel } from "../components/live/LiveHistoryPanel";
 import { LiveMatchedPair } from "../components/live/LiveMatchedPair";
@@ -152,7 +152,7 @@ export function Live() {
         intro="Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer."
       />
 
-      <TabMetricHero
+      <MetricHero
         primary={
           <div className="flex cursor-help items-baseline gap-2" title={RATE_TIP}>
             <span className="text-[40px] font-bold leading-none text-accent">
