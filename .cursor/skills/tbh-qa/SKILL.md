@@ -9,7 +9,7 @@ metadata:
 
 # TBH Companion — QA gate
 
-**A change is not done until QA passes.** Do not tell the user work is complete after only `npm test` or `npm run build`. The app must actually run when the change touches the UI or main process.
+**A change is not done until QA passes.** Do not tell the user work is complete after only `pnpm test` or `pnpm run build`. The app must actually run when the change touches the UI or main process.
 
 Blank window → read [references/checklist.md](references/checklist.md) § *Known failure modes* immediately.
 
@@ -26,15 +26,15 @@ Run before every commit that touches `app/` (especially `main/`, `preload/`, `re
 | Change scope | Minimum QA |
 |--------------|------------|
 | `main/`, `preload/`, `renderer/`, `shared/ipc.ts`, windows, paths | Step 1 + Step 2 + Step 3 (or Step 2b fallback) |
-| `core/` only (pure logic, no IPC/UI) | Step 1 (`npm run qa`) only |
+| `core/` only (pure logic, no IPC/UI) | Step 1 (`pnpm run qa`) only |
 | `core/` + behavior visible in UI | Full dev smoke |
 
 ## Workflow (in order)
 
 ```
 QA progress:
-- [ ] Step 1: Automated gate (`npm run qa`)
-- [ ] Step 2: Dev launch (`npm run dev` or `npm run qa:dev`)
+- [ ] Step 1: Automated gate (`pnpm run qa`)
+- [ ] Step 2: Dev launch (`pnpm run dev` or `pnpm run qa:dev`)
 - [ ] Step 3: UI smoke OR automated dev fallback
 - [ ] Step 4: Scope-specific checks (if applicable)
 - [ ] Step 4b: Spike/probe cleanup (if applicable)
@@ -46,17 +46,17 @@ QA progress:
 From `app/`:
 
 ```powershell
-cd app; npm run qa
+cd app; pnpm run qa
 ```
 
-Runs `typecheck`, `lint`, `format:check`, `vitest`, `build`, and bundle path guards (rejects `../../preload` in `out/main/index.js`). Fix lint/format issues with `npm run lint:fix` and `npm run format`, then re-run until green.
+Runs `typecheck`, `lint`, `format:check`, `vitest`, `build`, and bundle path guards (rejects `../../preload` in `out/main/index.js`). Fix lint/format issues with `pnpm run lint:fix` and `pnpm run format`, then re-run until green.
 
 ### Step 2 — Dev launch
 
 **Option A — manual (preferred when you can see the UI):**
 
 ```powershell
-cd app; npm run dev
+cd app; pnpm run dev
 ```
 
 Wait for `starting electron app...` and the Vite URL (usually `http://localhost:5173/`). Watch for main-process errors.
@@ -64,7 +64,7 @@ Wait for `starting electron app...` and the Vite URL (usually `http://localhost:
 **Option B — automated fallback (agent cannot see the window):**
 
 ```powershell
-cd app; npm run qa:dev
+cd app; pnpm run qa:dev
 ```
 
 Starts dev briefly, checks the log for build errors, and verifies Vite serves HTML. Does **not** replace visual tab smoke when you changed renderer UX — say that in the report.
@@ -114,7 +114,7 @@ Tell the user only after required steps pass:
 
 ```markdown
 ## QA
-- `npm run qa`: pass (typecheck, lint, format, N tests, build, bundle paths)
+- `pnpm run qa`: pass (typecheck, lint, format, N tests, build, bundle paths)
 - Dev: pass — [manual: tabs visible | automated: qa:dev exit 0]
 - Manual: [extra checks]
 ```
@@ -128,8 +128,8 @@ If dev could not be visually confirmed, say so explicitly — **do not claim the
 User: "Extract window code; commit when done."
 
 Actions:
-1. `cd app; npm run qa`
-2. `cd app; npm run dev` — confirm tab bar visible, not blank
+1. `cd app; pnpm run qa`
+2. `cd app; pnpm run dev` — confirm tab bar visible, not blank
 3. Report with both results
 
 ### Example 2: Core-only tracker fix
@@ -137,14 +137,14 @@ Actions:
 User: "Fix rolling average math in `core/tracker.ts`."
 
 Actions:
-1. `cd app; npm run qa` (includes unit tests for tracker)
+1. `cd app; pnpm run qa` (includes unit tests for tracker)
 2. Skip dev smoke — no main/preload/renderer/IPC changes
 3. Report: qa pass; dev smoke skipped (core-only)
 
 ## Hard rules
 
 1. **Never skip dev smoke** for main/preload/window/path/IPC/renderer changes.
-2. **Never mark done, push, or open a PR** with lint or format failures — `npm run qa` must pass (includes `lint` + `format:check`).
+2. **Never mark done, push, or open a PR** with lint or format failures — `pnpm run qa` must pass (includes `lint` + `format:check`).
 3. **Never open a PR without running Step 1 locally** and noting the result in the test plan.
 4. **Paths**: preload/renderer via `app/src/main/paths.ts` (`../preload`, `../renderer` from `out/main/`).
 5. **PowerShell**: chain with `;` not `&&`.

@@ -1,5 +1,5 @@
 ---
-description: Run tbh-qa before marking app changes complete — npm run qa and dev smoke when touching main, preload, renderer, or IPC
+description: Run tbh-qa before marking app changes complete — pnpm run qa and dev smoke when touching main, preload, renderer, or IPC
 globs: app/**/*
 alwaysApply: false
 ---
@@ -8,11 +8,11 @@ alwaysApply: false
 
 When you finish work under `app/`:
 
-1. Run `cd app; npm run qa` (typecheck + tests + build + bundle path guards).
+1. Run `cd app; pnpm run qa` (typecheck + tests + build + bundle path guards).
 2. If you changed `main/`, `preload/`, `renderer/`, `shared/ipc.ts`, or window paths:
-   - Prefer `npm run dev` and confirm the main window is **not blank** (tabs visible), or
-   - Run `npm run qa:dev` when you cannot see the UI — then say visual checks were not performed.
-3. **Core-only** changes (`app/src/core/` with no IPC/UI/main edits): `npm run qa` alone is enough.
+   - Prefer `pnpm run dev` and confirm the main window is **not blank** (tabs visible), or
+   - Run `pnpm run qa:dev` when you cannot see the UI — then say visual checks were not performed.
+3. **Core-only** changes (`app/src/core/` with no IPC/UI/main edits): `pnpm run qa` alone is enough.
 4. Do not tell the user the task is done until required QA passes.
 
 Full workflow: `.cursor/skills/tbh-qa/SKILL.md`

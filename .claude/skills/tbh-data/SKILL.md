@@ -51,13 +51,13 @@ Actions: `data/hero_stats.json` (BOM-free), add `"hero_stats.json"` to `REQUIRED
 
 User: "Rename `cap` to `runeCap` in `rune_box_cap.json`."
 
-Actions: grep `core/` and `test/core/` for `cap` usage tied to this catalog, update the JSON + loader type together, run `test/core/boxes.test.ts`, check `npm run qa` bundle guards still pass.
+Actions: grep `core/` and `test/core/` for `cap` usage tied to this catalog, update the JSON + loader type together, run `test/core/boxes.test.ts`, check `pnpm run qa` bundle guards still pass.
 
 ## Troubleshooting
 
 ### Catalog loads in dev but fails in the packaged build
 
-Filename missing from `REQUIRED_BUNDLED_DATA_FILES`, or the file wasn't added to `data/` before building. Check `npm run qa`'s bundle checks — see **tbh-qa**.
+Filename missing from `REQUIRED_BUNDLED_DATA_FILES`, or the file wasn't added to `data/` before building. Check `pnpm run qa`'s bundle checks — see **tbh-qa**.
 
 ### `JSON.parse` fails only when the file came from a PowerShell script
 

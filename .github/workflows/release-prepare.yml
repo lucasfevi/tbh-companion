@@ -19,11 +19,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v5
         with:
           node-version: "22"
-          cache: npm
-          cache-dependency-path: app/package-lock.json
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
 
       - name: Validate and bump version
         shell: bash
@@ -34,8 +36,8 @@ jobs:
             echo "Invalid semver: ${VERSION}"
             exit 1
           fi
-          npm version "${VERSION}" --no-git-tag-version --allow-same-version
-          npm install
+          pnpm version "${VERSION}" --no-git-tag-version --allow-same-version
+          pnpm install --no-frozen-lockfile
 
       - name: Verify CHANGELOG entry
         shell: bash
@@ -57,7 +59,7 @@ jobs:
           TAG="v${VERSION}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/package.json app/package-lock.json
+          git add app/package.json app/pnpm-lock.yaml
           if git diff --staged --quiet; then
             echo "No version change to commit (already ${VERSION})"
           else

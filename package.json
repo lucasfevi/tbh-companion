@@ -1,6 +1,7 @@
 {
   "name": "tbh-project",
   "private": true,
+  "packageManager": "pnpm@11.8.0",
   "description": "TBH Companion monorepo root — tooling only",
   "scripts": {
     "sync:skills": "node scripts/sync-agent-skills.mjs",

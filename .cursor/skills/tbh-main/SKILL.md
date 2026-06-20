@@ -21,7 +21,7 @@ Read `docs/ARCHITECTURE.md` and `docs/DIAGNOSTIC_LOGGING.md` when adding service
 4. **core/ does not log.** Return errors/results from core; log in main with `createLogger('module')` from `app/src/main/log.ts` (see **tbh-core** for the full purity boundary).
 5. **Renderer errors:** `reportIpcError(err, 'source')` or `window.tbh.logRendererError()` — no file writes in renderer.
 6. **No secrets in logs.** Redaction exists but avoid logging tokens, passwords, or full save JSON.
-7. **Bundle paths:** preload/renderer load via `app/src/main/paths.ts` (`../preload`, `../renderer` from `out/main/`). After path changes, `npm run qa` must pass bundle guards.
+7. **Bundle paths:** preload/renderer load via `app/src/main/paths.ts` (`../preload`, `../renderer` from `out/main/`). After path changes, `pnpm run qa` must pass bundle guards.
 
 ## IPC checklist (new or changed channel)
 
@@ -51,7 +51,7 @@ See `docs/DECISIONS.md` (CSP, IPC-over-HTTP rejection).
 
 ## Security
 
-- Run `npm audit` awareness on dependency changes; CI runs `npm audit --audit-level=high`.
+- Run `pnpm audit` awareness on dependency changes; CI runs `pnpm audit --audit-level high`.
 - Preload exposes the **minimum** surface — no generic `invoke(channel, ...)` escape hatches.
 - Never commit personal save data — see `docs/AGENT_WORKFLOW.md`.
 

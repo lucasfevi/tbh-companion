@@ -9,7 +9,7 @@ metadata:
 
 # TBH Companion — PR reviewer
 
-**Advisory only.** CI (`npm run qa` on GitHub Actions) is the hard gate. This skill produces a maintainer-facing review comment; it does not approve, merge, or push.
+**Advisory only.** CI (`pnpm run qa` on GitHub Actions) is the hard gate. This skill produces a maintainer-facing review comment; it does not approve, merge, or push.
 
 ## Trigger
 
@@ -81,7 +81,7 @@ git diff origin/<baseRefName>...HEAD --stat
 git diff origin/<baseRefName>...HEAD --name-only
 ```
 
-Note CI status from `gh pr checks <N>` if available — do not re-run `npm run qa` locally unless CI failed, diff touches CI/workflow, or user asked.
+Note CI status from `gh pr checks <N>` if available — do not re-run `pnpm run qa` locally unless CI failed, diff touches CI/workflow, or user asked.
 
 ### Step 4 — Load layer skills (read files, not memory)
 
