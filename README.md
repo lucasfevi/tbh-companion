@@ -28,23 +28,23 @@ The download button uses [`website/data/release.json`](website/data/release.json
 
 ```
 cd app
-npm install
-npm run dev      # run in development (hot reload)
+pnpm install
+pnpm run dev      # run in development (hot reload)
 ```
 
-If `npm install` doesn't fetch Electron's binary, run
+If `pnpm install` doesn't fetch Electron's binary, run
 `node node_modules/electron/install.js` (see `AGENTS.md` for the manual fallback).
 
 Build and package:
 
 ```
-npm run build    # production bundle into out/
-npm run pack     # unpacked app into release/win-unpacked
-npm run dist     # Windows NSIS installer into release/
-npm run typecheck
-npm test
-npm run qa       # typecheck + test + build (run before marking done)
-npm run qa:dev   # dev server smoke when UI is not visible
+pnpm run build    # production bundle into out/
+pnpm run pack     # unpacked app into release/win-unpacked
+pnpm run dist     # Windows NSIS installer into release/
+pnpm run typecheck
+pnpm test
+pnpm run qa       # typecheck + test + build (run before marking done)
+pnpm run qa:dev   # dev server smoke when UI is not visible
 ```
 
 ## Releases
@@ -56,7 +56,7 @@ Shipping a Windows build is two Actions steps (see `.github/workflows/`):
 
 The release tag **must match** `app/package.json` exactly (package `1.0.2` → tag `v1.0.2`). CI fails if they differ.
 
-**Advanced (manual):** merge to `main`, bump `app/package.json`, run `npm install` in `app/`, commit, then `git tag vX.Y.Z` and `git push origin vX.Y.Z`.
+**Advanced (manual):** merge to `main`, bump `app/package.json`, run `pnpm install` in `app/`, commit, then `git tag vX.Y.Z` and `git push origin vX.Y.Z`.
 
 **Rebuild an existing tag:** Actions → **Release** → Run workflow → enter the tag (e.g. `v1.0.1`).
 
@@ -140,7 +140,7 @@ data/                    # bundled catalogs (gamedata.json, stage_boxes.json)
 docs/                    # architecture, save format, decisions, findings
 ```
 
-See `AGENTS.md` (Cursor) and `CLAUDE.md` (Claude Code) for the contributor/agent brief. Project skills live in `.cursor/skills/` and are mirrored to `.claude/skills/` via `npm run sync:skills`.
+See `AGENTS.md` (Cursor) and `CLAUDE.md` (Claude Code) for the contributor/agent brief. Project skills live in `.cursor/skills/` and are mirrored to `.claude/skills/` via `pnpm run sync:skills`.
 
 ## Disclaimer
 

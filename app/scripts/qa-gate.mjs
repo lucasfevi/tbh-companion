@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Automated QA gate — run before marking app changes done.
- * Usage: npm run qa (from app/)
+ * Usage: pnpm run qa (from app/)
  */
 import { execSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
@@ -15,12 +15,12 @@ function run(cmd) {
   execSync(cmd, { cwd: appRoot, stdio: "inherit", shell: true });
 }
 
-run("npm run typecheck");
-run("npm run lint");
-run("npm run format:check");
-run("npm test");
-run("npm run test:dom");
-run("npm run build");
+run("pnpm run typecheck");
+run("pnpm run lint");
+run("pnpm run format:check");
+run("pnpm test");
+run("pnpm run test:dom");
+run("pnpm run build");
 
 const mainBundle = join(appRoot, "out/main/index.js");
 if (!existsSync(mainBundle)) {
@@ -100,4 +100,4 @@ if (catalogSource.includes("process.cwd()")) {
 console.log(
   "\nQA gate passed (typecheck + lint + format + tests + dom tests + build + bundle path checks).",
 );
-console.log("Still required: npm run dev — confirm the window is NOT blank (see tbh-qa skill).");
+console.log("Still required: pnpm run dev — confirm the window is NOT blank (see tbh-qa skill).");

@@ -1,0 +1,6 @@
+allowBuilds:
+  electron-winstaller: true
+  esbuild: true
+
+overrides:
+  esbuild: ^0.28.1

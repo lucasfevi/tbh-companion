@@ -6,12 +6,12 @@ Use with `.cursor/skills/tbh-qa/SKILL.md`. Check only what your change touches.
 
 | Command | Expect |
 |---------|--------|
-| `npm run typecheck` | exit 0 |
-| `npm run lint` | exit 0 (errors block; warnings OK) |
-| `npm run format:check` | exit 0 |
-| `npm test` | all files green (includes `test/main/paths.test.ts`, `test/ipc/channels.test.ts`) |
-| `npm run qa` | above + build + no `../../preload` in `out/main/index.js` |
-| `npm run qa:dev` | dev starts, Vite responds, no build errors in log (when UI not visible) |
+| `pnpm run typecheck` | exit 0 |
+| `pnpm run lint` | exit 0 (errors block; warnings OK) |
+| `pnpm run format:check` | exit 0 |
+| `pnpm test` | all files green (includes `test/main/paths.test.ts`, `test/ipc/channels.test.ts`) |
+| `pnpm run qa` | above + build + no `../../preload` in `out/main/index.js` |
+| `pnpm run qa:dev` | dev starts, Vite responds, no build errors in log (when UI not visible) |
 
 ## Dev smoke (Steps 2–3)
 
@@ -51,7 +51,7 @@ Default path (Settings):
 |---------|--------------|-----|
 | Dark empty window, no tabs | Preload failed to load | Fix path in `main/paths.ts` — use `../preload/index.js` |
 | Instant white flash then blank | Renderer JS error | DevTools console; fix import/path |
-| "Settings API not loaded" | Stale preload after IPC change | Full quit + restart `npm run dev` |
+| "Settings API not loaded" | Stale preload after IPC change | Full quit + restart `pnpm run dev` |
 
 **Verify bundle after main changes:**
 
@@ -79,8 +79,8 @@ From `docs/reviews/playtest-bugs.md` — re-test when editing these:
 
 ## Windows dev notes
 
-- Use `npm.cmd` if PowerShell blocks `npm.ps1`
-- Chain commands: `cd app; npm run qa`
+- Use `pnpm.cmd` if PowerShell blocks `pnpm.ps1`
+- Chain commands: `cd app; pnpm run qa`
 - Save file may be locked while game runs — transient read errors are OK
 
 ## Optional (release path)
@@ -88,7 +88,7 @@ From `docs/reviews/playtest-bugs.md` — re-test when editing these:
 Before shipping an installer:
 
 ```powershell
-cd app; npm run pack
+cd app; pnpm run pack
 ```
 
 Launch `release/win-unpacked/TBH Companion.exe` and repeat main-window smoke.

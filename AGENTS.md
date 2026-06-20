@@ -33,23 +33,27 @@ reached parity; see `docs/DECISIONS.md` for the history.
 
 The app lives under `app/` (created during the scaffold phase):
 
+This project uses **pnpm** (pinned via the `packageManager` field, activated
+through Corepack: `corepack enable`, or install globally with
+`npm install -g pnpm` if Corepack can't write its shims).
+
 ```
 cd app
-npm install
-npm run dev        # electron-vite dev (main + renderer with HMR)
-npm run build      # production bundle (out/)
-npm run typecheck  # tsc --noEmit
-npm run lint       # eslint (errors fail; warnings OK)
-npm run lint:fix   # eslint --fix
-npm run format     # prettier --write
-npm run format:check  # prettier --check
-npm test           # vitest (core logic)
-npm run bench      # performance benchmarks (see docs/BENCHMARKS.md)
-npm run bench:ci   # benchmarks + JSON report for CI trend tracking
-npm run qa         # typecheck + lint + format + test + build + bundle guards (run before marking done)
-npm run qa:dev     # automated dev smoke when UI is not visible (see tbh-qa skill)
-npm run pack       # electron-builder --dir -> release/win-unpacked (no installer)
-npm run dist       # electron-builder -> Windows NSIS installer
+pnpm install
+pnpm run dev        # electron-vite dev (main + renderer with HMR)
+pnpm run build      # production bundle (out/)
+pnpm run typecheck  # tsc --noEmit
+pnpm run lint       # eslint (errors fail; warnings OK)
+pnpm run lint:fix   # eslint --fix
+pnpm run format     # prettier --write
+pnpm run format:check  # prettier --check
+pnpm test           # vitest (core logic)
+pnpm run bench      # performance benchmarks (see docs/BENCHMARKS.md)
+pnpm run bench:ci   # benchmarks + JSON report for CI trend tracking
+pnpm run qa         # typecheck + lint + format + test + build + bundle guards (run before marking done)
+pnpm run qa:dev     # automated dev smoke when UI is not visible (see tbh-qa skill)
+pnpm run pack       # electron-builder --dir -> release/win-unpacked (no installer)
+pnpm run dist       # electron-builder -> Windows NSIS installer
 ```
 
 ## Windows environment - check this FIRST
@@ -76,10 +80,14 @@ be Windows/PowerShell quirks. Known ones:
 - **Paths use `%USERPROFILE%\AppData\LocalLow\...`** and `userData` is under
   `%APPDATA%`. Expand env vars (`expandPath`); never hard-code a home dir.
 - **Line endings:** keep files LF; avoid tools that rewrite to CRLF.
-- **Electron binary:** if `npm install` doesn't fetch it (some sandboxes block
+- **Electron binary:** if `pnpm install` doesn't fetch it (some sandboxes block
   the postinstall extraction), run `node node_modules/electron/install.js`, or
   download the matching `electron-v<ver>-win32-x64.zip` and extract it into
-  `node_modules/electron/dist/` with `path.txt` containing `electron.exe`.
+  `node_modules/electron/dist/` with `path.txt` containing `electron.exe`. Separately,
+  pnpm blocks dependency build/postinstall scripts by default — allow-listed packages
+  live in `app/pnpm-workspace.yaml`'s `allowBuilds`; if a new dependency's script gets
+  silently skipped, check the `pnpm install` output for "Ignored build scripts" and add
+  it there (`pnpm approve-builds --all` writes the same file interactively).
 - **Big numbers:** save ids like `UniqueId` exceed JS safe-integer range and
   collide after `JSON.parse`; parse losslessly (string/bigint) if you must use
   them. (Not Windows-specific, but a recurring "why don't these match" trap.)
@@ -95,7 +103,7 @@ button in the tab bar; restore from the overlay's expand button.
 
 ## Project skills (required for features & refactors)
 
-Skills live under **`.cursor/skills/`** (Cursor) and **`.claude/skills/`** (Claude Code — mirror). **Edit canonical files in `.cursor/skills/`**, then run `npm run sync:skills` from repo root and commit both trees.
+Skills live under **`.cursor/skills/`** (Cursor) and **`.claude/skills/`** (Claude Code — mirror). **Edit canonical files in `.cursor/skills/`**, then run `pnpm run sync:skills` from repo root and commit both trees.
 
 **Read the relevant `SKILL.md` before coding** — enforced by `.cursor/rules/project-skills.mdc` (`alwaysApply: true`).
 
@@ -125,7 +133,7 @@ Deprecated (not synced): `best-practices`, `react-best-practices` — replaced b
   commit unless requested. Do not add a `Co-Authored-By:` trailer for any AI
   agent/assistant to commit messages.
 - **Push and PRs — confirm first:** never run `git push` or open a pull request
-  without explicit user approval in the current conversation. Run `cd app; npm run qa`
+  without explicit user approval in the current conversation. Run `cd app; pnpm run qa`
   before push/PR; summarize branch, commits, scope, and QA; ask; then push or create
   the PR only after they confirm. On Windows PowerShell, use `gh pr create --body-file`
   for PR descriptions (never inline `--body`). See `docs/AGENT_WORKFLOW.md`.
@@ -150,7 +158,7 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 
 **Testing:** all new `core/` logic needs Vitest; new IPC/config handlers need tests in `test/main/` or `test/ipc/`. Optional local integration: `test/integration/realSave.test.ts`.
 
-**QA before done:** run the **tbh-qa** skill (`.cursor/skills/tbh-qa/SKILL.md`) — `npm run qa` (includes lint + format check), then `npm run dev` (non-blank window) or `npm run qa:dev` when the UI cannot be seen. Never mark app work complete on tests/build alone or with lint/format failures.
+**QA before done:** run the **tbh-qa** skill (`.cursor/skills/tbh-qa/SKILL.md`) — `pnpm run qa` (includes lint + format check), then `pnpm run dev` (non-blank window) or `pnpm run qa:dev` when the UI cannot be seen. Never mark app work complete on tests/build alone or with lint/format failures.
 
 ## Docs index
 

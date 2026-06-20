@@ -4,7 +4,7 @@
 
 ## Contributor checklist
 
-- [ ] I ran `cd app; npm run qa` locally (or CI is green on this PR)
+- [ ] I ran `cd app; pnpm run qa` locally (or CI is green on this PR)
 - [ ] No save files, decrypted dumps, or personal `sample/` data in this PR
 - [ ] If I added or changed IPC: updated `shared/ipc.ts`, preload, main handler, and `test/ipc/channels.test.ts`
 - [ ] If I changed `app/src/core/`: added or updated Vitest tests

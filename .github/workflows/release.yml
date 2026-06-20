@@ -23,11 +23,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v5
         with:
           node-version: "22"
-          cache: npm
-          cache-dependency-path: app/package-lock.json
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
 
       - name: Verify tag matches package.json
         shell: bash
@@ -60,15 +62,16 @@ jobs:
           echo "Building release ${TAG} from package.json"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Automated QA gate
-        run: npm run qa
+        run: pnpm run qa
 
       # publish config in package.json is for latest.yml (auto-updater); upload is via
       # action-gh-release below — never let electron-builder publish in CI (needs GH_TOKEN).
       - name: Build Windows installer
-        run: npm run build && npx electron-builder --publish never
+        shell: bash
+        run: pnpm run build && pnpm exec electron-builder --publish never
 
       - name: Verify updater metadata ships with installer
         shell: pwsh

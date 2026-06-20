@@ -45,7 +45,7 @@ Every behavior change in `core/` needs Vitest coverage in `app/test/core/`. Patt
 - One `describe` per exported function, one `it` per behavior (not per input value) — table-driven `it.each` when the same assertion repeats across many inputs.
 - Edge cases worth a dedicated test: missing/zero-quantity entries, unknown catalog ids, malformed save fields — these mirror real corrupt-save reports more than happy-path values do.
 
-`npm run qa` (see **tbh-qa**) runs the full suite — run targeted tests with `npx vitest run test/core/<file>.test.ts` while iterating.
+`pnpm run qa` (see **tbh-qa**) runs the full suite — run targeted tests with `pnpm exec vitest run test/core/<file>.test.ts` while iterating.
 
 ## Examples
 

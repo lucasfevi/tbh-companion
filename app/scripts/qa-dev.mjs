@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Partial dev smoke — start electron-vite dev, watch logs, probe Vite.
- * Does not replace visual UI checks. Usage: npm run qa:dev (from app/)
+ * Does not replace visual UI checks. Usage: pnpm run qa:dev (from app/)
  */
 import { spawn } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -72,7 +72,7 @@ async function probeVite() {
 
 console.log("Starting dev server for automated smoke (up to 45s)...\n");
 
-const proc = spawn("npm", ["run", "dev"], {
+const proc = spawn("pnpm", ["run", "dev"], {
   cwd: appRoot,
   shell: true,
   stdio: ["ignore", "pipe", "pipe"],
@@ -96,7 +96,7 @@ try {
   await waitForReady(() => log);
   await probeVite();
   console.log("\nqa:dev passed (dev started, Vite responded, no build errors in log).");
-  console.log("Visual tab smoke still recommended — run npm run dev and confirm UI is not blank.");
+  console.log("Visual tab smoke still recommended — run pnpm run dev and confirm UI is not blank.");
   exitCode = 0;
 } catch (err) {
   console.error(`\nqa:dev FAILED: ${err.message}`);

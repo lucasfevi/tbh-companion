@@ -13,7 +13,7 @@ See also `AGENTS.md` for QA and architecture expectations before marking work do
 
 ## QA before push or PR
 
-**Run `cd app; npm run qa` before every push and every PR** — including changes that only touch `data/*.json`, docs, or repo metadata.
+**Run `cd app; pnpm run qa` before every push and every PR** — including changes that only touch `data/*.json`, docs, or repo metadata.
 
 - CI runs the same gate; do not open a PR with failing tests locally.
 - For bundled catalog updates (`data/gamedata.json`, `data/stage_boxes.json`, `data/steam_item_nameids.json`, etc.): run QA and fix or revert any file that breaks tests. Not every tbh-data export is drop-in compatible with the companion (e.g. `stage_boxes.json` needs companion `tracker` metadata). Steam nameids: `npm run build:steam-nameids` in **tbh-data** (emit **A-only** gear hashes), then copy from `snapshots/v{version}/companion/`.
@@ -25,7 +25,7 @@ See also `AGENTS.md` for QA and architecture expectations before marking work do
 
 After local commits are ready:
 
-1. Run `cd app; npm run qa` (see above).
+1. Run `cd app; pnpm run qa` (see above).
 2. Summarize branch name, commit(s), what changed, and QA result.
 3. Ask whether to push (e.g. “Want me to push `feat/my-branch` to origin?”).
 4. Push only after the user says yes.
@@ -38,7 +38,7 @@ Do not assume “push after commit” or “push unless told otherwise.”
 
 Before creating a PR:
 
-1. Run `cd app; npm run qa` locally.
+1. Run `cd app; pnpm run qa` locally.
 2. Ensure the branch is pushed (with user approval for the push).
 3. Summarize title, scope, test plan, and QA result.
 4. Ask whether to open the PR.
@@ -60,7 +60,7 @@ fs.writeFileSync('.pr-body.md', \`## Summary
 
 ## Test plan
 
-- [x] \`cd app; npm run qa\` — pass
+- [x] \`cd app; pnpm run qa\` — pass
 \`, 'utf8');
 "@
 
@@ -80,7 +80,7 @@ To fix a broken body after the fact: `gh pr edit <N> --body-file .pr-body.md`
 | Action | Default |
 |--------|---------|
 | Local commit | Only when user requests (or their rules allow) |
-| `npm run qa` before push/PR | **Always** |
+| `pnpm run qa` before push/PR | **Always** |
 | `git push` | **Ask first** |
 | Open PR | **Ask first** |
 | PR body via inline `--body` on PowerShell | **Never** — use `--body-file` |
@@ -89,7 +89,7 @@ To fix a broken body after the fact: `gh pr edit <N> --body-file .pr-body.md`
 
 ## PR review — `/review-pr <N>`
 
-Advisory review for maintainers (not a merge gate — CI runs `npm run qa`).
+Advisory review for maintainers (not a merge gate — CI runs `pnpm run qa`).
 
 1. Invoke `/review-pr 39` or “review PR #39” in Cursor or Claude Code.
 2. Agent reads **tbh-reviewer** (`.cursor/skills/` or `.claude/skills/`), stashes local WIP if needed, checks out the PR branch, and posts the advisory template.
@@ -102,10 +102,10 @@ Contributor self-check: `.github/pull_request_template.md`.
 Edit skills in `.cursor/skills/`. Mirror to Claude:
 
 ```powershell
-npm run sync:skills
+pnpm run sync:skills
 ```
 
-Commit both `.cursor/skills/` and `.claude/skills/`. CI runs `npm run sync:skills:check` when skill paths change.
+Commit both `.cursor/skills/` and `.claude/skills/`. CI runs `pnpm run sync:skills:check` when skill paths change.
 
 ## Related docs
 
