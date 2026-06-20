@@ -4,6 +4,20 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-06-20
+
+### Inventory
+
+- **Instant total** now walks the full Steam buy-order book level by level (best price first), so large stacks no longer undercount proceeds when the top order cannot cover the whole stack. A badge appears when the book still cannot cover your full quantity.
+- **Market value** and **Instant total** summary cards update with your active filters instead of always showing whole-inventory totals.
+- **Unequipped only** filter replaces **In use only** — hides rows where every copy is equipped; rows with both equipped and stash/inventory copies still appear.
+- **In use** column renamed to **Equipped**, with tooltips explaining per-row counts.
+- Optional **Instant avg** column (hidden by default): average price per unit realized across the order-book levels used for instant sell.
+
+### Fixed
+
+- **Unequipped only** no longer hides items that have some copies equipped and others in inventory or stash.
+
 ## [1.14.0] - 2026-06-19
 
 ### Live
