@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Card } from "../Card/Card";
 import { cn } from "../../lib/variants";
 
-export function TabMetricHero({
+export function MetricHero({
   primary,
   center,
   action,

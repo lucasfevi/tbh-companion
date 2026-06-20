@@ -43,7 +43,7 @@ metadata:
 | Sentence-case heading + content group | `Section` |
 | Top-of-tab `<h1>` + intro | `TabHeader` |
 | Tab body vertical-stack wrapper | `TabPage` |
-| Three-column hero metric card (Live tab only) | `TabMetricHero` |
+| Three-column hero metric card (Live tab only) | `MetricHero` |
 
 **Intentionally not migrated, stay in `components/ui/`:**
 - `OverlayFrame.tsx` — frameless overlay window shell. Conceptually Electron-overlay-specific even though it has no literal Electron imports; moving it into the "portable" tree would be a category error.

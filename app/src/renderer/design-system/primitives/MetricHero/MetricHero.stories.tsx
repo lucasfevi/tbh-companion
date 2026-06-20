@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { TabMetricHero } from "./TabMetricHero";
+import { MetricHero } from "./MetricHero";
 
 /**
  * Three-column hero card (primary metric, center detail block, optional
@@ -8,11 +8,11 @@ import { TabMetricHero } from "./TabMetricHero";
  * `action` drops to its own row) for the mini overlay's narrow layout.
  */
 const meta = {
-  title: "Design System/TabMetricHero",
-  component: TabMetricHero,
+  title: "Design System/MetricHero",
+  component: MetricHero,
   parameters: { layout: "centered" },
   tags: ["autodocs"],
-} satisfies Meta<typeof TabMetricHero>;
+} satisfies Meta<typeof MetricHero>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -20,7 +20,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   render: () => (
     <div className="w-[480px]">
-      <TabMetricHero
+      <MetricHero
         primary={
           <div className="flex items-baseline gap-2">
             <span className="text-[40px] font-bold leading-none text-accent">1.2K</span>
