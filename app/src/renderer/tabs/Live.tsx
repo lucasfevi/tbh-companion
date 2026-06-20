@@ -15,7 +15,7 @@ import { reportIpcError } from "../lib/reportError";
 import { stageName } from "../../core/stages";
 import { Button } from "../design-system/primitives/Button/Button";
 import { DataListRow } from "../components/ui/DataList";
-import { Field } from "../components/ui/Field";
+import { Field } from "../design-system/primitives/Field/Field";
 import { PanelSection } from "../components/ui/PanelSection";
 import { StatCard } from "../components/ui/StatCard";
 import { TabMetricHero } from "../components/ui/TabMetricHero";

@@ -7,7 +7,7 @@ import {
 } from "../../../core/inventory/columnPrefs";
 import { Popover } from "../../design-system/primitives/Popover/Popover";
 import { Button } from "../../design-system/primitives/Button/Button";
-import { Field } from "../ui/Field";
+import { Field } from "../../design-system/primitives/Field/Field";
 
 const COLUMN_LABELS: Record<InventoryColumnId, string> = {
   grade: "Grade",

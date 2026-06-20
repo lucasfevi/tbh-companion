@@ -1,7 +1,7 @@
 import { gradeLabel, typeLabel } from "../../../core/labels";
 import type { LocationFilter, SortKey } from "../../lib/inventoryFilters";
-import { Field } from "../ui/Field";
-import { Input } from "../ui/Input";
+import { Field } from "../../design-system/primitives/Field/Field";
+import { Input } from "../../design-system/primitives/Input/Input";
 import { Select } from "../../design-system/primitives/Select/Select";
 
 export interface InventoryFiltersProps {

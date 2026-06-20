@@ -10,7 +10,7 @@ import { Accordion } from "../design-system/primitives/Accordion/Accordion";
 import { NotificationSoundAccordion } from "../components/NotificationKindRow";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Card } from "../components/ui/Card";
-import { Field } from "../components/ui/Field";
+import { Field } from "../design-system/primitives/Field/Field";
 import { NumberInput } from "../design-system/primitives/NumberField/NumberField";
 import { Section } from "../components/ui/Section";
 import { Select } from "../design-system/primitives/Select/Select";

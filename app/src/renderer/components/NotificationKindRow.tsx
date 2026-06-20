@@ -11,7 +11,7 @@ import {
 } from "../../../shared/notificationCatalog";
 import { playNotificationSound } from "../lib/notificationSounds";
 import { Button } from "../design-system/primitives/Button/Button";
-import { Field } from "./ui/Field";
+import { Field } from "../design-system/primitives/Field/Field";
 import { Select } from "../design-system/primitives/Select/Select";
 
 const SOUND_OPTIONS: { value: NotificationSoundId; label: string }[] = [

@@ -13,7 +13,7 @@ import {
 } from "../lib/boxTrackerUi";
 import { TrackerConfigRow } from "./TrackerConfigRow";
 import { Button } from "../design-system/primitives/Button/Button";
-import { Field } from "./ui/Field";
+import { Field } from "../design-system/primitives/Field/Field";
 import { PanelSection } from "./ui/PanelSection";
 import { Select } from "../design-system/primitives/Select/Select";
 import { cn } from "../lib/cn";

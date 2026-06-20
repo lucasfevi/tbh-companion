@@ -1,7 +1,7 @@
 import type { BoxTimerCatalogEntry } from "../../../shared/types";
 import { formatCooldownMinutes, parseCooldownMinutesInput } from "../lib/boxTrackerUi";
 import { TrackerFarmStageSelect } from "./TrackerFarmStageSelect";
-import { Field } from "./ui/Field";
+import { Field } from "../design-system/primitives/Field/Field";
 import { Button } from "../design-system/primitives/Button/Button";
 import { NumberField } from "../design-system/primitives/NumberField/NumberField";
 import { cn } from "../lib/cn";
