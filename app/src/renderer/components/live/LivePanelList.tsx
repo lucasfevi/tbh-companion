@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { DataListRow } from "../ui/DataList";
+import { DataListRow } from "../../design-system/primitives/DataList/DataList";
 import { cn } from "../../lib/cn";
 
 /** Striped rows inside a Live tab panel card (heroes, chest breakdown). */
