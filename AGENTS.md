@@ -115,10 +115,15 @@ Skills live under **`.cursor/skills/`** (Cursor) and **`.claude/skills/`** (Clau
 Do not skip skills for “small” diffs. Match skill to layer: renderer → **tbh-renderer** + **tbh-ux** + **design-system**; main/preload → **tbh-main**; core logic → **tbh-core**; bundled catalogs → **tbh-data**; release → **tbh-changelog**.
 
 Deprecated (not synced): `best-practices`, `react-best-practices` — replaced by **tbh-main** and **tbh-renderer**.
+- **Branches:** name as `<type>/<short-description>` (e.g. `fix/save-watcher-race`,
+  `feat/box-tracker-filters`) reflecting the actual change, using the same
+  `type` prefixes as commits. Never use a generic `claude/...` session name for
+  a branch you push or open a PR from.
 - **Commits:** use Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`,
   `refactor:`). One focused commit per logical change; split large work into
   reviewable chunks. Commit when the user asks (or their rules allow); do not
-  commit unless requested.
+  commit unless requested. Do not add a `Co-Authored-By:` trailer for any AI
+  agent/assistant to commit messages.
 - **Push and PRs — confirm first:** never run `git push` or open a pull request
   without explicit user approval in the current conversation. Run `cd app; npm run qa`
   before push/PR; summarize branch, commits, scope, and QA; ask; then push or create
