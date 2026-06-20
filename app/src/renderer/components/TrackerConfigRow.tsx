@@ -3,7 +3,7 @@ import { formatCooldownMinutes, parseCooldownMinutesInput } from "../lib/boxTrac
 import { TrackerFarmStageSelect } from "./TrackerFarmStageSelect";
 import { Field } from "./ui/Field";
 import { Button } from "../design-system/primitives/Button/Button";
-import { NumberField } from "./ui/NumberInput";
+import { NumberField } from "../design-system/primitives/NumberField/NumberField";
 import { cn } from "../lib/cn";
 
 export function TrackerConfigRow({

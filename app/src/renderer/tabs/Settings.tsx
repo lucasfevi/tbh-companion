@@ -11,7 +11,7 @@ import { NotificationSoundAccordion } from "../components/NotificationKindRow";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Card } from "../components/ui/Card";
 import { Field } from "../components/ui/Field";
-import { NumberInput } from "../components/ui/NumberInput";
+import { NumberInput } from "../design-system/primitives/NumberField/NumberField";
 import { Section } from "../components/ui/Section";
 import { Select } from "../components/ui/Select";
 import { TabHeader } from "../components/ui/TabHeader";
