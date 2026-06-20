@@ -9,7 +9,7 @@ metadata:
 
 # TBH Companion — design system
 
-`app/src/renderer/design-system/primitives/` is the **only** place renderer UI components should live. The old `app/src/renderer/components/ui/` tree has been fully migrated and removed except for three intentional holdouts (see below) — never add a new component there.
+`app/src/renderer/design-system/primitives/` is the **only** place renderer UI components should live. The old `app/src/renderer/components/ui/` tree has been fully migrated and removed except for two intentional holdouts (see below) — never add a new component there.
 
 ## Before you build new UI
 
@@ -38,7 +38,7 @@ metadata:
 | Linear fill bar with label | `ProgressBar` |
 | Pill-shaped capacity/cooldown bar | `CapacityBar` |
 | Bordered list with zebra-striped rows | `DataList` / `DataListRow` |
-| Compact labeled-value stat tile | `StatCard` |
+| Compact labeled-value stat tile (`variant="highlight"` for a large accent-colored headline value) | `StatCard` |
 | Uppercase-label section (optionally boxed in a Card) | `PanelSection` |
 | Sentence-case heading + content group | `Section` |
 | Top-of-tab `<h1>` + intro | `TabHeader` |
@@ -48,7 +48,6 @@ metadata:
 **Intentionally not migrated, stay in `components/ui/`:**
 - `OverlayFrame.tsx` — frameless overlay window shell. Conceptually Electron-overlay-specific even though it has no literal Electron imports; moving it into the "portable" tree would be a category error.
 - `ExternalLink.tsx` — `inline`/`accent` link variants that aren't button-shaped (the `button`/`primaryButton` variants were absorbed into `ButtonLink` back in the Button migration).
-- `MetricCard.tsx` — a near-duplicate of `StatCard` (both wrap `Card` for a label+value display, one consumer each). Flagged for a future consolidation pass, not yet done.
 
 **Not migrated, stays as plain markup:** `AppTabBar.tsx` (the main window's `Live | Inventory | Chests | …` navigation) is still a bare `<nav>` of `<button>`s, not `Tabs`. It also hosts `AppToolbar` (non-tab buttons) in the same row, which makes a `Tabs` migration its own scoped task rather than a drop-in swap. `Tabs` exists and is documented for future tabbed-content use elsewhere in the app.
 
