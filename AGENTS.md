@@ -108,10 +108,11 @@ Skills live under **`.cursor/skills/`** (Cursor) and **`.claude/skills/`** (Clau
 | **tbh-data** | `.cursor/skills/tbh-data/SKILL.md` | `.claude/skills/tbh-data/SKILL.md` | Bundled `data/*.json` catalogs |
 | **tbh-renderer** | `.cursor/skills/tbh-renderer/SKILL.md` | `.claude/skills/tbh-renderer/SKILL.md` | Renderer React performance |
 | **tbh-ux** | `.cursor/skills/tbh-ux/SKILL.md` | `.claude/skills/tbh-ux/SKILL.md` | Tab chrome, overlays, layout |
+| **design-system** | `.cursor/skills/design-system/SKILL.md` | `.claude/skills/design-system/SKILL.md` | Renderer UI components (`design-system/primitives/`) |
 | **tbh-changelog** | `.cursor/skills/tbh-changelog/SKILL.md` | `.claude/skills/tbh-changelog/SKILL.md` | CHANGELOG, semver, releases |
 | **tbh-reviewer** | `.cursor/skills/tbh-reviewer/SKILL.md` | `.claude/skills/tbh-reviewer/SKILL.md` | `/review-pr <N>` advisory PR review |
 
-Do not skip skills for “small” diffs. Match skill to layer: renderer → **tbh-renderer** + **tbh-ux**; main/preload → **tbh-main**; core logic → **tbh-core**; bundled catalogs → **tbh-data**; release → **tbh-changelog**.
+Do not skip skills for “small” diffs. Match skill to layer: renderer → **tbh-renderer** + **tbh-ux** + **design-system**; main/preload → **tbh-main**; core logic → **tbh-core**; bundled catalogs → **tbh-data**; release → **tbh-changelog**.
 
 Deprecated (not synced): `best-practices`, `react-best-practices` — replaced by **tbh-main** and **tbh-renderer**.
 - **Commits:** use Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`,

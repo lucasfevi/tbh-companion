@@ -1,6 +1,6 @@
 # TBH Companion — styling
 
-The renderer uses **Tailwind CSS v4** with shared components under `app/src/renderer/components/ui/`. Legacy CSS in `styles.css` is limited to `@layer base` resets and Electron drag-region helpers.
+The renderer uses **Tailwind CSS v4**. Components live under `app/src/renderer/design-system/primitives/` — see the **design-system** skill, not this doc, for the component lookup table and usage patterns. Legacy CSS in `styles.css` is limited to `@layer base` resets and Electron drag-region helpers.
 
 ## Migration status
 
@@ -10,11 +10,10 @@ The renderer uses **Tailwind CSS v4** with shared components under `app/src/rend
 | 2 | Live, Chests, Inventory, chrome, overlays; trim legacy CSS | Done (PR #21) |
 | 3 | `Card`, `ToolbarButton`, Badge variants, panel `Accordion`; agent docs | Done (PR #22) |
 | 4 | Status color tokens; app chrome extraction; `Card` adoption in Live + box tracker | Done (PR #23) |
-| 5 | `ideal` token; remove remaining inline hex in Button + box tracker | This branch |
-| 6 | `DataList` for Live tables; Inventory table `Card` shell | This branch |
-| 7 | `StatCard` on `Card`; migration complete | This branch |
-
-Phases 5–7 on **`feat/tailwind-phase-5-7-finish`** — one PR to close the Tailwind migration.
+| 5 | `ideal` token; remove remaining inline hex in Button + box tracker | Done |
+| 6 | `DataList` for Live tables; Inventory table `Card` shell | Done |
+| 7 | `StatCard` on `Card`; migration complete | Done |
+| 8 | Design system (Base UI + Storybook) migration — `components/ui/` ported to `design-system/primitives/` behind Base UI where it adds real a11y value (focus trap, keyboard nav, portal positioning); see the **design-system** skill | Done (PRs #68–#75, plus this PR) |
 
 ## Stack
 
@@ -23,7 +22,7 @@ Phases 5–7 on **`feat/tailwind-phase-5-7-finish`** — one PR to close the Tai
 | Tailwind entry     | `@import "tailwindcss"` at top of `styles.css`                            |
 | Design tokens      | `@theme { ... }` in `styles.css`                                          |
 | Class merge helper | `app/src/renderer/lib/cn.ts`                                              |
-| UI primitives      | `app/src/renderer/components/ui/`                                         |
+| UI primitives      | `app/src/renderer/design-system/primitives/` (see **design-system** skill) |
 | Legacy CSS         | `styles.css` — base layer + `.overlay` / `.no-drag` / `.drag-handle` only |
 
 ## Design tokens
@@ -46,30 +45,7 @@ Status accents for box tracker and chest badges use `@theme` tokens above — do
 
 ## UI components
 
-Import from `components/ui/` — **Market `Button` sizing is the reference**.
-
-| Component                  | Use                                                                                                      |
-| -------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `Button`                   | `variant`: `default` \| `primary` \| `danger` \| `ghost` \| `success`; `size`: `default` \| `lg` \| `sm` |
-| `Card`                     | Bordered panels; `padding`: `default` \| `compact` \| `none`; `as`: `div` \| `li`                      |
-| `DataList`, `DataListRow`  | Striped read-only lists (Live heroes/history)                                                            |
-| `Field`, `Input`, `Select` | Form controls                                                                                            |
-| `NumberInput`, `NumberField` | Themed number inputs (no native spinners); `density`: `default` \| `compact`; `align`: `start` \| `center`; `NumberField` adds optional `label`, `footer`, `labelAlign` / `footerAlign` for compact config rows |
-| `SelectField`              | Themed listbox dropdown (`bg-card`, `border-border`); `variant`: `default` \| `ideal`; optional `footer` slot for reset links without layout shift — not a native `<select>` popup |
-| `Section`                  | Settings/About subsection headings                                                                       |
-| `PanelSection`             | Live-style uppercase section labels                                                                      |
-| `StatCard`                 | Metric tiles (Live totals, Inventory summary) — composes `Card`                                          |
-| `Badge`                    | `full` (chest Full), `info` / `success` / `muted` (summary pills), `statusReady` / `statusCooldown`     |
-| `CapacityBar`              | Chest capacity + box-tracker cooldown bars                                                               |
-| `HintBanner`               | Gold-accent callouts (Inventory hints, pricing banner)                                                   |
-| `LinkButton`               | Inline text links in stat labels                                                                         |
-| `IconButton`               | Overlay chrome icon buttons; `edge`: `start` \| `end` for optical alignment at row edges (close, expand) |
-| `ToolbarButton`            | Main-window toolbar (Mini, Stage chests)                                                                 |
-| `OverlayFrame`             | Mini overlay + box tracker shell (`px-2.5 py-1.5`, `gap-1`)                                              |
-| `Accordion`                | `variant`: `default` \| `panel` (Settings Advanced)                                                      |
-| `TabHeader`, `TabPage`     | Tab chrome                                                                                               |
-| `ProgressBar`              | Market/About download bars                                                                               |
-| `AppTabBar`, `SaveStatusBar` | Main window chrome (extracted from `App.tsx`)                                                          |
+See the **design-system** skill (`.cursor/skills/design-system/SKILL.md`) for the component lookup table, or browse `npm run storybook` for live examples — each primitive's `.stories.tsx` is the canonical usage reference, kept in sync with the component by `test:dom` + `jest-axe`. Don't duplicate prop tables here; they drift.
 
 ## Layout rules
 
@@ -84,7 +60,7 @@ Conditional UI must **not** push surrounding content when it appears or disappea
 **Do:**
 
 - Reserve space for optional actions (reset links, hints, errors) with a fixed `min-h-*` footer slot; hide extras with `invisible pointer-events-none` instead of conditional mount.
-- Use `SelectField` for dropdowns — custom list uses app tokens (`bg-card`), not the native OS gray popup.
+- Use `Select` for dropdowns — custom popup uses app tokens (`bg-card`), not the native OS gray popup.
 - Prefer toggling visibility/opacity over mounting new blocks below controls the user is interacting with.
 
 **Don't:**
@@ -97,7 +73,7 @@ Conditional UI must **not** push surrounding content when it appears or disappea
 
 ## Adding new styles
 
-1. Prefer `components/ui/*` + Tailwind utilities.
+1. Prefer `design-system/primitives/*` + Tailwind utilities (see the **design-system** skill).
 2. Use `cn()` when merging conditional classes.
-3. Add shared patterns to `ui/` when used in 2+ places.
+3. Add a new primitive when a pattern is used in 2+ places.
 4. Add to `styles.css` only for Electron-specific behavior that Tailwind cannot express.

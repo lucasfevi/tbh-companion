@@ -11,7 +11,7 @@ Before **implementing** a feature, refactor, or behavior change under `app/`:
    - `.cursor/skills/coding-guidelines/SKILL.md` — always
    - `.cursor/skills/tbh-qa/SKILL.md` — completion gate (`npm run qa` incl. lint/format, dev smoke)
 2. **Also read when the change touches:**
-   - `app/src/renderer/**` → `.cursor/skills/tbh-renderer/SKILL.md`, `.cursor/skills/tbh-ux/SKILL.md`, and `docs/STYLING.md`
+   - `app/src/renderer/**` → `.cursor/skills/tbh-renderer/SKILL.md`, `.cursor/skills/tbh-ux/SKILL.md`, `.cursor/skills/design-system/SKILL.md`, and `docs/STYLING.md`
    - `app/src/main/**`, `app/src/preload/**`, CSP, IPC, network, config → `.cursor/skills/tbh-main/SKILL.md`
    - Release, `CHANGELOG.md`, or semver / version bump → `.cursor/skills/tbh-changelog/SKILL.md`
 3. **After editing any skill:** `npm run sync:skills` and commit `.claude/skills/` too.
