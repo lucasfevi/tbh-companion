@@ -1,6 +1,6 @@
 ---
 name: tbh-ux
-description: Keep TBH Companion UI consistent — tab chrome, Inventory-style intros, overlay toolbar (not tab bar), compact Chests layout, tray minimize behavior, and design tokens in styles.css. Use when adding or changing renderer tabs, headers, buttons, overlays, navigation, Chests/Mini/Box tracker UX, or reviewing UI polish in app/src/renderer/. Not for pure backend/core logic, docs-only work, or website styling.
+description: Keep TBH Companion UI consistent — tab chrome, Inventory-style intros, overlay toolbar (not tab bar), compact Chests layout, tray minimize behavior, and design tokens in styles.css. Use when adding or changing renderer tabs, headers, overlays, navigation, Chests/Mini/Box tracker UX, or reviewing UI polish in app/src/renderer/. Pair with design-system for component-level APIs/variants. Not for pure backend/core logic, docs-only work, or website styling.
 license: CC-BY-4.0
 metadata:
   author: tbh-project
@@ -14,7 +14,7 @@ Follow these patterns so every tab and overlay feels like the same app. **Invent
 ## Before you change UI
 
 1. Open [`app/src/renderer/tabs/Inventory.tsx`](../../app/src/renderer/tabs/Inventory.tsx) and match its header pattern.
-2. Read [`docs/STYLING.md`](../../docs/STYLING.md) and use `app/src/renderer/components/ui/*`; skim [`app/src/renderer/styles.css`](../../app/src/renderer/styles.css) for Electron drag helpers only.
+2. Read [`docs/STYLING.md`](../../docs/STYLING.md) and use `app/src/renderer/design-system/primitives/*`; skim [`app/src/renderer/styles.css`](../../app/src/renderer/styles.css) for Electron drag helpers only. For component APIs/variants (not just which one to use), see the **design-system** skill.
 3. If the change touches main-window chrome or tray behavior, read [`app/src/main/tray/trayService.ts`](../../app/src/main/tray/trayService.ts) and [`app/src/main/app/appState.ts`](../../app/src/main/app/appState.ts).
 4. For a **new tab from scratch** or large layout refactor, also read [references/patterns.md](references/patterns.md).
 
@@ -33,7 +33,7 @@ Tailwind `@theme` in `styles.css` — see [`docs/STYLING.md`](../../docs/STYLING
 | `text-status-info`, `text-status-success`, `bg-status-danger` | Box tracker / chest status accents (see `@theme` in `styles.css`) |
 | `text-ideal`, `bg-ideal/15` | Ideal-stage highlight in box tracker level chips |
 
-Typography: Segoe UI / system sans, 14px body. Use `Button`, `Field`, `Card`, `text-muted`, `text-xs` from `components/ui/` — prefer theme tokens over one-off hex colors.
+Typography: Segoe UI / system sans, 14px body. Use `Button`, `Field`, `Card`, `text-muted`, `text-xs` from `design-system/primitives/` — prefer theme tokens over one-off hex colors.
 
 ## Main window chrome
 
@@ -46,7 +46,7 @@ Typography: Segoe UI / system sans, 14px body. Use `Button`, `Field`, `Card`, `t
 Rules:
 
 - **Tab bar = navigation only.** Never put overlay toggles or actions in the tab `<nav>`.
-- **Overlay entry points:** [`AppToolbar`](../../app/src/renderer/components/AppToolbar.tsx) (`ToolbarButton` for Mini + Stage chests), Chests header CTA for box tracker, and system tray menu.
+- **Overlay entry points:** [`AppToolbar`](../../app/src/renderer/components/AppToolbar.tsx) (`Button variant="toolbar"` for Mini + Stage chests), Chests header CTA for box tracker, and system tray menu.
 - **Do not use Unicode box glyphs** (`□`, `▣`) as icons — use inline SVG like `AppToolbar`.
 - Save status stays below chrome in [`SaveStatusBar`](../../app/src/renderer/components/SaveStatusBar.tsx); do not duplicate save timing inside tabs.
 
@@ -54,7 +54,7 @@ Rules:
 
 Each tab should have:
 
-1. **`<TabHeader>`** from [`components/ui/TabHeader.tsx`](../../app/src/renderer/components/ui/TabHeader.tsx) — short `<h1>` title (**18px / semibold**) plus one muted intro line (**4px** below title when present).
+1. **`<TabHeader>`** from [`design-system/primitives/TabHeader/TabHeader.tsx`](../../app/src/renderer/design-system/primitives/TabHeader/TabHeader.tsx) — short `<h1>` title (**18px / semibold**) plus one muted intro line (**4px** below title when present).
 2. **Primary controls next** — summary cards, filters, or the main CTA before long lists.
 
 Wrap the tab root in **`<TabPage>`** for **14px** vertical section spacing (`gap-3.5`). Form-heavy tabs (Settings, About): inner column `max-w-md`. The main window defaults to **1100×720** with **fixed width** and **480px** minimum height. Section subtitles use **`Section`** or **4px** between `h2` and content.
@@ -79,7 +79,7 @@ Avoid walls of copy; move rune breakdowns and capacity math into `<details>` or 
 - Frameless, always-on-top; drag region on chrome; `.no-drag` on buttons.
 - Closing Mini must **restore the main window** (handled in main process — do not re-hide main from renderer on close).
 - Mini hides main while open; box tracker does not need to hide main.
-- Overlay actions use `IconButton` or small `Button size="sm"`, not oversized primary buttons unless intentional.
+- Overlay actions use `Button variant="icon"` or small `Button size="sm"`, not oversized primary buttons unless intentional.
 
 ## Tray and close behavior
 
@@ -88,6 +88,8 @@ Avoid walls of copy; move rune breakdowns and capacity math into `<details>` or 
 - Do not call `app.quit()` from renderer; use existing IPC if a quit action is ever added.
 
 ## Components and classes to reuse
+
+For the full primitive lookup table and prop-level usage, see the **design-system** skill — it's the source of truth for component APIs. Quick UX-pattern pointers:
 
 | Need | Use |
 |------|-----|
@@ -99,11 +101,11 @@ Avoid walls of copy; move rune breakdowns and capacity math into `<details>` or 
 | Collapsible advanced block | `<Accordion variant="panel">` |
 | Status badge | `<Badge>` variants (`full`, `info`, `success`, `muted`, …) |
 | Progress | `<CapacityBar>` or `<ProgressBar>` |
-| Link-style control | `<LinkButton>` |
-| Toolbar overlay buttons | `<ToolbarButton>` |
-| Overlay icon buttons | `<IconButton>` |
+| Link-style control | `<ButtonLink variant="link">` |
+| Toolbar overlay buttons | `<Button variant="toolbar">` |
+| Overlay icon buttons | `<Button variant="icon">` |
 
-Add new shared UI to `app/src/renderer/components/ui/` when used in more than one place.
+New shared UI belongs under `app/src/renderer/design-system/primitives/` (see design-system skill) when used in more than one place.
 
 ## Review checklist (before marking UI work done)
 
@@ -113,7 +115,7 @@ Add new shared UI to `app/src/renderer/components/ui/` when used in more than on
 - [ ] Overlay entry points use toolbar/tray/Chests CTA — not tab bar
 - [ ] Chests changes keep compact grid + top CTA
 - [ ] Conditional UI near controls uses reserved space — no layout shift (see [`docs/STYLING.md`](../../docs/STYLING.md) **Layout stability**)
-- [ ] Dropdowns use `SelectField` when a chevron gutter is needed
+- [ ] Dropdowns use `Select` when a chevron gutter is needed
 - [ ] Run **tbh-qa** (visual smoke if you changed chrome or Chests layout)
 
 ## Examples
@@ -136,7 +138,7 @@ User: "Add a quick way to open the mini overlay from Live."
 
 Actions:
 
-1. Add a contextual `<Button>` or `<LinkButton>` **inside Live tab content** — not the tab bar.
+1. Add a contextual `<Button>` or `<ButtonLink variant="link">` **inside Live tab content** — not the tab bar.
 2. Call `window.tbh.openOverlay()` — do not duplicate overlay window logic in renderer.
 
 Result: Discoverable from Live without polluting global chrome.
