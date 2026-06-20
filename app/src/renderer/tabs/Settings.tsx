@@ -6,7 +6,7 @@ import type {
 } from "../../../shared/notificationCatalog";
 import type { AppConfig, AppDataClearTarget, AppDataPaths } from "../../../shared/types";
 import { reportIpcError } from "../lib/reportError";
-import { Accordion } from "../components/ui/Accordion";
+import { Accordion } from "../design-system/primitives/Accordion/Accordion";
 import { NotificationSoundAccordion } from "../components/NotificationKindRow";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Card } from "../components/ui/Card";
