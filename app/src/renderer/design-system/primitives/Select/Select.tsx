@@ -93,7 +93,18 @@ export function Select({
           </BaseSelect.Label>
         ) : null}
         <BaseSelect.Trigger title={title} className={cn(triggerVariants({ variant }), "group")}>
-          <BaseSelect.Value className="min-w-0 truncate" />
+          <span className="grid min-w-0 grid-cols-1 grid-rows-1">
+            {options.map((option) => (
+              <span
+                key={option.value}
+                aria-hidden="true"
+                className="invisible col-start-1 row-start-1 whitespace-nowrap"
+              >
+                {option.label}
+              </span>
+            ))}
+            <BaseSelect.Value className="col-start-1 row-start-1 min-w-0 truncate" />
+          </span>
           <span className="flex w-6 shrink-0 items-center justify-center">
             <SelectChevron />
           </span>
