@@ -108,6 +108,24 @@ describe("Select", () => {
     expect(container.querySelector(".min-h-\\[1\\.125rem\\]")).not.toBeNull();
   });
 
+  it("renders a hidden sizing span per option so the trigger's intrinsic width matches the widest label", () => {
+    // The trigger stacks one `invisible` aria-hidden span per option behind
+    // the visible BaseSelect.Value via CSS grid, so its natural width is
+    // driven by the widest option label rather than whichever one is
+    // currently selected — this prevents the trigger (and any flex-wrap
+    // layout containing it) from reflowing on every selection. jsdom has no
+    // layout engine, so this only asserts the structural contract.
+    const { container } = render(<ControlledSelect />);
+    for (const option of OPTIONS) {
+      const hiddenSpan = Array.from(container.querySelectorAll('span[aria-hidden="true"]')).find(
+        (el) => el.textContent === option.label,
+      );
+      expect(hiddenSpan).toBeDefined();
+      expect(hiddenSpan).toHaveClass("invisible");
+    }
+    expect(screen.getByRole("combobox", { name: "Map" })).toHaveTextContent("Torment 1-1");
+  });
+
   it("has no detectable accessibility violations when closed", async () => {
     const { container } = render(<ControlledSelect />);
     expect(await axe(container)).toHaveNoViolations();
