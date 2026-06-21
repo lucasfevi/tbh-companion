@@ -14,6 +14,7 @@ import { ChestService } from "../services/ChestService";
 import { PetService } from "../services/PetService";
 import { BoxTimerService } from "../services/BoxTimerService";
 import { SessionStateService } from "../services/SessionStateService";
+import { LookupService } from "../services/LookupService";
 import { applyConfigPatch } from "../ipc/configPatch";
 import { clearDiagnosticLogs, createLogger, logRendererError } from "../log";
 import { clearAppDataFiles, getAppDataPaths } from "../services/appData";
@@ -40,6 +41,7 @@ const inventory = new InventoryService();
 const chests = new ChestService();
 const pets = new PetService();
 const boxTimers = new BoxTimerService();
+const lookup = new LookupService();
 
 function focusMainWindow(): void {
   if (mainWindow && !mainWindow.isDestroyed()) {
@@ -331,6 +333,8 @@ export function getAppServices() {
     quitAndInstall: () => updates.quitAndInstall(),
     startUpdates: () => updates.start(),
     stopUpdates: () => updates.stop(),
+    getLookupCatalog: () => lookup.getCatalog(),
+    getLookupSources: () => lookup.getSources(),
   };
 }
 

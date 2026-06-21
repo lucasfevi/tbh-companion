@@ -35,6 +35,8 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.UPDATE_CHECK");
     expect(preload).toContain("IPC.UPDATE_DOWNLOAD");
     expect(preload).toContain("IPC.UPDATE_QUIT_AND_INSTALL");
+    expect(preload).toContain("IPC.GET_LOOKUP_CATALOG");
+    expect(preload).toContain("IPC.GET_LOOKUP_SOURCES");
   });
 
   it("IPC handlers wire invoke and send channels", () => {
@@ -60,6 +62,9 @@ describe("IPC channel registry", () => {
     expect(updateHandler).toContain("IPC.UPDATE_CHECK");
     expect(updateHandler).toContain("IPC.UPDATE_DOWNLOAD");
     expect(updateHandler).toContain("IPC.UPDATE_QUIT_AND_INSTALL");
+    const lookupHandler = readHandler("lookup");
+    expect(lookupHandler).toContain("IPC.GET_LOOKUP_CATALOG");
+    expect(lookupHandler).toContain("IPC.GET_LOOKUP_SOURCES");
   });
 
   it("services broadcast on IPC push constants", () => {

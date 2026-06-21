@@ -11,6 +11,9 @@ import { createLogger } from "./log";
 import { getAppServices, restoreSessionWindows, startTracking, stopTracking } from "./app/appState";
 import { registerIpc } from "./ipc/registerIpc";
 import { createTray, destroyTray, isAppQuitting, setAppQuitting } from "./tray/trayService";
+import { registerAssetProtocolHandler, registerAssetProtocolScheme } from "./assetProtocol";
+
+registerAssetProtocolScheme();
 
 const isPrimaryInstance = acquireSingleInstanceLock();
 
@@ -37,6 +40,7 @@ if (isPrimaryInstance) {
   app.whenReady().then(() => {
     const appLog = createLogger("app");
     appLog.info(`TBH Companion v${appVersion()} ready`);
+    registerAssetProtocolHandler();
     const sessionUi = startTracking();
     const services = getAppServices();
     registerIpc(services);
