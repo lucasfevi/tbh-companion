@@ -1,14 +1,16 @@
+// Hues adapted from the game's extracted grade colors, softened in saturation
+// and lightness to fit the app's muted dark palette.
 const GRADE_COLORS: Record<string, string> = {
-  COMMON: "#9aa3b2",
-  UNCOMMON: "#5ad17a",
+  COMMON: "#c9ccd2",
+  UNCOMMON: "#8fd862",
   RARE: "#4aa3ff",
-  LEGENDARY: "#e8c45a",
-  IMMORTAL: "#ff6b6b",
-  ARCANA: "#c46bff",
-  BEYOND: "#ff8c42",
-  CELESTIAL: "#4ad7d1",
-  DIVINE: "#ffd9f0",
-  COSMIC: "#a0f0ff",
+  LEGENDARY: "#dfc149",
+  IMMORTAL: "#dd6c5f",
+  ARCANA: "#dc90df",
+  BEYOND: "#dd5f9e",
+  CELESTIAL: "#5cd2d6",
+  DIVINE: "#e3dbb5",
+  COSMIC: "#e574e7",
   UNKNOWN: "#6b7280",
 };
 
