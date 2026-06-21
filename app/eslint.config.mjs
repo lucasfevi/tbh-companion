@@ -7,7 +7,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["out/**", "release/**", "dist/**", "node_modules/**"],
+    ignores: ["out/**", "release/**", "dist/**", "node_modules/**", "storybook-static/**"],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
