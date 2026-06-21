@@ -598,6 +598,117 @@ export interface UpdateStatus {
   lastCheckedAt?: string;
 }
 
+// --- Lookup tab (bundled item/source catalog) ---
+
+export interface LookupStatRow {
+  stat: string;
+  mod: string;
+  value: number;
+  display: string;
+}
+
+export interface LookupUniqueMod {
+  key: number;
+  mod: string;
+  text: string;
+}
+
+export interface LookupGearStats {
+  base: LookupStatRow[];
+  inherent: LookupStatRow[];
+  unique: LookupUniqueMod | null;
+}
+
+export interface LookupMaterialOutcome {
+  stat: string;
+  mod: string;
+  tier: number;
+  rawMin: number;
+  rawMax: number;
+  displayMin: number;
+  displayMax: number;
+  displayText: string;
+}
+
+export interface LookupMaterialGearGroup {
+  gearGroup: string;
+  outcomes: LookupMaterialOutcome[];
+}
+
+export interface LookupItem {
+  id: number;
+  name: string;
+  grade: string;
+  type: "GEAR" | "MATERIAL";
+  gearType: string | null;
+  gearGroup: string | null;
+  materialType: string | null;
+  level: number | null;
+  iconPath: string;
+  marketTradable: boolean;
+  stats?: LookupGearStats;
+  gearGroups?: LookupMaterialGearGroup[];
+}
+
+export interface LookupDropEntry {
+  via: string;
+  boxItemKey: number;
+  boxName: string;
+  dropPct: number;
+}
+
+export interface LookupCraftingEntry {
+  recipeKey: number;
+  materials: { itemKey: number; name: string; amount: number }[];
+  outputPct: number;
+}
+
+export interface LookupSynthesisEntry {
+  recipeKey: number;
+  grade: string;
+  tier: number;
+  resultLevel: { min: number; max: number };
+}
+
+export interface LookupItemSources {
+  drops: LookupDropEntry[];
+  crafting: LookupCraftingEntry[];
+  synthesis: LookupSynthesisEntry[];
+}
+
+export interface LookupBoxDrop {
+  itemKey: number;
+  name: string;
+  grade: string;
+  dropPct: number;
+}
+
+export interface LookupBoxStageRef {
+  stageKey: number;
+  stageName: string;
+}
+
+export interface LookupBoxSources {
+  drops: LookupBoxDrop[];
+  stages: LookupBoxStageRef[];
+}
+
+export interface LookupStageBoxRef {
+  boxItemKey: number;
+  name: string;
+}
+
+export interface LookupStageSources {
+  monsters: string[];
+  boxes: LookupStageBoxRef[];
+}
+
+export interface LookupSources {
+  items: Record<string, LookupItemSources>;
+  boxes: Record<string, LookupBoxSources>;
+  stages: Record<string, LookupStageSources>;
+}
+
 // API surface exposed on `window.tbh` by the preload via contextBridge.
 export interface TbhApi {
   onStats(cb: (stats: Stats) => void): () => void;
@@ -648,4 +759,6 @@ export interface TbhApi {
   downloadUpdate(): Promise<UpdateStatus>;
   quitAndInstall(): Promise<void>;
   onUpdateStatus(cb: (status: UpdateStatus) => void): () => void;
+  getLookupCatalog(): Promise<LookupItem[]>;
+  getLookupSources(): Promise<LookupSources>;
 }
