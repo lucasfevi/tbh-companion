@@ -38,6 +38,9 @@ type Story = StoryObj<typeof meta>;
 export const Small: Story = {
   args: { src: PLACEHOLDER_SRC, color: GRADE_COLORS.LEGENDARY, size: "sm" },
 };
+export const Medium: Story = {
+  args: { src: PLACEHOLDER_SRC, color: GRADE_COLORS.RARE, size: "md" },
+};
 export const Large: Story = {
   args: { src: PLACEHOLDER_SRC, color: GRADE_COLORS.ARCANA, size: "lg" },
 };

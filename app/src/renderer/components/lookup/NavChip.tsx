@@ -1,6 +1,6 @@
 import { cn } from "../../lib/cn";
 import { Tooltip } from "../../design-system/primitives/Tooltip/Tooltip";
-import { ItemPeekCard } from "./ItemPeekCard";
+import { ItemCard } from "./ItemCard";
 import type { LookupItem } from "../../../../shared/types";
 import type { LookupNavNode } from "../../lib/useLookupNav";
 
@@ -32,8 +32,8 @@ export function NavChip({
   const peek = node.type === "item" ? peekItem?.(node.id) : undefined;
   if (peek) {
     return (
-      <Tooltip trigger={trigger}>
-        <ItemPeekCard item={peek} />
+      <Tooltip trigger={trigger} className="w-64 border-0 bg-transparent p-0 shadow-none">
+        <ItemCard item={peek} />
       </Tooltip>
     );
   }
