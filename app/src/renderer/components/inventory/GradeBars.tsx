@@ -1,7 +1,7 @@
 import { GRADE_ORDER } from "../../../core/grades";
 import { gradeLabel } from "../../../core/labels";
 import type { InventoryComposition } from "../../../../shared/types";
-import { gradeColor } from "./gradeColor";
+import { gradeColor } from "../../lib/gradeColor";
 
 export function GradeBars({ composition }: { composition: InventoryComposition }) {
   return (

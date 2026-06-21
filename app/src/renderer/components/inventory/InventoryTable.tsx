@@ -6,7 +6,7 @@ import {
 } from "../../../core/inventory/columnPrefs";
 import { formatMoney, formatRawMoney } from "../../../core/steamPrice";
 import { unassignedCount } from "../../../core/inventory/location";
-import { gradeColor } from "./gradeColor";
+import { gradeColor } from "../../lib/gradeColor";
 import { MarketListingLink } from "./MarketListingLink";
 import { MarketPriceCell } from "./MarketPriceCell";
 import { ItemPriceRefreshButton } from "./ItemPriceRefreshButton";
