@@ -20836,7 +20836,7 @@
       "unique": {
         "key": 50001,
         "mod": "ExplosiveBoltHalf",
-        "text": "Explosive Bolt damage and cooldown decrease by 50%."
+        "text": "Explosive Bolt damage and attack count decrease by 50%."
       }
     }
   },
@@ -20987,7 +20987,7 @@
       "unique": {
         "key": 50001,
         "mod": "ExplosiveBoltHalf",
-        "text": "Explosive Bolt damage and cooldown decrease by 50%."
+        "text": "Explosive Bolt damage and attack count decrease by 50%."
       }
     }
   },
@@ -21093,7 +21093,7 @@
       "unique": {
         "key": 50001,
         "mod": "ExplosiveBoltHalf",
-        "text": "Explosive Bolt damage and cooldown decrease by 50%."
+        "text": "Explosive Bolt damage and attack count decrease by 50%."
       }
     }
   },
@@ -40708,7 +40708,7 @@
       "unique": {
         "key": 50001,
         "mod": "ExplosiveBoltHalf",
-        "text": "Explosive Bolt damage and cooldown decrease by 50%."
+        "text": "Explosive Bolt damage and attack count decrease by 50%."
       }
     }
   },
