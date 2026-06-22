@@ -1,13 +1,22 @@
 import { AppToolbar } from "./AppToolbar";
 import { cn } from "../lib/cn";
 
-export type TabId = "live" | "inventory" | "chests" | "pets" | "market" | "settings" | "about";
+export type TabId =
+  | "live"
+  | "inventory"
+  | "chests"
+  | "pets"
+  | "lookup"
+  | "market"
+  | "settings"
+  | "about";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "live", label: "Live" },
   { id: "inventory", label: "Inventory" },
   { id: "chests", label: "Chests" },
   { id: "pets", label: "Pets" },
+  { id: "lookup", label: "Lookup" },
   { id: "market", label: "Market" },
   { id: "settings", label: "Settings" },
   { id: "about", label: "About" },

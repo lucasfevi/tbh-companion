@@ -44,6 +44,9 @@ export const IPC = {
   UPDATE_CHECK: "update-check",
   UPDATE_DOWNLOAD: "update-download",
   UPDATE_QUIT_AND_INSTALL: "update-quit-and-install",
+  GET_LOOKUP_CATALOG: "get-lookup-catalog",
+  GET_LOOKUP_SOURCES: "get-lookup-sources",
+  GET_LOOKUP_SYNTHESIS_MODEL: "get-lookup-synthesis-model",
 
   // Send (renderer → main, no response)
   RESET: "reset",
@@ -91,6 +94,9 @@ export const IPC_INVOKE_CHANNELS = [
   IPC.UPDATE_CHECK,
   IPC.UPDATE_DOWNLOAD,
   IPC.UPDATE_QUIT_AND_INSTALL,
+  IPC.GET_LOOKUP_CATALOG,
+  IPC.GET_LOOKUP_SOURCES,
+  IPC.GET_LOOKUP_SYNTHESIS_MODEL,
 ] as const;
 
 export const IPC_SEND_CHANNELS = [

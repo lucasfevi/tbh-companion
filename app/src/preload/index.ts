@@ -10,6 +10,9 @@ import type {
   ClearDiagnosticLogResult,
   GameDataRefreshResult,
   GameDataStatus,
+  LookupItem,
+  LookupSources,
+  SynthesisModel,
   NotificationSoundPayload,
   PetState,
   PriceProgress,
@@ -184,6 +187,15 @@ const api: TbhApi = {
     const listener = (_e: unknown, status: UpdateStatus): void => cb(status);
     ipcRenderer.on(IPC.UPDATE_STATUS, listener);
     return () => ipcRenderer.removeListener(IPC.UPDATE_STATUS, listener);
+  },
+  getLookupCatalog(): Promise<LookupItem[]> {
+    return ipcRenderer.invoke(IPC.GET_LOOKUP_CATALOG);
+  },
+  getLookupSources(): Promise<LookupSources> {
+    return ipcRenderer.invoke(IPC.GET_LOOKUP_SOURCES);
+  },
+  getLookupSynthesisModel(): Promise<SynthesisModel> {
+    return ipcRenderer.invoke(IPC.GET_LOOKUP_SYNTHESIS_MODEL);
   },
 };
 

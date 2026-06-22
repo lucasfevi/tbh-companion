@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Card } from "./Card";
+import { CardContent, CardFooter, CardHeader } from "./CardParts";
 
 /**
  * Generic bordered panel. Use `padding="compact"` for dense rows (e.g. data
@@ -30,4 +31,22 @@ export const NoPadding: Story = {
     padding: "none",
     className: "w-64 text-fg",
   },
+};
+
+/** Header / content / footer anatomy — footer only renders when it has content (e.g. a future price row). */
+export const WithAnatomy: Story = {
+  render: () => (
+    <Card className="w-64 text-fg">
+      <CardHeader>
+        <span className="font-medium">Ancient Orb</span>
+      </CardHeader>
+      <CardContent>
+        <p className="m-0 text-muted">Body content goes here.</p>
+      </CardContent>
+      <CardFooter>
+        <span className="text-muted">Market price</span>
+        <span>1,200g</span>
+      </CardFooter>
+    </Card>
+  ),
 };

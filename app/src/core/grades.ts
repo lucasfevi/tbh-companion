@@ -39,3 +39,9 @@ export function gradeTitle(grade: string): string {
   if (!grade) return grade;
   return grade[0] + grade.slice(1).toLowerCase();
 }
+
+// Material effect tiers are 1-based and follow the grade ladder
+// (T1 = COMMON … T10 = COSMIC). Out-of-range tiers map to "UNKNOWN".
+export function gradeForTier(tier: number): string {
+  return GRADE_ORDER[tier - 1] ?? "UNKNOWN";
+}

@@ -11,6 +11,9 @@ export const REQUIRED_BUNDLED_DATA_FILES = [
   "pets.json",
   "steam_item_nameids.json",
   "steam_market_fee.json",
+  "lookup_items.json",
+  "lookup_sources.json",
+  "synthesis_model.json",
 ] as const;
 
 export type BundledDataFile = (typeof REQUIRED_BUNDLED_DATA_FILES)[number];
