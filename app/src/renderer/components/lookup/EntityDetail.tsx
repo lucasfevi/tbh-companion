@@ -1,8 +1,14 @@
 import { Card } from "../../design-system/primitives/Card/Card";
 import { ItemDetailCard } from "./ItemDetailCard";
-import { NavChip } from "./NavChip";
+import { ItemLink } from "./ItemLink";
 import type { LookupItem, LookupSources } from "../../../../shared/types";
 import type { LookupNavNode } from "../../lib/useLookupNav";
+
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-fg/70">{children}</p>
+  );
+}
 
 /** Renders the active Lookup-tab node: an item, a box, or a stage. */
 export function EntityDetail({
@@ -37,35 +43,40 @@ export function EntityDetail({
     return (
       <Card className="flex flex-col gap-3">
         <h2 className="m-0 text-base font-semibold text-fg">{labelFor(node)}</h2>
-        <div>
-          <p className="m-0 text-[11px] font-medium uppercase tracking-wide text-muted">
-            Appears on
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {box.stages.map((stage) => (
-              <NavChip
-                key={stage.stageKey}
-                node={{ type: "stage", id: stage.stageKey }}
-                label={stage.stageName}
-                onNavigate={onNavigate}
-              />
-            ))}
+        {box.stages.length > 0 ? (
+          <div className="flex flex-col gap-1.5">
+            <SectionLabel>Appears on</SectionLabel>
+            <div className="flex flex-col gap-1">
+              {box.stages.map((stage) => (
+                <ItemLink
+                  key={stage.stageKey}
+                  node={{ type: "stage", id: stage.stageKey }}
+                  name={stage.stageName}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-        <div>
-          <p className="m-0 text-[11px] font-medium uppercase tracking-wide text-muted">Drops</p>
-          <div className="flex flex-wrap gap-1.5">
-            {box.drops.map((drop) => (
-              <NavChip
-                key={drop.itemKey}
-                node={{ type: "item", id: drop.itemKey }}
-                label={`${drop.name} (${drop.dropPct}%)`}
-                onNavigate={onNavigate}
-                peekItem={(id) => itemIndex.get(id)}
-              />
-            ))}
+        ) : null}
+        {box.drops.length > 0 ? (
+          <div className="flex flex-col gap-1.5">
+            <SectionLabel>Drops</SectionLabel>
+            <div className="flex flex-col gap-1">
+              {box.drops.map((drop) => (
+                <ItemLink
+                  key={drop.itemKey}
+                  node={{ type: "item", id: drop.itemKey }}
+                  name={drop.name}
+                  grade={drop.grade}
+                  iconPath={itemIndex.get(drop.itemKey)?.iconPath}
+                  suffix={`· ${drop.dropPct}%`}
+                  onNavigate={onNavigate}
+                  peekItem={(id) => itemIndex.get(id)}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
       </Card>
     );
   }
@@ -75,23 +86,27 @@ export function EntityDetail({
   return (
     <Card className="flex flex-col gap-3">
       <h2 className="m-0 text-base font-semibold text-fg">{labelFor(node)}</h2>
-      <div>
-        <p className="m-0 text-[11px] font-medium uppercase tracking-wide text-muted">Monsters</p>
+      <div className="flex flex-col gap-1.5">
+        <SectionLabel>Monsters</SectionLabel>
         <p className="m-0 text-[13px] text-fg">{stage.monsters.join(", ") || "—"}</p>
       </div>
-      <div>
-        <p className="m-0 text-[11px] font-medium uppercase tracking-wide text-muted">Boxes</p>
-        <div className="flex flex-wrap gap-1.5">
-          {stage.boxes.map((box) => (
-            <NavChip
-              key={box.boxItemKey}
-              node={{ type: "box", id: box.boxItemKey }}
-              label={box.name}
-              onNavigate={onNavigate}
-            />
-          ))}
+      {stage.boxes.length > 0 ? (
+        <div className="flex flex-col gap-1.5">
+          <SectionLabel>Boxes</SectionLabel>
+          <div className="flex flex-col gap-1">
+            {stage.boxes.map((box) => (
+              <ItemLink
+                key={box.boxItemKey}
+                node={{ type: "box", id: box.boxItemKey }}
+                name={box.name}
+                grade={box.grade}
+                iconPath={`Item_${box.boxItemKey}`}
+                onNavigate={onNavigate}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
     </Card>
   );
 }

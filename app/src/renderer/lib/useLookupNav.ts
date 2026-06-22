@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 export type LookupNavType = "item" | "box" | "stage";
 
@@ -7,35 +7,17 @@ export interface LookupNavNode {
   id: number;
 }
 
-function sameNode(a: LookupNavNode, b: LookupNavNode): boolean {
-  return a.type === b.type && a.id === b.id;
-}
-
-/** History stack driving the Lookup tab's detail panel (hover peek + breadcrumb drill). */
+/** Tracks the Lookup tab's current detail-panel node (forward-only navigation). */
 export function useLookupNav(initial?: LookupNavNode) {
-  const [stack, setStack] = useState<LookupNavNode[]>(initial ? [initial] : []);
+  const [current, setCurrent] = useState<LookupNavNode | null>(initial ?? null);
 
   const push = useCallback((node: LookupNavNode) => {
-    setStack((prev) => {
-      const top = prev[prev.length - 1];
-      if (top && sameNode(top, node)) return prev;
-      return [...prev, node];
-    });
-  }, []);
-
-  const back = useCallback(() => {
-    setStack((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
-  }, []);
-
-  const jumpTo = useCallback((index: number) => {
-    setStack((prev) => (index >= 0 && index < prev.length - 1 ? prev.slice(0, index + 1) : prev));
+    setCurrent(node);
   }, []);
 
   const reset = useCallback((node?: LookupNavNode) => {
-    setStack(node ? [node] : []);
+    setCurrent(node ?? null);
   }, []);
 
-  const current = useMemo(() => stack[stack.length - 1] ?? null, [stack]);
-
-  return { stack, current, push, back, jumpTo, reset };
+  return { current, push, reset };
 }

@@ -3,7 +3,9 @@ import { cn, cva, type VariantProps } from "../../lib/variants";
 const iconBoxVariants = cva(
   "flex shrink-0 items-center justify-center overflow-hidden rounded-md border",
   {
-    variants: { size: { sm: "size-9 p-1", md: "size-11 p-1.5", lg: "size-14 p-2" } },
+    variants: {
+      size: { xs: "size-4 p-0.5", sm: "size-9 p-1", md: "size-11 p-1.5", lg: "size-14 p-2" },
+    },
     defaultVariants: { size: "sm" },
   },
 );

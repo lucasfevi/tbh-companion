@@ -35,6 +35,9 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const ExtraSmall: Story = {
+  args: { src: PLACEHOLDER_SRC, color: GRADE_COLORS.LEGENDARY, size: "xs" },
+};
 export const Small: Story = {
   args: { src: PLACEHOLDER_SRC, color: GRADE_COLORS.LEGENDARY, size: "sm" },
 };

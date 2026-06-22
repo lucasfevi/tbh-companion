@@ -654,26 +654,42 @@ export interface LookupDropEntry {
   via: string;
   boxItemKey: number;
   boxName: string;
+  grade: string | null;
   dropPct: number;
 }
 
 export interface LookupCraftingEntry {
   recipeKey: number;
+  tier: number;
+  craftingType: string;
+  level: { min: number; max: number };
   materials: { itemKey: number; name: string; amount: number }[];
   outputPct: number;
 }
 
-export interface LookupSynthesisEntry {
-  recipeKey: number;
-  grade: string;
-  tier: number;
-  resultLevel: { min: number; max: number };
+export interface LookupSynthesisPath {
+  materialAmount: number;
+  minMaterialTier: number;
+  materialAvgLevel: number;
+  chance: number;
+}
+
+export interface LookupSynthesisGroup {
+  inputGrade: string;
+  gradeStep: number;
+  paths: LookupSynthesisPath[];
+}
+
+export interface LookupSynthesisPoolEntry {
+  itemKey: number;
+  poolPct: number;
 }
 
 export interface LookupItemSources {
   drops: LookupDropEntry[];
   crafting: LookupCraftingEntry[];
-  synthesis: LookupSynthesisEntry[];
+  synthesis: LookupSynthesisGroup[];
+  synthesisPool: LookupSynthesisPoolEntry[];
 }
 
 export interface LookupBoxDrop {
@@ -696,6 +712,7 @@ export interface LookupBoxSources {
 export interface LookupStageBoxRef {
   boxItemKey: number;
   name: string;
+  grade: string | null;
 }
 
 export interface LookupStageSources {

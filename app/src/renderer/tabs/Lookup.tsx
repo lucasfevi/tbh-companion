@@ -21,7 +21,6 @@ import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 import { BottomSheet } from "../design-system/primitives/BottomSheet/BottomSheet";
 import { LookupFilters } from "../components/lookup/LookupFilters";
 import { ItemCard } from "../components/lookup/ItemCard";
-import { Breadcrumb } from "../components/lookup/Breadcrumb";
 import { EntityDetail } from "../components/lookup/EntityDetail";
 import { BackToTop } from "../components/lookup/BackToTop";
 
@@ -196,27 +195,13 @@ export function Lookup() {
         title={nav.current ? labelFor(nav.current) : "Details"}
       >
         {nav.current ? (
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-2">
-              <Breadcrumb stack={nav.stack} labelFor={labelFor} onJump={nav.jumpTo} />
-              {nav.stack.length > 1 ? (
-                <button
-                  type="button"
-                  className="shrink-0 text-xs text-muted hover:text-fg"
-                  onClick={nav.back}
-                >
-                  ← Back
-                </button>
-              ) : null}
-            </div>
-            <EntityDetail
-              node={nav.current}
-              itemIndex={itemIndex}
-              sources={sources}
-              labelFor={labelFor}
-              onNavigate={nav.push}
-            />
-          </div>
+          <EntityDetail
+            node={nav.current}
+            itemIndex={itemIndex}
+            sources={sources}
+            labelFor={labelFor}
+            onNavigate={nav.push}
+          />
         ) : null}
       </BottomSheet>
     </TabPage>
