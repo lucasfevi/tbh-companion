@@ -6,7 +6,7 @@ import { createLogger } from "./log";
 const log = createLogger("assetProtocol");
 
 export const ASSET_PROTOCOL_SCHEME = "tbh-asset";
-const ICON_NAME_RE = /^[A-Za-z0-9_]+$/;
+const ICON_NAME_RE = /^[a-z0-9-]+$/;
 
 /** Must run before app.whenReady() — Electron only accepts privileged scheme registration pre-ready. */
 export function registerAssetProtocolScheme(): void {
