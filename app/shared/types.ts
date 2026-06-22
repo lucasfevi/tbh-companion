@@ -667,29 +667,67 @@ export interface LookupCraftingEntry {
   outputPct: number;
 }
 
-export interface LookupSynthesisPath {
-  materialAmount: number;
-  minMaterialTier: number;
-  materialAvgLevel: number;
-  chance: number;
+export interface LookupItemSources {
+  drops: LookupDropEntry[];
+  crafting: LookupCraftingEntry[];
 }
 
-export interface LookupSynthesisGroup {
+// --- Synthesis model (bundled synthesis_model.json + core/lookup/synthesis.ts) ---
+
+export interface SynthesisGradeWeights {
+  value: number;
+  weights: [number, number, number, number, number];
+  total: number;
+}
+
+export interface SynthesisRecipeRow {
+  recipeTier: number;
   inputGrade: string;
-  gradeStep: number;
-  paths: LookupSynthesisPath[];
+  minMaterialTier: number;
+  minMaterialAverageLevel: number;
+  /** Precomputed in tbh-data; optional until synthesis_model.json is regenerated. */
+  materialAvgLevelMin?: number;
+  materialAvgLevelMax?: number;
+  minResultLevel: number;
+  maxResultLevel: number;
+  materialAmount: number;
+  levelWeights: number[];
 }
 
-export interface LookupSynthesisPoolEntry {
+export interface SynthesisBucketEntry {
   itemKey: number;
   poolPct: number;
 }
 
-export interface LookupItemSources {
-  drops: LookupDropEntry[];
-  crafting: LookupCraftingEntry[];
-  synthesis: LookupSynthesisGroup[];
-  synthesisPool: LookupSynthesisPoolEntry[];
+export interface SynthesisModel {
+  gradeWeights: Record<string, SynthesisGradeWeights>;
+  recipesByType: Record<string, SynthesisRecipeRow[]>;
+  buckets: Record<string, SynthesisBucketEntry[]>;
+}
+
+export interface SynthesisPathToItem {
+  inputGrade: string;
+  gradeStep: number;
+  tier: number;
+  minMaterialTier: number;
+  materialAvgLevel: number;
+  materialAvgLevelMin: number;
+  materialAvgLevelMax: number;
+  materialAmount: number;
+  resultLevelMin: number;
+  resultLevelMax: number;
+  itemLevel: number;
+  pGrade: number;
+  pLevel: number;
+  itemPoolPct: number;
+  chance: number;
+}
+
+export interface SynthesisSimOutcome {
+  outputGrade: string;
+  level: number;
+  itemKey: number;
+  chance: number;
 }
 
 export interface LookupBoxDrop {
@@ -778,4 +816,5 @@ export interface TbhApi {
   onUpdateStatus(cb: (status: UpdateStatus) => void): () => void;
   getLookupCatalog(): Promise<LookupItem[]>;
   getLookupSources(): Promise<LookupSources>;
+  getLookupSynthesisModel(): Promise<SynthesisModel>;
 }

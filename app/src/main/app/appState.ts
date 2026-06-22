@@ -335,6 +335,7 @@ export function getAppServices() {
     stopUpdates: () => updates.stop(),
     getLookupCatalog: () => lookup.getCatalog(),
     getLookupSources: () => lookup.getSources(),
+    getLookupSynthesisModel: () => lookup.getSynthesisModel(),
   };
 }
 

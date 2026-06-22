@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useLookupCatalog } from "../lib/useLookupCatalog";
 import { useLookupSources } from "../lib/useLookupSources";
+import { useLookupSynthesisModel } from "../lib/useLookupSynthesisModel";
 import { useLookupNav, type LookupNavNode } from "../lib/useLookupNav";
 import { buildBoxNameIndex, buildStageNameIndex } from "../lib/lookupGraph";
 import {
@@ -18,7 +19,7 @@ import {
 } from "../lib/lookupFilters";
 import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
 import { TabPage } from "../design-system/primitives/TabPage/TabPage";
-import { BottomSheet } from "../design-system/primitives/BottomSheet/BottomSheet";
+import { SidePanel } from "../design-system/primitives/SidePanel/SidePanel";
 import { LookupFilters } from "../components/lookup/LookupFilters";
 import { ItemCard } from "../components/lookup/ItemCard";
 import { EntityDetail } from "../components/lookup/EntityDetail";
@@ -27,8 +28,9 @@ import { BackToTop } from "../components/lookup/BackToTop";
 export function Lookup() {
   const items = useLookupCatalog();
   const sources = useLookupSources();
+  const synthesisModel = useLookupSynthesisModel();
   const nav = useLookupNav();
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
 
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
@@ -116,7 +118,7 @@ export function Lookup() {
     sortDir,
   ]);
 
-  if (!items || !sources) {
+  if (!items || !sources || !synthesisModel) {
     return (
       <TabPage>
         <TabHeader title="Lookup" />
@@ -180,7 +182,7 @@ export function Lookup() {
               item={item}
               onSelect={(i) => {
                 nav.push({ type: "item", id: i.id });
-                setSheetOpen(true);
+                setPanelOpen(true);
               }}
             />
           ))
@@ -189,9 +191,9 @@ export function Lookup() {
 
       <BackToTop />
 
-      <BottomSheet
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
+      <SidePanel
+        open={panelOpen}
+        onOpenChange={setPanelOpen}
         title={nav.current ? labelFor(nav.current) : "Details"}
       >
         {nav.current ? (
@@ -199,11 +201,12 @@ export function Lookup() {
             node={nav.current}
             itemIndex={itemIndex}
             sources={sources}
+            synthesisModel={synthesisModel}
             labelFor={labelFor}
             onNavigate={nav.push}
           />
         ) : null}
-      </BottomSheet>
+      </SidePanel>
     </TabPage>
   );
 }

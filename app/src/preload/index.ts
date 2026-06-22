@@ -12,6 +12,7 @@ import type {
   GameDataStatus,
   LookupItem,
   LookupSources,
+  SynthesisModel,
   NotificationSoundPayload,
   PetState,
   PriceProgress,
@@ -192,6 +193,9 @@ const api: TbhApi = {
   },
   getLookupSources(): Promise<LookupSources> {
     return ipcRenderer.invoke(IPC.GET_LOOKUP_SOURCES);
+  },
+  getLookupSynthesisModel(): Promise<SynthesisModel> {
+    return ipcRenderer.invoke(IPC.GET_LOOKUP_SYNTHESIS_MODEL);
   },
 };
 

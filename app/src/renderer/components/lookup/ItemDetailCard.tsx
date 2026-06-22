@@ -1,18 +1,153 @@
+import { useMemo } from "react";
 import { gradeLabel } from "../../../core/labels";
-import { humanizeStatKey } from "../../lib/lookupDisplay";
+import {
+  formatMaterialAverageLevelRange,
+  formatSynthesisResultRange,
+  materialAverageLevelRange,
+  pathsToItem,
+  recipeTierResultRange,
+  synthesisPathKey,
+  synthesisTypeForItem,
+} from "../../../core/lookup/synthesis";
+import { boxIconPath } from "../../lib/boxIconPath";
+import { fmtLookupPct, humanizeStatKey } from "../../lib/lookupDisplay";
 import { gradeColor } from "../../lib/gradeColor";
+import { cn } from "../../lib/cn";
 import { Card } from "../../design-system/primitives/Card/Card";
 import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
-import { Accordion } from "../../design-system/primitives/Accordion/Accordion";
-import { ItemCardHeader, MaterialGroup, StatGroup } from "./itemCardParts";
+import { DataList, DataListRow } from "../../design-system/primitives/DataList/DataList";
+import {
+  ItemCardHeader,
+  MaterialGroup,
+  SectionHeading,
+  SectionLabelRow,
+  StatGroup,
+} from "./itemCardParts";
 import { ItemLink } from "./ItemLink";
-import type { LookupItem, LookupItemSources } from "../../../../shared/types";
+import type {
+  LookupItem,
+  LookupItemSources,
+  SynthesisModel,
+  SynthesisPathToItem,
+} from "../../../../shared/types";
 import type { LookupNavNode } from "../../lib/useLookupNav";
 
-function SectionLabel({ children }: { children: string }) {
+const SCROLL_SECTION_MAX = "max-h-44";
+
+const CRAFTING_HELP =
+  "Craft this item using the materials under each recipe. Each line is a tier, level band, and slot type; the % is your chance to get this item from that craft.";
+
+const DROP_HELP =
+  "Boss chests that can contain this item. The % is how often it appears in that box's loot table.";
+
+const SYNTHESIS_HELP =
+  "Combine 9 items at the Cube. Each row is a recipe tier and result level band; the % is your chance to roll this item. Item average level affects which recipes apply. The green left edge marks the best odds among all paths.";
+
+function SynthesisPathRow({
+  path,
+  synthesisType,
+  model,
+  isBest,
+  index,
+}: {
+  path: SynthesisPathToItem;
+  synthesisType: string;
+  model: SynthesisModel;
+  isBest: boolean;
+  index: number;
+}) {
+  const tierRange = recipeTierResultRange(model, synthesisType, path.tier);
+  const avgRange = materialAverageLevelRange(path);
+  const setup =
+    tierRange != null
+      ? `Tier ${path.tier} (${formatSynthesisResultRange(tierRange.min, tierRange.max)})`
+      : `Tier ${path.tier}`;
+
   return (
-    <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-fg/70">{children}</p>
+    <DataListRow
+      index={index}
+      className={cn(
+        "flex items-baseline justify-between gap-2 py-1.5",
+        isBest && "border-l-2 border-l-status-success",
+      )}
+    >
+      <span className="min-w-0 flex-1 text-[13px] leading-snug text-fg">
+        {setup}
+        <span className="text-[11px] text-muted">
+          {" "}
+          · {formatMaterialAverageLevelRange(avgRange)}
+        </span>
+      </span>
+      <span
+        className={cn(
+          "shrink-0 text-[13px] tabular-nums",
+          isBest ? "text-status-success" : "text-fg",
+        )}
+      >
+        {fmtLookupPct(path.chance)}%
+      </span>
+    </DataListRow>
   );
+}
+
+function SynthesisGradeCard({
+  materialAmount,
+  inputGrade,
+  paths,
+  synthesisType,
+  model,
+  bestPathKey,
+}: {
+  materialAmount: number;
+  inputGrade: string;
+  paths: SynthesisPathToItem[];
+  synthesisType: string;
+  model: SynthesisModel;
+  bestPathKey: string | null;
+}) {
+  return (
+    <Card padding="none" className="overflow-hidden">
+      <div className="border-b border-border px-3 py-2">
+        <p className="m-0 text-[12px] font-semibold" style={{ color: gradeColor(inputGrade) }}>
+          {materialAmount}× {gradeLabel(inputGrade)}
+        </p>
+      </div>
+      <DataList shell="none" scrollable className={SCROLL_SECTION_MAX}>
+        {paths.map((path, i) => (
+          <SynthesisPathRow
+            key={synthesisPathKey(path)}
+            path={path}
+            synthesisType={synthesisType}
+            model={model}
+            isBest={synthesisPathKey(path) === bestPathKey}
+            index={i}
+          />
+        ))}
+      </DataList>
+    </Card>
+  );
+}
+
+function groupPathsByInput(paths: SynthesisPathToItem[]) {
+  const groups = new Map<string, SynthesisPathToItem[]>();
+  for (const path of paths) {
+    const key = `${path.inputGrade}|${path.gradeStep}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(path);
+  }
+  return [...groups.entries()]
+    .map(([key, groupPaths]) => {
+      const [inputGrade, gradeStepStr] = key.split("|");
+      const paths = groupPaths.toSorted((a, b) => b.chance - a.chance);
+      return {
+        inputGrade,
+        gradeStep: Number(gradeStepStr),
+        materialAmount: groupPaths[0]?.materialAmount ?? 9,
+        paths,
+        bestChance: paths[0]?.chance ?? 0,
+      };
+    })
+    .toSorted((a, b) => b.bestChance - a.bestChance);
 }
 
 /**
@@ -22,21 +157,39 @@ function SectionLabel({ children }: { children: string }) {
 export function ItemDetailCard({
   item,
   sources,
+  synthesisModel,
   onNavigate,
   peekItem,
 }: {
   item: LookupItem;
   sources?: LookupItemSources;
+  synthesisModel?: SynthesisModel | null;
   onNavigate?: (node: LookupNavNode) => void;
   peekItem?: (id: number) => LookupItem | undefined;
 }) {
-  const hasSourceData =
-    sources &&
-    (sources.drops.length > 0 || sources.crafting.length > 0 || sources.synthesis.length > 0);
+  const synthesisPaths = useMemo(
+    () => (synthesisModel ? pathsToItem(item, synthesisModel) : []),
+    [item, synthesisModel],
+  );
 
+  const hasCrafting = (sources?.crafting.length ?? 0) > 0;
+  const hasSynthesis = synthesisPaths.length > 0 && synthesisModel != null;
   const sortedDrops = sources
     ? [...sources.drops].sort((a, b) => (b.dropPct ?? -1) - (a.dropPct ?? -1))
     : [];
+  const hasDrops = sortedDrops.length > 0;
+  const hasAcquisition = hasCrafting || hasSynthesis || hasDrops;
+
+  const pathGroups = groupPathsByInput(synthesisPaths);
+  const synthesisType = synthesisTypeForItem(item);
+  const bestPathKey = synthesisPaths[0] != null ? synthesisPathKey(synthesisPaths[0]) : null;
+
+  const hasStats =
+    (item.stats != null &&
+      (item.stats.base.length > 0 ||
+        item.stats.inherent.length > 0 ||
+        item.stats.unique != null)) ||
+    (item.gearGroups?.length ?? 0) > 0;
 
   return (
     <Card className="flex flex-col gap-3">
@@ -44,133 +197,127 @@ export function ItemDetailCard({
         <ItemCardHeader item={item} iconSize="lg" />
       </CardHeader>
 
-      <CardContent className="gap-4 md:grid md:grid-cols-[1fr_minmax(0,15rem)] md:items-start">
-        <div className="flex min-w-0 flex-col gap-3">
-          {item.stats ? (
-            <>
-              <StatGroup title="Base stats" rows={item.stats.base} tone="base" />
-              <StatGroup title="Inherent stats" rows={item.stats.inherent} tone="inherent" />
-              {item.stats.unique ? (
-                <StatGroup
-                  title="Unique effect"
-                  rows={[{ display: item.stats.unique.text }]}
-                  tone="unique"
-                />
-              ) : null}
-            </>
-          ) : null}
+      <CardContent className="gap-3">
+        {hasStats ? (
+          <div className="flex min-w-0 flex-col gap-3">
+            {item.stats ? (
+              <>
+                <StatGroup title="Base stats" rows={item.stats.base} tone="base" />
+                <StatGroup title="Inherent stats" rows={item.stats.inherent} tone="inherent" />
+                {item.stats.unique ? (
+                  <StatGroup
+                    title="Unique effect"
+                    rows={[{ display: item.stats.unique.text }]}
+                    tone="unique"
+                  />
+                ) : null}
+              </>
+            ) : null}
 
-          {item.gearGroups?.map((group) => (
-            <MaterialGroup key={group.gearGroup} group={group} />
-          ))}
-
-          {!hasSourceData ? (
-            <p className="m-0 text-xs text-muted">
-              Not obtained through drops, crafting, or synthesis.
-            </p>
-          ) : null}
-
-          {sources && sources.crafting.length > 0 ? (
-            <div className="flex flex-col gap-2">
-              <SectionLabel>Crafting</SectionLabel>
-              {sources.crafting.map((recipe) => (
-                <div key={recipe.recipeKey} className="flex flex-col gap-1">
-                  <p className="m-0 text-[13px] text-fg">
-                    T{recipe.tier} (Lv {recipe.level.min}–{recipe.level.max}) ·{" "}
-                    {humanizeStatKey(recipe.craftingType)} — {recipe.outputPct}%
-                  </p>
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 pl-3">
-                    {recipe.materials.map((material) => {
-                      const matItem = peekItem?.(material.itemKey);
-                      return (
-                        <ItemLink
-                          key={material.itemKey}
-                          node={{ type: "item", id: material.itemKey }}
-                          name={matItem?.name ?? material.name}
-                          grade={matItem?.grade}
-                          iconPath={matItem?.iconPath}
-                          suffix={`×${material.amount}`}
-                          onNavigate={onNavigate}
-                          peekItem={peekItem}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : null}
-
-          {sources && sources.synthesis.length > 0 ? (
-            <div className="flex flex-col gap-2">
-              <SectionLabel>Synthesis</SectionLabel>
-              {sources.synthesis.map((group) => (
-                <div
-                  key={`${group.inputGrade}-${group.gradeStep}`}
-                  className="flex flex-col gap-0.5"
-                >
-                  <p
-                    className="m-0 text-[13px] font-medium"
-                    style={{ color: gradeColor(group.inputGrade) }}
-                  >
-                    {gradeLabel(group.inputGrade)} ×{group.paths[0]?.materialAmount ?? 9}
-                    {group.gradeStep === 2 ? (
-                      <span className="ml-1 font-normal text-muted">(skip +2)</span>
-                    ) : null}
-                  </p>
-                  <ul className="m-0 list-none space-y-0.5 p-0 pl-3 text-[12px] text-muted">
-                    {group.paths.map((path, i) => (
-                      <li key={i}>
-                        avg Lv {path.materialAvgLevel}+ — {path.chance}%
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-              {sources.synthesisPool.length > 0 ? (
-                <Accordion
-                  title={`${sources.synthesisPool.length} possible results`}
-                  variant="card"
-                >
-                  <div className="flex flex-col gap-1">
-                    {sources.synthesisPool.map((pool) => {
-                      const poolItem = peekItem?.(pool.itemKey);
-                      return (
-                        <ItemLink
-                          key={pool.itemKey}
-                          node={{ type: "item", id: pool.itemKey }}
-                          name={poolItem?.name ?? `Item ${pool.itemKey}`}
-                          grade={poolItem?.grade}
-                          iconPath={poolItem?.iconPath}
-                          suffix={`· ${pool.poolPct}%`}
-                          onNavigate={onNavigate}
-                          peekItem={peekItem}
-                        />
-                      );
-                    })}
-                  </div>
-                </Accordion>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-
-        {sortedDrops.length > 0 ? (
-          <div className="flex max-h-80 min-w-0 flex-col gap-1.5 overflow-y-auto md:border-l md:border-border md:pl-4">
-            <SectionLabel>Where to find</SectionLabel>
-            {sortedDrops.map((drop) => (
-              <ItemLink
-                key={drop.boxItemKey}
-                node={{ type: "box", id: drop.boxItemKey }}
-                name={drop.boxName}
-                grade={drop.grade}
-                iconPath={`Item_${drop.boxItemKey}`}
-                suffix={drop.dropPct != null ? `· ${drop.dropPct}%` : undefined}
-                onNavigate={onNavigate}
-              />
+            {item.gearGroups?.map((group) => (
+              <MaterialGroup key={group.gearGroup} group={group} />
             ))}
           </div>
         ) : null}
+
+        {!hasAcquisition ? (
+          <p className="m-0 text-xs text-muted">
+            Not obtained through drops, crafting, or synthesis.
+          </p>
+        ) : (
+          <div className={cn("flex flex-col gap-3", hasStats && "border-t border-border pt-3")}>
+            <SectionHeading>Where to find</SectionHeading>
+
+            <div className="flex min-w-0 flex-col gap-3">
+              {hasCrafting && sources ? (
+                <div className="flex flex-col gap-2">
+                  <SectionLabelRow
+                    label="Crafting"
+                    help={CRAFTING_HELP}
+                    helpLabel="How crafting works"
+                  />
+                  <Card padding="none" className="overflow-hidden">
+                    <div className="flex flex-col gap-3 p-3">
+                      {sources.crafting.map((recipe) => (
+                        <div key={recipe.recipeKey} className="flex flex-col gap-1">
+                          <p className="m-0 text-[13px] text-fg">
+                            T{recipe.tier} (Lv {recipe.level.min}–{recipe.level.max}) ·{" "}
+                            {humanizeStatKey(recipe.craftingType)} ·{" "}
+                            {fmtLookupPct(recipe.outputPct)}%
+                          </p>
+                          <div className="flex flex-col gap-1 pl-1">
+                            {recipe.materials.map((material) => {
+                              const matItem = peekItem?.(material.itemKey);
+                              return (
+                                <ItemLink
+                                  key={material.itemKey}
+                                  node={{ type: "item", id: material.itemKey }}
+                                  name={matItem?.name ?? material.name}
+                                  grade={matItem?.grade}
+                                  iconPath={matItem?.iconPath}
+                                  suffix={material.amount > 1 ? `×${material.amount}` : undefined}
+                                  onNavigate={onNavigate}
+                                  peekItem={peekItem}
+                                />
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+              ) : null}
+
+              {hasDrops ? (
+                <div className="flex flex-col gap-2">
+                  <SectionLabelRow label="Drop" help={DROP_HELP} helpLabel="How drops work" />
+                  <Card padding="none" className="overflow-hidden">
+                    <DataList scrollable className={SCROLL_SECTION_MAX}>
+                      {sortedDrops.map((drop, i) => (
+                        <DataListRow key={drop.boxItemKey} index={i}>
+                          <ItemLink
+                            node={{ type: "box", id: drop.boxItemKey }}
+                            name={drop.boxName}
+                            grade={drop.grade}
+                            iconPath={boxIconPath(drop.boxItemKey)}
+                            suffix={
+                              drop.dropPct != null ? `· ${fmtLookupPct(drop.dropPct)}%` : undefined
+                            }
+                            onNavigate={onNavigate}
+                          />
+                        </DataListRow>
+                      ))}
+                    </DataList>
+                  </Card>
+                </div>
+              ) : null}
+
+              {hasSynthesis && synthesisModel && synthesisType ? (
+                <div className="flex flex-col gap-2">
+                  <SectionLabelRow
+                    label="Synthesis"
+                    help={SYNTHESIS_HELP}
+                    helpLabel="How synthesis works"
+                  />
+                  <div className="flex flex-col gap-2">
+                    {pathGroups.map((group) => (
+                      <SynthesisGradeCard
+                        key={`${group.inputGrade}-${group.gradeStep}`}
+                        materialAmount={group.materialAmount}
+                        inputGrade={group.inputGrade}
+                        paths={group.paths}
+                        synthesisType={synthesisType}
+                        model={synthesisModel}
+                        bestPathKey={bestPathKey}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

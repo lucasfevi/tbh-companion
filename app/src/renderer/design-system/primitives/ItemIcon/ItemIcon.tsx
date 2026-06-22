@@ -1,14 +1,17 @@
 import { cn, cva, type VariantProps } from "../../lib/variants";
 
-const iconBoxVariants = cva(
-  "flex shrink-0 items-center justify-center overflow-hidden rounded-md border",
-  {
-    variants: {
-      size: { xs: "size-4 p-0.5", sm: "size-9 p-1", md: "size-11 p-1.5", lg: "size-14 p-2" },
+const iconBoxVariants = cva("flex shrink-0 items-center justify-center overflow-hidden border", {
+  variants: {
+    size: {
+      xs: "size-4 rounded-sm p-px",
+      link: "size-[15px] rounded-sm p-px",
+      sm: "size-9 rounded-md p-1",
+      md: "size-11 rounded-md p-1.5",
+      lg: "size-14 rounded-md p-2",
     },
-    defaultVariants: { size: "sm" },
   },
-);
+  defaultVariants: { size: "sm" },
+});
 
 function hexToRgba(hex: string, alpha: number): string {
   const normalized = hex.replace("#", "");

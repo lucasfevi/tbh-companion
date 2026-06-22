@@ -30,39 +30,51 @@ export function ItemLink({
   peekItem?: (id: number) => LookupItem | undefined;
 }) {
   const color = grade ? gradeColor(grade) : undefined;
-  const inner = (
+  const linkInner = (
     <>
       {iconPath ? (
-        <ItemIcon src={iconSrc(iconPath)} color={color ?? gradeColor("UNKNOWN")} size="xs" />
+        <ItemIcon src={iconSrc(iconPath)} color={color ?? gradeColor("UNKNOWN")} size="link" />
       ) : null}
       <span className="truncate" style={color ? { color } : undefined}>
         {name}
       </span>
-      {suffix ? <span className="shrink-0 text-[11px] text-muted">{suffix}</span> : null}
     </>
   );
 
-  const className = cn(
-    "inline-flex max-w-full items-center gap-1 rounded text-[13px]",
+  const linkClassName = cn(
+    "inline-flex w-fit max-w-full items-center gap-1 rounded text-[13px]",
     onNavigate ? "cursor-pointer hover:underline" : null,
     !color ? "text-fg" : null,
   );
 
-  const trigger = onNavigate ? (
-    <button type="button" className={className} onClick={() => onNavigate(node)}>
-      {inner}
+  const linkTrigger = onNavigate ? (
+    <button type="button" className={linkClassName} onClick={() => onNavigate(node)}>
+      {linkInner}
     </button>
   ) : (
-    <span className={className}>{inner}</span>
+    <span className={linkClassName}>{linkInner}</span>
   );
 
   const peek = node.type === "item" ? peekItem?.(node.id) : undefined;
-  if (peek) {
-    return (
-      <Tooltip trigger={trigger} className="w-64 border-0 bg-transparent p-0 shadow-none">
-        <ItemCard item={peek} />
+  const interactive =
+    peek != null ? (
+      <Tooltip trigger={linkTrigger} className="w-64 border-0 bg-transparent p-0 shadow-none">
+        <div className="shadow-[0_8px_24px_rgb(0_0_0/0.45)]">
+          <ItemCard item={peek} />
+        </div>
       </Tooltip>
+    ) : (
+      linkTrigger
     );
+
+  if (!suffix) {
+    return <span className="w-fit max-w-full self-start">{interactive}</span>;
   }
-  return trigger;
+
+  return (
+    <span className="inline-flex w-fit max-w-full self-start items-center gap-1 text-[13px]">
+      {interactive}
+      <span className="shrink-0 text-[11px] text-muted">{suffix}</span>
+    </span>
+  );
 }

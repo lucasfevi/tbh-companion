@@ -21,6 +21,11 @@ export function itemMetaLine(item: LookupItem): string | null {
   return parts.length > 0 ? parts.join(" · ") : null;
 }
 
+/** Lookup detail: always show percentages with two decimal places. */
+export function fmtLookupPct(value: number): string {
+  return value.toFixed(2);
+}
+
 const UNCAPPED_MATERIAL_TYPES = new Set(["DECORATION", "ENGRAVING"]);
 const OUTCOME_CAP = 6;
 

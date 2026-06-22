@@ -1,26 +1,25 @@
 import { Card } from "../../design-system/primitives/Card/Card";
+import { boxIconPath } from "../../lib/boxIconPath";
+import { fmtLookupPct } from "../../lib/lookupDisplay";
 import { ItemDetailCard } from "./ItemDetailCard";
+import { SectionLabel } from "./itemCardParts";
 import { ItemLink } from "./ItemLink";
-import type { LookupItem, LookupSources } from "../../../../shared/types";
+import type { LookupItem, LookupSources, SynthesisModel } from "../../../../shared/types";
 import type { LookupNavNode } from "../../lib/useLookupNav";
-
-function SectionLabel({ children }: { children: string }) {
-  return (
-    <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-fg/70">{children}</p>
-  );
-}
 
 /** Renders the active Lookup-tab node: an item, a box, or a stage. */
 export function EntityDetail({
   node,
   itemIndex,
   sources,
+  synthesisModel,
   labelFor,
   onNavigate,
 }: {
   node: LookupNavNode;
   itemIndex: Map<number, LookupItem>;
   sources: LookupSources;
+  synthesisModel?: SynthesisModel | null;
   labelFor: (node: LookupNavNode) => string;
   onNavigate: (node: LookupNavNode) => void;
 }) {
@@ -31,6 +30,7 @@ export function EntityDetail({
       <ItemDetailCard
         item={item}
         sources={sources.items[String(node.id)]}
+        synthesisModel={synthesisModel}
         onNavigate={onNavigate}
         peekItem={(id) => itemIndex.get(id)}
       />
@@ -69,7 +69,7 @@ export function EntityDetail({
                   name={drop.name}
                   grade={drop.grade}
                   iconPath={itemIndex.get(drop.itemKey)?.iconPath}
-                  suffix={`· ${drop.dropPct}%`}
+                  suffix={`· ${fmtLookupPct(drop.dropPct)}%`}
                   onNavigate={onNavigate}
                   peekItem={(id) => itemIndex.get(id)}
                 />
@@ -100,7 +100,7 @@ export function EntityDetail({
                 node={{ type: "box", id: box.boxItemKey }}
                 name={box.name}
                 grade={box.grade}
-                iconPath={`Item_${box.boxItemKey}`}
+                iconPath={boxIconPath(box.boxItemKey)}
                 onNavigate={onNavigate}
               />
             ))}

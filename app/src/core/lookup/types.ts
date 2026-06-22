@@ -19,8 +19,10 @@ export type {
   LookupStageBoxRef,
   LookupStageSources,
   LookupStatRow,
-  LookupSynthesisGroup,
-  LookupSynthesisPath,
-  LookupSynthesisPoolEntry,
   LookupUniqueMod,
+  SynthesisBucketEntry,
+  SynthesisModel,
+  SynthesisPathToItem,
+  SynthesisRecipeRow,
+  SynthesisSimOutcome,
 } from "../../../shared/types";

@@ -1,9 +1,10 @@
-import { loadLookupItems, loadLookupSources } from "../../core/lookup/catalog";
-import type { LookupItem, LookupSources } from "../../../shared/types";
+import { loadLookupItems, loadLookupSources, loadSynthesisModel } from "../../core/lookup/catalog";
+import type { LookupItem, LookupSources, SynthesisModel } from "../../../shared/types";
 
 export class LookupService {
   private readonly items: LookupItem[] = loadLookupItems();
   private readonly sources: LookupSources = loadLookupSources();
+  private readonly synthesisModel: SynthesisModel = loadSynthesisModel();
 
   getCatalog(): LookupItem[] {
     return this.items;
@@ -11,5 +12,9 @@ export class LookupService {
 
   getSources(): LookupSources {
     return this.sources;
+  }
+
+  getSynthesisModel(): SynthesisModel {
+    return this.synthesisModel;
   }
 }
