@@ -26,6 +26,20 @@ export function fmtLookupPct(value: number): string {
   return value.toFixed(2);
 }
 
+/** A drop row with a real (>0) chance. Genuine zeros are hidden, not shown as 0.00%. */
+export function hasDropChance(drop: { dropPct: number | null }): boolean {
+  return (drop.dropPct ?? 0) > 0;
+}
+
+/**
+ * Drop-chance display: a >0 value that would round to "0.00" renders "<0.01" so it
+ * isn't mistaken for "doesn't drop".
+ */
+export function fmtDropPct(value: number): string {
+  const fixed = value.toFixed(2);
+  return value > 0 && fixed === "0.00" ? "<0.01" : fixed;
+}
+
 const UNCAPPED_MATERIAL_TYPES = new Set(["DECORATION", "ENGRAVING"]);
 const OUTCOME_CAP = 6;
 

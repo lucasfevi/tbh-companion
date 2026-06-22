@@ -1,6 +1,6 @@
 import { Card } from "../../design-system/primitives/Card/Card";
 import { boxIconPath } from "../../lib/boxIconPath";
-import { fmtLookupPct } from "../../lib/lookupDisplay";
+import { fmtDropPct, hasDropChance } from "../../lib/lookupDisplay";
 import { ItemDetailCard } from "./ItemDetailCard";
 import { SectionLabel } from "./itemCardParts";
 import { ItemLink } from "./ItemLink";
@@ -40,6 +40,7 @@ export function EntityDetail({
   if (node.type === "box") {
     const box = sources.boxes[String(node.id)];
     if (!box) return <p className="m-0 text-xs text-muted">Box not found.</p>;
+    const drops = box.drops.filter(hasDropChance);
     return (
       <Card className="flex flex-col gap-3">
         <h2 className="m-0 text-base font-semibold text-fg">{labelFor(node)}</h2>
@@ -58,18 +59,18 @@ export function EntityDetail({
             </div>
           </div>
         ) : null}
-        {box.drops.length > 0 ? (
+        {drops.length > 0 ? (
           <div className="flex flex-col gap-1.5">
             <SectionLabel>Drops</SectionLabel>
             <div className="flex flex-col gap-1">
-              {box.drops.map((drop) => (
+              {drops.map((drop) => (
                 <ItemLink
                   key={drop.itemKey}
                   node={{ type: "item", id: drop.itemKey }}
                   name={drop.name}
                   grade={drop.grade}
                   iconPath={itemIndex.get(drop.itemKey)?.iconPath}
-                  suffix={`· ${fmtLookupPct(drop.dropPct)}%`}
+                  suffix={`· ${fmtDropPct(drop.dropPct)}%`}
                   onNavigate={onNavigate}
                   peekItem={(id) => itemIndex.get(id)}
                 />

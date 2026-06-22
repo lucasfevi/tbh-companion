@@ -10,7 +10,7 @@ import {
   synthesisTypeForItem,
 } from "../../../core/lookup/synthesis";
 import { boxIconPath } from "../../lib/boxIconPath";
-import { fmtLookupPct, humanizeStatKey } from "../../lib/lookupDisplay";
+import { fmtDropPct, fmtLookupPct, hasDropChance, humanizeStatKey } from "../../lib/lookupDisplay";
 import { gradeColor } from "../../lib/gradeColor";
 import { cn } from "../../lib/cn";
 import { Card } from "../../design-system/primitives/Card/Card";
@@ -175,7 +175,7 @@ export function ItemDetailCard({
   const hasCrafting = (sources?.crafting.length ?? 0) > 0;
   const hasSynthesis = synthesisPaths.length > 0 && synthesisModel != null;
   const sortedDrops = sources
-    ? [...sources.drops].sort((a, b) => (b.dropPct ?? -1) - (a.dropPct ?? -1))
+    ? [...sources.drops].filter(hasDropChance).sort((a, b) => (b.dropPct ?? -1) - (a.dropPct ?? -1))
     : [];
   const hasDrops = sortedDrops.length > 0;
   const hasAcquisition = hasCrafting || hasSynthesis || hasDrops;
@@ -281,9 +281,7 @@ export function ItemDetailCard({
                             name={drop.boxName}
                             grade={drop.grade}
                             iconPath={boxIconPath(drop.boxItemKey)}
-                            suffix={
-                              drop.dropPct != null ? `· ${fmtLookupPct(drop.dropPct)}%` : undefined
-                            }
+                            suffix={`· ${fmtDropPct(drop.dropPct)}%`}
                             onNavigate={onNavigate}
                           />
                         </DataListRow>
