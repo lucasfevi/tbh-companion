@@ -27,6 +27,9 @@ Thumbs.db
 .DS_Store
 .agents/
 
+# Specs / planning artifacts — local only
+.specs/
+
 # Draft docs — intentionally untracked until reviewed
 docs/reviews/
 docs/business/
