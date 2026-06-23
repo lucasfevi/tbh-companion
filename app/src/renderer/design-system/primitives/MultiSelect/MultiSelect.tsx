@@ -127,17 +127,17 @@ export function MultiSelect({
 
         <Combobox.Portal>
           <Combobox.Positioner sideOffset={4} className="z-50">
-            <Combobox.Popup className="max-h-60 w-(--anchor-width) overflow-y-auto rounded-md border border-border bg-card py-1 shadow-[0_8px_24px_rgb(0_0_0/0.45)]">
+            <Combobox.Popup className="max-h-60 w-(--anchor-width) overflow-y-auto rounded-md border border-border bg-card pb-1 shadow-[0_8px_24px_rgb(0_0_0/0.45)]">
               {searchable ? (
-                <div className="px-1.5 pb-1.5 pt-1">
+                <div className="p-1.5">
                   <Combobox.Input
                     placeholder="Search…"
                     className="w-full rounded-md border border-border bg-bg px-2 py-1 text-[13px] text-fg outline-none focus-visible:border-ideal/50"
                   />
                 </div>
               ) : null}
-              <Combobox.Empty className="px-2.5 py-2 text-xs text-muted">
-                No matches.
+              <Combobox.Empty>
+                <span className="block px-2.5 py-2 text-xs text-muted">No matches.</span>
               </Combobox.Empty>
               <Combobox.List>
                 {grouped
