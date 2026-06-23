@@ -6,10 +6,15 @@ export type OfferingLootSortKey = "dropPct" | "name" | "grade";
 
 export interface OfferingLootFilterState {
   query: string;
-  gradeFilter: string;
-  typeFilter: string;
+  gradeFilter: string[];
+  typeFilter: string[];
   sortKey: OfferingLootSortKey;
   sortDir: "asc" | "desc";
+}
+
+/** A multi-select with no selections means "no filter" (match everything). */
+function matchesMulti(selected: string[], value: string | null): boolean {
+  return selected.length === 0 || (value != null && selected.includes(value));
 }
 
 export interface ResolvedOfferingLoot {
@@ -46,10 +51,10 @@ export function filterAndSortLoot(
 ): ResolvedOfferingLoot[] {
   const q = state.query.trim().toLowerCase();
   let rows = loot.filter((row) => {
-    if (state.gradeFilter !== "ALL" && row.item?.grade !== state.gradeFilter) return false;
-    if (state.typeFilter !== "ALL") {
-      const descriptor = row.item ? itemDescriptor(row.item) : "";
-      if (descriptor !== state.typeFilter) return false;
+    if (!matchesMulti(state.gradeFilter, row.item?.grade ?? null)) return false;
+    if (state.typeFilter.length > 0) {
+      const descriptor = row.item ? itemDescriptor(row.item) : null;
+      if (!matchesMulti(state.typeFilter, descriptor)) return false;
     }
     if (q && !(row.item?.name ?? "").toLowerCase().includes(q)) return false;
     return true;

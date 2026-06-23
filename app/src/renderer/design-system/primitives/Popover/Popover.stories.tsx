@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Popover } from "./Popover";
 import { Button } from "../Button/Button";
+import { Checkbox } from "../Checkbox/Checkbox";
 
 /**
  * Anchored popup panel built on Base UI's Popover — replaces the old
@@ -55,20 +56,36 @@ export const Default: Story = {
   },
 };
 
+function ColumnPickerDemo() {
+  const [columns, setColumns] = useState({ grade: true, level: true, type: false });
+  return (
+    <div className="flex w-48 flex-col gap-1.5">
+      <Checkbox
+        label="Grade"
+        checked={columns.grade}
+        onCheckedChange={(checked) => setColumns((c) => ({ ...c, grade: checked }))}
+      />
+      <Checkbox
+        label="Level"
+        checked={columns.level}
+        onCheckedChange={(checked) => setColumns((c) => ({ ...c, level: checked }))}
+      />
+      <Checkbox
+        label="Type"
+        checked={columns.type}
+        onCheckedChange={(checked) => setColumns((c) => ({ ...c, type: checked }))}
+      />
+    </div>
+  );
+}
+
 export const ColumnPickerExample: Story = {
   render: () => (
-    <ControlledPopover trigger={<Button size="sm">Columns</Button>} ariaLabel="Visible columns">
-      <div className="flex w-48 flex-col gap-1.5 text-xs text-fg">
-        <label className="flex items-center gap-2">
-          <input type="checkbox" defaultChecked /> Grade
-        </label>
-        <label className="flex items-center gap-2">
-          <input type="checkbox" defaultChecked /> Level
-        </label>
-        <label className="flex items-center gap-2">
-          <input type="checkbox" /> Type
-        </label>
-      </div>
+    <ControlledPopover
+      trigger={<Button size="sm">Edit columns</Button>}
+      ariaLabel="Visible columns"
+    >
+      <ColumnPickerDemo />
     </ControlledPopover>
   ),
   args: {

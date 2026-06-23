@@ -1,20 +1,20 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { useLookupCatalog } from "../lib/useLookupCatalog";
 import { useLookupSources } from "../lib/useLookupSources";
 import { useLookupSynthesisModel } from "../lib/useLookupSynthesisModel";
 import { useOfferings } from "../lib/useOfferings";
 import { useLookupNav, type LookupNavNode } from "../lib/useLookupNav";
+import type { LookupItem } from "../../../shared/types";
 import { buildBoxNameIndex, buildStageNameIndex } from "../lib/lookupGraph";
 import {
-  classOptionsFromItems,
   defaultLookupSortDir,
-  effectOptionsFromItems,
+  effectGroupsFromItems,
   filterAndSortItems,
-  gearTypeOptionsFromItems,
+  gearTypeGroupsFromItems,
   gradeOptionsFromItems,
-  levelOptionsFromItems,
+  LEVEL_MAX,
+  LEVEL_MIN,
   materialKindOptionsFromItems,
-  targetGroupOptionsFromItems,
   typeOptionsFromItems,
   type LookupSortKey,
 } from "../lib/lookupFilters";
@@ -35,32 +35,31 @@ export function Lookup() {
   const [panelOpen, setPanelOpen] = useState(false);
 
   const [query, setQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("ALL");
-  const [gradeFilter, setGradeFilter] = useState("ALL");
-  const [gearTypeFilter, setGearTypeFilter] = useState("ALL");
-  const [classFilter, setClassFilter] = useState("ALL");
-  const [materialKindFilter, setMaterialKindFilter] = useState("ALL");
-  const [effectFilter, setEffectFilter] = useState("ALL");
-  const [targetGroupFilter, setTargetGroupFilter] = useState("ALL");
+  const [typeFilter, setTypeFilter] = useState<string[]>([]);
+  const [gradeFilter, setGradeFilter] = useState<string[]>([]);
+  const [gearTypeFilter, setGearTypeFilter] = useState<string[]>([]);
+  const [materialKindFilter, setMaterialKindFilter] = useState<string[]>([]);
+  const [effectFilter, setEffectFilter] = useState<string[]>([]);
   const [uniqueOnly, setUniqueOnly] = useState(false);
-  const [minLevel, setMinLevel] = useState<number | null>(null);
-  const [maxLevel, setMaxLevel] = useState<number | null>(null);
-  const [sortKey, setSortKey] = useState<LookupSortKey>("name");
+  const [levelRange, setLevelRange] = useState<[number, number]>([LEVEL_MIN, LEVEL_MAX]);
+  const [sortKey, setSortKey] = useState<LookupSortKey>("grade");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
-  function handleTypeFilterChange(value: string) {
-    setTypeFilter(value);
-    // Hidden filters shouldn't silently keep filtering once their controls
-    // disappear — e.g. a leftover class filter would zero out every material.
-    if (value === "MATERIAL") {
-      setGearTypeFilter("ALL");
-      setClassFilter("ALL");
-      setMinLevel(null);
-      setMaxLevel(null);
+  const deferredQuery = useDeferredValue(query);
+
+  function handleTypeFilterChange(next: string[]) {
+    setTypeFilter(next);
+    // Hidden multi-select sub-filters shouldn't silently keep filtering once
+    // their controls disappear — e.g. a leftover class filter would zero out
+    // every material. The level range persists by design (it's material-safe).
+    const gearVisible = next.length === 0 || next.includes("GEAR");
+    const materialVisible = next.length === 0 || next.includes("MATERIAL");
+    if (!gearVisible) {
+      setGearTypeFilter([]);
       setUniqueOnly(false);
-    } else if (value === "GEAR") {
-      setMaterialKindFilter("ALL");
-      setTargetGroupFilter("ALL");
+    }
+    if (!materialVisible) {
+      setMaterialKindFilter([]);
     }
   }
 
@@ -89,36 +88,48 @@ export function Lookup() {
   const filtered = useMemo(() => {
     if (!items) return [];
     return filterAndSortItems(items, {
-      query,
+      query: deferredQuery,
       typeFilter,
       gradeFilter,
       gearTypeFilter,
-      classFilter,
       materialKindFilter,
       effectFilter,
-      targetGroupFilter,
       uniqueOnly,
-      minLevel,
-      maxLevel,
+      levelRange,
       sortKey,
       sortDir,
     });
   }, [
     items,
-    query,
+    deferredQuery,
     typeFilter,
     gradeFilter,
     gearTypeFilter,
-    classFilter,
     materialKindFilter,
     effectFilter,
-    targetGroupFilter,
     uniqueOnly,
-    minLevel,
-    maxLevel,
+    levelRange,
     sortKey,
     sortDir,
   ]);
+
+  const { push: navPush } = nav;
+  const handleItemSelect = useCallback(
+    (item: LookupItem) => {
+      navPush({ type: "item", id: item.id });
+      setPanelOpen(true);
+    },
+    [navPush],
+  );
+
+  const gradeOptions = useMemo(() => (items ? gradeOptionsFromItems(items) : []), [items]);
+  const typeOptions = useMemo(() => (items ? typeOptionsFromItems(items) : []), [items]);
+  const gearTypeGroups = useMemo(() => (items ? gearTypeGroupsFromItems(items) : []), [items]);
+  const materialKindOptions = useMemo(
+    () => (items ? materialKindOptionsFromItems(items) : []),
+    [items],
+  );
+  const effectGroups = useMemo(() => (items ? effectGroupsFromItems(items) : []), [items]);
 
   if (!items || !sources || !synthesisModel) {
     return (
@@ -141,35 +152,26 @@ export function Lookup() {
         typeFilter={typeFilter}
         gradeFilter={gradeFilter}
         gearTypeFilter={gearTypeFilter}
-        classFilter={classFilter}
         materialKindFilter={materialKindFilter}
         effectFilter={effectFilter}
-        targetGroupFilter={targetGroupFilter}
         uniqueOnly={uniqueOnly}
-        minLevel={minLevel}
-        maxLevel={maxLevel}
+        levelRange={levelRange}
         sortKey={sortKey}
         sortDir={sortDir}
-        gradeOptions={gradeOptionsFromItems(items)}
-        typeOptions={typeOptionsFromItems(items)}
-        gearTypeOptions={gearTypeOptionsFromItems(items)}
-        classOptions={classOptionsFromItems(items)}
-        materialKindOptions={materialKindOptionsFromItems(items)}
-        effectOptions={effectOptionsFromItems(items)}
-        targetGroupOptions={targetGroupOptionsFromItems(items)}
-        levelOptions={levelOptionsFromItems(items)}
+        gradeOptions={gradeOptions}
+        typeOptions={typeOptions}
+        gearTypeGroups={gearTypeGroups}
+        materialKindOptions={materialKindOptions}
+        effectGroups={effectGroups}
         shownCount={filtered.length}
         onQueryChange={setQuery}
         onTypeFilterChange={handleTypeFilterChange}
         onGradeFilterChange={setGradeFilter}
         onGearTypeFilterChange={setGearTypeFilter}
-        onClassFilterChange={setClassFilter}
         onMaterialKindFilterChange={setMaterialKindFilter}
         onEffectFilterChange={setEffectFilter}
-        onTargetGroupFilterChange={setTargetGroupFilter}
         onUniqueOnlyChange={setUniqueOnly}
-        onMinLevelChange={setMinLevel}
-        onMaxLevelChange={setMaxLevel}
+        onLevelRangeChange={setLevelRange}
         onSortKeyChange={handleSortKeyChange}
         onSortDirToggle={toggleSortDir}
       />
@@ -178,16 +180,7 @@ export function Lookup() {
         {filtered.length === 0 ? (
           <li className="col-span-full text-xs text-muted">No items match these filters.</li>
         ) : (
-          filtered.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              onSelect={(i) => {
-                nav.push({ type: "item", id: i.id });
-                setPanelOpen(true);
-              }}
-            />
-          ))
+          filtered.map((item) => <ItemCard key={item.id} item={item} onSelect={handleItemSelect} />)
         )}
       </ul>
 

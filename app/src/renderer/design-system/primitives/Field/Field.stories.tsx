@@ -1,12 +1,14 @@
+import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Field } from "./Field";
 import { Input } from "../Input/Input";
+import { Checkbox } from "../Checkbox/Checkbox";
 
 /**
  * Wraps a form control in a `<label>` with a heading-style label and
  * optional hint line below. `checkbox` flips the layout to checkbox-first
- * (children before the inline label) for native `<input type="checkbox">`
- * rows — see Settings.tsx for the dominant real-world usage pattern.
+ * (children before the inline label) — pair it with the themed `Checkbox`
+ * primitive (see Settings.tsx for the dominant real-world usage pattern).
  */
 const meta = {
   title: "Design System/Field",
@@ -35,10 +37,16 @@ export const WithHint: Story = {
   },
 };
 
-export const Checkbox: Story = {
-  args: {
-    label: "Enable notifications",
-    checkbox: true,
-    children: <input type="checkbox" defaultChecked />,
-  },
+function CheckboxFieldDemo() {
+  const [checked, setChecked] = useState(true);
+  return (
+    <Field label="Enable notifications" checkbox>
+      <Checkbox checked={checked} onCheckedChange={setChecked} aria-label="Enable notifications" />
+    </Field>
+  );
+}
+
+export const CheckboxField: Story = {
+  args: { label: "Enable notifications", checkbox: true, children: null },
+  render: () => <CheckboxFieldDemo />,
 };
