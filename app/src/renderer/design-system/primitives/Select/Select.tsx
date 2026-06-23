@@ -60,6 +60,7 @@ export function Select({
   footer,
   footerAlign = "start",
   className,
+  triggerClassName,
   options,
   value,
   onValueChange,
@@ -70,6 +71,8 @@ export function Select({
   footer?: ReactNode;
   footerAlign?: "start" | "end";
   className?: string;
+  /** Escape hatch to override the trigger's own styling (e.g. a glued segment). */
+  triggerClassName?: string;
   options: SelectOption[];
   value: string | number;
   onValueChange: (value: string | number) => void;
@@ -92,7 +95,10 @@ export function Select({
             {label}
           </BaseSelect.Label>
         ) : null}
-        <BaseSelect.Trigger title={title} className={cn(triggerVariants({ variant }), "group")}>
+        <BaseSelect.Trigger
+          title={title}
+          className={cn(triggerVariants({ variant }), "group", triggerClassName)}
+        >
           <span className="grid min-w-0 grid-cols-1 grid-rows-1">
             {options.map((option) => (
               <span

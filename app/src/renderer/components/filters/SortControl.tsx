@@ -1,12 +1,13 @@
 import { LuArrowDownNarrowWide, LuArrowUpNarrowWide } from "react-icons/lu";
 import { Select, type SelectOption } from "../../design-system/primitives/Select/Select";
-import { Button } from "../../design-system/primitives/Button/Button";
 import { cn } from "../../design-system/lib/variants";
 
 /**
- * Grouped sort control: a "Sort by" select paired with a direction toggle.
- * Used by the card/list surfaces (Lookup, Coin view) — Inventory sorts via its
- * data-table headers instead, so it does not use this control.
+ * Grouped sort control: an inline "Sort by" label plus a glued segment — the
+ * sort-key select and a direction toggle share one rounded border (Bootstrap
+ * button-group style). Used by the card/list surfaces (Lookup); Inventory sorts
+ * via its data-table headers and the Coin view is fixed-sorted, so neither uses
+ * this control.
  */
 export function SortControl({
   options,
@@ -27,24 +28,28 @@ export function SortControl({
 }) {
   const ascending = sortDir === "asc";
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
-      <span className="text-[10px] font-medium uppercase tracking-wide text-muted">{label}</span>
-      <div className="flex items-center gap-1">
+    <div className={cn("flex shrink-0 items-center gap-2", className)}>
+      <span className="whitespace-nowrap text-[10px] font-medium uppercase tracking-wide text-muted">
+        {label}
+      </span>
+      <div className="inline-flex items-stretch overflow-hidden rounded-md border border-border">
         <Select
-          className="min-w-0 flex-1"
+          className="w-28"
+          triggerClassName="rounded-none border-0 focus-visible:outline-none"
           value={sortKey}
           onValueChange={(value) => onSortKeyChange(String(value))}
           options={options}
           title="Sort by"
         />
-        <Button
+        <button
+          type="button"
           onClick={onSortDirToggle}
-          className="px-2"
           title={ascending ? "Ascending" : "Descending"}
           aria-label={ascending ? "Sort ascending" : "Sort descending"}
+          className="flex items-center justify-center border-l border-border bg-card px-2 text-fg hover:bg-panel focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ideal/50"
         >
           {ascending ? <LuArrowUpNarrowWide aria-hidden /> : <LuArrowDownNarrowWide aria-hidden />}
-        </Button>
+        </button>
       </div>
     </div>
   );
