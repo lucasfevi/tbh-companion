@@ -119,8 +119,9 @@ Skills live under **`.cursor/skills/`** (Cursor) and **`.claude/skills/`** (Clau
 | **design-system** | `.cursor/skills/design-system/SKILL.md` | `.claude/skills/design-system/SKILL.md` | Renderer UI components (`design-system/primitives/`) |
 | **tbh-changelog** | `.cursor/skills/tbh-changelog/SKILL.md` | `.claude/skills/tbh-changelog/SKILL.md` | CHANGELOG, semver, releases |
 | **tbh-reviewer** | `.cursor/skills/tbh-reviewer/SKILL.md` | `.claude/skills/tbh-reviewer/SKILL.md` | `/review-pr <N>` advisory PR review |
+| **tbh-feature-showcase** | `.cursor/skills/tbh-feature-showcase/SKILL.md` | `.claude/skills/tbh-feature-showcase/SKILL.md` | Screenshots + player-facing announcement after a feature ships |
 
-Do not skip skills for “small” diffs. Match skill to layer: renderer → **tbh-renderer** + **tbh-ux** + **design-system**; main/preload → **tbh-main**; core logic → **tbh-core**; bundled catalogs → **tbh-data**; release → **tbh-changelog**.
+Do not skip skills for “small” diffs. Match skill to layer: renderer → **tbh-renderer** + **tbh-ux** + **design-system**; main/preload → **tbh-main**; core logic → **tbh-core**; bundled catalogs → **tbh-data**; release → **tbh-changelog**; sharing new features with players → **tbh-feature-showcase**.
 
 Deprecated (not synced): `best-practices`, `react-best-practices` — replaced by **tbh-main** and **tbh-renderer**.
 - **Branches:** name as `<type>/<short-description>` (e.g. `fix/save-watcher-race`,
