@@ -4,9 +4,17 @@ Persistent decisions, blockers, lessons, and deferred ideas across sessions.
 
 ## Active feature
 
-- **filtering-sorting-evolution** — Specify + Design + Tasks + **Execute complete** on branch
-  `feat/filtering-sorting-evolution`. All 14 tasks done; `pnpm run qa` + `qa:dev` green.
-  P3 follow-ups (T15–T17) deferred. **Not yet committed** — awaiting user approval.
+- **filtering-sorting-refinements** — **Complete & committed** on branch
+  `feat/filtering-sorting-evolution` (9 atomic commits + docs commit). Chrome
+  consistency (count "{n} items" beside search, no search label, checkboxes for
+  toggles), Coin view = search-only, Inventory reposition/renames, Lookup
+  adaptive setups + grouped Modifier/Gear type + segmented sort, MultiSelect
+  padding bug (root cause: `Combobox.Empty` wrapper always in DOM — moved
+  padding into child span), Storybook checkbox stories. Deviations: deleted
+  orphaned FilterBar, added Select `triggerClassName`, memoized Lookup option
+  helpers. `pnpm run qa` + `qa:dev` green.
+- **filtering-sorting-evolution** — **Complete & committed** (12 atomic
+  commits). `qa` + `qa:dev` were green.
 
 ## Decisions
 
@@ -20,6 +28,10 @@ Persistent decisions, blockers, lessons, and deferred ideas across sessions.
 
 ## Deferred ideas
 
+- **lookup-filter-performance** — filtering/sorting feels delayed; virtualize the
+  Lookup grid, debounce search, memoize option/group helpers, add a bench. Stub
+  spec at `.specs/features/lookup-filter-performance/spec.md`. Plan in full after
+  refinements merge. [R8]
 - Saved filter presets / named views (out of scope for this feature).
 - Reusing the RangeSlider for inventory value/price/count ranges and Coin view drop-% (P3,
   opt-in during Design).
