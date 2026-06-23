@@ -14,6 +14,7 @@ export const REQUIRED_BUNDLED_DATA_FILES = [
   "lookup_items.json",
   "lookup_sources.json",
   "synthesis_model.json",
+  "offerings.json",
 ] as const;
 
 export type BundledDataFile = (typeof REQUIRED_BUNDLED_DATA_FILES)[number];

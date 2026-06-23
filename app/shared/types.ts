@@ -764,6 +764,28 @@ export interface LookupSources {
   stages: Record<string, LookupStageSources>;
 }
 
+// --- Offerings (bundled offerings.json + core/lookup/offerings.ts) ---
+
+export interface OfferingLootEntry {
+  itemKey: number;
+  poolPct: number;
+}
+
+export interface OfferingEntry {
+  coinKey: number;
+  goldCost: number;
+  unlockCubeLevel: number;
+  loot: OfferingLootEntry[];
+}
+
+export type OfferingsModel = OfferingEntry[];
+
+/** Reverse lookup: a coin that can yield a given item, and at what chance. */
+export interface OfferingSource {
+  coinKey: number;
+  poolPct: number;
+}
+
 // API surface exposed on `window.tbh` by the preload via contextBridge.
 export interface TbhApi {
   onStats(cb: (stats: Stats) => void): () => void;
@@ -817,4 +839,5 @@ export interface TbhApi {
   getLookupCatalog(): Promise<LookupItem[]>;
   getLookupSources(): Promise<LookupSources>;
   getLookupSynthesisModel(): Promise<SynthesisModel>;
+  getOfferings(): Promise<OfferingsModel>;
 }

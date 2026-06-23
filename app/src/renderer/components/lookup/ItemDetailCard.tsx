@@ -13,6 +13,7 @@ import { boxIconPath } from "../../lib/boxIconPath";
 import { fmtDropPct, fmtLookupPct, hasDropChance, humanizeStatKey } from "../../lib/lookupDisplay";
 import { gradeColor } from "../../lib/gradeColor";
 import { cn } from "../../lib/cn";
+import { offeringForCoin, offeringSourcesForItem } from "../../../core/lookup/offerings";
 import { Card } from "../../design-system/primitives/Card/Card";
 import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
 import { DataList, DataListRow } from "../../design-system/primitives/DataList/DataList";
@@ -24,9 +25,11 @@ import {
   StatGroup,
 } from "./itemCardParts";
 import { ItemLink } from "./ItemLink";
+import { OfferingLoot } from "./OfferingLoot";
 import type {
   LookupItem,
   LookupItemSources,
+  OfferingsModel,
   SynthesisModel,
   SynthesisPathToItem,
 } from "../../../../shared/types";
@@ -42,6 +45,9 @@ const DROP_HELP =
 
 const SYNTHESIS_HELP =
   "Combine 9 items at the Cube. Each row is a recipe tier and result level band; the % is your chance to roll this item. Item average level affects which recipes apply. The green left edge marks the best odds among all paths.";
+
+const OFFERING_SOURCE_HELP =
+  "Toss one of the coins below into the Cube for a chance at this item, among everything else in its loot table. The % is your chance of landing this specific item from that coin.";
 
 function SynthesisPathRow({
   path,
@@ -158,12 +164,14 @@ export function ItemDetailCard({
   item,
   sources,
   synthesisModel,
+  offerings,
   onNavigate,
   peekItem,
 }: {
   item: LookupItem;
   sources?: LookupItemSources;
   synthesisModel?: SynthesisModel | null;
+  offerings?: OfferingsModel | null;
   onNavigate?: (node: LookupNavNode) => void;
   peekItem?: (id: number) => LookupItem | undefined;
 }) {
@@ -172,13 +180,21 @@ export function ItemDetailCard({
     [item, synthesisModel],
   );
 
+  const offering =
+    item.materialType === "OFFERING" && offerings ? offeringForCoin(offerings, item.id) : null;
+  const offeringSources = useMemo(
+    () => (offerings ? offeringSourcesForItem(offerings, item.id) : []),
+    [offerings, item.id],
+  );
+
   const hasCrafting = (sources?.crafting.length ?? 0) > 0;
   const hasSynthesis = synthesisPaths.length > 0 && synthesisModel != null;
   const sortedDrops = sources
     ? [...sources.drops].filter(hasDropChance).sort((a, b) => (b.dropPct ?? -1) - (a.dropPct ?? -1))
     : [];
   const hasDrops = sortedDrops.length > 0;
-  const hasAcquisition = hasCrafting || hasSynthesis || hasDrops;
+  const hasOfferingSources = offeringSources.length > 0;
+  const hasAcquisition = hasCrafting || hasSynthesis || hasDrops || hasOfferingSources;
 
   const pathGroups = groupPathsByInput(synthesisPaths);
   const synthesisType = synthesisTypeForItem(item);
@@ -220,14 +236,14 @@ export function ItemDetailCard({
           </div>
         ) : null}
 
-        {!hasAcquisition ? (
-          <p className="m-0 text-xs text-muted">
-            Not obtained through drops, crafting, or synthesis.
-          </p>
-        ) : (
-          <div className={cn("flex flex-col gap-3", hasStats && "border-t border-border pt-3")}>
-            <SectionHeading>Where to find</SectionHeading>
+        <div className={cn("flex flex-col gap-3", hasStats && "border-t border-border pt-3")}>
+          <SectionHeading>Where to find</SectionHeading>
 
+          {!hasAcquisition ? (
+            <p className="m-0 text-xs text-muted">
+              Not obtained through drops, crafting, synthesis, or offerings.
+            </p>
+          ) : (
             <div className="flex min-w-0 flex-col gap-3">
               {hasCrafting && sources ? (
                 <div className="flex flex-col gap-2">
@@ -313,9 +329,49 @@ export function ItemDetailCard({
                   </div>
                 </div>
               ) : null}
+
+              {hasOfferingSources ? (
+                <div className="flex flex-col gap-2">
+                  <SectionLabelRow
+                    label="Offering"
+                    help={OFFERING_SOURCE_HELP}
+                    helpLabel="How offerings work"
+                  />
+                  <Card padding="none" className="overflow-hidden">
+                    <DataList scrollable className={SCROLL_SECTION_MAX}>
+                      {offeringSources.map((source, i) => {
+                        const coinItem = peekItem?.(source.coinKey);
+                        return (
+                          <DataListRow key={source.coinKey} index={i}>
+                            <ItemLink
+                              node={{ type: "item", id: source.coinKey }}
+                              name={coinItem?.name ?? `Coin ${source.coinKey}`}
+                              grade={coinItem?.grade}
+                              iconPath={coinItem?.iconPath}
+                              suffix={`· ${fmtDropPct(source.poolPct)}%`}
+                              onNavigate={onNavigate}
+                              peekItem={peekItem}
+                            />
+                          </DataListRow>
+                        );
+                      })}
+                    </DataList>
+                  </Card>
+                </div>
+              ) : null}
             </div>
+          )}
+        </div>
+
+        {offering ? (
+          <div className="flex flex-col gap-3 border-t border-border pt-3">
+            <OfferingLoot
+              offering={offering}
+              onNavigate={onNavigate}
+              peekItem={peekItem ?? (() => undefined)}
+            />
           </div>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );
