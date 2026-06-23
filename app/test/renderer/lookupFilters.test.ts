@@ -1,11 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
-  classOptionsFromItems,
   defaultLookupSortDir,
-  effectOptionsFromItems,
+  effectGroupsFromItems,
   isUnresolvedLocalizationKey,
   filterAndSortItems,
-  gearTypeOptionsFromItems,
+  gearTypeGroupsFromItems,
   gradeOptionsFromItems,
   LEVEL_MAX,
   LEVEL_MIN,
@@ -137,7 +136,6 @@ const baseState: LookupFilterState = {
   typeFilter: [],
   gradeFilter: [],
   gearTypeFilter: [],
-  classFilter: [],
   materialKindFilter: [],
   effectFilter: [],
   uniqueOnly: false,
@@ -191,11 +189,6 @@ describe("filterAndSortItems", () => {
   it("filters by gear slot", () => {
     const rows = filterAndSortItems(items, { ...baseState, gearTypeFilter: ["BOW"] });
     expect(names(rows)).toEqual(["Limitless Bow"]);
-  });
-
-  it("filters by class derived from gearType", () => {
-    const rows = filterAndSortItems(items, { ...baseState, classFilter: ["Priest"] });
-    expect(names(rows)).toEqual(["Dimensional Scepter"]);
   });
 
   it("filters by material kind", () => {
@@ -304,25 +297,59 @@ describe("lookup option helpers", () => {
     expect(typeOptionsFromItems(items)).toEqual(["GEAR", "MATERIAL"]);
   });
 
-  it("gearTypeOptionsFromItems lists distinct gear slots", () => {
-    expect(gearTypeOptionsFromItems(items)).toEqual(["AMULET", "BOW", "SCEPTER"]);
-  });
-
-  it("classOptionsFromItems derives classes present in the catalog", () => {
-    expect(classOptionsFromItems(items)).toEqual(["Ranger", "Priest"]);
+  it("gearTypeGroupsFromItems groups gear slots by gearGroup (Weapon/Armor/Accessory)", () => {
+    const groups = gearTypeGroupsFromItems(items);
+    expect(groups.map((g) => g.label)).toEqual(["Weapon", "Accessory"]); // no Armor present
+    const weapon = groups.find((g) => g.label === "Weapon");
+    expect(weapon?.options.map((o) => o.value)).toEqual(["BOW", "SCEPTER"]); // sorted by label
+    const accessory = groups.find((g) => g.label === "Accessory");
+    expect(accessory?.options.map((o) => o.value)).toEqual(["AMULET"]);
   });
 
   it("materialKindOptionsFromItems lists distinct material kinds", () => {
     expect(materialKindOptionsFromItems(items)).toEqual(["CRAFTING", "ENGRAVING"]);
   });
 
-  it("effectOptionsFromItems unions gear and material stat keys with humanized labels", () => {
-    const options = effectOptionsFromItems(items);
-    const values = options.map((o) => o.value);
-    expect(values).toContain("AttackDamage");
-    expect(values).toContain("ColdDamagePercent");
-    const attackDamage = options.find((o) => o.value === "AttackDamage");
-    expect(attackDamage?.label).toBe("Attack Damage");
+  it("effectGroupsFromItems buckets stat keys into Offense/Defense/Util/Skill by label", () => {
+    const groups = effectGroupsFromItems(items);
+    // Offense (AttackDamage, AttackSpeed, ColdDamagePercent) before Defense (LightningResistance).
+    expect(groups.map((g) => g.label)).toEqual(["Offense", "Defense"]);
+    const offense = groups.find((g) => g.label === "Offense");
+    expect(offense?.options.map((o) => o.label)).toEqual([
+      "Attack Damage",
+      "Attack Speed",
+      "Cold Damage Percent",
+    ]);
+    const defense = groups.find((g) => g.label === "Defense");
+    expect(defense?.options.map((o) => o.value)).toEqual(["LightningResistance"]);
+  });
+
+  it("effectGroupsFromItems puts unmapped stat keys into an Other group", () => {
+    const withUnknown: LookupItem = {
+      ...crafting,
+      id: 99,
+      gearGroups: [
+        {
+          gearGroup: "WEAPON",
+          outcomes: [
+            {
+              stat: "MysteryStat",
+              mod: "FLAT",
+              tier: 1,
+              rawMin: 1,
+              rawMax: 2,
+              displayMin: 1,
+              displayMax: 2,
+              displayText: "Mystery",
+            },
+          ],
+        },
+      ],
+    };
+    const groups = effectGroupsFromItems([...items, withUnknown]);
+    const other = groups.find((g) => g.label === "Other");
+    expect(other?.options.map((o) => o.value)).toContain("MysteryStat");
+    expect(groups.at(-1)?.label).toBe("Other"); // Other is trailing
   });
 });
 
