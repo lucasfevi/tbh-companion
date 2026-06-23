@@ -36,6 +36,38 @@
   body {
     @apply bg-bg font-sans text-sm text-fg select-none;
   }
+
+  /* App-wide themed scrollbars (Chromium/Electron). Covers tabs, popups,
+     DataList, and Base UI portals from one place. */
+  * {
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
 }
 
 /* Electron frameless window drag regions (Mini overlay + box tracker). */
