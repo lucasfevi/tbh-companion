@@ -1,38 +1,43 @@
 import { gradeLabel, typeLabel } from "../../../core/labels";
-import type { LookupEffectOption, LookupSortKey } from "../../lib/lookupFilters";
-import { Input } from "../../design-system/primitives/Input/Input";
-import { Select } from "../../design-system/primitives/Select/Select";
+import {
+  LEVEL_MAX,
+  LEVEL_MIN,
+  type LookupEffectOption,
+  type LookupSortKey,
+} from "../../lib/lookupFilters";
 import { Field } from "../../design-system/primitives/Field/Field";
-import { Button } from "../../design-system/primitives/Button/Button";
+import { Input } from "../../design-system/primitives/Input/Input";
+import { Switch } from "../../design-system/primitives/Switch/Switch";
+import { RangeSlider } from "../../design-system/primitives/RangeSlider/RangeSlider";
+import {
+  MultiSelect,
+  type MultiSelectOption,
+} from "../../design-system/primitives/MultiSelect/MultiSelect";
+import { SortControl } from "../filters/SortControl";
+import { FilterBar } from "../filters/FilterBar";
+import type { SelectOption } from "../../design-system/primitives/Select/Select";
 
-const SORT_OPTIONS: { value: LookupSortKey; label: string }[] = [
+const SORT_OPTIONS: SelectOption[] = [
   { value: "name", label: "Name" },
   { value: "grade", label: "Grade" },
   { value: "level", label: "Level" },
   { value: "type", label: "Type" },
 ];
 
-const ANY_LEVEL = "ANY";
-
-function levelSelectOptions(levels: number[]): { value: string | number; label: string }[] {
-  return [
-    { value: ANY_LEVEL, label: "Any" },
-    ...levels.map((l) => ({ value: l, label: `Lv ${l}` })),
-  ];
+function toOptions(values: string[], label: (value: string) => string): MultiSelectOption[] {
+  return values.map((value) => ({ value, label: label(value) }));
 }
 
 export interface LookupFiltersProps {
   query: string;
-  typeFilter: string;
-  gradeFilter: string;
-  gearTypeFilter: string;
-  classFilter: string;
-  materialKindFilter: string;
-  effectFilter: string;
-  targetGroupFilter: string;
+  typeFilter: string[];
+  gradeFilter: string[];
+  gearTypeFilter: string[];
+  classFilter: string[];
+  materialKindFilter: string[];
+  effectFilter: string[];
   uniqueOnly: boolean;
-  minLevel: number | null;
-  maxLevel: number | null;
+  levelRange: [number, number];
   sortKey: LookupSortKey;
   sortDir: "asc" | "desc";
   gradeOptions: string[];
@@ -41,20 +46,16 @@ export interface LookupFiltersProps {
   classOptions: string[];
   materialKindOptions: string[];
   effectOptions: LookupEffectOption[];
-  targetGroupOptions: string[];
-  levelOptions: number[];
   shownCount: number;
   onQueryChange: (q: string) => void;
-  onTypeFilterChange: (t: string) => void;
-  onGradeFilterChange: (g: string) => void;
-  onGearTypeFilterChange: (g: string) => void;
-  onClassFilterChange: (c: string) => void;
-  onMaterialKindFilterChange: (m: string) => void;
-  onEffectFilterChange: (e: string) => void;
-  onTargetGroupFilterChange: (t: string) => void;
+  onTypeFilterChange: (t: string[]) => void;
+  onGradeFilterChange: (g: string[]) => void;
+  onGearTypeFilterChange: (g: string[]) => void;
+  onClassFilterChange: (c: string[]) => void;
+  onMaterialKindFilterChange: (m: string[]) => void;
+  onEffectFilterChange: (e: string[]) => void;
   onUniqueOnlyChange: (v: boolean) => void;
-  onMinLevelChange: (level: number | null) => void;
-  onMaxLevelChange: (level: number | null) => void;
+  onLevelRangeChange: (range: [number, number]) => void;
   onSortKeyChange: (key: LookupSortKey) => void;
   onSortDirToggle: () => void;
 }
@@ -67,10 +68,8 @@ export function LookupFilters({
   classFilter,
   materialKindFilter,
   effectFilter,
-  targetGroupFilter,
   uniqueOnly,
-  minLevel,
-  maxLevel,
+  levelRange,
   sortKey,
   sortDir,
   gradeOptions,
@@ -79,8 +78,6 @@ export function LookupFilters({
   classOptions,
   materialKindOptions,
   effectOptions,
-  targetGroupOptions,
-  levelOptions,
   shownCount,
   onQueryChange,
   onTypeFilterChange,
@@ -89,143 +86,105 @@ export function LookupFilters({
   onClassFilterChange,
   onMaterialKindFilterChange,
   onEffectFilterChange,
-  onTargetGroupFilterChange,
   onUniqueOnlyChange,
-  onMinLevelChange,
-  onMaxLevelChange,
+  onLevelRangeChange,
   onSortKeyChange,
   onSortDirToggle,
 }: LookupFiltersProps) {
-  const showGearFilters = typeFilter !== "MATERIAL";
-  const showMaterialFilters = typeFilter !== "GEAR";
+  const showGearFilters = typeFilter.length === 0 || typeFilter.includes("GEAR");
+  const showMaterialFilters = typeFilter.length === 0 || typeFilter.includes("MATERIAL");
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <Input
-        className="max-w-xs flex-1"
-        placeholder="Search items..."
-        value={query}
-        onChange={(e) => onQueryChange(e.target.value)}
-      />
-      <Select
-        className="min-w-0"
+    <FilterBar count={`${shownCount} shown`}>
+      <Field label="Search" className="w-48">
+        <Input
+          placeholder="Search items..."
+          value={query}
+          onChange={(e) => onQueryChange(e.target.value)}
+        />
+      </Field>
+
+      <MultiSelect
+        className="w-40"
+        label="Type"
+        allLabel="All types"
+        searchable={false}
         value={typeFilter}
-        onValueChange={(value) => onTypeFilterChange(String(value))}
-        title="Filter by item type"
-        options={[
-          { value: "ALL", label: "All types" },
-          ...typeOptions.map((t) => ({ value: t, label: typeLabel(t) })),
-        ]}
+        onValueChange={onTypeFilterChange}
+        options={toOptions(typeOptions, typeLabel)}
       />
-      <Select
-        className="min-w-0"
+      <MultiSelect
+        className="w-40"
+        label="Grade"
+        allLabel="All grades"
         value={gradeFilter}
-        onValueChange={(value) => onGradeFilterChange(String(value))}
-        title="Filter by grade"
-        options={[
-          { value: "ALL", label: "All grades" },
-          ...gradeOptions.map((g) => ({ value: g, label: gradeLabel(g) })),
-        ]}
+        onValueChange={onGradeFilterChange}
+        options={toOptions(gradeOptions, gradeLabel)}
       />
-      <Select
-        className="min-w-0"
+      <MultiSelect
+        className="w-44"
+        label="Effect"
+        allLabel="All effects"
         value={effectFilter}
-        onValueChange={(value) => onEffectFilterChange(String(value))}
-        title="Filter by effect"
-        options={[{ value: "ALL", label: "All effects" }, ...effectOptions]}
+        onValueChange={onEffectFilterChange}
+        options={effectOptions}
       />
 
       {showGearFilters ? (
         <>
-          <Select
-            className="min-w-0"
+          <MultiSelect
+            className="w-40"
+            label="Gear slot"
+            allLabel="All gear slots"
             value={gearTypeFilter}
-            onValueChange={(value) => onGearTypeFilterChange(String(value))}
-            title="Filter by gear slot"
-            options={[
-              { value: "ALL", label: "All gear slots" },
-              ...gearTypeOptions.map((g) => ({ value: g, label: typeLabel(g) })),
-            ]}
+            onValueChange={onGearTypeFilterChange}
+            options={toOptions(gearTypeOptions, typeLabel)}
           />
-          <Select
-            className="min-w-0"
+          <MultiSelect
+            className="w-40"
+            label="Class"
+            allLabel="All classes"
             value={classFilter}
-            onValueChange={(value) => onClassFilterChange(String(value))}
-            title="Filter by class"
-            options={[
-              { value: "ALL", label: "All classes" },
-              ...classOptions.map((c) => ({ value: c, label: c })),
-            ]}
+            onValueChange={onClassFilterChange}
+            options={toOptions(classOptions, (c) => c)}
           />
-          <Select
-            className="min-w-0"
-            value={minLevel ?? ANY_LEVEL}
-            onValueChange={(value) => onMinLevelChange(value === ANY_LEVEL ? null : Number(value))}
-            title="Minimum level"
-            options={levelSelectOptions(levelOptions)}
+          <RangeSlider
+            className="w-48"
+            label="Level"
+            min={LEVEL_MIN}
+            max={LEVEL_MAX}
+            value={levelRange}
+            onValueChange={onLevelRangeChange}
           />
-          <Select
-            className="min-w-0"
-            value={maxLevel ?? ANY_LEVEL}
-            onValueChange={(value) => onMaxLevelChange(value === ANY_LEVEL ? null : Number(value))}
-            title="Maximum level"
-            options={levelSelectOptions(levelOptions)}
-          />
-          <Field label="Unique only" checkbox>
-            <input
-              type="checkbox"
+          <Field label="Unique only" className="flex-row items-center gap-2 self-end pb-1.5">
+            <Switch
               checked={uniqueOnly}
-              onChange={(e) => onUniqueOnlyChange(e.target.checked)}
+              onCheckedChange={onUniqueOnlyChange}
+              aria-label="Unique only"
             />
           </Field>
         </>
       ) : null}
 
       {showMaterialFilters ? (
-        <>
-          <Select
-            className="min-w-0"
-            value={materialKindFilter}
-            onValueChange={(value) => onMaterialKindFilterChange(String(value))}
-            title="Filter by material kind"
-            options={[
-              { value: "ALL", label: "All material kinds" },
-              ...materialKindOptions.map((m) => ({ value: m, label: typeLabel(m) })),
-            ]}
-          />
-          <Select
-            className="min-w-0"
-            value={targetGroupFilter}
-            onValueChange={(value) => onTargetGroupFilterChange(String(value))}
-            title="Filter by what it applies to"
-            options={[
-              { value: "ALL", label: "Applies to anything" },
-              ...targetGroupOptions.map((g) => ({ value: g, label: typeLabel(g) })),
-            ]}
-          />
-        </>
+        <MultiSelect
+          className="w-44"
+          label="Material kind"
+          allLabel="All material kinds"
+          value={materialKindFilter}
+          onValueChange={onMaterialKindFilterChange}
+          options={toOptions(materialKindOptions, typeLabel)}
+        />
       ) : null}
 
-      <div className="flex items-center gap-1">
-        <Select
-          className="min-w-0"
-          value={sortKey}
-          onValueChange={(value) => onSortKeyChange(value as LookupSortKey)}
-          title="Sort by"
-          options={SORT_OPTIONS}
-        />
-        <Button
-          variant="icon"
-          size="sm"
-          onClick={onSortDirToggle}
-          title={sortDir === "asc" ? "Ascending" : "Descending"}
-          aria-label={sortDir === "asc" ? "Sort ascending" : "Sort descending"}
-        >
-          {sortDir === "asc" ? "▲" : "▼"}
-        </Button>
-      </div>
-
-      <span className="text-xs text-muted">{shownCount} shown</span>
-    </div>
+      <SortControl
+        className="w-44"
+        options={SORT_OPTIONS}
+        sortKey={sortKey}
+        onSortKeyChange={(key) => onSortKeyChange(key as LookupSortKey)}
+        sortDir={sortDir}
+        onSortDirToggle={onSortDirToggle}
+      />
+    </FilterBar>
   );
 }

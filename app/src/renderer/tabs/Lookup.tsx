@@ -12,9 +12,9 @@ import {
   filterAndSortItems,
   gearTypeOptionsFromItems,
   gradeOptionsFromItems,
-  levelOptionsFromItems,
+  LEVEL_MAX,
+  LEVEL_MIN,
   materialKindOptionsFromItems,
-  targetGroupOptionsFromItems,
   typeOptionsFromItems,
   type LookupSortKey,
 } from "../lib/lookupFilters";
@@ -35,32 +35,31 @@ export function Lookup() {
   const [panelOpen, setPanelOpen] = useState(false);
 
   const [query, setQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("ALL");
-  const [gradeFilter, setGradeFilter] = useState("ALL");
-  const [gearTypeFilter, setGearTypeFilter] = useState("ALL");
-  const [classFilter, setClassFilter] = useState("ALL");
-  const [materialKindFilter, setMaterialKindFilter] = useState("ALL");
-  const [effectFilter, setEffectFilter] = useState("ALL");
-  const [targetGroupFilter, setTargetGroupFilter] = useState("ALL");
+  const [typeFilter, setTypeFilter] = useState<string[]>([]);
+  const [gradeFilter, setGradeFilter] = useState<string[]>([]);
+  const [gearTypeFilter, setGearTypeFilter] = useState<string[]>([]);
+  const [classFilter, setClassFilter] = useState<string[]>([]);
+  const [materialKindFilter, setMaterialKindFilter] = useState<string[]>([]);
+  const [effectFilter, setEffectFilter] = useState<string[]>([]);
   const [uniqueOnly, setUniqueOnly] = useState(false);
-  const [minLevel, setMinLevel] = useState<number | null>(null);
-  const [maxLevel, setMaxLevel] = useState<number | null>(null);
+  const [levelRange, setLevelRange] = useState<[number, number]>([LEVEL_MIN, LEVEL_MAX]);
   const [sortKey, setSortKey] = useState<LookupSortKey>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
-  function handleTypeFilterChange(value: string) {
-    setTypeFilter(value);
-    // Hidden filters shouldn't silently keep filtering once their controls
-    // disappear — e.g. a leftover class filter would zero out every material.
-    if (value === "MATERIAL") {
-      setGearTypeFilter("ALL");
-      setClassFilter("ALL");
-      setMinLevel(null);
-      setMaxLevel(null);
+  function handleTypeFilterChange(next: string[]) {
+    setTypeFilter(next);
+    // Hidden multi-select sub-filters shouldn't silently keep filtering once
+    // their controls disappear — e.g. a leftover class filter would zero out
+    // every material. The level range persists by design (it's material-safe).
+    const gearVisible = next.length === 0 || next.includes("GEAR");
+    const materialVisible = next.length === 0 || next.includes("MATERIAL");
+    if (!gearVisible) {
+      setGearTypeFilter([]);
+      setClassFilter([]);
       setUniqueOnly(false);
-    } else if (value === "GEAR") {
-      setMaterialKindFilter("ALL");
-      setTargetGroupFilter("ALL");
+    }
+    if (!materialVisible) {
+      setMaterialKindFilter([]);
     }
   }
 
@@ -96,10 +95,8 @@ export function Lookup() {
       classFilter,
       materialKindFilter,
       effectFilter,
-      targetGroupFilter,
       uniqueOnly,
-      minLevel,
-      maxLevel,
+      levelRange,
       sortKey,
       sortDir,
     });
@@ -112,10 +109,8 @@ export function Lookup() {
     classFilter,
     materialKindFilter,
     effectFilter,
-    targetGroupFilter,
     uniqueOnly,
-    minLevel,
-    maxLevel,
+    levelRange,
     sortKey,
     sortDir,
   ]);
@@ -144,10 +139,8 @@ export function Lookup() {
         classFilter={classFilter}
         materialKindFilter={materialKindFilter}
         effectFilter={effectFilter}
-        targetGroupFilter={targetGroupFilter}
         uniqueOnly={uniqueOnly}
-        minLevel={minLevel}
-        maxLevel={maxLevel}
+        levelRange={levelRange}
         sortKey={sortKey}
         sortDir={sortDir}
         gradeOptions={gradeOptionsFromItems(items)}
@@ -156,8 +149,6 @@ export function Lookup() {
         classOptions={classOptionsFromItems(items)}
         materialKindOptions={materialKindOptionsFromItems(items)}
         effectOptions={effectOptionsFromItems(items)}
-        targetGroupOptions={targetGroupOptionsFromItems(items)}
-        levelOptions={levelOptionsFromItems(items)}
         shownCount={filtered.length}
         onQueryChange={setQuery}
         onTypeFilterChange={handleTypeFilterChange}
@@ -166,10 +157,8 @@ export function Lookup() {
         onClassFilterChange={setClassFilter}
         onMaterialKindFilterChange={setMaterialKindFilter}
         onEffectFilterChange={setEffectFilter}
-        onTargetGroupFilterChange={setTargetGroupFilter}
         onUniqueOnlyChange={setUniqueOnly}
-        onMinLevelChange={setMinLevel}
-        onMaxLevelChange={setMaxLevel}
+        onLevelRangeChange={setLevelRange}
         onSortKeyChange={handleSortKeyChange}
         onSortDirToggle={toggleSortDir}
       />
