@@ -5,20 +5,32 @@ import type { LookupItem } from "../../../shared/types";
 
 export type LookupSortKey = "name" | "grade" | "level" | "type";
 
+/** Fixed level bounds for the range filter — the game's level cap, not derived from data. */
+export const LEVEL_MIN = 1;
+export const LEVEL_MAX = 100;
+
 export interface LookupFilterState {
   query: string;
-  typeFilter: string;
-  gradeFilter: string;
-  gearTypeFilter: string;
-  classFilter: string;
-  materialKindFilter: string;
-  effectFilter: string;
-  targetGroupFilter: string;
+  typeFilter: string[];
+  gradeFilter: string[];
+  gearTypeFilter: string[];
+  classFilter: string[];
+  materialKindFilter: string[];
+  effectFilter: string[];
   uniqueOnly: boolean;
-  minLevel: number | null;
-  maxLevel: number | null;
+  /** `[lo, hi]` over LEVEL_MIN..LEVEL_MAX; the full span means "no level filter". */
+  levelRange: [number, number];
   sortKey: LookupSortKey;
   sortDir: "asc" | "desc";
+}
+
+/** A multi-select with no selections means "no filter" (match everything). */
+function matchesMulti(selected: string[], value: string | null): boolean {
+  return selected.length === 0 || (value != null && selected.includes(value));
+}
+
+function isFullLevelRange([lo, hi]: [number, number]): boolean {
+  return lo <= LEVEL_MIN && hi >= LEVEL_MAX;
 }
 
 export function gradeOptionsFromItems(items: LookupItem[]): string[] {
@@ -48,21 +60,6 @@ export function classOptionsFromItems(items: LookupItem[]): string[] {
 
 export function materialKindOptionsFromItems(items: LookupItem[]): string[] {
   return [...new Set(items.flatMap((i) => (i.materialType ? [i.materialType] : [])))].sort();
-}
-
-export function targetGroupOptionsFromItems(items: LookupItem[]): string[] {
-  const present = new Set(
-    items.flatMap(
-      (i) => i.gearGroups?.filter((g) => g.outcomes.length > 0).map((g) => g.gearGroup) ?? [],
-    ),
-  );
-  return [...present].sort();
-}
-
-export function levelOptionsFromItems(items: LookupItem[]): number[] {
-  return [...new Set(items.flatMap((i) => (i.level != null ? [i.level] : [])))].sort(
-    (a, b) => a - b,
-  );
 }
 
 export interface LookupEffectOption {
@@ -102,29 +99,25 @@ export function isUnresolvedLocalizationKey(name: string): boolean {
 
 export function filterAndSortItems(items: LookupItem[], state: LookupFilterState): LookupItem[] {
   const q = state.query.trim().toLowerCase();
+  const fullLevel = isFullLevelRange(state.levelRange);
+  const [minLevel, maxLevel] = state.levelRange;
   let rows = items.filter((item) => {
     if (isUnresolvedLocalizationKey(item.name)) return false;
-    if (state.typeFilter !== "ALL" && item.type !== state.typeFilter) return false;
-    if (state.gradeFilter !== "ALL" && item.grade !== state.gradeFilter) return false;
-    if (state.gearTypeFilter !== "ALL" && item.gearType !== state.gearTypeFilter) return false;
-    if (state.classFilter !== "ALL" && classForGearType(item.gearType) !== state.classFilter) {
+    if (!matchesMulti(state.typeFilter, item.type)) return false;
+    if (!matchesMulti(state.gradeFilter, item.grade)) return false;
+    if (!matchesMulti(state.gearTypeFilter, item.gearType)) return false;
+    if (!matchesMulti(state.classFilter, classForGearType(item.gearType))) return false;
+    if (!matchesMulti(state.materialKindFilter, item.materialType)) return false;
+    if (
+      state.effectFilter.length > 0 &&
+      !state.effectFilter.some((statKey) => itemHasEffect(item, statKey))
+    ) {
       return false;
     }
-    if (state.materialKindFilter !== "ALL" && item.materialType !== state.materialKindFilter) {
-      return false;
-    }
-    if (state.targetGroupFilter !== "ALL") {
-      const hasGroup = item.gearGroups?.some(
-        (g) => g.gearGroup === state.targetGroupFilter && g.outcomes.length > 0,
-      );
-      if (!hasGroup) return false;
-    }
-    if (state.effectFilter !== "ALL" && !itemHasEffect(item, state.effectFilter)) return false;
     if (state.uniqueOnly && !item.stats?.unique) return false;
-    if (state.minLevel != null && (item.level == null || item.level < state.minLevel)) {
-      return false;
-    }
-    if (state.maxLevel != null && (item.level == null || item.level > state.maxLevel)) {
+    // Material-safe: items without a level (materials) always pass the level check,
+    // so a persisted level band only narrows gear.
+    if (!fullLevel && item.level != null && (item.level < minLevel || item.level > maxLevel)) {
       return false;
     }
     if (q && !item.name.toLowerCase().includes(q)) return false;

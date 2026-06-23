@@ -7,9 +7,9 @@ import {
   filterAndSortItems,
   gearTypeOptionsFromItems,
   gradeOptionsFromItems,
-  levelOptionsFromItems,
+  LEVEL_MAX,
+  LEVEL_MIN,
   materialKindOptionsFromItems,
-  targetGroupOptionsFromItems,
   typeOptionsFromItems,
   type LookupFilterState,
 } from "../../src/renderer/lib/lookupFilters";
@@ -134,16 +134,14 @@ const items = [scepter, bow, amulet, engraving, crafting];
 
 const baseState: LookupFilterState = {
   query: "",
-  typeFilter: "ALL",
-  gradeFilter: "ALL",
-  gearTypeFilter: "ALL",
-  classFilter: "ALL",
-  materialKindFilter: "ALL",
-  effectFilter: "ALL",
-  targetGroupFilter: "ALL",
+  typeFilter: [],
+  gradeFilter: [],
+  gearTypeFilter: [],
+  classFilter: [],
+  materialKindFilter: [],
+  effectFilter: [],
   uniqueOnly: false,
-  minLevel: null,
-  maxLevel: null,
+  levelRange: [LEVEL_MIN, LEVEL_MAX],
   sortKey: "name",
   sortDir: "asc",
 };
@@ -171,44 +169,57 @@ describe("filterAndSortItems", () => {
   });
 
   it("filters by type", () => {
-    const rows = filterAndSortItems(items, { ...baseState, typeFilter: "MATERIAL" });
+    const rows = filterAndSortItems(items, { ...baseState, typeFilter: ["MATERIAL"] });
     expect(names(rows)).toEqual(["Griffin Beak", "Iron Ingot"]);
   });
 
   it("filters by grade", () => {
-    const rows = filterAndSortItems(items, { ...baseState, gradeFilter: "LEGENDARY" });
+    const rows = filterAndSortItems(items, { ...baseState, gradeFilter: ["LEGENDARY"] });
     expect(names(rows)).toEqual(["Limitless Bow"]);
   });
 
+  it("includes any item matching one of several selected grades (OR within a filter)", () => {
+    const rows = filterAndSortItems(items, { ...baseState, gradeFilter: ["ARCANA", "IMMORTAL"] });
+    expect(names(rows)).toEqual(["Dimensional Scepter", "Griffin Beak"]);
+  });
+
+  it("treats an empty multi-select as no filter", () => {
+    const rows = filterAndSortItems(items, { ...baseState, gradeFilter: [] });
+    expect(rows).toHaveLength(items.length);
+  });
+
   it("filters by gear slot", () => {
-    const rows = filterAndSortItems(items, { ...baseState, gearTypeFilter: "BOW" });
+    const rows = filterAndSortItems(items, { ...baseState, gearTypeFilter: ["BOW"] });
     expect(names(rows)).toEqual(["Limitless Bow"]);
   });
 
   it("filters by class derived from gearType", () => {
-    const rows = filterAndSortItems(items, { ...baseState, classFilter: "Priest" });
+    const rows = filterAndSortItems(items, { ...baseState, classFilter: ["Priest"] });
     expect(names(rows)).toEqual(["Dimensional Scepter"]);
   });
 
   it("filters by material kind", () => {
-    const rows = filterAndSortItems(items, { ...baseState, materialKindFilter: "CRAFTING" });
+    const rows = filterAndSortItems(items, { ...baseState, materialKindFilter: ["CRAFTING"] });
     expect(names(rows)).toEqual(["Iron Ingot"]);
   });
 
   it("filters by the unified effect (stat) filter across gear and materials", () => {
-    const gearRows = filterAndSortItems(items, { ...baseState, effectFilter: "AttackDamage" });
+    const gearRows = filterAndSortItems(items, { ...baseState, effectFilter: ["AttackDamage"] });
     expect(names(gearRows)).toEqual(["Dimensional Scepter", "Limitless Bow"]);
 
     const matRows = filterAndSortItems(items, {
       ...baseState,
-      effectFilter: "ColdDamagePercent",
+      effectFilter: ["ColdDamagePercent"],
     });
     expect(names(matRows)).toEqual(["Griffin Beak"]);
   });
 
-  it("filters by target group (what a material applies to)", () => {
-    const rows = filterAndSortItems(items, { ...baseState, targetGroupFilter: "ARMOR" });
-    expect(names(rows)).toEqual(["Griffin Beak"]);
+  it("matches an item with any of several selected effects (OR within a filter)", () => {
+    const rows = filterAndSortItems(items, {
+      ...baseState,
+      effectFilter: ["AttackDamage", "ColdDamagePercent"],
+    });
+    expect(names(rows)).toEqual(["Dimensional Scepter", "Griffin Beak", "Limitless Bow"]);
   });
 
   it("filters to unique-only gear", () => {
@@ -216,9 +227,26 @@ describe("filterAndSortItems", () => {
     expect(names(rows)).toEqual(["Limitless Bow"]);
   });
 
-  it("filters by level range, excluding levelless materials", () => {
-    const rows = filterAndSortItems(items, { ...baseState, minLevel: 50, maxLevel: 80 });
-    expect(names(rows)).toEqual(["Dimensional Scepter", "Limitless Bow"]);
+  it("filters by level range, leaving levelless materials untouched (material-safe)", () => {
+    const rows = filterAndSortItems(items, { ...baseState, levelRange: [50, 80] });
+    // Gear narrowed to the band; materials (null level) still pass through.
+    expect(names(rows)).toEqual([
+      "Dimensional Scepter",
+      "Griffin Beak",
+      "Iron Ingot",
+      "Limitless Bow",
+    ]);
+  });
+
+  it("treats a full-span level range as no level filter", () => {
+    const rows = filterAndSortItems(items, { ...baseState, levelRange: [LEVEL_MIN, LEVEL_MAX] });
+    expect(rows).toHaveLength(items.length);
+  });
+
+  it("narrows low-level gear out of the band while keeping materials", () => {
+    const rows = filterAndSortItems(items, { ...baseState, levelRange: [50, 80] });
+    expect(names(rows)).not.toContain("Copper Amulet"); // level 1 gear excluded
+    expect(names(rows)).toContain("Iron Ingot"); // levelless material kept
   });
 
   it("sorts by name ascending and descending", () => {
@@ -250,11 +278,11 @@ describe("filterAndSortItems", () => {
     expect(rows.length).toBe(items.length);
   });
 
-  it("combines filters", () => {
+  it("combines filters (AND across distinct filters)", () => {
     const rows = filterAndSortItems(items, {
       ...baseState,
-      typeFilter: "GEAR",
-      gradeFilter: "LEGENDARY",
+      typeFilter: ["GEAR"],
+      gradeFilter: ["LEGENDARY"],
       uniqueOnly: true,
     });
     expect(names(rows)).toEqual(["Limitless Bow"]);
@@ -286,14 +314,6 @@ describe("lookup option helpers", () => {
 
   it("materialKindOptionsFromItems lists distinct material kinds", () => {
     expect(materialKindOptionsFromItems(items)).toEqual(["CRAFTING", "ENGRAVING"]);
-  });
-
-  it("targetGroupOptionsFromItems lists gearGroups with outcomes", () => {
-    expect(targetGroupOptionsFromItems(items)).toEqual(["ARMOR", "WEAPON"]);
-  });
-
-  it("levelOptionsFromItems lists distinct levels ascending", () => {
-    expect(levelOptionsFromItems(items)).toEqual([1, 80]);
   });
 
   it("effectOptionsFromItems unions gear and material stat keys with humanized labels", () => {
