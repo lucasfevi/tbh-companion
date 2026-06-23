@@ -1,7 +1,7 @@
 {
   "source": "game_extracted",
   "gameVersion": "1.00.19",
-  "fetchedUtc": "2026-06-23T04:40:40.070Z",
+  "fetchedUtc": "2026-06-23T04:51:38.302Z",
   "count": 5885,
   "items": [
     {
@@ -1786,7 +1786,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 303021,
@@ -1802,7 +1802,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 303031,
@@ -1818,7 +1818,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 303041,
@@ -1834,7 +1834,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 303051,
@@ -1850,7 +1850,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 303061,
@@ -1882,7 +1882,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 303081,
@@ -1914,7 +1914,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 303101,
@@ -1946,7 +1946,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 303121,
@@ -1994,7 +1994,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 303151,
@@ -2042,7 +2042,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 303181,
@@ -2090,7 +2090,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 304021,
@@ -2106,7 +2106,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 304031,
@@ -2122,7 +2122,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 304041,
@@ -2138,7 +2138,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 304051,
@@ -2154,7 +2154,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 304061,
@@ -2186,7 +2186,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 304081,
@@ -2218,7 +2218,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 304101,
@@ -2250,7 +2250,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 304121,
@@ -2298,7 +2298,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 304151,
@@ -2346,7 +2346,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 304181,
@@ -2394,7 +2394,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 305051,
@@ -2410,7 +2410,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 305061,
@@ -2442,7 +2442,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 305081,
@@ -2474,7 +2474,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 305101,
@@ -2506,7 +2506,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 305121,
@@ -2554,7 +2554,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 305151,
@@ -2602,7 +2602,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 305181,
@@ -2666,7 +2666,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 306081,
@@ -2698,7 +2698,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 306101,
@@ -2730,7 +2730,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 306121,
@@ -2778,7 +2778,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 306151,
@@ -2826,7 +2826,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 306181,
@@ -2906,7 +2906,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 307151,
@@ -2954,7 +2954,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 307181,
@@ -3034,7 +3034,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 308151,
@@ -3082,7 +3082,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 308181,
@@ -3162,7 +3162,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 309151,
@@ -3210,7 +3210,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 309181,
@@ -4026,7 +4026,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 313021,
@@ -4042,7 +4042,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 313031,
@@ -4058,7 +4058,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 313041,
@@ -4074,7 +4074,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 313051,
@@ -4090,7 +4090,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 313061,
@@ -4122,7 +4122,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 313081,
@@ -4154,7 +4154,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 313101,
@@ -4186,7 +4186,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 313121,
@@ -4234,7 +4234,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 313151,
@@ -4282,7 +4282,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 313181,
@@ -4330,7 +4330,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 314021,
@@ -4346,7 +4346,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 314031,
@@ -4362,7 +4362,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 314041,
@@ -4378,7 +4378,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 314051,
@@ -4394,7 +4394,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 314061,
@@ -4426,7 +4426,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 314081,
@@ -4458,7 +4458,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 314101,
@@ -4490,7 +4490,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 314121,
@@ -4538,7 +4538,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 314151,
@@ -4586,7 +4586,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 314181,
@@ -4634,7 +4634,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 315051,
@@ -4650,7 +4650,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 315061,
@@ -4682,7 +4682,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 315081,
@@ -4714,7 +4714,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 315101,
@@ -4746,7 +4746,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 315121,
@@ -4794,7 +4794,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 315151,
@@ -4842,7 +4842,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 315181,
@@ -4906,7 +4906,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 316081,
@@ -4938,7 +4938,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 316101,
@@ -4970,7 +4970,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 316121,
@@ -5018,7 +5018,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 316151,
@@ -5066,7 +5066,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 316181,
@@ -5146,7 +5146,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 317151,
@@ -5194,7 +5194,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 317181,
@@ -5274,7 +5274,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 318151,
@@ -5322,7 +5322,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 318181,
@@ -5402,7 +5402,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 319151,
@@ -5450,7 +5450,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 319181,
@@ -6266,7 +6266,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 323021,
@@ -6282,7 +6282,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 323031,
@@ -6298,7 +6298,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 323041,
@@ -6314,7 +6314,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 323051,
@@ -6330,7 +6330,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 323061,
@@ -6362,7 +6362,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 323081,
@@ -6394,7 +6394,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 323101,
@@ -6426,7 +6426,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 323121,
@@ -6474,7 +6474,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 323151,
@@ -6522,7 +6522,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 323181,
@@ -6570,7 +6570,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 324021,
@@ -6586,7 +6586,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 324031,
@@ -6602,7 +6602,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 324041,
@@ -6618,7 +6618,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 324051,
@@ -6634,7 +6634,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 324061,
@@ -6666,7 +6666,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 324081,
@@ -6698,7 +6698,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 324101,
@@ -6730,7 +6730,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 324121,
@@ -6778,7 +6778,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 324151,
@@ -6826,7 +6826,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 324181,
@@ -6874,7 +6874,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 325051,
@@ -6890,7 +6890,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 325061,
@@ -6922,7 +6922,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 325081,
@@ -6954,7 +6954,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 325101,
@@ -6986,7 +6986,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 325121,
@@ -7034,7 +7034,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 325151,
@@ -7082,7 +7082,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 325181,
@@ -7146,7 +7146,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 326081,
@@ -7178,7 +7178,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 326101,
@@ -7210,7 +7210,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 326121,
@@ -7258,7 +7258,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 326151,
@@ -7306,7 +7306,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 326181,
@@ -7386,7 +7386,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 327151,
@@ -7434,7 +7434,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 327181,
@@ -7514,7 +7514,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 328151,
@@ -7562,7 +7562,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 328181,
@@ -7642,7 +7642,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 329151,
@@ -7690,7 +7690,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 329181,
@@ -8506,7 +8506,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 333021,
@@ -8522,7 +8522,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 333031,
@@ -8538,7 +8538,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 333041,
@@ -8554,7 +8554,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 333051,
@@ -8570,7 +8570,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 333061,
@@ -8602,7 +8602,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 333081,
@@ -8634,7 +8634,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 333101,
@@ -8666,7 +8666,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 333121,
@@ -8714,7 +8714,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 333151,
@@ -8762,7 +8762,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 333181,
@@ -8810,7 +8810,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 334021,
@@ -8826,7 +8826,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 334031,
@@ -8842,7 +8842,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 334041,
@@ -8858,7 +8858,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 334051,
@@ -8874,7 +8874,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 334061,
@@ -8906,7 +8906,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 334081,
@@ -8938,7 +8938,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 334101,
@@ -8970,7 +8970,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 334121,
@@ -9018,7 +9018,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 334151,
@@ -9066,7 +9066,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 334181,
@@ -9114,7 +9114,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 335051,
@@ -9130,7 +9130,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 335061,
@@ -9162,7 +9162,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 335081,
@@ -9194,7 +9194,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 335101,
@@ -9226,7 +9226,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 335121,
@@ -9274,7 +9274,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 335151,
@@ -9322,7 +9322,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 335181,
@@ -9386,7 +9386,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 336081,
@@ -9418,7 +9418,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 336101,
@@ -9450,7 +9450,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 336121,
@@ -9498,7 +9498,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 336151,
@@ -9546,7 +9546,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 336181,
@@ -9626,7 +9626,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 337151,
@@ -9674,7 +9674,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 337181,
@@ -9754,7 +9754,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 338151,
@@ -9802,7 +9802,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 338181,
@@ -9882,7 +9882,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 339151,
@@ -9930,7 +9930,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 339181,
@@ -10746,7 +10746,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 343021,
@@ -10762,7 +10762,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 343031,
@@ -10778,7 +10778,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 343041,
@@ -10794,7 +10794,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 343051,
@@ -10810,7 +10810,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 343061,
@@ -10842,7 +10842,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 343081,
@@ -10874,7 +10874,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 343101,
@@ -10906,7 +10906,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 343121,
@@ -10954,7 +10954,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 343151,
@@ -11002,7 +11002,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 343181,
@@ -11050,7 +11050,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 344021,
@@ -11066,7 +11066,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 344031,
@@ -11082,7 +11082,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 344041,
@@ -11098,7 +11098,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 344051,
@@ -11114,7 +11114,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 344061,
@@ -11146,7 +11146,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 344081,
@@ -11178,7 +11178,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 344101,
@@ -11210,7 +11210,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 344121,
@@ -11258,7 +11258,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 344151,
@@ -11306,7 +11306,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 344181,
@@ -11354,7 +11354,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 345051,
@@ -11370,7 +11370,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 345061,
@@ -11402,7 +11402,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 345081,
@@ -11434,7 +11434,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 345101,
@@ -11466,7 +11466,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 345121,
@@ -11514,7 +11514,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 345151,
@@ -11562,7 +11562,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 345181,
@@ -11626,7 +11626,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 346081,
@@ -11658,7 +11658,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 346101,
@@ -11690,7 +11690,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 346121,
@@ -11738,7 +11738,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 346151,
@@ -11786,7 +11786,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 346181,
@@ -11866,7 +11866,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 347151,
@@ -11914,7 +11914,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 347181,
@@ -11994,7 +11994,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 348151,
@@ -12042,7 +12042,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 348181,
@@ -12122,7 +12122,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 349151,
@@ -12170,7 +12170,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 349181,
@@ -12986,7 +12986,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 353021,
@@ -13002,7 +13002,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 353031,
@@ -13018,7 +13018,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 353041,
@@ -13034,7 +13034,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 353051,
@@ -13050,7 +13050,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 353061,
@@ -13082,7 +13082,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 353081,
@@ -13114,7 +13114,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 353101,
@@ -13146,7 +13146,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 353121,
@@ -13194,7 +13194,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 353151,
@@ -13242,7 +13242,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 353181,
@@ -13290,7 +13290,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 354021,
@@ -13306,7 +13306,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 354031,
@@ -13322,7 +13322,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 354041,
@@ -13338,7 +13338,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 354051,
@@ -13354,7 +13354,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 354061,
@@ -13386,7 +13386,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 354081,
@@ -13418,7 +13418,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 354101,
@@ -13450,7 +13450,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 354121,
@@ -13498,7 +13498,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 354151,
@@ -13546,7 +13546,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 354181,
@@ -13594,7 +13594,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 355051,
@@ -13610,7 +13610,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 355061,
@@ -13642,7 +13642,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 355081,
@@ -13674,7 +13674,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 355101,
@@ -13706,7 +13706,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 355121,
@@ -13754,7 +13754,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 355151,
@@ -13802,7 +13802,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 355181,
@@ -13866,7 +13866,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 356081,
@@ -13898,7 +13898,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 356101,
@@ -13930,7 +13930,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 356121,
@@ -13978,7 +13978,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 356151,
@@ -14026,7 +14026,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 356181,
@@ -14106,7 +14106,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 357151,
@@ -14154,7 +14154,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 357181,
@@ -14234,7 +14234,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 358151,
@@ -14282,7 +14282,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 358181,
@@ -14362,7 +14362,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 359151,
@@ -14410,7 +14410,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 359181,
@@ -15226,7 +15226,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 403021,
@@ -15242,7 +15242,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 403031,
@@ -15258,7 +15258,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 403041,
@@ -15274,7 +15274,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 403051,
@@ -15290,7 +15290,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 403061,
@@ -15322,7 +15322,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 403081,
@@ -15354,7 +15354,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 403101,
@@ -15386,7 +15386,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 403121,
@@ -15434,7 +15434,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 403151,
@@ -15482,7 +15482,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 403181,
@@ -15530,7 +15530,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 404021,
@@ -15546,7 +15546,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 404031,
@@ -15562,7 +15562,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 404041,
@@ -15578,7 +15578,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 404051,
@@ -15594,7 +15594,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 404061,
@@ -15626,7 +15626,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 404081,
@@ -15658,7 +15658,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 404101,
@@ -15690,7 +15690,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 404121,
@@ -15738,7 +15738,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 404151,
@@ -15786,7 +15786,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 404181,
@@ -15834,7 +15834,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 405051,
@@ -15850,7 +15850,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 405061,
@@ -15882,7 +15882,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 405081,
@@ -15914,7 +15914,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 405101,
@@ -15946,7 +15946,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 405121,
@@ -15994,7 +15994,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 405151,
@@ -16042,7 +16042,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 405181,
@@ -16106,7 +16106,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 406081,
@@ -16138,7 +16138,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 406101,
@@ -16170,7 +16170,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 406121,
@@ -16218,7 +16218,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 406151,
@@ -16266,7 +16266,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 406181,
@@ -16346,7 +16346,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 407151,
@@ -16394,7 +16394,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 407181,
@@ -16474,7 +16474,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 408151,
@@ -16522,7 +16522,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 408181,
@@ -16602,7 +16602,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 409151,
@@ -16650,7 +16650,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 409181,
@@ -17466,7 +17466,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 413021,
@@ -17482,7 +17482,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 413031,
@@ -17498,7 +17498,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 413041,
@@ -17514,7 +17514,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 413051,
@@ -17530,7 +17530,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 413061,
@@ -17562,7 +17562,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 413081,
@@ -17594,7 +17594,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 413101,
@@ -17626,7 +17626,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 413121,
@@ -17674,7 +17674,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 413151,
@@ -17722,7 +17722,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 413181,
@@ -17770,7 +17770,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 414021,
@@ -17786,7 +17786,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 414031,
@@ -17802,7 +17802,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 414041,
@@ -17818,7 +17818,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 414051,
@@ -17834,7 +17834,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 414061,
@@ -17866,7 +17866,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 414081,
@@ -17898,7 +17898,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 414101,
@@ -17930,7 +17930,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 414121,
@@ -17978,7 +17978,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 414151,
@@ -18026,7 +18026,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 414181,
@@ -18074,7 +18074,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 415051,
@@ -18090,7 +18090,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 415061,
@@ -18122,7 +18122,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 415081,
@@ -18154,7 +18154,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 415101,
@@ -18186,7 +18186,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 415121,
@@ -18234,7 +18234,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 415151,
@@ -18282,7 +18282,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 415181,
@@ -18346,7 +18346,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 416081,
@@ -18378,7 +18378,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 416101,
@@ -18410,7 +18410,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 416121,
@@ -18458,7 +18458,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 416151,
@@ -18506,7 +18506,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 416181,
@@ -18586,7 +18586,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 417151,
@@ -18634,7 +18634,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 417181,
@@ -18714,7 +18714,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 418151,
@@ -18762,7 +18762,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 418181,
@@ -18842,7 +18842,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 419151,
@@ -18890,7 +18890,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 419181,
@@ -19706,7 +19706,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 423021,
@@ -19722,7 +19722,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 423031,
@@ -19738,7 +19738,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 423041,
@@ -19754,7 +19754,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 423051,
@@ -19770,7 +19770,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 423061,
@@ -19802,7 +19802,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 423081,
@@ -19834,7 +19834,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 423101,
@@ -19866,7 +19866,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 423121,
@@ -19914,7 +19914,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 423151,
@@ -19962,7 +19962,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 423181,
@@ -20010,7 +20010,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 424021,
@@ -20026,7 +20026,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 424031,
@@ -20042,7 +20042,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 424041,
@@ -20058,7 +20058,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 424051,
@@ -20074,7 +20074,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 424061,
@@ -20106,7 +20106,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 424081,
@@ -20138,7 +20138,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 424101,
@@ -20170,7 +20170,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 424121,
@@ -20218,7 +20218,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 424151,
@@ -20266,7 +20266,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 424181,
@@ -20314,7 +20314,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 425051,
@@ -20330,7 +20330,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 425061,
@@ -20362,7 +20362,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 425081,
@@ -20394,7 +20394,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 425101,
@@ -20426,7 +20426,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 425121,
@@ -20474,7 +20474,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 425151,
@@ -20522,7 +20522,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 425181,
@@ -20586,7 +20586,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 426081,
@@ -20618,7 +20618,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 426101,
@@ -20650,7 +20650,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 426121,
@@ -20698,7 +20698,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 426151,
@@ -20746,7 +20746,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 426181,
@@ -20826,7 +20826,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 427151,
@@ -20874,7 +20874,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 427181,
@@ -20954,7 +20954,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 428151,
@@ -21002,7 +21002,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 428181,
@@ -21082,7 +21082,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 429151,
@@ -21130,7 +21130,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 429181,
@@ -21946,7 +21946,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 433021,
@@ -21962,7 +21962,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 433031,
@@ -21978,7 +21978,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 433041,
@@ -21994,7 +21994,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 433051,
@@ -22010,7 +22010,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 433061,
@@ -22042,7 +22042,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 433081,
@@ -22074,7 +22074,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 433101,
@@ -22106,7 +22106,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 433121,
@@ -22154,7 +22154,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 433151,
@@ -22202,7 +22202,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 433181,
@@ -22250,7 +22250,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 434021,
@@ -22266,7 +22266,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 434031,
@@ -22282,7 +22282,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 434041,
@@ -22298,7 +22298,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 434051,
@@ -22314,7 +22314,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 434061,
@@ -22346,7 +22346,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 434081,
@@ -22378,7 +22378,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 434101,
@@ -22410,7 +22410,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 434121,
@@ -22458,7 +22458,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 434151,
@@ -22506,7 +22506,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 434181,
@@ -22554,7 +22554,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 435051,
@@ -22570,7 +22570,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 435061,
@@ -22602,7 +22602,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 435081,
@@ -22634,7 +22634,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 435101,
@@ -22666,7 +22666,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 435121,
@@ -22714,7 +22714,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 435151,
@@ -22762,7 +22762,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 435181,
@@ -22826,7 +22826,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 436081,
@@ -22858,7 +22858,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 436101,
@@ -22890,7 +22890,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 436121,
@@ -22938,7 +22938,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 436151,
@@ -22986,7 +22986,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 436181,
@@ -23066,7 +23066,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 437151,
@@ -23114,7 +23114,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 437181,
@@ -23194,7 +23194,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 438151,
@@ -23242,7 +23242,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 438181,
@@ -23322,7 +23322,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 439151,
@@ -23370,7 +23370,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 439181,
@@ -24186,7 +24186,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 443021,
@@ -24202,7 +24202,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 443031,
@@ -24218,7 +24218,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 443041,
@@ -24234,7 +24234,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 443051,
@@ -24250,7 +24250,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 443061,
@@ -24282,7 +24282,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 443081,
@@ -24314,7 +24314,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 443101,
@@ -24346,7 +24346,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 443121,
@@ -24394,7 +24394,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 443151,
@@ -24442,7 +24442,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 443181,
@@ -24490,7 +24490,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 444021,
@@ -24506,7 +24506,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 444031,
@@ -24522,7 +24522,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 444041,
@@ -24538,7 +24538,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 444051,
@@ -24554,7 +24554,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 444061,
@@ -24586,7 +24586,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 444081,
@@ -24618,7 +24618,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 444101,
@@ -24650,7 +24650,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 444121,
@@ -24698,7 +24698,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 444151,
@@ -24746,7 +24746,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 444181,
@@ -24794,7 +24794,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 445051,
@@ -24810,7 +24810,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 445061,
@@ -24842,7 +24842,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 445081,
@@ -24874,7 +24874,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 445101,
@@ -24906,7 +24906,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 445121,
@@ -24954,7 +24954,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 445151,
@@ -25002,7 +25002,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 445181,
@@ -25066,7 +25066,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 446081,
@@ -25098,7 +25098,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 446101,
@@ -25130,7 +25130,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 446121,
@@ -25178,7 +25178,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 446151,
@@ -25226,7 +25226,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 446181,
@@ -25306,7 +25306,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 447151,
@@ -25354,7 +25354,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 447181,
@@ -25434,7 +25434,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 448151,
@@ -25482,7 +25482,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 448181,
@@ -25562,7 +25562,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 449151,
@@ -25610,7 +25610,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 449181,
@@ -26426,7 +26426,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 453021,
@@ -26442,7 +26442,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 453031,
@@ -26458,7 +26458,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 453041,
@@ -26474,7 +26474,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 453051,
@@ -26490,7 +26490,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 453061,
@@ -26522,7 +26522,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 453081,
@@ -26554,7 +26554,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 453101,
@@ -26586,7 +26586,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 453121,
@@ -26634,7 +26634,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 453151,
@@ -26682,7 +26682,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 453181,
@@ -26730,7 +26730,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 454021,
@@ -26746,7 +26746,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 454031,
@@ -26762,7 +26762,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 454041,
@@ -26778,7 +26778,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 454051,
@@ -26794,7 +26794,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 454061,
@@ -26826,7 +26826,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 454081,
@@ -26858,7 +26858,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 454101,
@@ -26890,7 +26890,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 454121,
@@ -26938,7 +26938,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 454151,
@@ -26986,7 +26986,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 454181,
@@ -27034,7 +27034,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 455051,
@@ -27050,7 +27050,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 455061,
@@ -27082,7 +27082,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 455081,
@@ -27114,7 +27114,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 455101,
@@ -27146,7 +27146,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 455121,
@@ -27194,7 +27194,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 455151,
@@ -27242,7 +27242,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 455181,
@@ -27306,7 +27306,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 456081,
@@ -27338,7 +27338,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 456101,
@@ -27370,7 +27370,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 456121,
@@ -27418,7 +27418,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 456151,
@@ -27466,7 +27466,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 456181,
@@ -27546,7 +27546,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 457151,
@@ -27594,7 +27594,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 457181,
@@ -27674,7 +27674,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 458151,
@@ -27722,7 +27722,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 458181,
@@ -27802,7 +27802,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 459151,
@@ -27850,7 +27850,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 459181,
@@ -28666,7 +28666,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 503021,
@@ -28682,7 +28682,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 503031,
@@ -28698,7 +28698,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 503041,
@@ -28714,7 +28714,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 503051,
@@ -28730,7 +28730,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 503061,
@@ -28762,7 +28762,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 503081,
@@ -28794,7 +28794,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 503101,
@@ -28826,7 +28826,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 503121,
@@ -28874,7 +28874,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 503151,
@@ -28922,7 +28922,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 503181,
@@ -28970,7 +28970,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 504021,
@@ -28986,7 +28986,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 504031,
@@ -29002,7 +29002,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 504041,
@@ -29018,7 +29018,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 504051,
@@ -29034,7 +29034,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 504061,
@@ -29066,7 +29066,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 504081,
@@ -29098,7 +29098,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 504101,
@@ -29130,7 +29130,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 504121,
@@ -29178,7 +29178,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 504151,
@@ -29226,7 +29226,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 504181,
@@ -29274,7 +29274,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 505051,
@@ -29290,7 +29290,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 505061,
@@ -29322,7 +29322,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 505081,
@@ -29354,7 +29354,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 505101,
@@ -29386,7 +29386,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 505121,
@@ -29434,7 +29434,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 505151,
@@ -29482,7 +29482,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 505181,
@@ -29546,7 +29546,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 506081,
@@ -29578,7 +29578,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 506101,
@@ -29610,7 +29610,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 506121,
@@ -29658,7 +29658,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 506151,
@@ -29706,7 +29706,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 506181,
@@ -29786,7 +29786,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 507151,
@@ -29834,7 +29834,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 507181,
@@ -29914,7 +29914,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 508151,
@@ -29962,7 +29962,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 508181,
@@ -30042,7 +30042,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 509151,
@@ -30090,7 +30090,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 509181,
@@ -30906,7 +30906,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 513021,
@@ -30922,7 +30922,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 513031,
@@ -30938,7 +30938,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 513041,
@@ -30954,7 +30954,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 513051,
@@ -30970,7 +30970,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 513061,
@@ -31002,7 +31002,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 513081,
@@ -31034,7 +31034,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 513101,
@@ -31066,7 +31066,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 513121,
@@ -31114,7 +31114,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 513151,
@@ -31162,7 +31162,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 513181,
@@ -31210,7 +31210,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 514021,
@@ -31226,7 +31226,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 514031,
@@ -31242,7 +31242,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 514041,
@@ -31258,7 +31258,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 514051,
@@ -31274,7 +31274,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 514061,
@@ -31306,7 +31306,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 514081,
@@ -31338,7 +31338,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 514101,
@@ -31370,7 +31370,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 514121,
@@ -31418,7 +31418,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 514151,
@@ -31466,7 +31466,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 514181,
@@ -31514,7 +31514,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 515051,
@@ -31530,7 +31530,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 515061,
@@ -31562,7 +31562,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 515081,
@@ -31594,7 +31594,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 515101,
@@ -31626,7 +31626,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 515121,
@@ -31674,7 +31674,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 515151,
@@ -31722,7 +31722,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 515181,
@@ -31786,7 +31786,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 516081,
@@ -31818,7 +31818,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 516101,
@@ -31850,7 +31850,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 516121,
@@ -31898,7 +31898,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 516151,
@@ -31946,7 +31946,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 516181,
@@ -32026,7 +32026,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 517151,
@@ -32074,7 +32074,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 517181,
@@ -32154,7 +32154,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 518151,
@@ -32202,7 +32202,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 518181,
@@ -32282,7 +32282,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 519151,
@@ -32330,7 +32330,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 519181,
@@ -33146,7 +33146,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 523021,
@@ -33162,7 +33162,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 523031,
@@ -33178,7 +33178,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 523041,
@@ -33194,7 +33194,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 523051,
@@ -33210,7 +33210,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 523061,
@@ -33242,7 +33242,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 523081,
@@ -33274,7 +33274,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 523101,
@@ -33306,7 +33306,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 523121,
@@ -33354,7 +33354,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 523151,
@@ -33402,7 +33402,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 523181,
@@ -33450,7 +33450,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 524021,
@@ -33466,7 +33466,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 524031,
@@ -33482,7 +33482,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 524041,
@@ -33498,7 +33498,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 524051,
@@ -33514,7 +33514,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 524061,
@@ -33546,7 +33546,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 524081,
@@ -33578,7 +33578,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 524101,
@@ -33610,7 +33610,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 524121,
@@ -33658,7 +33658,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 524151,
@@ -33706,7 +33706,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 524181,
@@ -33754,7 +33754,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 525051,
@@ -33770,7 +33770,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 525061,
@@ -33802,7 +33802,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 525081,
@@ -33834,7 +33834,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 525101,
@@ -33866,7 +33866,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 525121,
@@ -33914,7 +33914,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 525151,
@@ -33962,7 +33962,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 525181,
@@ -34026,7 +34026,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 526081,
@@ -34058,7 +34058,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 526101,
@@ -34090,7 +34090,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 526121,
@@ -34138,7 +34138,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 526151,
@@ -34186,7 +34186,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 526181,
@@ -34266,7 +34266,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 527151,
@@ -34314,7 +34314,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 527181,
@@ -34394,7 +34394,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 528151,
@@ -34442,7 +34442,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 528181,
@@ -34522,7 +34522,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 529151,
@@ -34570,7 +34570,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 529181,
@@ -35386,7 +35386,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 533021,
@@ -35402,7 +35402,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 533031,
@@ -35418,7 +35418,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 533041,
@@ -35434,7 +35434,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 533051,
@@ -35450,7 +35450,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 533061,
@@ -35482,7 +35482,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 533081,
@@ -35514,7 +35514,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 533101,
@@ -35546,7 +35546,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 533121,
@@ -35594,7 +35594,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 533151,
@@ -35642,7 +35642,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 533181,
@@ -35690,7 +35690,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 534021,
@@ -35706,7 +35706,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 534031,
@@ -35722,7 +35722,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 534041,
@@ -35738,7 +35738,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 534051,
@@ -35754,7 +35754,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 534061,
@@ -35786,7 +35786,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 534081,
@@ -35818,7 +35818,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 534101,
@@ -35850,7 +35850,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 534121,
@@ -35898,7 +35898,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 534151,
@@ -35946,7 +35946,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 534181,
@@ -35994,7 +35994,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 535051,
@@ -36010,7 +36010,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 535061,
@@ -36042,7 +36042,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 535081,
@@ -36074,7 +36074,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 535101,
@@ -36106,7 +36106,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 535121,
@@ -36154,7 +36154,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 535151,
@@ -36202,7 +36202,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 535181,
@@ -36266,7 +36266,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 536081,
@@ -36298,7 +36298,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 536101,
@@ -36330,7 +36330,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 536121,
@@ -36378,7 +36378,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 536151,
@@ -36426,7 +36426,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 536181,
@@ -36506,7 +36506,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 537151,
@@ -36554,7 +36554,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 537181,
@@ -36634,7 +36634,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 538151,
@@ -36682,7 +36682,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 538181,
@@ -36762,7 +36762,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 539151,
@@ -36810,7 +36810,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 539181,
@@ -37466,7 +37466,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 603021,
@@ -37482,7 +37482,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 603031,
@@ -37498,7 +37498,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 603041,
@@ -37514,7 +37514,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 603051,
@@ -37530,7 +37530,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 603061,
@@ -37562,7 +37562,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 603081,
@@ -37594,7 +37594,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 603101,
@@ -37626,7 +37626,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 603121,
@@ -37674,7 +37674,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 603151,
@@ -37722,7 +37722,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 603181,
@@ -37770,7 +37770,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 604021,
@@ -37786,7 +37786,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 604031,
@@ -37802,7 +37802,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 604041,
@@ -37818,7 +37818,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 604051,
@@ -37834,7 +37834,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 604061,
@@ -37866,7 +37866,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 604081,
@@ -37898,7 +37898,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 604101,
@@ -37930,7 +37930,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 604121,
@@ -37978,7 +37978,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 604151,
@@ -38026,7 +38026,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 604181,
@@ -38074,7 +38074,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 605051,
@@ -38090,7 +38090,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 605061,
@@ -38122,7 +38122,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 605081,
@@ -38154,7 +38154,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 605101,
@@ -38186,7 +38186,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 605121,
@@ -38234,7 +38234,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 605151,
@@ -38282,7 +38282,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 605181,
@@ -38346,7 +38346,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 606081,
@@ -38378,7 +38378,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 606101,
@@ -38410,7 +38410,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 606121,
@@ -38458,7 +38458,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 606151,
@@ -38506,7 +38506,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 606181,
@@ -38586,7 +38586,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 607151,
@@ -38634,7 +38634,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 607181,
@@ -38714,7 +38714,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 608151,
@@ -38762,7 +38762,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 608181,
@@ -38842,7 +38842,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 609151,
@@ -38890,7 +38890,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 609181,
@@ -39546,7 +39546,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 613021,
@@ -39562,7 +39562,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 613031,
@@ -39578,7 +39578,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 613041,
@@ -39594,7 +39594,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 613051,
@@ -39610,7 +39610,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 613061,
@@ -39642,7 +39642,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 613081,
@@ -39674,7 +39674,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 613101,
@@ -39706,7 +39706,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 613121,
@@ -39754,7 +39754,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 613151,
@@ -39802,7 +39802,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 613181,
@@ -39850,7 +39850,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 614021,
@@ -39866,7 +39866,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 614031,
@@ -39882,7 +39882,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 614041,
@@ -39898,7 +39898,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 614051,
@@ -39914,7 +39914,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 614061,
@@ -39946,7 +39946,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 614081,
@@ -39978,7 +39978,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 614101,
@@ -40010,7 +40010,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 614121,
@@ -40058,7 +40058,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 614151,
@@ -40106,7 +40106,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 614181,
@@ -40154,7 +40154,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 615051,
@@ -40170,7 +40170,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 615061,
@@ -40202,7 +40202,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 615081,
@@ -40234,7 +40234,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 615101,
@@ -40266,7 +40266,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 615121,
@@ -40314,7 +40314,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 615151,
@@ -40362,7 +40362,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 615181,
@@ -40426,7 +40426,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 616081,
@@ -40458,7 +40458,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 616101,
@@ -40490,7 +40490,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 616121,
@@ -40538,7 +40538,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 616151,
@@ -40586,7 +40586,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 616181,
@@ -40666,7 +40666,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 617151,
@@ -40714,7 +40714,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 617181,
@@ -40794,7 +40794,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 618151,
@@ -40842,7 +40842,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 618181,
@@ -40922,7 +40922,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 619151,
@@ -40970,7 +40970,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 619181,
@@ -41626,7 +41626,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 623021,
@@ -41642,7 +41642,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 623031,
@@ -41658,7 +41658,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 623041,
@@ -41674,7 +41674,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 623051,
@@ -41690,7 +41690,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 623061,
@@ -41722,7 +41722,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 623081,
@@ -41754,7 +41754,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 623101,
@@ -41786,7 +41786,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 623121,
@@ -41834,7 +41834,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 623151,
@@ -41882,7 +41882,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 623181,
@@ -41930,7 +41930,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 624021,
@@ -41946,7 +41946,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 624031,
@@ -41962,7 +41962,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 624041,
@@ -41978,7 +41978,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 624051,
@@ -41994,7 +41994,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 624061,
@@ -42026,7 +42026,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 624081,
@@ -42058,7 +42058,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 624101,
@@ -42090,7 +42090,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 624121,
@@ -42138,7 +42138,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 624151,
@@ -42186,7 +42186,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 624181,
@@ -42234,7 +42234,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 625051,
@@ -42250,7 +42250,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 625061,
@@ -42282,7 +42282,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 625081,
@@ -42314,7 +42314,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 625101,
@@ -42346,7 +42346,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 625121,
@@ -42394,7 +42394,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 625151,
@@ -42442,7 +42442,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 625181,
@@ -42506,7 +42506,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 626081,
@@ -42538,7 +42538,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 626101,
@@ -42570,7 +42570,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 626121,
@@ -42618,7 +42618,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 626151,
@@ -42666,7 +42666,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 626181,
@@ -42746,7 +42746,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 627151,
@@ -42794,7 +42794,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 627181,
@@ -42874,7 +42874,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 628151,
@@ -42922,7 +42922,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 628181,
@@ -43002,7 +43002,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 629151,
@@ -43050,7 +43050,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 629181,
@@ -43706,7 +43706,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 633021,
@@ -43722,7 +43722,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 633031,
@@ -43738,7 +43738,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 633041,
@@ -43754,7 +43754,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 633051,
@@ -43770,7 +43770,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 633061,
@@ -43802,7 +43802,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 633081,
@@ -43834,7 +43834,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 633101,
@@ -43866,7 +43866,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 633121,
@@ -43914,7 +43914,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 633151,
@@ -43962,7 +43962,7 @@
       "grade": "LEGENDARY",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 633181,
@@ -44010,7 +44010,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 1,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 634021,
@@ -44026,7 +44026,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 5,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 634031,
@@ -44042,7 +44042,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 10,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 634041,
@@ -44058,7 +44058,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 634051,
@@ -44074,7 +44074,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 634061,
@@ -44106,7 +44106,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 634081,
@@ -44138,7 +44138,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 634101,
@@ -44170,7 +44170,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 634121,
@@ -44218,7 +44218,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 634151,
@@ -44266,7 +44266,7 @@
       "grade": "IMMORTAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 634181,
@@ -44314,7 +44314,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 15,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 635051,
@@ -44330,7 +44330,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 20,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 635061,
@@ -44362,7 +44362,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 635081,
@@ -44394,7 +44394,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 635101,
@@ -44426,7 +44426,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 635121,
@@ -44474,7 +44474,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 635151,
@@ -44522,7 +44522,7 @@
       "grade": "ARCANA",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 635181,
@@ -44586,7 +44586,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 30,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 636081,
@@ -44618,7 +44618,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 636101,
@@ -44650,7 +44650,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 636121,
@@ -44698,7 +44698,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 636151,
@@ -44746,7 +44746,7 @@
       "grade": "BEYOND",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 636181,
@@ -44826,7 +44826,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 637151,
@@ -44874,7 +44874,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 637181,
@@ -44954,7 +44954,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 638151,
@@ -45002,7 +45002,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 638181,
@@ -45082,7 +45082,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 65,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 639151,
@@ -45130,7 +45130,7 @@
       "grade": "COSMIC",
       "type": "GEAR",
       "level": 80,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 639181,
@@ -45498,7 +45498,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 317091,
@@ -45514,7 +45514,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 327091,
@@ -45530,7 +45530,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 337091,
@@ -45546,7 +45546,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 347091,
@@ -45562,7 +45562,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 357091,
@@ -45578,7 +45578,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 407091,
@@ -45594,7 +45594,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 417091,
@@ -45610,7 +45610,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 427091,
@@ -45626,7 +45626,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 437091,
@@ -45642,7 +45642,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 447091,
@@ -45658,7 +45658,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 457091,
@@ -45674,7 +45674,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 507091,
@@ -45690,7 +45690,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 517091,
@@ -45706,7 +45706,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 527091,
@@ -45722,7 +45722,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 537091,
@@ -45738,7 +45738,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 607091,
@@ -45754,7 +45754,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 617091,
@@ -45770,7 +45770,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 627091,
@@ -45786,7 +45786,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 637091,
@@ -45802,7 +45802,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 40,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 307101,
@@ -46458,7 +46458,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 317111,
@@ -46474,7 +46474,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 327111,
@@ -46490,7 +46490,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 337111,
@@ -46506,7 +46506,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 347111,
@@ -46522,7 +46522,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 357111,
@@ -46538,7 +46538,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 407111,
@@ -46554,7 +46554,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 417111,
@@ -46570,7 +46570,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 427111,
@@ -46586,7 +46586,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 437111,
@@ -46602,7 +46602,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 447111,
@@ -46618,7 +46618,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 457111,
@@ -46634,7 +46634,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 507111,
@@ -46650,7 +46650,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 517111,
@@ -46666,7 +46666,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 527111,
@@ -46682,7 +46682,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 537111,
@@ -46698,7 +46698,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 607111,
@@ -46714,7 +46714,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 617111,
@@ -46730,7 +46730,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 627111,
@@ -46746,7 +46746,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 637111,
@@ -46762,7 +46762,7 @@
       "grade": "CELESTIAL",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 308111,
@@ -46778,7 +46778,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 318111,
@@ -46794,7 +46794,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 328111,
@@ -46810,7 +46810,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 338111,
@@ -46826,7 +46826,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 348111,
@@ -46842,7 +46842,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 358111,
@@ -46858,7 +46858,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 408111,
@@ -46874,7 +46874,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 418111,
@@ -46890,7 +46890,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 428111,
@@ -46906,7 +46906,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 438111,
@@ -46922,7 +46922,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 448111,
@@ -46938,7 +46938,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 458111,
@@ -46954,7 +46954,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 508111,
@@ -46970,7 +46970,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 518111,
@@ -46986,7 +46986,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 528111,
@@ -47002,7 +47002,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 538111,
@@ -47018,7 +47018,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 608111,
@@ -47034,7 +47034,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 618111,
@@ -47050,7 +47050,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 628111,
@@ -47066,7 +47066,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     },
     {
       "id": 638111,
@@ -47082,7 +47082,7 @@
       "grade": "DIVINE",
       "type": "GEAR",
       "level": 50,
-      "marketTradable": false
+      "marketTradable": true
     }
   ]
 }
