@@ -51,7 +51,7 @@ export function InventoryColumnPicker({ prefs, onChange }: InventoryColumnPicker
       aria-label="Visible columns"
       trigger={
         <Button size="sm" type="button">
-          Columns
+          Edit columns
         </Button>
       }
     >

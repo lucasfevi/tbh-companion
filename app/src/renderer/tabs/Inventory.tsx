@@ -134,30 +134,24 @@ export function Inventory() {
 
       <SteamPriceProgress variant="banner" />
 
-      <div className="flex items-start gap-3">
-        <div className="min-w-0 flex-1">
-          <InventoryFilters
-            query={query}
-            tradableOnly={tradableOnly}
-            unequippedOnly={unequippedOnly}
-            gradeFilter={gradeFilter}
-            typeFilter={typeFilter}
-            locationFilter={locationFilter}
-            gradeOptions={gradeOptions}
-            typeOptions={typeOptions}
-            shownCount={rows.length}
-            onQueryChange={setQuery}
-            onTradableOnlyChange={setTradableOnly}
-            onUnequippedOnlyChange={setUnequippedOnly}
-            onGradeFilterChange={setGradeFilter}
-            onTypeFilterChange={setTypeFilter}
-            onLocationFilterChange={setLocationFilter}
-          />
-        </div>
-        <div className="shrink-0 self-center">
-          <InventoryColumnPicker prefs={columnPrefs} onChange={onColumnPrefsChange} />
-        </div>
-      </div>
+      <InventoryFilters
+        query={query}
+        tradableOnly={tradableOnly}
+        unequippedOnly={unequippedOnly}
+        gradeFilter={gradeFilter}
+        typeFilter={typeFilter}
+        locationFilter={locationFilter}
+        gradeOptions={gradeOptions}
+        typeOptions={typeOptions}
+        shownCount={rows.length}
+        columnPicker={<InventoryColumnPicker prefs={columnPrefs} onChange={onColumnPrefsChange} />}
+        onQueryChange={setQuery}
+        onTradableOnlyChange={setTradableOnly}
+        onUnequippedOnlyChange={setUnequippedOnly}
+        onGradeFilterChange={setGradeFilter}
+        onTypeFilterChange={setTypeFilter}
+        onLocationFilterChange={setLocationFilter}
+      />
 
       <InventoryTable
         rows={rows}
