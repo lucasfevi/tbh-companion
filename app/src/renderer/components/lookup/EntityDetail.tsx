@@ -4,7 +4,12 @@ import { fmtDropPct, hasDropChance } from "../../lib/lookupDisplay";
 import { ItemDetailCard } from "./ItemDetailCard";
 import { SectionLabel } from "./itemCardParts";
 import { ItemLink } from "./ItemLink";
-import type { LookupItem, LookupSources, SynthesisModel } from "../../../../shared/types";
+import type {
+  LookupItem,
+  LookupSources,
+  OfferingsModel,
+  SynthesisModel,
+} from "../../../../shared/types";
 import type { LookupNavNode } from "../../lib/useLookupNav";
 
 /** Renders the active Lookup-tab node: an item, a box, or a stage. */
@@ -13,6 +18,7 @@ export function EntityDetail({
   itemIndex,
   sources,
   synthesisModel,
+  offerings,
   labelFor,
   onNavigate,
 }: {
@@ -20,6 +26,7 @@ export function EntityDetail({
   itemIndex: Map<number, LookupItem>;
   sources: LookupSources;
   synthesisModel?: SynthesisModel | null;
+  offerings?: OfferingsModel | null;
   labelFor: (node: LookupNavNode) => string;
   onNavigate: (node: LookupNavNode) => void;
 }) {
@@ -31,6 +38,7 @@ export function EntityDetail({
         item={item}
         sources={sources.items[String(node.id)]}
         synthesisModel={synthesisModel}
+        offerings={offerings}
         onNavigate={onNavigate}
         peekItem={(id) => itemIndex.get(id)}
       />

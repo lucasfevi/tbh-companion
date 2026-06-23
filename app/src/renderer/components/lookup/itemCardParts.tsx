@@ -61,6 +61,24 @@ export function SectionLabelRow({
   );
 }
 
+/** Top-level heading + help tooltip, sized to match SectionHeading (e.g. Offering Loot). */
+export function SectionHeadingRow({
+  label,
+  help,
+  helpLabel,
+}: {
+  label: string;
+  help: string;
+  helpLabel: string;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <SectionHeading>{label}</SectionHeading>
+      <LookupHelpTrigger ariaLabel={helpLabel}>{help}</LookupHelpTrigger>
+    </div>
+  );
+}
+
 /**
  * Icon + name + grade · descriptor + optional meta line, shared by the grid
  * card and detail panel — only the icon size (and the resulting name markup:

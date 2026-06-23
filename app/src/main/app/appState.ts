@@ -336,6 +336,7 @@ export function getAppServices() {
     getLookupCatalog: () => lookup.getCatalog(),
     getLookupSources: () => lookup.getSources(),
     getLookupSynthesisModel: () => lookup.getSynthesisModel(),
+    getOfferings: () => lookup.getOfferings(),
   };
 }
 

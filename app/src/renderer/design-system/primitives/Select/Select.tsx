@@ -8,7 +8,7 @@ export type SelectOption = {
 };
 
 const triggerVariants = cva(
-  "flex w-full min-w-0 items-center justify-between gap-2 rounded-md border py-1.5 pl-2.5 pr-2 text-left text-[13px] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ideal/50 disabled:cursor-not-allowed disabled:opacity-50 data-[popup-open]:z-30",
+  "flex w-full min-w-0 items-center justify-between gap-2 rounded-md border py-1.5 pl-2.5 pr-2 text-left text-[13px] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ideal/50 disabled:cursor-not-allowed disabled:opacity-50 data-[popup-open]:z-50",
   {
     variants: {
       variant: {
@@ -110,7 +110,7 @@ export function Select({
           </span>
         </BaseSelect.Trigger>
         <BaseSelect.Portal>
-          <BaseSelect.Positioner alignItemWithTrigger={false} sideOffset={4} className="z-30">
+          <BaseSelect.Positioner alignItemWithTrigger={false} sideOffset={4} className="z-50">
             <BaseSelect.Popup className="max-h-52 w-(--anchor-width) overflow-y-auto rounded-md border border-border bg-card py-1 shadow-[0_8px_24px_rgb(0_0_0/0.45)]">
               {options.map((option) => (
                 <BaseSelect.Item

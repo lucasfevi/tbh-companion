@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useLookupCatalog } from "../lib/useLookupCatalog";
 import { useLookupSources } from "../lib/useLookupSources";
 import { useLookupSynthesisModel } from "../lib/useLookupSynthesisModel";
+import { useOfferings } from "../lib/useOfferings";
 import { useLookupNav, type LookupNavNode } from "../lib/useLookupNav";
 import { buildBoxNameIndex, buildStageNameIndex } from "../lib/lookupGraph";
 import {
@@ -29,6 +30,7 @@ export function Lookup() {
   const items = useLookupCatalog();
   const sources = useLookupSources();
   const synthesisModel = useLookupSynthesisModel();
+  const offerings = useOfferings();
   const nav = useLookupNav();
   const [panelOpen, setPanelOpen] = useState(false);
 
@@ -202,6 +204,7 @@ export function Lookup() {
             itemIndex={itemIndex}
             sources={sources}
             synthesisModel={synthesisModel}
+            offerings={offerings}
             labelFor={labelFor}
             onNavigate={nav.push}
           />
