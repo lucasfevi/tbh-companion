@@ -1,20 +1,43 @@
 {
   "unlockKillCount": 5000,
   "dlcLabel": "Supporter Pack",
-  "source": "Datamined via taskbarhero.wiki / tbh.city — spawn % and monsters/clear per stage.",
+  "source": "game_extracted",
   "pets": [
     {
       "petKey": 1001,
       "name": "Bat",
-      "bonuses": ["+10% common chest drop", "+15% EXP gain"],
+      "bonuses": [
+        "+10% common chest drop",
+        "+15% EXP gain"
+      ],
       "unlockKind": "kills",
       "unlockMonsterKey": 10031,
       "appearsOnStages": [
-        { "act": 1, "stage": 3, "name": "Wasteland" },
-        { "act": 1, "stage": 7, "name": "City Outskirts" },
-        { "act": 1, "stage": 8, "name": "Cemetery" },
-        { "act": 1, "stage": 9, "name": "Cursed Land" },
-        { "act": 2, "stage": 3, "name": "Desert Underground Cave" }
+        {
+          "act": 1,
+          "stage": 3,
+          "name": "Wasteland"
+        },
+        {
+          "act": 1,
+          "stage": 7,
+          "name": "City Outskirts"
+        },
+        {
+          "act": 1,
+          "stage": 8,
+          "name": "Cemetery"
+        },
+        {
+          "act": 1,
+          "stage": 9,
+          "name": "Cursed Land"
+        },
+        {
+          "act": 2,
+          "stage": 3,
+          "name": "Desert Underground Cave"
+        }
       ],
       "bestFarmStages": [
         {
@@ -26,8 +49,8 @@
         {
           "stageKey": 4108,
           "stageName": "Cemetery",
-          "spawnPercent": 37,
-          "monstersPerClear": 465
+          "spawnPercent": 31.3,
+          "monstersPerClear": 551
         },
         {
           "stageKey": 3107,
@@ -40,12 +63,22 @@
     {
       "petKey": 1002,
       "name": "Watcher",
-      "bonuses": ["+15% gold per kill"],
+      "bonuses": [
+        "+15% gold per kill"
+      ],
       "unlockKind": "kills",
       "unlockMonsterKey": 20051,
       "appearsOnStages": [
-        { "act": 2, "stage": 4, "name": "Bug Nest" },
-        { "act": 2, "stage": 5, "name": "Scorching Dunes" }
+        {
+          "act": 2,
+          "stage": 4,
+          "name": "Bug Nest"
+        },
+        {
+          "act": 2,
+          "stage": 5,
+          "name": "Scorching Dunes"
+        }
       ],
       "bestFarmStages": [
         {
@@ -57,125 +90,169 @@
         {
           "stageKey": 3205,
           "stageName": "Scorching Dunes",
-          "spawnPercent": 40,
-          "monstersPerClear": 400
+          "spawnPercent": 38.5,
+          "monstersPerClear": 416
         },
         {
           "stageKey": 2205,
           "stageName": "Scorching Dunes",
           "spawnPercent": 40,
-          "monstersPerClear": 285
+          "monstersPerClear": 286
         }
       ]
     },
     {
       "petKey": 1003,
       "name": "Burning Skeleton",
-      "bonuses": ["+10% stage boss chest drop"],
+      "bonuses": [
+        "+10% stage boss chest drop"
+      ],
       "unlockKind": "kills",
       "unlockMonsterKey": 20091,
       "appearsOnStages": [
-        { "act": 2, "stage": 8, "name": "Sacred Tomb" },
-        { "act": 2, "stage": 9, "name": "Pharaoh's Crypt" }
+        {
+          "act": 2,
+          "stage": 8,
+          "name": "Sacred Tomb"
+        },
+        {
+          "act": 2,
+          "stage": 9,
+          "name": "Pharaoh's Crypt"
+        }
       ],
       "bestFarmStages": [
         {
           "stageKey": 4208,
           "stageName": "Sacred Tomb",
-          "spawnPercent": 10,
-          "monstersPerClear": 1200
+          "spawnPercent": 20,
+          "monstersPerClear": 600
         },
         {
           "stageKey": 4209,
           "stageName": "Pharaoh's Crypt",
-          "spawnPercent": 8.2,
-          "monstersPerClear": 1329
+          "spawnPercent": 18.2,
+          "monstersPerClear": 600
         },
         {
           "stageKey": 3209,
           "stageName": "Pharaoh's Crypt",
-          "spawnPercent": 8.2,
-          "monstersPerClear": 976
+          "spawnPercent": 18.2,
+          "monstersPerClear": 442
         }
       ]
     },
     {
       "petKey": 1004,
       "name": "Blue Golem",
-      "bonuses": ["+15% common chest drop"],
+      "bonuses": [
+        "+15% common chest drop"
+      ],
       "unlockKind": "kills",
       "unlockMonsterKey": 30091,
-      "appearsOnStages": [{ "act": 3, "stage": 6, "name": "Burning Ravine" }],
+      "appearsOnStages": [
+        {
+          "act": 3,
+          "stage": 6,
+          "name": "Burning Ravine"
+        }
+      ],
       "bestFarmStages": [
         {
           "stageKey": 4306,
           "stageName": "Burning Ravine",
-          "spawnPercent": 33.3,
-          "monstersPerClear": 414
+          "spawnPercent": 22.2,
+          "monstersPerClear": 620
         },
         {
           "stageKey": 3306,
           "stageName": "Burning Ravine",
-          "spawnPercent": 33.3,
-          "monstersPerClear": 393
+          "spawnPercent": 28.6,
+          "monstersPerClear": 459
         },
         {
           "stageKey": 2306,
           "stageName": "Burning Ravine",
-          "spawnPercent": 33.3,
-          "monstersPerClear": 255
+          "spawnPercent": 26.3,
+          "monstersPerClear": 322
         }
       ]
     },
     {
       "petKey": 1005,
       "name": "Dark Spirit",
-      "bonuses": ["+15% stage boss chest drop"],
+      "bonuses": [
+        "+15% stage boss chest drop"
+      ],
       "unlockKind": "kills",
       "unlockMonsterKey": 30051,
       "appearsOnStages": [
-        { "act": 3, "stage": 4, "name": "Frozen Glacier Cavern" },
-        { "act": 3, "stage": 5, "name": "Hell Gate" },
-        { "act": 3, "stage": 8, "name": "Citadel of Ruin" },
-        { "act": 3, "stage": 9, "name": "Core of the Abyss" }
+        {
+          "act": 3,
+          "stage": 4,
+          "name": "Frozen Glacier Cavern"
+        },
+        {
+          "act": 3,
+          "stage": 5,
+          "name": "Hell Gate"
+        },
+        {
+          "act": 3,
+          "stage": 8,
+          "name": "Citadel of Ruin"
+        },
+        {
+          "act": 3,
+          "stage": 9,
+          "name": "Core of the Abyss"
+        }
       ],
       "bestFarmStages": [
         {
           "stageKey": 4304,
           "stageName": "Frozen Glacier Cavern",
-          "spawnPercent": 24.4,
-          "monstersPerClear": 553
+          "spawnPercent": 21.7,
+          "monstersPerClear": 620
         },
         {
           "stageKey": 3304,
           "stageName": "Frozen Glacier Cavern",
-          "spawnPercent": 24.4,
-          "monstersPerClear": 410
+          "spawnPercent": 21.7,
+          "monstersPerClear": 459
         },
         {
           "stageKey": 4309,
           "stageName": "Core of the Abyss",
-          "spawnPercent": 16,
-          "monstersPerClear": 550
+          "spawnPercent": 13.5,
+          "monstersPerClear": 651
         }
       ]
     },
     {
       "petKey": 6001,
       "name": "Sword",
-      "bonuses": ["+15% EXP gain"],
+      "bonuses": [
+        "+15% EXP gain"
+      ],
       "unlockKind": "dlc"
     },
     {
       "petKey": 6002,
       "name": "Butterfly",
-      "bonuses": ["+10% gold per kill"],
+      "bonuses": [
+        "+10% gold per kill"
+      ],
       "unlockKind": "dlc"
     },
     {
       "petKey": 6003,
       "name": "Dragon",
-      "bonuses": ["+20% common chest drop", "+15% gold per kill", "+20% EXP gain"],
+      "bonuses": [
+        "+20% common chest drop",
+        "+15% gold per kill",
+        "+20% EXP gain"
+      ],
       "unlockKind": "dlc"
     }
   ]

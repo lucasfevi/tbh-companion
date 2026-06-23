@@ -23,9 +23,9 @@
     "baseSeconds": 60,
     "runeLabel": "Rune of Lubrication",
     "perLevelSeconds": {
-      "19020011": 1,
-      "190401": 1
+      "190401": 1,
+      "19020011": 1
     }
   },
-  "note": "baseSeconds confirmed by user (5/10/1 min, app v1.00.14). Per-level reduction seconds vary by rune node, unlike chest-capacity runes."
+  "note": "baseSeconds from RuneLevelInfoData UnlockAutoOpen*Chest (Mainspring unlock nodes). Per-level reduction from ReduceAutoOpen*ChestTime (Lubrication)."
 }

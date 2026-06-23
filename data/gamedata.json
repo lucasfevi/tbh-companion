@@ -1,7 +1,7 @@
 {
   "source": "game_extracted",
-  "gameVersion": "1.00.11",
-  "fetchedUtc": "2026-06-15T06:23:56.729Z",
+  "gameVersion": "1.00.19",
+  "fetchedUtc": "2026-06-23T04:40:40.070Z",
   "count": 5885,
   "items": [
     {
@@ -814,7 +814,7 @@
     },
     {
       "id": 150001,
-      "name": "ItemName_150001",
+      "name": "Item 150001",
       "grade": "COMMON",
       "type": "MATERIAL",
       "level": null,
@@ -822,7 +822,7 @@
     },
     {
       "id": 150002,
-      "name": "ItemName_150002",
+      "name": "Item 150002",
       "grade": "UNCOMMON",
       "type": "MATERIAL",
       "level": null,
@@ -830,7 +830,7 @@
     },
     {
       "id": 150003,
-      "name": "ItemName_150003",
+      "name": "Item 150003",
       "grade": "RARE",
       "type": "MATERIAL",
       "level": null,
@@ -838,7 +838,7 @@
     },
     {
       "id": 150004,
-      "name": "ItemName_150004",
+      "name": "Item 150004",
       "grade": "LEGENDARY",
       "type": "MATERIAL",
       "level": null,
@@ -846,7 +846,7 @@
     },
     {
       "id": 150005,
-      "name": "ItemName_150005",
+      "name": "Item 150005",
       "grade": "IMMORTAL",
       "type": "MATERIAL",
       "level": null,
@@ -854,7 +854,7 @@
     },
     {
       "id": 150006,
-      "name": "ItemName_150006",
+      "name": "Item 150006",
       "grade": "ARCANA",
       "type": "MATERIAL",
       "level": null,
@@ -862,7 +862,7 @@
     },
     {
       "id": 150007,
-      "name": "ItemName_150007",
+      "name": "Item 150007",
       "grade": "BEYOND",
       "type": "MATERIAL",
       "level": null,
@@ -870,7 +870,7 @@
     },
     {
       "id": 150008,
-      "name": "ItemName_150008",
+      "name": "Item 150008",
       "grade": "CELESTIAL",
       "type": "MATERIAL",
       "level": null,
@@ -878,7 +878,7 @@
     },
     {
       "id": 150009,
-      "name": "ItemName_150009",
+      "name": "Item 150009",
       "grade": "DIVINE",
       "type": "MATERIAL",
       "level": null,
@@ -886,7 +886,7 @@
     },
     {
       "id": 150010,
-      "name": "ItemName_150010",
+      "name": "Item 150010",
       "grade": "COSMIC",
       "type": "MATERIAL",
       "level": null,

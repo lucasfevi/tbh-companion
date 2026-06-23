@@ -1,6 +1,7 @@
 {
-  "source": "https://taskbarhero.wiki/stage-boxes",
-  "fetchedUtc": "2026-06-11T18:45:18.708Z",
+  "source": "game_extracted",
+  "gameVersion": "1.00.19",
+  "fetchedUtc": "2026-06-23T04:40:40.063Z",
   "defaultCooldownSeconds": 720,
   "count": 59,
   "items": [
@@ -202,11 +203,11 @@
       "obtainable": true,
       "tracker": {
         "canonical": true,
-        "idealStageKey": 1104,
+        "idealStageKey": 1101,
         "dropStageKeys": [
-          1104
+          1101
         ],
-        "dropStageRangeLabel": "Normal 1-4"
+        "dropStageRangeLabel": "Normal 1-1"
       }
     },
     {
@@ -219,11 +220,11 @@
       "obtainable": true,
       "tracker": {
         "canonical": true,
-        "idealStageKey": 1108,
+        "idealStageKey": 1101,
         "dropStageKeys": [
-          1108
+          1101
         ],
-        "dropStageRangeLabel": "Normal 1-8"
+        "dropStageRangeLabel": "Normal 1-1"
       }
     },
     {
@@ -302,7 +303,7 @@
       "obtainable": true,
       "tracker": {
         "canonical": true,
-        "idealStageKey": 1206,
+        "idealStageKey": 1109,
         "dropStageKeys": [
           1109,
           1209,

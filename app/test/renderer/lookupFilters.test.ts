@@ -3,6 +3,7 @@ import {
   classOptionsFromItems,
   defaultLookupSortDir,
   effectOptionsFromItems,
+  isUnresolvedLocalizationKey,
   filterAndSortItems,
   gearTypeOptionsFromItems,
   gradeOptionsFromItems,
@@ -155,6 +156,18 @@ describe("filterAndSortItems", () => {
   it("filters by search query", () => {
     const rows = filterAndSortItems(items, { ...baseState, query: "scepter" });
     expect(names(rows)).toEqual(["Dimensional Scepter"]);
+  });
+
+  it("excludes unresolved ItemName_* placeholder keys", () => {
+    const placeholder: LookupItem = {
+      ...crafting,
+      id: 150001,
+      name: "ItemName_150001",
+    };
+    const rows = filterAndSortItems([...items, placeholder], baseState);
+    expect(names(rows)).not.toContain("ItemName_150001");
+    expect(isUnresolvedLocalizationKey("ItemName_150001")).toBe(true);
+    expect(isUnresolvedLocalizationKey("Iron Ingot")).toBe(false);
   });
 
   it("filters by type", () => {

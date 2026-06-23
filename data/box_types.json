@@ -1,7 +1,22 @@
 {
   "types": [
-    { "boxType": 0, "label": "Common (gray)", "category": "common", "color": "gray" },
-    { "boxType": 1, "label": "Stage boss (blue)", "category": "rare", "color": "blue" },
-    { "boxType": 2, "label": "Act boss (red)", "category": "act", "color": "red" }
+    {
+      "boxType": 0,
+      "label": "Common (gray)",
+      "category": "common",
+      "color": "gray"
+    },
+    {
+      "boxType": 1,
+      "label": "Stage boss (blue)",
+      "category": "rare",
+      "color": "blue"
+    },
+    {
+      "boxType": 2,
+      "label": "Act boss (red)",
+      "category": "act",
+      "color": "red"
+    }
   ]
 }

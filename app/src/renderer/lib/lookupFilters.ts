@@ -95,9 +95,15 @@ function itemHasEffect(item: LookupItem, statKey: string): boolean {
   return false;
 }
 
+/** Raw game localization keys that never resolved to en-US text (dev placeholders). */
+export function isUnresolvedLocalizationKey(name: string): boolean {
+  return /^Item(?:Name|Description)_\d+$/.test(name);
+}
+
 export function filterAndSortItems(items: LookupItem[], state: LookupFilterState): LookupItem[] {
   const q = state.query.trim().toLowerCase();
   let rows = items.filter((item) => {
+    if (isUnresolvedLocalizationKey(item.name)) return false;
     if (state.typeFilter !== "ALL" && item.type !== state.typeFilter) return false;
     if (state.gradeFilter !== "ALL" && item.grade !== state.gradeFilter) return false;
     if (state.gearTypeFilter !== "ALL" && item.gearType !== state.gearTypeFilter) return false;
