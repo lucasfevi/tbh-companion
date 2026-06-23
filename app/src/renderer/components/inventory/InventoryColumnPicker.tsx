@@ -7,7 +7,7 @@ import {
 } from "../../../core/inventory/columnPrefs";
 import { Popover } from "../../design-system/primitives/Popover/Popover";
 import { Button } from "../../design-system/primitives/Button/Button";
-import { Field } from "../../design-system/primitives/Field/Field";
+import { Checkbox } from "../../design-system/primitives/Checkbox/Checkbox";
 
 const COLUMN_LABELS: Record<InventoryColumnId, string> = {
   grade: "Grade",
@@ -57,13 +57,12 @@ export function InventoryColumnPicker({ prefs, onChange }: InventoryColumnPicker
     >
       <div className="mb-2 flex flex-col gap-1.5">
         {INVENTORY_COLUMN_IDS.map((id) => (
-          <Field key={id} label={COLUMN_LABELS[id]} checkbox>
-            <input
-              type="checkbox"
-              checked={visible.has(id)}
-              onChange={(e) => toggle(id, e.target.checked)}
-            />
-          </Field>
+          <Checkbox
+            key={id}
+            label={COLUMN_LABELS[id]}
+            checked={visible.has(id)}
+            onCheckedChange={(checked) => toggle(id, checked)}
+          />
         ))}
       </div>
       <Button size="sm" variant="ghost" className="w-full" onClick={reset}>

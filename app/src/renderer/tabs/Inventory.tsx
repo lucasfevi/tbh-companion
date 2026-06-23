@@ -27,9 +27,9 @@ export function Inventory() {
   const [query, setQuery] = useState("");
   const [tradableOnly, setTradableOnly] = useState(false);
   const [unequippedOnly, setUnequippedOnly] = useState(false);
-  const [gradeFilter, setGradeFilter] = useState("ALL");
-  const [typeFilter, setTypeFilter] = useState("ALL");
-  const [locationFilter, setLocationFilter] = useState<LocationFilter>("ALL");
+  const [gradeFilter, setGradeFilter] = useState<string[]>([]);
+  const [typeFilter, setTypeFilter] = useState<string[]>([]);
+  const [locationFilter, setLocationFilter] = useState<LocationFilter[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("value");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [columnPrefs, setColumnPrefs] = useState<InventoryTablePrefs>(() =>
@@ -59,13 +59,10 @@ export function Inventory() {
 
   useEffect(() => {
     if (!inv) return;
-    if (gradeFilter !== "ALL" && !inv.rows.some((r) => r.grade === gradeFilter)) {
-      setGradeFilter("ALL");
-    }
-    if (typeFilter !== "ALL" && !inv.rows.some((r) => r.type === typeFilter)) {
-      setTypeFilter("ALL");
-    }
-  }, [inv, gradeFilter, typeFilter]);
+    // Drop any selected grade/type no longer present in the catalog.
+    setGradeFilter((prev) => prev.filter((grade) => inv.rows.some((r) => r.grade === grade)));
+    setTypeFilter((prev) => prev.filter((type) => inv.rows.some((r) => r.type === type)));
+  }, [inv]);
 
   const gradeOptions = useMemo(() => (inv ? gradeOptionsFromInventory(inv) : []), [inv]);
   const typeOptions = useMemo(() => (inv ? typeOptionsFromInventory(inv) : []), [inv]);
@@ -124,9 +121,9 @@ export function Inventory() {
     setQuery("");
     setTradableOnly(false);
     setUnequippedOnly(false);
-    setGradeFilter("ALL");
-    setTypeFilter("ALL");
-    setLocationFilter("ALL");
+    setGradeFilter([]);
+    setTypeFilter([]);
+    setLocationFilter([]);
   }
 
   return (
@@ -137,25 +134,27 @@ export function Inventory() {
 
       <SteamPriceProgress variant="banner" />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <InventoryFilters
-          query={query}
-          tradableOnly={tradableOnly}
-          unequippedOnly={unequippedOnly}
-          gradeFilter={gradeFilter}
-          typeFilter={typeFilter}
-          locationFilter={locationFilter}
-          gradeOptions={gradeOptions}
-          typeOptions={typeOptions}
-          shownCount={rows.length}
-          onQueryChange={setQuery}
-          onTradableOnlyChange={setTradableOnly}
-          onUnequippedOnlyChange={setUnequippedOnly}
-          onGradeFilterChange={setGradeFilter}
-          onTypeFilterChange={setTypeFilter}
-          onLocationFilterChange={setLocationFilter}
-        />
-        <div className="ml-auto shrink-0">
+      <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <InventoryFilters
+            query={query}
+            tradableOnly={tradableOnly}
+            unequippedOnly={unequippedOnly}
+            gradeFilter={gradeFilter}
+            typeFilter={typeFilter}
+            locationFilter={locationFilter}
+            gradeOptions={gradeOptions}
+            typeOptions={typeOptions}
+            shownCount={rows.length}
+            onQueryChange={setQuery}
+            onTradableOnlyChange={setTradableOnly}
+            onUnequippedOnlyChange={setUnequippedOnly}
+            onGradeFilterChange={setGradeFilter}
+            onTypeFilterChange={setTypeFilter}
+            onLocationFilterChange={setLocationFilter}
+          />
+        </div>
+        <div className="shrink-0 self-center">
           <InventoryColumnPicker prefs={columnPrefs} onChange={onColumnPrefsChange} />
         </div>
       </div>

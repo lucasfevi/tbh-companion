@@ -2,24 +2,37 @@ import { gradeLabel, typeLabel } from "../../../core/labels";
 import type { LocationFilter, SortKey } from "../../lib/inventoryFilters";
 import { Field } from "../../design-system/primitives/Field/Field";
 import { Input } from "../../design-system/primitives/Input/Input";
-import { Select } from "../../design-system/primitives/Select/Select";
+import { Switch } from "../../design-system/primitives/Switch/Switch";
+import {
+  MultiSelect,
+  type MultiSelectOption,
+} from "../../design-system/primitives/MultiSelect/MultiSelect";
+import { FilterBar } from "../filters/FilterBar";
+
+const LOCATION_OPTIONS: MultiSelectOption[] = [
+  { value: "inventory", label: "Inventory" },
+  { value: "stash", label: "Stash" },
+  { value: "trading", label: "Trading" },
+  { value: "equipped", label: "Equipped" },
+  { value: "unknown", label: "Unknown" },
+];
 
 export interface InventoryFiltersProps {
   query: string;
   tradableOnly: boolean;
   unequippedOnly: boolean;
-  gradeFilter: string;
-  typeFilter: string;
-  locationFilter: LocationFilter;
+  gradeFilter: string[];
+  typeFilter: string[];
+  locationFilter: LocationFilter[];
   gradeOptions: string[];
   typeOptions: string[];
   shownCount: number;
   onQueryChange: (q: string) => void;
   onTradableOnlyChange: (v: boolean) => void;
   onUnequippedOnlyChange: (v: boolean) => void;
-  onGradeFilterChange: (g: string) => void;
-  onTypeFilterChange: (t: string) => void;
-  onLocationFilterChange: (l: LocationFilter) => void;
+  onGradeFilterChange: (g: string[]) => void;
+  onTypeFilterChange: (t: string[]) => void;
+  onLocationFilterChange: (l: LocationFilter[]) => void;
 }
 
 export function InventoryFilters({
@@ -40,67 +53,59 @@ export function InventoryFilters({
   onLocationFilterChange,
 }: InventoryFiltersProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <Input
-        className="max-w-xs flex-1"
-        placeholder="Search items..."
-        value={query}
-        onChange={(e) => onQueryChange(e.target.value)}
-      />
-      <Select
-        className="min-w-0"
+    <FilterBar count={`${shownCount} shown`}>
+      <Field label="Search" className="w-48">
+        <Input
+          placeholder="Search items..."
+          value={query}
+          onChange={(e) => onQueryChange(e.target.value)}
+        />
+      </Field>
+      <MultiSelect
+        className="w-40"
+        label="Grade"
+        allLabel="All grades"
         value={gradeFilter}
-        onValueChange={(value) => onGradeFilterChange(String(value))}
-        title="Filter by grade"
-        options={[
-          { value: "ALL", label: "All grades" },
-          ...gradeOptions.map((g) => ({ value: g, label: gradeLabel(g) })),
-        ]}
+        onValueChange={onGradeFilterChange}
+        options={gradeOptions.map((g) => ({ value: g, label: gradeLabel(g) }))}
       />
-      <Select
-        className="min-w-0"
+      <MultiSelect
+        className="w-40"
+        label="Type"
+        allLabel="All types"
+        searchable={false}
         value={typeFilter}
-        onValueChange={(value) => onTypeFilterChange(String(value))}
-        title="Filter by type"
-        options={[
-          { value: "ALL", label: "All types" },
-          ...typeOptions.map((t) => ({ value: t, label: typeLabel(t) })),
-        ]}
+        onValueChange={onTypeFilterChange}
+        options={typeOptions.map((t) => ({ value: t, label: typeLabel(t) }))}
       />
-      <Select
-        className="min-w-0"
+      <MultiSelect
+        className="w-40"
+        label="Location"
+        allLabel="All locations"
+        searchable={false}
         value={locationFilter}
-        onValueChange={(value) => onLocationFilterChange(value as LocationFilter)}
-        title="Filter by storage location"
-        options={[
-          { value: "ALL", label: "All locations" },
-          { value: "inventory", label: "Inventory" },
-          { value: "stash", label: "Stash" },
-          { value: "trading", label: "Trading" },
-          { value: "equipped", label: "Equipped" },
-          { value: "unknown", label: "Unknown" },
-        ]}
+        onValueChange={(value) => onLocationFilterChange(value as LocationFilter[])}
+        options={LOCATION_OPTIONS}
       />
-      <Field label="Tradable only" checkbox>
-        <input
-          type="checkbox"
+      <Field label="Tradable only" className="flex-row items-center gap-2 self-end pb-1.5">
+        <Switch
           checked={tradableOnly}
-          onChange={(e) => onTradableOnlyChange(e.target.checked)}
+          onCheckedChange={onTradableOnlyChange}
+          aria-label="Tradable only"
         />
       </Field>
       <Field
         label="Unequipped only"
-        checkbox
+        className="flex-row items-center gap-2 self-end pb-1.5"
         title="Hides only items where every copy you own is equipped. Items with some copies equipped and some in your inventory/stash still show."
       >
-        <input
-          type="checkbox"
+        <Switch
           checked={unequippedOnly}
-          onChange={(e) => onUnequippedOnlyChange(e.target.checked)}
+          onCheckedChange={onUnequippedOnlyChange}
+          aria-label="Unequipped only"
         />
       </Field>
-      <span className="text-xs text-muted">{shownCount} shown</span>
-    </div>
+    </FilterBar>
   );
 }
 
