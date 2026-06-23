@@ -6,11 +6,10 @@ import { useOfferings } from "../lib/useOfferings";
 import { useLookupNav, type LookupNavNode } from "../lib/useLookupNav";
 import { buildBoxNameIndex, buildStageNameIndex } from "../lib/lookupGraph";
 import {
-  classOptionsFromItems,
   defaultLookupSortDir,
-  effectOptionsFromItems,
+  effectGroupsFromItems,
   filterAndSortItems,
-  gearTypeOptionsFromItems,
+  gearTypeGroupsFromItems,
   gradeOptionsFromItems,
   LEVEL_MAX,
   LEVEL_MIN,
@@ -38,7 +37,6 @@ export function Lookup() {
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [gradeFilter, setGradeFilter] = useState<string[]>([]);
   const [gearTypeFilter, setGearTypeFilter] = useState<string[]>([]);
-  const [classFilter, setClassFilter] = useState<string[]>([]);
   const [materialKindFilter, setMaterialKindFilter] = useState<string[]>([]);
   const [effectFilter, setEffectFilter] = useState<string[]>([]);
   const [uniqueOnly, setUniqueOnly] = useState(false);
@@ -55,7 +53,6 @@ export function Lookup() {
     const materialVisible = next.length === 0 || next.includes("MATERIAL");
     if (!gearVisible) {
       setGearTypeFilter([]);
-      setClassFilter([]);
       setUniqueOnly(false);
     }
     if (!materialVisible) {
@@ -92,7 +89,6 @@ export function Lookup() {
       typeFilter,
       gradeFilter,
       gearTypeFilter,
-      classFilter,
       materialKindFilter,
       effectFilter,
       uniqueOnly,
@@ -106,7 +102,6 @@ export function Lookup() {
     typeFilter,
     gradeFilter,
     gearTypeFilter,
-    classFilter,
     materialKindFilter,
     effectFilter,
     uniqueOnly,
@@ -114,6 +109,15 @@ export function Lookup() {
     sortKey,
     sortDir,
   ]);
+
+  const gradeOptions = useMemo(() => (items ? gradeOptionsFromItems(items) : []), [items]);
+  const typeOptions = useMemo(() => (items ? typeOptionsFromItems(items) : []), [items]);
+  const gearTypeGroups = useMemo(() => (items ? gearTypeGroupsFromItems(items) : []), [items]);
+  const materialKindOptions = useMemo(
+    () => (items ? materialKindOptionsFromItems(items) : []),
+    [items],
+  );
+  const effectGroups = useMemo(() => (items ? effectGroupsFromItems(items) : []), [items]);
 
   if (!items || !sources || !synthesisModel) {
     return (
@@ -136,25 +140,22 @@ export function Lookup() {
         typeFilter={typeFilter}
         gradeFilter={gradeFilter}
         gearTypeFilter={gearTypeFilter}
-        classFilter={classFilter}
         materialKindFilter={materialKindFilter}
         effectFilter={effectFilter}
         uniqueOnly={uniqueOnly}
         levelRange={levelRange}
         sortKey={sortKey}
         sortDir={sortDir}
-        gradeOptions={gradeOptionsFromItems(items)}
-        typeOptions={typeOptionsFromItems(items)}
-        gearTypeOptions={gearTypeOptionsFromItems(items)}
-        classOptions={classOptionsFromItems(items)}
-        materialKindOptions={materialKindOptionsFromItems(items)}
-        effectOptions={effectOptionsFromItems(items)}
+        gradeOptions={gradeOptions}
+        typeOptions={typeOptions}
+        gearTypeGroups={gearTypeGroups}
+        materialKindOptions={materialKindOptions}
+        effectGroups={effectGroups}
         shownCount={filtered.length}
         onQueryChange={setQuery}
         onTypeFilterChange={handleTypeFilterChange}
         onGradeFilterChange={setGradeFilter}
         onGearTypeFilterChange={setGearTypeFilter}
-        onClassFilterChange={setClassFilter}
         onMaterialKindFilterChange={setMaterialKindFilter}
         onEffectFilterChange={setEffectFilter}
         onUniqueOnlyChange={setUniqueOnly}
