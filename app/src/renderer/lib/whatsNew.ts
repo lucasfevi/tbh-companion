@@ -16,6 +16,16 @@ export const WHATS_NEW_STORAGE_KEY = "tbh.whatsNew.lastSeenVersion";
 
 const WHATS_NEW_ENTRIES: WhatsNewEntry[] = [
   {
+    version: "1.16.0",
+    title: "What's new in v1.16.0",
+    bullets: [
+      "New Lookup tab — browse 1,500+ items, boxes, and stages with search, filters, and sort.",
+      "Every item shows stats plus Where to find: boss drops, crafting, synthesis, and Cube Offering coins.",
+      "Open Offering coins to see full Cube loot tables; open boxes and stages for drop lists.",
+      "Inventory filters for grade, item type, and location are now multi-select.",
+    ],
+  },
+  {
     version: "1.15.0",
     title: "What's new in v1.15.0",
     bullets: [

@@ -4,6 +4,24 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-06-23
+
+### Lookup
+
+- New **Lookup** tab: browse 1,500+ obtainable items, boxes, and stages with search, filters (grade, gear type, hero class, stat modifier, level range, material kind), and sort by name, grade, level, or type.
+- Item detail shows base stats, inherent stats, unique effects, and **Where to find** — boss box drops, crafting recipes, synthesis formulas, and Cube **Offering** coins that can yield the item (with drop chance).
+- Open any box or stage to see its drop table.
+- Gear synthesis odds in the item detail panel; click any linked item, box, or stage to jump in a side panel without leaving the tab.
+- **Offering** coins (Cube toss): full weighted loot table on the coin's detail page; search and sort by drop %.
+
+### Inventory
+
+- **Grade**, **Item type**, and **Location** filters are now multi-select — combine several grades, types, or locations at once.
+
+### Data
+
+- Bundled catalogs synced with game **1.00.19**; Lookup includes item icons for gear and materials.
+
 ## [1.15.0] - 2026-06-20
 
 ### Inventory
