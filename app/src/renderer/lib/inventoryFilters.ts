@@ -14,7 +14,8 @@ export type SortKey =
   | "buyOrder"
   | "buyOrderValue"
   | "buyOrderAverage";
-export type LocationFilter = "ALL" | ItemLocation;
+/** A single storage location; the location filter holds a set of these ([] = all). */
+export type LocationFilter = ItemLocation;
 
 const LOCATION_FILTER_LABEL: Record<ItemLocation, string> = {
   inventory: "Inventory",
@@ -24,9 +25,9 @@ const LOCATION_FILTER_LABEL: Record<ItemLocation, string> = {
   unknown: "Unknown",
 };
 
-export function emptyInventoryFilterMessage(locationFilter: LocationFilter): string {
-  if (locationFilter !== "ALL") {
-    return `No items in ${LOCATION_FILTER_LABEL[locationFilter]}.`;
+export function emptyInventoryFilterMessage(locationFilter: LocationFilter[]): string {
+  if (locationFilter.length === 1) {
+    return `No items in ${LOCATION_FILTER_LABEL[locationFilter[0]]}.`;
   }
   return "No items match these filters.";
 }
@@ -35,11 +36,16 @@ export interface InventoryFilterState {
   query: string;
   tradableOnly: boolean;
   unequippedOnly: boolean;
-  gradeFilter: string;
-  typeFilter: string;
-  locationFilter: LocationFilter;
+  gradeFilter: string[];
+  typeFilter: string[];
+  locationFilter: LocationFilter[];
   sortKey: SortKey;
   sortDir: "asc" | "desc";
+}
+
+/** A multi-select with no selections means "no filter" (match everything). */
+function matchesMulti(selected: string[], value: string | null): boolean {
+  return selected.length === 0 || (value != null && selected.includes(value));
 }
 
 /** Average price per unit actually realized across the order-book levels used to fill the stack. */
@@ -70,10 +76,14 @@ export function filterAndSortRows(
     // Rows are grouped by item type, so a row can mix equipped + stashed copies.
     // Only hide it when every copy is equipped — otherwise the unequipped ones disappear too.
     if (state.unequippedOnly && inUse >= row.count) return false;
-    if (state.gradeFilter !== "ALL" && row.grade !== state.gradeFilter) return false;
-    if (state.typeFilter !== "ALL" && row.type !== state.typeFilter) return false;
-    if (state.locationFilter !== "ALL" && !rowMatchesLocation(row, state.locationFilter))
+    if (!matchesMulti(state.gradeFilter, row.grade)) return false;
+    if (!matchesMulti(state.typeFilter, row.type)) return false;
+    if (
+      state.locationFilter.length > 0 &&
+      !state.locationFilter.some((location) => rowMatchesLocation(row, location))
+    ) {
       return false;
+    }
     if (q && !row.name.toLowerCase().includes(q)) return false;
     return true;
   });
