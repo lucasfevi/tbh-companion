@@ -4,6 +4,12 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.16.1] - 2026-06-23
+
+### Fixed
+
+- Game item icons (gear, materials, boxes) now appear correctly in installed builds. Icons worked in dev but were missing from packaged releases because the build step copied JSON catalogs only, not the bundled `data/icons/` folder.
+
 ## [1.16.0] - 2026-06-23
 
 ### Lookup
