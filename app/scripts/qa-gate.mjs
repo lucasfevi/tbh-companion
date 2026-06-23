@@ -4,7 +4,7 @@
  * Usage: pnpm run qa (from app/)
  */
 import { execSync } from "node:child_process";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,6 +21,7 @@ run("pnpm run format:check");
 run("pnpm test");
 run("pnpm run test:dom");
 run("pnpm run build");
+run("pnpm run minify-and-copy-data");
 
 const mainBundle = join(appRoot, "out/main/index.js");
 if (!existsSync(mainBundle)) {
@@ -67,6 +68,21 @@ for (const file of requiredDataFiles) {
     );
     process.exit(1);
   }
+}
+
+const packagedIconsDir = join(appRoot, "dist", "data", "icons");
+if (!existsSync(packagedIconsDir)) {
+  console.error(
+    "FAIL: dist/data/icons missing after minify-and-copy-data (game item icons required for packaged installs)",
+  );
+  process.exit(1);
+}
+const packagedIconCount = readdirSync(packagedIconsDir).filter((name) =>
+  name.endsWith(".png"),
+).length;
+if (packagedIconCount === 0) {
+  console.error("FAIL: dist/data/icons has no PNG files after minify-and-copy-data");
+  process.exit(1);
 }
 
 const pkg = JSON.parse(readFileSync(join(appRoot, "package.json"), "utf8"));

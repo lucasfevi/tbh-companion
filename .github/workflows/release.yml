@@ -71,7 +71,7 @@ jobs:
       # action-gh-release below — never let electron-builder publish in CI (needs GH_TOKEN).
       - name: Build Windows installer
         shell: bash
-        run: pnpm run minify-data && pnpm run build && pnpm exec electron-builder --publish never
+        run: pnpm run minify-and-copy-data && pnpm run build && pnpm exec electron-builder --publish never
 
       - name: Verify updater metadata ships with installer
         shell: pwsh
@@ -122,6 +122,15 @@ jobs:
               throw "Missing bundled data file: $path"
             }
           }
+          $iconsDir = Join-Path $resourcesData "icons"
+          if (-not (Test-Path $iconsDir)) {
+            throw "Missing bundled icons directory: $iconsDir"
+          }
+          $iconCount = (Get-ChildItem -Path $iconsDir -Filter "*.png" -File).Count
+          if ($iconCount -lt 1) {
+            throw "Expected game item icons in $iconsDir"
+          }
+          Write-Host "Bundled icons OK: $iconCount PNG file(s) in resources/data/icons"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v5

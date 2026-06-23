@@ -1,15 +1,25 @@
 #!/usr/bin/env node
 /**
- * Minify bundled data/*.json catalogs into app/dist/data/ for packaging.
- * Source files in ../data stay pretty-printed (readable diffs); only the
- * packaged copy is minified. Run before pack/dist — see app/package.json.
+ * Stage bundled data for packaging: minify data/*.json and copy data/icons/
+ * into app/dist/data/. Source JSON in ../data stays pretty-printed (readable
+ * diffs); only the packaged copy is minified. Run before pack/dist — see
+ * app/package.json.
  * Usage (from app/):
- *   pnpm run minify-data
+ *   pnpm run minify-and-copy-data
  */
-import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+const logTag = "[minify-and-copy-data]";
 const appRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const sourceDir = join(appRoot, "..", "data");
 const outDir = join(appRoot, "dist", "data");
@@ -47,7 +57,7 @@ function formatSavings(prettyBytes, minifiedBytes) {
   return `${(((prettyBytes - minifiedBytes) / prettyBytes) * 100).toFixed(1)}%`;
 }
 
-console.log("\n[minify-data] data/*.json -> dist/data/*.json\n");
+console.log(`\n${logTag} data/*.json -> dist/data/*.json\n`);
 for (const { file, prettyBytes, minifiedBytes } of rows) {
   console.log(
     `  ${file.padEnd(28)} ${formatKb(prettyBytes).padStart(10)} -> ${formatKb(minifiedBytes).padStart(10)}  (-${formatSavings(prettyBytes, minifiedBytes)})`,
@@ -56,4 +66,18 @@ for (const { file, prettyBytes, minifiedBytes } of rows) {
 console.log(
   `  ${"TOTAL".padEnd(28)} ${formatKb(totalPretty).padStart(10)} -> ${formatKb(totalMinified).padStart(10)}  (-${formatSavings(totalPretty, totalMinified)})`,
 );
-console.log(`\n[minify-data] Wrote ${rows.length} file(s) to ${outDir}`);
+console.log(`\n${logTag} Wrote ${rows.length} file(s) to ${outDir}`);
+
+const iconsSource = join(sourceDir, "icons");
+const iconsDest = join(outDir, "icons");
+if (!existsSync(iconsSource)) {
+  console.error(`${logTag} FAIL: missing bundled icons directory at ${iconsSource}`);
+  process.exit(1);
+}
+cpSync(iconsSource, iconsDest, { recursive: true });
+const iconCount = readdirSync(iconsDest).filter((name) => name.endsWith(".png")).length;
+if (iconCount === 0) {
+  console.error(`${logTag} FAIL: no PNG icons copied to ${iconsDest}`);
+  process.exit(1);
+}
+console.log(`${logTag} Copied ${iconCount} icon(s) to ${iconsDest}`);
