@@ -1,38 +1,43 @@
-# Lookup/Filter Performance — Specification (stub)
+# Lookup Filter/Sort Performance — Specification
 
-Deferred follow-up (user decision R8): plan and execute AFTER
-`filtering-sorting-refinements` ships. This stub captures the problem so the
-investigation isn't lost.
+**Status:** Complete
 
 ## Problem Statement
 
-Filtering and sorting on Lookup feels delayed; the user suspects Offering and
-Inventory may share the issue. Lookup renders a large catalog (~1500 items) as a
-grid with no virtualization, recomputing `filterAndSortItems` + re-rendering all
-`ItemCard`s on every keystroke / filter change.
+Filtering and sorting on the Lookup tab felt delayed. The grid rendered all
+matching `ItemCard`s (~1500 items in the worst case) with no memoization and no
+content-visibility skipping, and every keystroke immediately re-ran the full
+`filterAndSortItems` pass and re-rendered every card.
 
-## Suspected causes (to verify during Design)
+## Root causes (verified)
 
-- **No list virtualization** on the Lookup grid (`<ul>` of `ItemCard`) — every
-  matching item mounts a card. Likely the biggest win.
-- **Filter/sort recompute per keystroke** with no debounce on the search query.
-- **Option helpers** (`gradeOptionsFromItems`, grouping helpers, etc.) recomputed
-  in `Lookup.tsx` render without `useMemo` (currently called inline in JSX props).
-- Per-item work in the predicate (effect scan over `gearGroups`) on every pass.
+| Cause | Fix |
+|-------|-----|
+| `ItemCard` not memoized; re-renders every card on any filter change | `React.memo` on `ItemCard` |
+| `onSelect` callback recreated inline each render — defeats memo | `useCallback`-wrapped `handleItemSelect` |
+| All off-screen cards painted every frame | `[content-visibility:auto]` + `[contain-intrinsic-size:0_180px]` on each card |
+| Every keystroke immediately triggers filter/sort + re-render | `useDeferredValue(query)` — input stays instant; filter runs at lower priority |
 
-## Goals (draft)
+**Already resolved before this feature:**
+- Option helpers (`gradeOptionsFromItems`, etc.) memoized in `Lookup.tsx` (done in `filtering-sorting-refinements`).
 
-- [ ] Filtering/sorting feels instant (<~16ms perceived) on the full catalog.
-- [ ] Establish a benchmark (see `docs/BENCHMARKS.md`) to measure before/after.
+## Goals
 
-## Likely directions (to design)
+- [x] Filtering/sorting feels instant (<~16ms perceived) on the full catalog.
+- [x] Benchmark established in `app/test/bench/lookupFilter.bench.ts`.
 
-- Virtualize the Lookup grid (and re-check Inventory table / Offering list).
-- Debounce search input; memoize option/group derivations.
-- Profile with the existing bench harness; add a filter/sort bench.
+## Out of Scope
 
-## Out of Scope (for now)
+- Windowing library (react-window / virtua) — CSS content-visibility is sufficient; add only if profiling shows it's needed.
+- Web workers / offloading.
+- Inventory and Offering Loot (Inventory already has `memo` + content-visibility; Offering Loot is ~10–20 rows).
+- Saved filter presets / named views.
 
-- Web workers / offloading (only if profiling proves CPU-bound beyond the above).
+## Implementation
 
-**Status**: Stub — not yet specified in full. Pick up after refinements merge.
+**Files changed:**
+
+- `app/src/renderer/components/lookup/ItemCard.tsx` — `React.memo` + content-visibility
+- `app/src/renderer/tabs/Lookup.tsx` — `useDeferredValue(query)` + stable `handleItemSelect`
+- `app/test/bench/lookupFilter.bench.ts` — new filter/sort benchmark
+- `docs/BENCHMARKS.md` — table entry for the new bench

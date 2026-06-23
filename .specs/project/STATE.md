@@ -4,6 +4,10 @@ Persistent decisions, blockers, lessons, and deferred ideas across sessions.
 
 ## Active feature
 
+- **lookup-filter-performance** — **Complete** on branch `feat/filtering-sorting-evolution`.
+  `React.memo` + `[content-visibility:auto]` on `ItemCard`, `useCallback` for `onSelect`,
+  `useDeferredValue(query)` in `Lookup.tsx`. Benchmark added at
+  `app/test/bench/lookupFilter.bench.ts`. [R8]
 - **filtering-sorting-refinements** — **Complete & committed** on branch
   `feat/filtering-sorting-evolution` (9 atomic commits + docs commit). Chrome
   consistency (count "{n} items" beside search, no search label, checkboxes for
@@ -25,13 +29,11 @@ Persistent decisions, blockers, lessons, and deferred ideas across sessions.
   ("Common" = effect applies to any slot; confusing — drop the control + helpers + filter branch). [D4]
 - 2026-06-23 — Inventory sort stays on its data table; the new grouped sort control is
   Lookup + Coin view only.
+- 2026-06-23 — Lookup perf: reuse Inventory's `memo` + `[content-visibility:auto]` pattern on
+  `ItemCard`; use `useDeferredValue` for search (no windowing lib needed). [R8]
 
 ## Deferred ideas
 
-- **lookup-filter-performance** — filtering/sorting feels delayed; virtualize the
-  Lookup grid, debounce search, memoize option/group helpers, add a bench. Stub
-  spec at `.specs/features/lookup-filter-performance/spec.md`. Plan in full after
-  refinements merge. [R8]
 - Saved filter presets / named views (out of scope for this feature).
 - Reusing the RangeSlider for inventory value/price/count ranges and Coin view drop-% (P3,
   opt-in during Design).

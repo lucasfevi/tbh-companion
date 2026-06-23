@@ -1,9 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { useLookupCatalog } from "../lib/useLookupCatalog";
 import { useLookupSources } from "../lib/useLookupSources";
 import { useLookupSynthesisModel } from "../lib/useLookupSynthesisModel";
 import { useOfferings } from "../lib/useOfferings";
 import { useLookupNav, type LookupNavNode } from "../lib/useLookupNav";
+import type { LookupItem } from "../../../shared/types";
 import { buildBoxNameIndex, buildStageNameIndex } from "../lib/lookupGraph";
 import {
   defaultLookupSortDir,
@@ -41,8 +42,10 @@ export function Lookup() {
   const [effectFilter, setEffectFilter] = useState<string[]>([]);
   const [uniqueOnly, setUniqueOnly] = useState(false);
   const [levelRange, setLevelRange] = useState<[number, number]>([LEVEL_MIN, LEVEL_MAX]);
-  const [sortKey, setSortKey] = useState<LookupSortKey>("name");
+  const [sortKey, setSortKey] = useState<LookupSortKey>("grade");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  const deferredQuery = useDeferredValue(query);
 
   function handleTypeFilterChange(next: string[]) {
     setTypeFilter(next);
@@ -85,7 +88,7 @@ export function Lookup() {
   const filtered = useMemo(() => {
     if (!items) return [];
     return filterAndSortItems(items, {
-      query,
+      query: deferredQuery,
       typeFilter,
       gradeFilter,
       gearTypeFilter,
@@ -98,7 +101,7 @@ export function Lookup() {
     });
   }, [
     items,
-    query,
+    deferredQuery,
     typeFilter,
     gradeFilter,
     gearTypeFilter,
@@ -109,6 +112,15 @@ export function Lookup() {
     sortKey,
     sortDir,
   ]);
+
+  const { push: navPush } = nav;
+  const handleItemSelect = useCallback(
+    (item: LookupItem) => {
+      navPush({ type: "item", id: item.id });
+      setPanelOpen(true);
+    },
+    [navPush],
+  );
 
   const gradeOptions = useMemo(() => (items ? gradeOptionsFromItems(items) : []), [items]);
   const typeOptions = useMemo(() => (items ? typeOptionsFromItems(items) : []), [items]);
@@ -168,16 +180,7 @@ export function Lookup() {
         {filtered.length === 0 ? (
           <li className="col-span-full text-xs text-muted">No items match these filters.</li>
         ) : (
-          filtered.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              onSelect={(i) => {
-                nav.push({ type: "item", id: i.id });
-                setPanelOpen(true);
-              }}
-            />
-          ))
+          filtered.map((item) => <ItemCard key={item.id} item={item} onSelect={handleItemSelect} />)
         )}
       </ul>
 

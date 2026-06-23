@@ -1,9 +1,10 @@
+import { memo } from "react";
 import { Card } from "../../design-system/primitives/Card/Card";
 import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
 import { ItemCardHeader, MaterialGroup, StatGroup } from "./itemCardParts";
 import type { LookupItem } from "../../../../shared/types";
 
-export function ItemCard({
+export const ItemCard = memo(function ItemCard({
   item,
   onSelect,
 }: {
@@ -50,7 +51,7 @@ export function ItemCard({
       <Card
         as="li"
         padding="compact"
-        className="flex h-full cursor-pointer flex-col gap-2 hover:border-ideal/40"
+        className="flex h-full cursor-pointer flex-col gap-2 hover:border-ideal/40 [contain-intrinsic-size:0_180px] [content-visibility:auto]"
         onClick={() => onSelect(item)}
       >
         {content}
@@ -59,8 +60,11 @@ export function ItemCard({
   }
 
   return (
-    <Card padding="compact" className="flex h-full flex-col gap-2">
+    <Card
+      padding="compact"
+      className="flex h-full flex-col gap-2 [contain-intrinsic-size:0_180px] [content-visibility:auto]"
+    >
       {content}
     </Card>
   );
-}
+});

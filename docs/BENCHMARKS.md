@@ -14,6 +14,7 @@ Benchmarks are **informational only** — they do not pass or fail CI.
 | **Inventory resolve** | `resolveInventory` with bundled catalog + 10% mock prices |
 | **Startup proxy** | Bundled gamedata index load + full save pipeline (decrypt → parse → resolve) |
 | **Steam refresh (cached)** | `SteamMarketProvider.refresh` when all targets are already fresh (noop path) |
+| **Lookup filter/sort** | `filterAndSortItems` on the full ~1500-item catalog: no filters, query-only, multi-select, combined filter+sort |
 
 Full Electron window startup is **not** benchmarked in CI (too flaky on headless runners). The startup proxy covers the synchronous main-process work in `startTracking()` and the first save read pipeline.
 
