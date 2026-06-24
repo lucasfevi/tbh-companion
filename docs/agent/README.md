@@ -53,3 +53,4 @@ Edit skills in `.cursor/skills/`; run `pnpm sync:skills` from repo root and comm
 
 - **Any agent:** `AGENTS.md` (project brief + link here)
 - **Claude Code:** `CLAUDE.md` imports `AGENTS.md`
+- **Cursor (optional):** `.cursor/rules/git-remote-confirm.mdc` only — push/PR confirm guardrail; everything else is in `docs/agent/`, not Cursor rules.
