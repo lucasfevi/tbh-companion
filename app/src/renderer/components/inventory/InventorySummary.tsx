@@ -3,6 +3,8 @@ import { GradeBars } from "./GradeBars";
 import type { InventoryComposition } from "../../../../shared/types";
 import { HintBanner } from "../../design-system/primitives/HintBanner/HintBanner";
 import { StatCard } from "../../design-system/primitives/StatCard/StatCard";
+import { ExternalLink } from "../ui/ExternalLink";
+import { DISCORD_URL } from "../../lib/externalLinks";
 
 const LIST_VALUE_TIP = "Total list value at Steam market prices (what buyers pay)";
 const NET_FEES_TIP =
@@ -62,8 +64,9 @@ export function InventorySummary({
       <GradeBars composition={c} />
       {(c.unknownCount ?? 0) > 0 && (
         <HintBanner>
-          {c.unknownCount} item(s) are not in the bundled catalog (Unknown #id). Update the app when
-          a new game version adds items.
+          {c.unknownCount} item(s) are not in the bundled catalog (Unknown #id). Update the app, or
+          check our <ExternalLink href={DISCORD_URL}>Discord</ExternalLink> for work in progress on
+          those IDs.
         </HintBanner>
       )}
     </>
