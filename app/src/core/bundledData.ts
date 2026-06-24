@@ -17,6 +17,16 @@ export const REQUIRED_BUNDLED_DATA_FILES = [
   "offerings.json",
 ] as const;
 
+/** Subset verified in source `data/` and staged `dist/data/` during `pnpm qa`. */
+export const QA_GATE_BUNDLED_DATA_FILES = [
+  "gamedata.json",
+  "stage_boxes.json",
+  "box_types.json",
+  "rune_box_cap.json",
+  "steam_item_nameids.json",
+  "steam_market_fee.json",
+] as const;
+
 export type BundledDataFile = (typeof REQUIRED_BUNDLED_DATA_FILES)[number];
 
 /** Search order: packaged resources, repo dev (app/../data), cwd/data. */

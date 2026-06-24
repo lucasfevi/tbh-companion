@@ -206,8 +206,6 @@ export function getAppServices() {
     setBoxTrackerNotify: (boxId: number, enabled: boolean) =>
       boxTimers.setBoxTrackerNotify(boxId, enabled),
     setBoxTrackerSortOrder: (sortOrder: BoxTrackerSortOrder) => boxTimers.setSortOrder(sortOrder),
-    gameDataStatus: () => inventory.gameDataStatus(),
-    refreshGameData: () => inventory.refreshGameData(),
     pricesStatus: () => inventory.pricesStatus(),
     refreshPrices: (force?: boolean) => inventory.refreshPrices(force),
     refreshItemPrices: (itemKey: number) => inventory.refreshItemPrices(itemKey),
@@ -272,12 +270,10 @@ export function getAppServices() {
         appDataLog.info(`Cache cleared (${target}): ${result.cleared.join(", ")}`);
       }
 
-      const reloadCatalog = target === "catalog" || target === "all-except-config";
       const reloadPrices = target === "prices" || target === "all-except-config";
       const reloadTimers = target === "box-timers" || target === "all-except-config";
       const reloadSession = target === "session" || target === "all-except-config";
 
-      if (reloadCatalog) inventory.reloadGameData();
       if (reloadPrices) inventory.reloadPriceCache();
       if (reloadTimers) boxTimers.resetStorage();
       if (reloadSession) {

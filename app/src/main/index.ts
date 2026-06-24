@@ -1,7 +1,7 @@
 import "./appIdentity";
 import "./logInit";
 
-import { app } from "electron";
+import { app, dialog } from "electron";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -39,18 +39,28 @@ if (isPrimaryInstance) {
 
   app.whenReady().then(() => {
     const appLog = createLogger("app");
-    appLog.info(`TBH Companion v${appVersion()} ready`);
-    registerAssetProtocolHandler();
-    const sessionUi = startTracking();
-    const services = getAppServices();
-    registerIpc(services);
-    services.startUpdates();
-    createTray(services);
-    restoreSessionWindows(sessionUi);
+    try {
+      appLog.info(`TBH Companion v${appVersion()} ready`);
+      registerAssetProtocolHandler();
+      const sessionUi = startTracking();
+      const services = getAppServices();
+      registerIpc(services);
+      services.startUpdates();
+      createTray(services);
+      restoreSessionWindows(sessionUi);
 
-    app.on("activate", () => {
-      getAppServices().showMain();
-    });
+      app.on("activate", () => {
+        getAppServices().showMain();
+      });
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      appLog.error(`Startup failed: ${detail}`);
+      dialog.showErrorBox(
+        "TBH Companion — startup failed",
+        `The item catalog could not be loaded. Reinstall or update the app.\n\n${detail}`,
+      );
+      app.quit();
+    }
   });
 
   app.on("before-quit", () => {

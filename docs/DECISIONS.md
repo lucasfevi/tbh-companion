@@ -54,13 +54,15 @@ them and distinct ids collide (observed ~6 collisions in 185 items). A
 per-location split (inventory vs stash vs trading) would need a lossless
 big-int id parse and is deferred until there's a reason to build it.
 
-## 2026-06 - Item catalog with bundled stage boxes and self-refresh
+## 2026-06 - Item catalog with bundled stage boxes and self-refresh (superseded)
 
-The main item list scrape yields GEAR + MATERIAL whose record `id` equals the
+~~The main item list scrape yields GEAR + MATERIAL whose record `id` equals the
 save's `ItemKey`. We bundle it as `data/gamedata.json` (offline fallback), cache
-refreshes in `userData`, and re-scrape on a TTL. **Stage boxes** (`910`/`920`/`930`
-prefixes) ship separately in `data/stage_boxes.json`. Unknown `ItemKey`s degrade
-to `Unknown #<key>` with a refresh hint. See `docs/findings/item-mapping.md`.
+refreshes in `userData`, and re-scrape on a TTL.~~ **Superseded 2026-06:** catalog
+is **bundled-only** from tbh-data (`data/gamedata.json`); no userData cache, no
+runtime scrape, no `gamedata-refresh` IPC. Missing bundled gamedata fails startup.
+Unknown save keys still degrade to `Unknown #<key>`. **Stage boxes** (`910`/`920`/`930`
+prefixes) still ship separately in `data/stage_boxes.json`. See `docs/findings/item-mapping.md`.
 
 ## 2026-06 - Steam prices via `priceoverview` in a configurable currency
 

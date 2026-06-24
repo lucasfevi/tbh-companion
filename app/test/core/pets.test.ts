@@ -16,7 +16,7 @@ function wrapPlayer(inner: Record<string, unknown>): string {
 }
 
 describe("pets farm math", () => {
-  it("computes expected kills and runs like TBH.City pet-farm", () => {
+  it("computes expected kills and runs for pet unlock farm stages", () => {
     expect(expectedKillsPerClear(400, 37)).toBeCloseTo(148, 0);
     expect(runsToUnlock(5000, 148.2)).toBe(34);
     expect(runsToUnlock(2600, 148.2)).toBe(18);

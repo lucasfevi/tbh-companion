@@ -25,7 +25,6 @@
     "bench:ci": "node scripts/bench-ci.mjs",
     "qa": "node scripts/qa-gate.mjs",
     "qa:dev": "node scripts/qa-dev.mjs",
-    "regenerate-gamedata": "vitest run --config vitest.regenerate.config.ts",
     "minify-and-copy-data": "node scripts/minify-and-copy-data.mjs",
     "pack": "pnpm minify-and-copy-data && electron-vite build && electron-builder --dir",
     "dist": "pnpm minify-and-copy-data && electron-vite build && electron-builder"

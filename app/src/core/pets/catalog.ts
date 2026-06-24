@@ -7,7 +7,7 @@ export interface PetFarmStageCatalog {
   monstersPerClear: number;
 }
 
-/** Act-stage locations where the unlock target monster spawns (tbh.city). */
+/** Act-stage locations where the unlock target monster spawns (bundled pets.json). */
 export interface PetAppearStageCatalog {
   act: number;
   stage: number;
