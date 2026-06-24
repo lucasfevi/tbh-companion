@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   boxCategoryLabel,
   boxDropViaLabel,
+  boxStageListLabel,
   dropStageRangeLabel,
   FIRST_DROP_ONLY_LABEL,
   summarizeSpawnPcts,
@@ -10,6 +11,7 @@ import { loadLookupSources } from "../../src/core/lookup/catalog";
 
 describe("boxDisplay", () => {
   it("labels box categories and drop vias", () => {
+    expect(boxStageListLabel(1103, "Wasteland")).toBe("Normal 1-3 - Wasteland");
     expect(boxCategoryLabel("common")).toBe("Common chest");
     expect(boxCategoryLabel("stage_boss")).toBe("Stage boss chest");
     expect(boxCategoryLabel("act_boss")).toBe("Act boss chest");

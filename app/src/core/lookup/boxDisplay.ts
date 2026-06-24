@@ -3,6 +3,11 @@ import type { LookupBoxCategory, LookupBoxDropVia, LookupBoxStageRef } from "./t
 
 export const FIRST_DROP_ONLY_LABEL = "First clear only";
 
+/** Compact stage key plus map name for box detail stage rows. */
+export function boxStageListLabel(stageKey: number, displayName: string): string {
+  return `${stageName(stageKey)} - ${displayName}`;
+}
+
 export function boxCategoryLabel(category: LookupBoxCategory): string {
   switch (category) {
     case "common":

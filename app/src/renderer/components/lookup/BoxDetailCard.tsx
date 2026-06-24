@@ -2,13 +2,12 @@ import { useMemo, useState } from "react";
 import { gradeLabel } from "../../../core/labels";
 import {
   boxCategoryLabel,
-  boxDropViaLabel,
+  boxStageListLabel,
   FIRST_DROP_ONLY_LABEL,
 } from "../../../core/lookup/boxDisplay";
-import { stageName } from "../../../core/stages";
 import { boxIconPath } from "../../lib/boxIconPath";
 import { fmtDropPct } from "../../lib/lookupDisplay";
-import { filterAndSortBoxStages } from "../../lib/boxLootFilters";
+import { filterAndSortBoxStages, filterFirstDropStages } from "../../lib/boxLootFilters";
 import { gradeColor } from "../../lib/gradeColor";
 import { iconSrc } from "../../lib/iconSrc";
 import { cn } from "../../lib/cn";
@@ -56,15 +55,10 @@ export function BoxDetailCard({
     [box.stages, farmQuery],
   );
 
-  const filteredFirstStages = useMemo(() => {
-    const q = firstQuery.trim().toLowerCase();
-    return box.firstDropStages.filter(
-      (s) =>
-        !q ||
-        s.stageName.toLowerCase().includes(q) ||
-        stageName(s.stageKey).toLowerCase().includes(q),
-    );
-  }, [box.firstDropStages, firstQuery]);
+  const filteredFirstStages = useMemo(
+    () => filterFirstDropStages(box.firstDropStages, firstQuery),
+    [box.firstDropStages, firstQuery],
+  );
 
   return (
     <Card className="flex flex-col gap-3">
@@ -82,9 +76,6 @@ export function BoxDetailCard({
           </p>
           {box.firstDropOnly ? (
             <p className={cn("m-0 truncate text-xs text-gold")}>{FIRST_DROP_ONLY_LABEL}</p>
-          ) : null}
-          {box.dropStageRangeLabel && box.dropStageRangeLabel !== "—" ? (
-            <p className="m-0 truncate text-xs text-muted">{box.dropStageRangeLabel}</p>
           ) : null}
         </div>
       </div>
@@ -111,16 +102,21 @@ export function BoxDetailCard({
 
           <Card padding="none" className="overflow-hidden">
             <DataList scrollable className="max-h-44">
-              {filteredFirstStages.map((stage, i) => (
-                <DataListRow key={stage.stageKey} index={i}>
-                  <ItemLink
-                    node={{ type: "stage", id: stage.stageKey }}
-                    name={stage.stageName}
-                    suffix={`· ${stageName(stage.stageKey)}`}
-                    onNavigate={onNavigate}
-                  />
+              {filteredFirstStages.length === 0 ? (
+                <DataListRow index={0} className="text-xs text-muted">
+                  No stages match these filters.
                 </DataListRow>
-              ))}
+              ) : (
+                filteredFirstStages.map((stage, i) => (
+                  <DataListRow key={stage.stageKey} index={i}>
+                    <ItemLink
+                      node={{ type: "stage", id: stage.stageKey }}
+                      name={boxStageListLabel(stage.stageKey, stage.stageName)}
+                      onNavigate={onNavigate}
+                    />
+                  </DataListRow>
+                ))
+              )}
             </DataList>
           </Card>
         </div>
@@ -148,16 +144,22 @@ export function BoxDetailCard({
 
           <Card padding="none" className="overflow-hidden">
             <DataList scrollable className="max-h-44">
-              {filteredFarmStages.map((stage, i) => (
-                <DataListRow key={stage.stageKey} index={i}>
-                  <ItemLink
-                    node={{ type: "stage", id: stage.stageKey }}
-                    name={stage.stageName}
-                    suffix={`· ${stageName(stage.stageKey)} · ${boxDropViaLabel(stage.via)} · ${fmtDropPct(stage.spawnPct)}%`}
-                    onNavigate={onNavigate}
-                  />
+              {filteredFarmStages.length === 0 ? (
+                <DataListRow index={0} className="text-xs text-muted">
+                  No stages match these filters.
                 </DataListRow>
-              ))}
+              ) : (
+                filteredFarmStages.map((stage, i) => (
+                  <DataListRow key={stage.stageKey} index={i}>
+                    <ItemLink
+                      node={{ type: "stage", id: stage.stageKey }}
+                      name={boxStageListLabel(stage.stageKey, stage.stageName)}
+                      suffix={`· ${fmtDropPct(stage.spawnPct)}%`}
+                      onNavigate={onNavigate}
+                    />
+                  </DataListRow>
+                ))
+              )}
             </DataList>
           </Card>
         </div>

@@ -40,9 +40,6 @@ export function BoxPeekCard({ box, boxItemKey }: { box: LookupBoxSources; boxIte
         {box.firstDropOnly ? (
           <p className={cn("m-0 truncate text-[11px] text-gold")}>{FIRST_DROP_ONLY_LABEL}</p>
         ) : null}
-        {box.dropStageRangeLabel && box.dropStageRangeLabel !== "—" ? (
-          <p className="m-0 truncate text-[11px] text-muted">{box.dropStageRangeLabel}</p>
-        ) : null}
         {spawnSummary ? (
           <p className="m-0 truncate text-[11px] text-muted">Drop chance · {spawnSummary}</p>
         ) : null}
