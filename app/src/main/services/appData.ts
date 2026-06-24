@@ -9,7 +9,6 @@ import type {
 } from "../../../shared/types";
 import { DIAGNOSTIC_LOG_FILE, getDiagnosticLogPath, listDiagnosticLogFiles } from "../log";
 
-export const CATALOG_FILES = ["gamedata.json", "gear_levels.json"] as const;
 export const BOX_TIMERS_FILE = "box_timers.json";
 export const SESSION_STATE_FILE = "session_state.json";
 export const CONFIG_FILE = "config.json";
@@ -31,22 +30,12 @@ export function listPriceCacheFiles(userDataDir: string): string[] {
     .sort();
 }
 
-function entryExists(userDataDir: string, files: string[]): boolean {
-  return files.some((name) => existsSync(join(userDataDir, name)));
-}
-
 export function getAppDataPaths(userDataDir = resolveUserDataDir()): AppDataPaths {
   const priceFiles = listPriceCacheFiles(userDataDir);
   const configPath = join(userDataDir, CONFIG_FILE);
   const diagnosticFiles = listDiagnosticLogFiles(userDataDir);
 
   const entries: AppDataPathEntry[] = [
-    {
-      id: "catalog",
-      label: "Item catalog cache",
-      files: [...CATALOG_FILES],
-      exists: entryExists(userDataDir, [...CATALOG_FILES]),
-    },
     {
       id: "prices",
       label: "Steam Market prices",
@@ -90,8 +79,6 @@ export function filesForClearTarget(
   userDataDir = resolveUserDataDir(),
 ): string[] {
   switch (target) {
-    case "catalog":
-      return [...CATALOG_FILES];
     case "prices":
       return listPriceCacheFiles(userDataDir);
     case "box-timers":
@@ -99,12 +86,7 @@ export function filesForClearTarget(
     case "session":
       return [SESSION_STATE_FILE];
     case "all-except-config":
-      return [
-        ...CATALOG_FILES,
-        ...listPriceCacheFiles(userDataDir),
-        BOX_TIMERS_FILE,
-        SESSION_STATE_FILE,
-      ];
+      return [...listPriceCacheFiles(userDataDir), BOX_TIMERS_FILE, SESSION_STATE_FILE];
     default:
       return [];
   }

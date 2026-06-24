@@ -150,21 +150,6 @@ export interface PersistedSessionState {
   ui: SessionUiSnapshot;
 }
 
-export interface GameDataStatus {
-  loaded: boolean;
-  count: number;
-  fetchedUtc: string | null;
-  source: "cache" | "bundled" | "none";
-  stale: boolean;
-}
-
-export interface GameDataRefreshResult {
-  ok: boolean;
-  count?: number;
-  error?: string;
-  status: GameDataStatus;
-}
-
 // --- Inventory ---
 
 // Raw owned-item instance from itemSaveDatas (the master list of all owned
@@ -389,12 +374,7 @@ export interface AppConfig {
 }
 
 /** Scoped targets for Settings → Data & cache clear actions. */
-export type AppDataClearTarget =
-  | "catalog"
-  | "prices"
-  | "box-timers"
-  | "session"
-  | "all-except-config";
+export type AppDataClearTarget = "prices" | "box-timers" | "session" | "all-except-config";
 
 export interface AppDataPathEntry {
   id: AppDataClearTarget | "config" | "diagnostic-log";
@@ -794,8 +774,6 @@ export interface TbhApi {
   openOverlay(): void;
   showMain(): void;
   closeOverlay(): void;
-  gameDataStatus(): Promise<GameDataStatus>;
-  refreshGameData(): Promise<GameDataRefreshResult>;
   getInventory(): Promise<ResolvedInventory | null>;
   onInventory(cb: (inv: ResolvedInventory) => void): () => void;
   pricesStatus(): Promise<PriceStatus>;

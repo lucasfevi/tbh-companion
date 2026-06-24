@@ -4,7 +4,7 @@ export function expectedKillsPerClear(monstersPerClear: number, spawnPercent: nu
   return (monstersPerClear * spawnPercent) / 100;
 }
 
-/** Full clears still needed at a given stage (TBH.City pet-farm formula). */
+/** Full clears still needed at a given stage (pet unlock farm formula). */
 export function runsToUnlock(remainingKills: number, expectedPerClear: number): number {
   if (remainingKills <= 0 || expectedPerClear <= 0) return 0;
   return Math.ceil(remainingKills / expectedPerClear);

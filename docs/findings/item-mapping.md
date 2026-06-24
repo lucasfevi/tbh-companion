@@ -36,9 +36,8 @@ row with its own enchants), not stacked-with-count.
 ## Source for ItemKey -> name/rarity/type/level
 
 The bundled main catalog (`data/gamedata.json`, source label
-`companion-item-catalog`) is scraped from a public item list page whose embedded
-JSON matches the save's `ItemKey` ids. Scraped 2026-06: **5,875 items** (5,760
-GEAR + 115 MATERIAL). Each normalized row:
+`companion-item-catalog`) is exported from **tbh-data** and shipped with each app
+release. Each normalized row:
 
 ```json
 { "id": 322111, "name": "Void Staff", "grade": "RARE", "type": "GEAR",
@@ -47,41 +46,32 @@ GEAR + 115 MATERIAL). Each normalized row:
 
 **The join is `record.id === save ItemKey`.** Verified against a live save:
 `322111 -> Void Staff (RARE GEAR)`, `601111 -> Emerald Amulet (UNCOMMON GEAR)`,
-`141002 -> Iron Ingot (UNCOMMON MATERIAL)`. Gear **level** comes from per-icon
-detail lookups during catalog regeneration (not from digits in the ItemKey).
+`141002 -> Iron Ingot (UNCOMMON MATERIAL)`. Gear **level** is included in the
+bundled snapshot from tbh-data (not derived from digits in the ItemKey).
 
 How we consume it:
 
-- `app/src/core/gamedata.ts` - parse embedded list JSON, enrich gear levels,
-  normalize to `{ id, name, grade, type, level, marketTradable }`.
-- `app/src/main/gameDataProvider.ts` - loads main catalog + stage boxes, indexes
-  by `id`, can re-scrape the main list on a TTL.
-- `data/gamedata.json` - bundled GEAR + MATERIAL snapshot (~900 KB) for offline
-  first run.
-- `data/stage_boxes.json` - bundled **59 STAGEBOX** entries (see below).
+- `app/src/core/gamedata.ts` — normalize rows to `{ id, name, grade, type, level, marketTradable }`.
+- `app/src/main/gameDataProvider.ts` — loads bundled gamedata + merges stage boxes, indexes by `id`. **Throws at startup** if `gamedata.json` is missing or invalid.
+- `data/gamedata.json` — bundled GEAR + MATERIAL snapshot (~900 KB), required in dev and in `resources/data/` for packaged installs.
+- `data/stage_boxes.json` — bundled **59 STAGEBOX** entries (see below).
 
-> The wiki ([taskbarhero.wiki/stage-boxes](https://taskbarhero.wiki/stage-boxes),
-> `/gear`) is the authoritative reference for stage boxes and a viable backup for
-> gear tables; the main list scrape remains the primary GEAR + MATERIAL source.
+> Stage boxes and gear tables are also documented on the wiki
+> ([taskbarhero.wiki/stage-boxes](https://taskbarhero.wiki/stage-boxes), `/gear`).
 
-## Refresh strategy (game updates / new items)
+## Catalog updates (game patches / new items)
 
-The game ships new items in patches, so the catalog must self-update without an
-app release:
+The game ships new items in patches. The companion updates the catalog via **app
+releases**, not runtime fetch:
 
-1. **Bundled fallback** (`data/gamedata.json`) guarantees a working baseline
-   offline.
-2. **User cache** in `userData/gamedata.json` overrides the bundle once fetched.
-3. On startup the provider loads cache (else bundle) and, if the snapshot is
-   older than the TTL (7 days), **re-scrapes in the background**. A manual
-   "Refresh game data" action (IPC `gamedata-refresh`) forces it.
-4. **Unknown ItemKeys degrade gracefully:** an item in the save that isn't in
-   the catalog (e.g. added by a patch newer than the snapshot) renders as
-   `Unknown #<key>` and the UI surfaces a "N unknown items - refresh game data?"
-   hint rather than crashing or hiding the item.
-5. Refresh is **validated before commit**: a fetch yielding zero items is
-   rejected and the previous snapshot is kept, so a layout change on the scrape
-   source can't wipe the catalog.
+1. **tbh-data** exports an updated `gamedata.json` for the game version (see
+   `docs/agent/PULL-REQUEST.md`).
+2. **Bundled in the app** — `data/gamedata.json` is copied to `dist/data/` at
+   build time and shipped in the installer as `resources/data/gamedata.json`.
+3. **Fail-fast** — if bundled gamedata is missing or empty, the app does not start.
+4. **Unknown ItemKeys** — save keys not yet in the bundled snapshot render as
+   `Unknown #<key>` (informational banner in Inventory). Ship a new app version
+   with updated `data/gamedata.json` to resolve them.
 
 ## Stage boxes (`910xxx`–`930xxx`) — confirmed STAGEBOX, not hero gear
 

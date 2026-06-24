@@ -70,7 +70,29 @@ for (const file of requiredDataFiles) {
   }
 }
 
-const packagedIconsDir = join(appRoot, "dist", "data", "icons");
+const stagedDataDir = join(appRoot, "dist", "data");
+const stagedCriticalFiles = [
+  "gamedata.json",
+  "stage_boxes.json",
+  "box_types.json",
+  "rune_box_cap.json",
+  "steam_item_nameids.json",
+  "steam_market_fee.json",
+];
+for (const file of stagedCriticalFiles) {
+  const path = join(stagedDataDir, file);
+  if (!existsSync(path)) {
+    console.error(`FAIL: missing staged data file dist/data/${file} after minify-and-copy-data`);
+    process.exit(1);
+  }
+}
+const stagedGamedata = JSON.parse(readFileSync(join(stagedDataDir, "gamedata.json"), "utf8"));
+if (!Array.isArray(stagedGamedata.items) || stagedGamedata.items.length === 0) {
+  console.error("FAIL: dist/data/gamedata.json must contain a non-empty items array");
+  process.exit(1);
+}
+
+const packagedIconsDir = join(stagedDataDir, "icons");
 if (!existsSync(packagedIconsDir)) {
   console.error(
     "FAIL: dist/data/icons missing after minify-and-copy-data (game item icons required for packaged installs)",

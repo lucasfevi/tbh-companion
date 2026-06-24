@@ -14,8 +14,6 @@ import type {
   PriceProgress,
   PriceStatus,
   PriceRefreshResult,
-  GameDataStatus,
-  GameDataRefreshResult,
 } from "../../../shared/types";
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
@@ -41,14 +39,6 @@ export class InventoryService {
 
   loadGameData(): void {
     this.gameData.load();
-    this.gameData.overlayMissingLevelsFromBundled();
-    this.resolveAndPushInventory();
-    this.gameData.refreshIfStale(() => this.resolveAndPushInventory());
-  }
-
-  reloadGameData(): void {
-    this.gameData.reload();
-    this.gameData.overlayMissingLevelsFromBundled();
     this.resolveAndPushInventory();
   }
 
@@ -107,22 +97,6 @@ export class InventoryService {
 
   getInventory(): ResolvedInventory | null {
     return this.lastInventory;
-  }
-
-  gameDataStatus(): GameDataStatus {
-    return this.gameData.status();
-  }
-
-  async refreshGameData(): Promise<GameDataRefreshResult & { status: GameDataStatus }> {
-    const result = await this.gameData.refresh();
-    if (result.ok) {
-      this.gameData.overlayMissingLevelsFromBundled();
-      this.resolveAndPushInventory();
-      log.info(`Game data refreshed (${result.count ?? 0} items)`);
-    } else {
-      log.warn(`Game data refresh failed: ${result.error ?? "unknown"}`);
-    }
-    return { ...result, status: this.gameData.status() };
   }
 
   pricesStatus(): PriceStatus {
@@ -263,12 +237,11 @@ export class InventoryService {
   resolveAndPushInventory(): void {
     if (!this.lastInventoryRaw || !this.market) return;
     try {
-      const status = this.gameData.status();
       const currency = this.market.status().currency;
       this.lastInventory = resolveInventory(
         this.lastInventoryRaw,
         (key) => this.gameData.get(key),
-        status.loaded,
+        this.gameData.isLoaded(),
         (name) => this.priceLookup(name),
         { excludeItemKey: (key) => this.excludeFromInventoryListing(key) },
       );

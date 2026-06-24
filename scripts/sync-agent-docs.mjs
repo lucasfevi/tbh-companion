@@ -15,7 +15,7 @@ const outFile = path.join(repoRoot, "docs/agent/generated/bundled-data-catalog.m
 
 /** Extra context appended to the loader cell (not a second path). */
 const FILE_NOTES = {
-  "gamedata.json": "userData cache may override bundled file",
+  "gamedata.json": "bundled-only via `app/src/main/gameDataProvider.ts` (fail-fast at startup)",
 };
 
 function parseRequiredFiles() {

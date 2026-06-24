@@ -24,13 +24,6 @@ const CLEAR_ACTIONS: {
   confirm: string;
 }[] = [
   {
-    target: "catalog",
-    label: "Clear item catalog cache",
-    detail: "gamedata.json, gear_levels.json",
-    confirm:
-      "Remove the downloaded item catalog and gear-level cache? The app will use bundled catalog data until you refresh again.",
-  },
-  {
     target: "prices",
     label: "Clear Steam Market prices",
     detail: "prices.*.json",
@@ -570,7 +563,7 @@ export function Settings() {
 
           <Section title="Data & cache">
             <p className="m-0 text-xs text-muted">
-              Cached catalog, prices, and tracker data live in your app user-data folder.{" "}
+              Cached prices and tracker data live in your app user-data folder.{" "}
               <code>config.json</code> is never removed by these actions.
             </p>
             {dataPaths ? (

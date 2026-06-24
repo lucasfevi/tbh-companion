@@ -8,8 +8,6 @@ import type {
   ChestState,
   ClearAppDataResult,
   ClearDiagnosticLogResult,
-  GameDataRefreshResult,
-  GameDataStatus,
   LookupItem,
   LookupSources,
   OfferingsModel,
@@ -55,12 +53,6 @@ const api: TbhApi = {
   },
   closeOverlay(): void {
     ipcRenderer.send(IPC.CLOSE_OVERLAY);
-  },
-  gameDataStatus(): Promise<GameDataStatus> {
-    return ipcRenderer.invoke(IPC.GAMEDATA_STATUS);
-  },
-  refreshGameData(): Promise<GameDataRefreshResult> {
-    return ipcRenderer.invoke(IPC.GAMEDATA_REFRESH);
   },
   getInventory(): Promise<ResolvedInventory | null> {
     return ipcRenderer.invoke(IPC.GET_INVENTORY);
