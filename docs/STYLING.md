@@ -45,7 +45,7 @@ Status accents for box tracker and chest badges use `@theme` tokens above — do
 
 ## UI components
 
-See the **design-system** skill (`.cursor/skills/design-system/SKILL.md`) for the component lookup table, or browse `npm run storybook` for live examples — each primitive's `.stories.tsx` is the canonical usage reference, kept in sync with the component by `test:dom` + `jest-axe`. Don't duplicate prop tables here; they drift.
+See `docs/agent/layers/DESIGN-SYSTEM.md` for the component lookup table, or browse `npm run storybook` for live examples — each primitive's `.stories.tsx` is the canonical usage reference, kept in sync with the component by `test:dom` + `jest-axe`. Don't duplicate prop tables here; they drift.
 
 ## Layout rules
 

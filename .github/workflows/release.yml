@@ -65,13 +65,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Automated QA gate
-        run: pnpm run qa
+        run: pnpm qa
 
       # publish config in package.json is for latest.yml (auto-updater); upload is via
       # action-gh-release below — never let electron-builder publish in CI (needs GH_TOKEN).
       - name: Build Windows installer
         shell: bash
-        run: pnpm run minify-and-copy-data && pnpm run build && pnpm exec electron-builder --publish never
+        run: pnpm minify-and-copy-data && pnpm build && pnpm exec electron-builder --publish never
 
       - name: Verify updater metadata ships with installer
         shell: pwsh
