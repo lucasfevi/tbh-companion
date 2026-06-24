@@ -5,7 +5,10 @@
 // The shapes cross the IPC boundary unchanged, so the canonical definitions
 // live in shared/types.ts; this module just re-exports them for core code.
 export type {
+  LookupBoxCategory,
   LookupBoxDrop,
+  LookupBoxDropVia,
+  LookupBoxFirstDropStageRef,
   LookupBoxSources,
   LookupBoxStageRef,
   LookupCraftingEntry,

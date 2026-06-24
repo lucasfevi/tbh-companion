@@ -4,13 +4,14 @@ import { iconSrc } from "../../lib/iconSrc";
 import { Tooltip } from "../../design-system/primitives/Tooltip/Tooltip";
 import { ItemIcon } from "../../design-system/primitives/ItemIcon/ItemIcon";
 import { ItemCard } from "./ItemCard";
-import type { LookupItem } from "../../../../shared/types";
+import { BoxPeekCard } from "./BoxPeekCard";
+import type { LookupBoxSources, LookupItem } from "../../../../shared/types";
 import type { LookupNavNode } from "../../lib/useLookupNav";
 
 /**
  * Inline `{icon} Name` link in grade color, replacing the old pill-chip
  * navigation chrome. Used for item references (peek card on hover) and box
- * references (no peek — box entities aren't in the item catalog).
+ * references (box peek card on hover).
  */
 export function ItemLink({
   node,
@@ -20,6 +21,7 @@ export function ItemLink({
   suffix,
   onNavigate,
   peekItem,
+  peekBox,
 }: {
   node: LookupNavNode;
   name: string;
@@ -28,6 +30,7 @@ export function ItemLink({
   suffix?: string;
   onNavigate?: (node: LookupNavNode) => void;
   peekItem?: (id: number) => LookupItem | undefined;
+  peekBox?: (id: number) => LookupBoxSources | undefined;
 }) {
   const color = grade ? gradeColor(grade) : undefined;
   const linkInner = (
@@ -56,11 +59,18 @@ export function ItemLink({
   );
 
   const peek = node.type === "item" ? peekItem?.(node.id) : undefined;
+  const boxPeek = node.type === "box" ? peekBox?.(node.id) : undefined;
   const interactive =
     peek != null ? (
       <Tooltip trigger={linkTrigger} className="w-64 border-0 bg-transparent p-0 shadow-none">
         <div className="shadow-[0_8px_24px_rgb(0_0_0/0.45)]">
           <ItemCard item={peek} />
+        </div>
+      </Tooltip>
+    ) : boxPeek != null ? (
+      <Tooltip trigger={linkTrigger} className="w-64 border-0 bg-transparent p-0 shadow-none">
+        <div className="shadow-[0_8px_24px_rgb(0_0_0/0.45)]">
+          <BoxPeekCard box={boxPeek} boxItemKey={node.id} />
         </div>
       </Tooltip>
     ) : (

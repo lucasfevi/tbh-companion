@@ -1,7 +1,7 @@
 import { Card } from "../../design-system/primitives/Card/Card";
 import { boxIconPath } from "../../lib/boxIconPath";
-import { fmtDropPct, hasDropChance } from "../../lib/lookupDisplay";
 import { ItemDetailCard } from "./ItemDetailCard";
+import { BoxDetailCard } from "./BoxDetailCard";
 import { SectionLabel } from "./itemCardParts";
 import { ItemLink } from "./ItemLink";
 import type {
@@ -30,6 +30,8 @@ export function EntityDetail({
   labelFor: (node: LookupNavNode) => string;
   onNavigate: (node: LookupNavNode) => void;
 }) {
+  const peekBox = (id: number) => sources.boxes[String(id)];
+
   if (node.type === "item") {
     const item = itemIndex.get(node.id);
     if (!item) return <p className="m-0 text-xs text-muted">Item not found.</p>;
@@ -41,6 +43,7 @@ export function EntityDetail({
         offerings={offerings}
         onNavigate={onNavigate}
         peekItem={(id) => itemIndex.get(id)}
+        peekBox={peekBox}
       />
     );
   }
@@ -48,45 +51,13 @@ export function EntityDetail({
   if (node.type === "box") {
     const box = sources.boxes[String(node.id)];
     if (!box) return <p className="m-0 text-xs text-muted">Box not found.</p>;
-    const drops = box.drops.filter(hasDropChance);
     return (
-      <Card className="flex flex-col gap-3">
-        <h2 className="m-0 text-base font-semibold text-fg">{labelFor(node)}</h2>
-        {box.stages.length > 0 ? (
-          <div className="flex flex-col gap-1.5">
-            <SectionLabel>Appears on</SectionLabel>
-            <div className="flex flex-col gap-1">
-              {box.stages.map((stage) => (
-                <ItemLink
-                  key={stage.stageKey}
-                  node={{ type: "stage", id: stage.stageKey }}
-                  name={stage.stageName}
-                  onNavigate={onNavigate}
-                />
-              ))}
-            </div>
-          </div>
-        ) : null}
-        {drops.length > 0 ? (
-          <div className="flex flex-col gap-1.5">
-            <SectionLabel>Drops</SectionLabel>
-            <div className="flex flex-col gap-1">
-              {drops.map((drop) => (
-                <ItemLink
-                  key={drop.itemKey}
-                  node={{ type: "item", id: drop.itemKey }}
-                  name={drop.name}
-                  grade={drop.grade}
-                  iconPath={itemIndex.get(drop.itemKey)?.iconPath}
-                  suffix={`· ${fmtDropPct(drop.dropPct)}%`}
-                  onNavigate={onNavigate}
-                  peekItem={(id) => itemIndex.get(id)}
-                />
-              ))}
-            </div>
-          </div>
-        ) : null}
-      </Card>
+      <BoxDetailCard
+        box={box}
+        boxItemKey={node.id}
+        onNavigate={onNavigate}
+        peekItem={(id) => itemIndex.get(id)}
+      />
     );
   }
 
@@ -111,6 +82,7 @@ export function EntityDetail({
                 grade={box.grade}
                 iconPath={boxIconPath(box.boxItemKey)}
                 onNavigate={onNavigate}
+                peekBox={peekBox}
               />
             ))}
           </div>
