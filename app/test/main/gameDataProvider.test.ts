@@ -94,4 +94,10 @@ describe("GameDataProvider", () => {
     const provider = new GameDataProvider();
     expect(() => provider.load()).toThrow(/invalid JSON/);
   });
+
+  it("throws when gamedata.json has no valid item rows", () => {
+    writeBundledData({ items: [{ name: "no id" }] });
+    const provider = new GameDataProvider();
+    expect(() => provider.load()).toThrow(/no valid item rows/);
+  });
 });

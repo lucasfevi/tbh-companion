@@ -64,9 +64,9 @@ export function InventorySummary({
       <GradeBars composition={c} />
       {(c.unknownCount ?? 0) > 0 && (
         <HintBanner>
-          {c.unknownCount} item(s) are not in the bundled catalog (Unknown #id). Update the app, or
-          check our <ExternalLink href={DISCORD_URL}>Discord</ExternalLink> for work in progress on
-          those IDs.
+          {c.unknownCount} item(s) aren&apos;t in this app&apos;s item list (shown as Unknown #…).
+          Update the app, or check our <ExternalLink href={DISCORD_URL}>Discord</ExternalLink> for
+          work in progress on those IDs.
         </HintBanner>
       )}
     </>

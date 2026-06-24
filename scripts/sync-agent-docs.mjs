@@ -14,9 +14,7 @@ const appSrc = path.join(repoRoot, "app/src");
 const outFile = path.join(repoRoot, "docs/agent/generated/bundled-data-catalog.md");
 
 /** Extra context appended to the loader cell (not a second path). */
-const FILE_NOTES = {
-  "gamedata.json": "bundled-only via `app/src/main/gameDataProvider.ts` (fail-fast at startup)",
-};
+const FILE_NOTES = {};
 
 function parseRequiredFiles() {
   const src = fs.readFileSync(bundledDataTs, "utf8");
@@ -58,6 +56,10 @@ function scanLoaders(requiredFiles) {
       const json = match[1];
       if (byFile.has(json)) byFile.get(json).add(rel);
     }
+    for (const match of content.matchAll(/resolveBundledDataPath\(\s*"([^"]+\.json)"/g)) {
+      const json = match[1];
+      if (byFile.has(json)) byFile.get(json).add(rel);
+    }
   }
 
   return byFile;
@@ -86,7 +88,7 @@ function formatCatalog(requiredFiles, loadersByFile) {
     let cell =
       loaders && loaders.size > 0
         ? [...loaders].sort().join("; ")
-        : "_no `readBundledJson` / `bundledDataPath` found — update script or loaders_";
+        : "_no `readBundledJson` / `resolveBundledDataPath` found — update script or loaders_";
     const note = FILE_NOTES[file];
     if (note) cell += ` (${note})`;
     lines.push(`| \`${file}\` | ${cell} |`);

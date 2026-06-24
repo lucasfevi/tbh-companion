@@ -64,12 +64,6 @@ export class GameDataProvider {
     this.loadStageBoxes();
   }
 
-  reload(): void {
-    this.index = new Map();
-    this.loaded = false;
-    this.load();
-  }
-
   get(itemKey: number): GameItem | undefined {
     return this.index.get(catalogItemKeyFromSave(itemKey));
   }

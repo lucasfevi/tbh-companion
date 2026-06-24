@@ -2,9 +2,6 @@
 //
 // Bundled in data/gamedata.json (updated via tbh-data release workflow).
 
-/** Neutral label stored in bundled JSON metadata. */
-export const CATALOG_SOURCE = "companion-item-catalog";
-
 export interface GameItem {
   id: number; // == save itemSaveDatas[].ItemKey
   name: string;
