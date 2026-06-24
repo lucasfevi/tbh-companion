@@ -1,6 +1,6 @@
 ---
 name: tbh-feature-showcase
-description: Capture screenshots (and optionally a short video) of a new TBH Companion feature and compose a player-facing announcement. Run after a feature is implemented and QA passes. Produces screenshots saved under docs/showcase/ and a Discord-ready announcement draft. Pairs with tbh-changelog for release notes. Not for internal docs, speculative/unreleased work, or reproducing screenshots that already exist in docs/.
+description: Capture screenshots (and optionally a short video) of a new TBH Companion feature and compose a player-facing announcement. Run after a feature is implemented and QA passes. Produces screenshots saved under docs/showcase/ and a Discord-ready announcement draft. Pairs with docs/agent/CHANGELOG-RELEASE.md for release notes. Not for internal docs, speculative/unreleased work, or reproducing screenshots that already exist in docs/.
 license: CC-BY-4.0
 metadata:
   author: tbh-project
@@ -13,8 +13,8 @@ Capture the feature running in the app and draft a player-facing announcement, s
 
 ## Before you start
 
-- Feature is implemented, QA passed (`pnpm run qa`), and the branch is either merged or ready for demonstration.
-- The dev server can be launched (`cd app; pnpm run dev`) or the user already has the app open.
+- Feature is implemented, QA passed (`pnpm qa`), and the branch is either merged or ready for demonstration.
+- The dev server can be launched (`cd app; pnpm dev`) or the user already has the app open.
 - If the feature requires live save data (inventory values, hero rates, XP history), the user should have TBH running so the companion can read the save file.
 
 ## Workflow
@@ -105,7 +105,7 @@ request_access: ["TBH Companion"]
 If the app is not open, launch it (PowerShell):
 
 ```powershell
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd app; pnpm run dev"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd app; pnpm dev"
 ```
 
 Wait ~10 seconds, then take an initial `screenshot` to confirm the Companion window is visible.
@@ -286,7 +286,7 @@ Keep GIFs under 5 MB for inline Discord rendering. If the recording is longer, t
 
 ### App window not visible after launch
 
-Check that `pnpm run dev` started cleanly (no TypeScript or port errors in the terminal). The Electron window opens in ~5–10 seconds. If it stays blank, run `pnpm run qa:dev` to confirm a non-blank window opens.
+Check that `pnpm dev` started cleanly (no TypeScript or port errors in the terminal). The Electron window opens in ~5–10 seconds. If it stays blank, run `pnpm qa:dev` to confirm a non-blank window opens.
 
 ### Feature not visible without save data
 

@@ -5,7 +5,7 @@
  * diffs); only the packaged copy is minified. Run before pack/dist — see
  * app/package.json.
  * Usage (from app/):
- *   pnpm run minify-and-copy-data
+ *   pnpm minify-and-copy-data
  */
 import {
   cpSync,

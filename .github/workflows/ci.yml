@@ -7,18 +7,22 @@ on:
       - "app/**"
       - ".github/workflows/**"
       - "data/**"
+      - "docs/agent/**"
       - ".cursor/skills/**"
       - ".claude/skills/**"
       - "scripts/sync-agent-skills.mjs"
+      - "scripts/sync-agent-docs.mjs"
   push:
     branches: [main]
     paths:
       - "app/**"
       - ".github/workflows/**"
       - "data/**"
+      - "docs/agent/**"
       - ".cursor/skills/**"
       - ".claude/skills/**"
       - "scripts/sync-agent-skills.mjs"
+      - "scripts/sync-agent-docs.mjs"
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -51,8 +55,12 @@ jobs:
         working-directory: .
         run: node scripts/sync-agent-skills.mjs --check
 
+      - name: Verify generated agent docs
+        working-directory: .
+        run: node scripts/sync-agent-docs.mjs --check
+
       - name: Automated QA gate
-        run: pnpm run qa
+        run: pnpm qa
 
       - name: pnpm audit (high severity)
         run: pnpm audit --audit-level high

@@ -5,6 +5,8 @@
   "description": "TBH Companion monorepo root — tooling only",
   "scripts": {
     "sync:skills": "node scripts/sync-agent-skills.mjs",
-    "sync:skills:check": "node scripts/sync-agent-skills.mjs --check"
+    "sync:skills:check": "node scripts/sync-agent-skills.mjs --check",
+    "sync:agent-docs": "node scripts/sync-agent-docs.mjs",
+    "sync:agent-docs:check": "node scripts/sync-agent-docs.mjs --check"
   }
 }

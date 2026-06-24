@@ -1,149 +1,64 @@
 # AGENTS.md - TBH Companion
 
-Brief for any agent or contributor picking this up cold. Read `docs/` before
-touching decryption or item mapping.
+Brief for any agent or contributor picking this up cold. Read `docs/` before touching decryption or item mapping.
+
+**Agent harness:** policies and layer guides live under [`docs/agent/`](docs/agent/README.md) — one topic per file. Start there for git, QA, PRs, and coding rules.
 
 ## What this is
 
-A companion app for the idle game **TBH: Task Bar Hero**. It reads the game's
-local, encrypted save file (read-only) and shows live stats: XP/hour, gold/hour,
-per-hero rates, session history, and inventory valuation via the Steam
-Market. It never modifies the save and never talks to the game servers.
+A companion app for the idle game **TBH: Task Bar Hero**. It reads the game's local, encrypted save file (read-only) and shows live stats: XP/hour, gold/hour, per-hero rates, session history, and inventory valuation via the Steam Market. It never modifies the save and never talks to the game servers.
 
 ## Where things are
 
-- `app/` - the companion app (Electron + React + TypeScript). This is the
-  target codebase.
-  - `app/src/main/` - Electron main process (Node): file watching, decryption,
-    tracking, IPC. Owns all file/network access.
+- `app/` - the companion app (Electron + React + TypeScript). This is the target codebase.
+  - `app/src/main/` - Electron main process (Node): file watching, decryption, tracking, IPC. Owns all file/network access.
   - `app/src/preload/` - `contextBridge` exposing a typed `window.tbh` API.
-  - `app/src/core/` - framework-free, unit-tested logic (`es3`, `save/snapshot`,
-    `tracker`, `stages`, `heroes`, `gamedata`, `inventory/*`, `steamPrice`).
-  - `app/src/renderer/` - React UI (tabs + mini overlay). Pure UI, no Node APIs.
-    Shared IPC state via `context/TbhProvider.tsx`.
+  - `app/src/core/` - framework-free, unit-tested logic (`es3`, `save/snapshot`, `tracker`, `stages`, `heroes`, `gamedata`, `inventory/*`, `steamPrice`).
+  - `app/src/renderer/` - React UI (tabs + mini overlay). Pure UI, no Node APIs. Shared IPC state via `context/TbhProvider.tsx`.
   - `app/shared/types.ts` - types shared across processes.
 - `data/` - bundled catalogs (`gamedata.json`, `stage_boxes.json`).
-- `docs/` - the knowledge base (see below).
-
-The original Python prototype (`tbh_xp/`) has been removed now that the TS core
-reached parity; see `docs/DECISIONS.md` for the history.
+- `docs/` - knowledge base (see below).
 - `config.json` - user settings, reused by the app.
+
+The original Python prototype (`tbh_xp/`) has been removed now that the TS core reached parity; see `docs/DECISIONS.md` for the history.
+
+The app has two windows sharing one bundle: the full tabbed companion (`#main`) and a frameless always-on-top mini overlay (`#overlay`). Toggle from the "Mini" button in the tab bar; restore from the overlay's expand button.
 
 ## Build / run / test
 
-The app lives under `app/` (created during the scaffold phase):
-
-This project uses **pnpm** (pinned via the `packageManager` field, activated
-through Corepack: `corepack enable`, or install globally with
-`npm install -g pnpm` if Corepack can't write its shims).
+This project uses **pnpm** (pinned via `packageManager`, activated through Corepack: `corepack enable`).
 
 ```
 cd app
 pnpm install
-pnpm run dev        # electron-vite dev (main + renderer with HMR)
-pnpm run build      # production bundle (out/)
-pnpm run typecheck  # tsc --noEmit
-pnpm run lint       # eslint (errors fail; warnings OK)
-pnpm run lint:fix   # eslint --fix
-pnpm run format     # prettier --write
-pnpm run format:check  # prettier --check
+pnpm dev        # electron-vite dev (main + renderer with HMR)
+pnpm build      # production bundle (out/)
+pnpm typecheck
+pnpm lint
+pnpm lint:fix
+pnpm format
+pnpm format:check
 pnpm test           # vitest (core logic)
-pnpm run bench      # performance benchmarks (see docs/BENCHMARKS.md)
-pnpm run bench:ci   # benchmarks + JSON report for CI trend tracking
-pnpm run qa         # typecheck + lint + format + test + build + bundle guards (run before marking done)
-pnpm run qa:dev     # automated dev smoke when UI is not visible (see tbh-qa skill)
-pnpm run pack       # electron-builder --dir -> release/win-unpacked (no installer)
-pnpm run dist       # electron-builder -> Windows NSIS installer
+pnpm bench      # see docs/BENCHMARKS.md
+pnpm bench:ci
+pnpm qa         # typecheck + lint + format + test + build + bundle guards
+pnpm qa:dev     # automated dev smoke when UI is not visible — see docs/agent/QA.md
+pnpm pack       # electron-builder --dir -> release/win-unpacked
+pnpm dist       # Windows NSIS installer
 ```
 
-## Windows environment - check this FIRST
-
-This project is developed and run on **Windows + PowerShell**. When something
-behaves oddly, suspect the environment (encoding, paths, line endings, file
-locking, shell) BEFORE assuming a logic bug - several "bugs" here turned out to
-be Windows/PowerShell quirks. Known ones:
-
-- **JSON must be BOM-free.** PowerShell 5.1 `Set-Content -Encoding UTF8` writes a
-  UTF-8 **BOM** that breaks `JSON.parse` ("Unexpected token '\uFEFF'"). This
-  silently broke the bundled `data/*.json` catalogs. To write JSON use Node
-  `fs.writeFileSync`, or
-  `[System.IO.File]::WriteAllText($p,$txt,(New-Object System.Text.UTF8Encoding($false)))`.
-  Readers strip a leading BOM defensively, but don't rely on it.
-- **Shell is PowerShell, not bash.** Chain commands with `;` (not `&&`); quote
-  paths with spaces (the repo path has one); heredocs don't work - pass commit
-  messages with multiple `-m` flags.
-- **`Invoke-WebRequest` hangs/parses slowly** on large HTML in PS 5.1 (legacy DOM
-  parsing). Always pass `-UseBasicParsing`.
-- **Save file is locked / atomically rewritten** by the game while playing. Reads
-  can hit sharing violations or catch a mid-write (ciphertext length not % 16) -
-  retry briefly and treat as transient (see `readBytesShared`).
-- **Paths use `%USERPROFILE%\AppData\LocalLow\...`** and `userData` is under
-  `%APPDATA%`. Expand env vars (`expandPath`); never hard-code a home dir.
-- **Line endings:** keep files LF; avoid tools that rewrite to CRLF.
-- **Electron binary:** if `pnpm install` doesn't fetch it (some sandboxes block
-  the postinstall extraction), run `node node_modules/electron/install.js`, or
-  download the matching `electron-v<ver>-win32-x64.zip` and extract it into
-  `node_modules/electron/dist/` with `path.txt` containing `electron.exe`. Separately,
-  pnpm blocks dependency build/postinstall scripts by default — allow-listed packages
-  live in `app/pnpm-workspace.yaml`'s `allowBuilds`; if a new dependency's script gets
-  silently skipped, check the `pnpm install` output for "Ignored build scripts" and add
-  it there (`pnpm approve-builds --all` writes the same file interactively).
-- **Big numbers:** save ids like `UniqueId` exceed JS safe-integer range and
-  collide after `JSON.parse`; parse losslessly (string/bigint) if you must use
-  them. (Not Windows-specific, but a recurring "why don't these match" trap.)
-
-The app has two windows sharing one bundle: the full tabbed companion (`#main`)
-and a frameless always-on-top mini overlay (`#overlay`). Toggle from the "Mini"
-button in the tab bar; restore from the overlay's expand button.
+**Windows quirks** (BOM, PowerShell, paths, Electron install): [`docs/agent/WINDOWS.md`](docs/agent/WINDOWS.md).
 
 ## Conventions
 
-- TypeScript everywhere in `app/`. Keep `core/` free of Electron/React imports
-  so it stays unit-testable.
+- TypeScript everywhere in `app/`. Keep `core/` free of Electron/React imports so it stays unit-testable.
+- **Before `app/` work:** read [`docs/agent/SKILLS.md`](docs/agent/SKILLS.md) (routing) and [`docs/agent/CODING-GUIDELINES.md`](docs/agent/CODING-GUIDELINES.md).
+- **Done means:** [`docs/agent/QA.md`](docs/agent/QA.md) passed — not just green tests.
+- **Git / push / PR:** [`docs/agent/GIT.md`](docs/agent/GIT.md), [`docs/agent/PULL-REQUEST.md`](docs/agent/PULL-REQUEST.md).
 
-## Project skills (required for features & refactors)
+## Architecture (four layers)
 
-Skills live under **`.cursor/skills/`** (Cursor) and **`.claude/skills/`** (Claude Code — mirror). **Edit canonical files in `.cursor/skills/`**, then run `pnpm run sync:skills` from repo root and commit both trees.
-
-**Read the relevant `SKILL.md` before coding** — enforced by `.cursor/rules/project-skills.mdc` (`alwaysApply: true`).
-
-| Skill | Cursor | Claude | When |
-|-------|--------|--------|------|
-| **coding-guidelines** | `.cursor/skills/coding-guidelines/SKILL.md` | `.claude/skills/coding-guidelines/SKILL.md` | Every feature, bugfix, refactor |
-| **tbh-qa** | `.cursor/skills/tbh-qa/SKILL.md` | `.claude/skills/tbh-qa/SKILL.md` | Before marking any `app/` work done |
-| **tbh-main** | `.cursor/skills/tbh-main/SKILL.md` | `.claude/skills/tbh-main/SKILL.md` | Main, preload, IPC, CSP, network |
-| **tbh-core** | `.cursor/skills/tbh-core/SKILL.md` | `.claude/skills/tbh-core/SKILL.md` | Pure logic, parsers, calculators in `core/` |
-| **tbh-data** | `.cursor/skills/tbh-data/SKILL.md` | `.claude/skills/tbh-data/SKILL.md` | Bundled `data/*.json` catalogs |
-| **tbh-renderer** | `.cursor/skills/tbh-renderer/SKILL.md` | `.claude/skills/tbh-renderer/SKILL.md` | Renderer React performance |
-| **tbh-ux** | `.cursor/skills/tbh-ux/SKILL.md` | `.claude/skills/tbh-ux/SKILL.md` | Tab chrome, overlays, layout |
-| **design-system** | `.cursor/skills/design-system/SKILL.md` | `.claude/skills/design-system/SKILL.md` | Renderer UI components (`design-system/primitives/`) |
-| **tbh-changelog** | `.cursor/skills/tbh-changelog/SKILL.md` | `.claude/skills/tbh-changelog/SKILL.md` | CHANGELOG, semver, releases |
-| **tbh-reviewer** | `.cursor/skills/tbh-reviewer/SKILL.md` | `.claude/skills/tbh-reviewer/SKILL.md` | `/review-pr <N>` advisory PR review |
-| **tbh-feature-showcase** | `.cursor/skills/tbh-feature-showcase/SKILL.md` | `.claude/skills/tbh-feature-showcase/SKILL.md` | Screenshots + player-facing announcement after a feature ships |
-
-Do not skip skills for “small” diffs. Match skill to layer: renderer → **tbh-renderer** + **tbh-ux** + **design-system**; main/preload → **tbh-main**; core logic → **tbh-core**; bundled catalogs → **tbh-data**; release → **tbh-changelog**; sharing new features with players → **tbh-feature-showcase**.
-
-Deprecated (not synced): `best-practices`, `react-best-practices` — replaced by **tbh-main** and **tbh-renderer**.
-- **Branches:** name as `<type>/<short-description>` (e.g. `fix/save-watcher-race`,
-  `feat/box-tracker-filters`) reflecting the actual change, using the same
-  `type` prefixes as commits. Never use a generic `claude/...` session name for
-  a branch you push or open a PR from.
-- **Commits:** use Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`,
-  `refactor:`). One focused commit per logical change; split large work into
-  reviewable chunks. Commit when the user asks (or their rules allow); do not
-  commit unless requested. Do not add a `Co-Authored-By:` trailer for any AI
-  agent/assistant to commit messages.
-- **Push and PRs — confirm first:** never run `git push` or open a pull request
-  without explicit user approval in the current conversation. Run `cd app; pnpm run qa`
-  before push/PR; summarize branch, commits, scope, and QA; ask; then push or create
-  the PR only after they confirm. On Windows PowerShell, use `gh pr create --body-file`
-  for PR descriptions (never inline `--body`). See `docs/AGENT_WORKFLOW.md`.
-- Never force-push unless the user explicitly requests it.
-- Never commit personal save data (`*.es3`, decrypted dumps, `sample/`).
-
-## Architecture & refactor conventions
-
-Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
+Respect these when adding features — full detail in `docs/ARCHITECTURE.md`:
 
 | Layer | Path | Rules |
 |-------|------|--------|
@@ -153,21 +68,43 @@ Four layers — respect these when adding features (see `docs/ARCHITECTURE.md`):
 | **preload** | `app/src/preload/` | Thin `contextBridge` only; import channels from `shared/ipc.ts`. |
 | **renderer** | `app/src/renderer/` | React UI via `window.tbh`. Filter/sort in `renderer/lib/` or `core/` pure helpers. |
 
-**Adding features:** read **coding-guidelines** + **tbh-qa** first; add **tbh-renderer** + **tbh-ux** or **tbh-main** when touching renderer or main/preload, **tbh-core** for pure logic/parsers, **tbh-data** for bundled `data/*.json` catalogs. New IPC → `shared/ipc.ts` + `main/ipc/registerIpc.ts` + preload + `test/ipc/channels.test.ts`. New save fields → parse in `core/`, read bytes in `main/` only. New main services → log lifecycle/errors per `docs/DIAGNOSTIC_LOGGING.md` (`createLogger` in main only; renderer uses `reportIpcError`).
+**Adding features:** layer docs under `docs/agent/layers/` — new IPC → `shared/ipc.ts` + `main/ipc/registerIpc.ts` + preload + `test/ipc/channels.test.ts`. New save fields → parse in `core/`, read bytes in `main/` only. New main services → log per `docs/DIAGNOSTIC_LOGGING.md`.
 
-**Refactor:** move without behavior change first; tests travel with code. No duplicate types (`AppConfig` lives in `shared/types.ts`). No new globals in `main/index.ts` — use `app/appState.ts` or services. Read **coding-guidelines** plus the layer skills above; keep diffs surgical (no drive-by rewrites).
+**Testing:** new `core/` logic needs Vitest; new IPC/config handlers need tests in `test/main/` or `test/ipc/`.
 
-**Testing:** all new `core/` logic needs Vitest; new IPC/config handlers need tests in `test/main/` or `test/ipc/`. Optional local integration: `test/integration/realSave.test.ts`.
+## Workflow skills (Cursor + Claude)
 
-**QA before done:** run the **tbh-qa** skill (`.cursor/skills/tbh-qa/SKILL.md`) — `pnpm run qa` (includes lint + format check), then `pnpm run dev` (non-blank window) or `pnpm run qa:dev` when the UI cannot be seen. Never mark app work complete on tests/build alone or with lint/format failures.
+Multi-step workflows stay as skills in `.cursor/skills/` (mirrored to `.claude/skills/` via `pnpm sync:skills`):
+
+| Skill | When |
+|-------|------|
+| **tbh-reviewer** | `/review-pr <N>` |
+| **tbh-feature-showcase** | Screenshots + player announcement after a feature ships |
+| **tlc-spec-driven** | Spec / plan / implement project workflows |
+
+Edit canonical skills in `.cursor/skills/`; run `pnpm sync:skills` and commit both trees.
 
 ## Docs index
 
-- `docs/AGENT_WORKFLOW.md` - git commits, push/PR confirmation, agent defaults.
-- `docs/ARCHITECTURE.md` - processes, IPC boundary, windows, data flow.
-- `docs/STYLING.md` - Tailwind + ui components vs legacy `styles.css` (renderer).
-- `docs/DIAGNOSTIC_LOGGING.md` - how to add support logs (main/renderer rules, what to log).
-- `docs/SAVE_FORMAT.md` - ES3 decryption scheme + save JSON layout.
-- `docs/BENCHMARKS.md` - performance benchmarks (startup proxy, save parse, inventory, Steam cache).
-- `docs/DECISIONS.md` - short ADR log of why the stack is what it is.
-- `docs/findings/` - research outputs (Steam Market probe, item mapping).
+### Agent harness (`docs/agent/`)
+
+- [`README.md`](docs/agent/README.md) — map of agent docs
+- [`SKILLS.md`](docs/agent/SKILLS.md) — which doc to read by path
+- [`CODING-GUIDELINES.md`](docs/agent/CODING-GUIDELINES.md) — implementation behavior
+- [`QA.md`](docs/agent/QA.md), [`QA-CHECKLIST.md`](docs/agent/QA-CHECKLIST.md) — completion gate
+- [`GIT.md`](docs/agent/GIT.md), [`PULL-REQUEST.md`](docs/agent/PULL-REQUEST.md) — commits, push, PRs
+- [`WINDOWS.md`](docs/agent/WINDOWS.md) — PowerShell and environment
+- [`CHANGELOG-RELEASE.md`](docs/agent/CHANGELOG-RELEASE.md) — release notes and semver
+- [`MAINTENANCE.md`](docs/agent/MAINTENANCE.md) — keep agent docs in sync with code
+- [`generated/`](docs/agent/generated/) — code-derived inventories (do not edit by hand)
+- [`layers/`](docs/agent/layers/) — main, core, renderer, UX, design-system, data
+
+### Domain
+
+- `docs/ARCHITECTURE.md` - processes, IPC boundary, windows, data flow
+- `docs/STYLING.md` - Tailwind + design-system vs legacy `styles.css`
+- `docs/DIAGNOSTIC_LOGGING.md` - support logs (main/renderer rules)
+- `docs/SAVE_FORMAT.md` - ES3 decryption + save JSON layout
+- `docs/BENCHMARKS.md` - performance benchmarks
+- `docs/DECISIONS.md` - ADR log
+- `docs/findings/` - research outputs (Steam Market, item mapping)

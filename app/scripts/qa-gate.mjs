@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
  * Automated QA gate — run before marking app changes done.
- * Usage: pnpm run qa (from app/)
+ * Usage: pnpm qa (from app/)
  */
 import { execSync } from "node:child_process";
-import { readFileSync, existsSync, readdirSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const appRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -15,13 +15,13 @@ function run(cmd) {
   execSync(cmd, { cwd: appRoot, stdio: "inherit", shell: true });
 }
 
-run("pnpm run typecheck");
-run("pnpm run lint");
-run("pnpm run format:check");
+run("pnpm typecheck");
+run("pnpm lint");
+run("pnpm format:check");
 run("pnpm test");
-run("pnpm run test:dom");
-run("pnpm run build");
-run("pnpm run minify-and-copy-data");
+run("pnpm test:dom");
+run("pnpm build");
+run("pnpm minify-and-copy-data");
 
 const mainBundle = join(appRoot, "out/main/index.js");
 if (!existsSync(mainBundle)) {
@@ -41,7 +41,7 @@ const badPatterns = [
 for (const { re, label } of badPatterns) {
   if (re.test(main)) {
     console.error(`FAIL: bundled main contains ${label}`);
-    console.error("See app/src/main/paths.ts and .cursor/skills/tbh-qa/references/checklist.md");
+    console.error("See docs/agent/QA-CHECKLIST.md");
     process.exit(1);
   }
 }
@@ -116,4 +116,4 @@ if (catalogSource.includes("process.cwd()")) {
 console.log(
   "\nQA gate passed (typecheck + lint + format + tests + dom tests + build + bundle path checks).",
 );
-console.log("Still required: pnpm run dev — confirm the window is NOT blank (see tbh-qa skill).");
+console.log("Still required: pnpm dev — confirm the window is NOT blank (see docs/agent/QA.md).");

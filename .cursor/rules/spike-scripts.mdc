@@ -19,4 +19,4 @@ Temporary research scripts (`probe-*.ts`, `spike-*.ts`, scratch runners under `a
 
 **Keep** scripts that are part of the product toolchain (`qa-gate.mjs`, `qa-dev.mjs`, documented `pnpm run` scripts, CI).
 
-When finishing work under `app/`, include spike cleanup in the tbh-qa completion checklist (`.cursor/skills/tbh-qa/SKILL.md`).
+When finishing work under `app/`, include spike cleanup in the QA completion checklist (`docs/agent/QA.md` § Step 4b).

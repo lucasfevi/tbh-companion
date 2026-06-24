@@ -29,7 +29,7 @@ The download button uses [`website/data/release.json`](website/data/release.json
 ```
 cd app
 pnpm install
-pnpm run dev      # run in development (hot reload)
+pnpm dev      # run in development (hot reload)
 ```
 
 If `pnpm install` doesn't fetch Electron's binary, run
@@ -38,13 +38,13 @@ If `pnpm install` doesn't fetch Electron's binary, run
 Build and package:
 
 ```
-pnpm run build    # production bundle into out/
-pnpm run pack     # unpacked app into release/win-unpacked
-pnpm run dist     # Windows NSIS installer into release/
-pnpm run typecheck
+pnpm build    # production bundle into out/
+pnpm pack     # unpacked app into release/win-unpacked
+pnpm dist     # Windows NSIS installer into release/
+pnpm typecheck
 pnpm test
-pnpm run qa       # typecheck + test + build (run before marking done)
-pnpm run qa:dev   # dev server smoke when UI is not visible
+pnpm qa       # typecheck + test + build (run before marking done)
+pnpm qa:dev   # dev server smoke when UI is not visible
 ```
 
 ## Releases
@@ -140,7 +140,7 @@ data/                    # bundled catalogs (gamedata.json, stage_boxes.json)
 docs/                    # architecture, save format, decisions, findings
 ```
 
-See `AGENTS.md` (Cursor) and `CLAUDE.md` (Claude Code) for the contributor/agent brief. Project skills live in `.cursor/skills/` and are mirrored to `.claude/skills/` via `pnpm run sync:skills`.
+See `AGENTS.md` (Cursor) and `CLAUDE.md` (Claude Code) for the contributor/agent brief. Agent policies live in `docs/agent/`; workflow skills in `.cursor/skills/` (mirrored to `.claude/skills/` via `pnpm sync:skills`).
 
 ## Disclaimer
 

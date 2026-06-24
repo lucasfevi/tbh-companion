@@ -1,5 +1,5 @@
 ---
-description: Run tbh-qa before marking app changes complete — pnpm run qa and dev smoke when touching main, preload, renderer, or IPC
+description: Run QA before marking app changes complete — pnpm qa and dev smoke when touching main, preload, renderer, or IPC
 globs: app/**/*
 alwaysApply: false
 ---
@@ -15,4 +15,4 @@ When you finish work under `app/`:
 3. **Core-only** changes (`app/src/core/` with no IPC/UI/main edits): `pnpm run qa` alone is enough.
 4. Do not tell the user the task is done until required QA passes.
 
-Full workflow: `.cursor/skills/tbh-qa/SKILL.md`
+Full workflow: `docs/agent/QA.md`

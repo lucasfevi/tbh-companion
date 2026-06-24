@@ -1,6 +1,6 @@
 ---
 name: tbh-reviewer
-description: Advisory pull request review for TBH Companion — architecture, security boundaries, layer skills, and contributor checklist. Use when the user says /review-pr, review PR #N, review this pull request, or triage a contributor PR before merge. Checks out the PR branch after preserving local WIP. Outputs a structured advisory report (not a merge block). Not for local uncommitted-only review (use coding-guidelines), release changelog (tbh-changelog), or re-running full QA when CI is already green unless scope is suspicious.
+description: Advisory pull request review for TBH Companion — architecture, security boundaries, layer docs, and contributor checklist. Use when the user says /review-pr, review PR #N, review this pull request, or triage a contributor PR before merge. Checks out the PR branch after preserving local WIP. Outputs a structured advisory report (not a merge block). Not for local uncommitted-only review (use docs/agent/CODING-GUIDELINES.md), release changelog (docs/agent/CHANGELOG-RELEASE.md), or re-running full QA when CI is already green unless scope is suspicious.
 license: CC-BY-4.0
 metadata:
   author: tbh-project
@@ -9,7 +9,7 @@ metadata:
 
 # TBH Companion — PR reviewer
 
-**Advisory only.** CI (`pnpm run qa` on GitHub Actions) is the hard gate. This skill produces a maintainer-facing review comment; it does not approve, merge, or push.
+**Advisory only.** CI (`pnpm qa` on GitHub Actions) is the hard gate. This skill produces a maintainer-facing review comment; it does not approve, merge, or push.
 
 ## Trigger
 
@@ -27,7 +27,7 @@ Progress:
 - [ ] Step 1: Handle local uncommitted changes
 - [ ] Step 2: Fetch PR metadata and checkout PR branch
 - [ ] Step 3: Gather diff vs base (usually main)
-- [ ] Step 4: Map layers → load skills
+- [ ] Step 4: Map layers → load docs
 - [ ] Step 5: Run review checklist
 - [ ] Step 6: Post advisory review (template below)
 - [ ] Step 7: Restore original branch / WIP
@@ -81,43 +81,43 @@ git diff origin/<baseRefName>...HEAD --stat
 git diff origin/<baseRefName>...HEAD --name-only
 ```
 
-Note CI status from `gh pr checks <N>` if available — do not re-run `pnpm run qa` locally unless CI failed, diff touches CI/workflow, or user asked.
+Note CI status from `gh pr checks <N>` if available — do not re-run `pnpm qa` locally unless CI failed, diff touches CI/workflow, or user asked.
 
-### Step 4 — Load layer skills (read files, not memory)
+### Step 4 — Load layer docs (read files, not memory)
 
-Always read **coding-guidelines** (`SKILL.md` under your agent's skills dir: `.cursor/skills/` or `.claude/skills/`).
+Always read `docs/agent/CODING-GUIDELINES.md`.
 
-By changed paths:
+By changed paths (see `docs/agent/SKILLS.md`):
 
 | Paths | Also read |
 |-------|-----------|
-| `app/src/renderer/**` | tbh-renderer, tbh-ux, `docs/STYLING.md` |
-| `app/src/main/**`, `preload/**`, `shared/ipc.ts` | tbh-main |
-| `app/src/core/**` | tbh-core |
-| `data/*.json`, `core/bundledData.ts` | tbh-data |
-| `CHANGELOG.md`, release | tbh-changelog |
-| `app/**` broadly | tbh-qa expectations (author should have run qa) |
+| `app/src/renderer/**` | `docs/agent/layers/RENDERER.md`, `docs/agent/layers/UX.md`, `docs/STYLING.md` |
+| `app/src/main/**`, `preload/**`, `shared/ipc.ts` | `docs/agent/layers/MAIN.md` |
+| `app/src/core/**` | `docs/agent/layers/CORE.md` |
+| `data/*.json`, `core/bundledData.ts` | `docs/agent/layers/DATA.md` |
+| `CHANGELOG.md`, release | `docs/agent/CHANGELOG-RELEASE.md` |
+| `app/**` broadly | `docs/agent/QA.md` expectations (author should have run qa) |
 
 ### Step 5 — Review checklist
 
 **Architecture & security (blockers in advisory sense — flag for maintainer)**
 
-- [ ] `core/` purity respected — see **tbh-core** § Hard rule: stay pure
+- [ ] `core/` purity respected — see `docs/agent/layers/CORE.md` § Hard rule: stay pure
 - [ ] Save file remains read-only — no write paths to game saves
 - [ ] New/changed IPC → `shared/ipc.ts`, preload, `registerIpc`, `test/ipc/channels.test.ts`
-- [ ] No personal save data in the diff — see `docs/AGENT_WORKFLOW.md`
+- [ ] No personal save data in the diff — see `docs/agent/GIT.md`
 - [ ] Spike/probe scripts (`probe-*`, `spike-*`) not left in `app/scripts/` unless intentional
-- [ ] New `data/*.json` registered correctly — see **tbh-data** § Adding or changing a catalog file
+- [ ] New `data/*.json` registered correctly — see `docs/agent/layers/DATA.md` § Adding or changing a catalog file
 
 **Tests & QA**
 
-- [ ] `core/` behavior changes have Vitest coverage — see **tbh-core** § Testing
+- [ ] `core/` behavior changes have Vitest coverage — see `docs/agent/layers/CORE.md` § Testing
 - [ ] IPC/config changes have `test/main/` or `test/ipc/` updates
 - [ ] UI/main/preload changes: PR or author should note dev smoke (tabs not blank)
 
 **UX (if renderer)**
 
-- [ ] Matches **tbh-ux** § Review checklist (tab bar navigation, theme tokens, overlay entry points)
+- [ ] Matches `docs/agent/layers/UX.md` § Review checklist (tab bar navigation, theme tokens, overlay entry points)
 
 **Docs**
 
@@ -149,8 +149,8 @@ Post this in chat (and optionally as a GitHub PR comment if user approves `gh pr
 ### Checks passed
 - …
 
-### Skills referenced
-- coding-guidelines, tbh-main, …
+### Docs referenced
+- docs/agent/CODING-GUIDELINES.md, docs/agent/layers/MAIN.md, …
 ```
 
 Severity guide:
@@ -185,7 +185,7 @@ Leave checkout on PR branch **only** if the user says to keep reviewing there.
 ### Example: CI green, docs-only PR
 
 1. Clean tree → checkout PR branch
-2. Diff only `docs/**` → skip tbh-qa re-run
+2. Diff only `docs/**` → skip local QA re-run
 3. Short review: checks passed, no app impact
 
 ## Hard rules
@@ -199,4 +199,4 @@ Leave checkout on PR branch **only** if the user says to keep reviewing there.
 
 - Contributor checklist: `.github/pull_request_template.md`
 - Architecture: `docs/ARCHITECTURE.md`
-- Agent workflow: `docs/AGENT_WORKFLOW.md`
+- Agent harness: `docs/agent/README.md`
