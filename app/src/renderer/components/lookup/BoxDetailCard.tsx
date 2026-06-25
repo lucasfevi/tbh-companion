@@ -1,34 +1,27 @@
 import { useMemo, useState } from "react";
-import { gradeLabel } from "../../../core/labels";
-import {
-  boxCategoryLabel,
-  boxStageListLabel,
-  FIRST_DROP_ONLY_LABEL,
-} from "../../../core/lookup/boxDisplay";
-import { boxIconPath } from "../../lib/boxIconPath";
+import { boxStageListLabel } from "../../../core/lookup/boxDisplay";
 import { fmtDropPct } from "../../lib/lookupDisplay";
 import { filterAndSortBoxStages, filterFirstDropStages } from "../../lib/boxLootFilters";
-import { gradeColor } from "../../lib/gradeColor";
-import { iconSrc } from "../../lib/iconSrc";
-import { cn } from "../../lib/cn";
 import { Card } from "../../design-system/primitives/Card/Card";
 import { DataList, DataListRow } from "../../design-system/primitives/DataList/DataList";
 import { Input } from "../../design-system/primitives/Input/Input";
-import { ItemIcon } from "../../design-system/primitives/ItemIcon/ItemIcon";
 import { SectionHeadingRow } from "./itemCardParts";
+import { BoxCardDropSummary, BoxCardHeader } from "./BoxCardParts";
 import { ItemLink } from "./ItemLink";
 import { BoxLoot } from "./BoxLoot";
 import type { LookupBoxSources, LookupItem } from "../../../../shared/types";
 import type { LookupNavNode } from "../../lib/useLookupNav";
 
 const WHERE_HELP =
-  "Stages where this chest can drop on repeat farming. Gray = monster kill, blue = stage boss, red = act boss. % is per qualifying kill and can differ by stage.";
+  "Stages where this chest can drop on repeat farming. Drop sources above show kill type and spawn % range. % on each row is per qualifying kill and can differ by stage.";
 
 const FIRST_CLEAR_HELP =
   "One-time reward the first time you clear that stage. This chest cannot be farmed from monster or boss kills.";
 
 const WHERE_LABEL = "Where to find";
 const FIRST_CLEAR_LABEL = "First clear";
+
+const NO_LOCATION_COPY = "No known drop locations in the catalog yet.";
 
 export function BoxDetailCard({
   box,
@@ -43,7 +36,6 @@ export function BoxDetailCard({
 }) {
   const [farmQuery, setFarmQuery] = useState("");
   const [firstQuery, setFirstQuery] = useState("");
-  const color = box.grade ? gradeColor(box.grade) : undefined;
 
   const filteredFarmStages = useMemo(
     () =>
@@ -60,27 +52,16 @@ export function BoxDetailCard({
     [box.firstDropStages, firstQuery],
   );
 
+  const showFirstClear = box.firstDropOnly && box.firstDropStages.length > 0;
+  const showFarm = !box.firstDropOnly && box.stages.length > 0;
+  const showLocationEmpty = !showFirstClear && !showFarm;
+
   return (
     <Card className="flex flex-col gap-3">
-      <div className="flex items-start gap-2">
-        <ItemIcon
-          src={iconSrc(boxIconPath(boxItemKey))}
-          color={color ?? gradeColor("COMMON")}
-          size="lg"
-        />
-        <div className="min-w-0 flex-1">
-          <h2 className="m-0 truncate text-base font-semibold text-fg">{box.name}</h2>
-          <p className="m-0 truncate text-xs" style={color ? { color } : undefined}>
-            {box.grade ? `${gradeLabel(box.grade)} · ` : ""}
-            {boxCategoryLabel(box.category)}
-          </p>
-          {box.firstDropOnly ? (
-            <p className={cn("m-0 truncate text-xs text-gold")}>{FIRST_DROP_ONLY_LABEL}</p>
-          ) : null}
-        </div>
-      </div>
+      <BoxCardHeader box={box} boxItemKey={boxItemKey} iconSize="lg" />
+      <BoxCardDropSummary box={box} />
 
-      {box.firstDropOnly && box.firstDropStages.length > 0 ? (
+      {showFirstClear ? (
         <div className="flex flex-col gap-2">
           <SectionHeadingRow
             label={FIRST_CLEAR_LABEL}
@@ -104,7 +85,7 @@ export function BoxDetailCard({
             <DataList scrollable className="max-h-44">
               {filteredFirstStages.length === 0 ? (
                 <DataListRow index={0} className="text-xs text-muted">
-                  No stages match these filters.
+                  No stages match your search.
                 </DataListRow>
               ) : (
                 filteredFirstStages.map((stage, i) => (
@@ -122,7 +103,7 @@ export function BoxDetailCard({
         </div>
       ) : null}
 
-      {!box.firstDropOnly && box.stages.length > 0 ? (
+      {showFarm ? (
         <div className="flex flex-col gap-2">
           <SectionHeadingRow
             label={WHERE_LABEL}
@@ -146,7 +127,7 @@ export function BoxDetailCard({
             <DataList scrollable className="max-h-44">
               {filteredFarmStages.length === 0 ? (
                 <DataListRow index={0} className="text-xs text-muted">
-                  No stages match these filters.
+                  No stages match your search.
                 </DataListRow>
               ) : (
                 filteredFarmStages.map((stage, i) => (
@@ -164,6 +145,8 @@ export function BoxDetailCard({
           </Card>
         </div>
       ) : null}
+
+      {showLocationEmpty ? <p className="m-0 text-xs text-muted">{NO_LOCATION_COPY}</p> : null}
 
       {box.drops.length > 0 ? (
         <div className="flex flex-col gap-3 border-t border-border pt-3">

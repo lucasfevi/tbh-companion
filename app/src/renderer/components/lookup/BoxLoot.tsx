@@ -64,7 +64,7 @@ export function BoxLoot({
         <DataList scrollable className="max-h-64">
           {filtered.length === 0 ? (
             <DataListRow index={0} className="text-xs text-muted">
-              No loot matches these filters.
+              No loot matches your search.
             </DataListRow>
           ) : (
             filtered.map((row, i) => (

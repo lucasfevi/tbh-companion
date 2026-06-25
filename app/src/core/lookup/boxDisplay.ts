@@ -32,6 +32,45 @@ export function boxDropViaLabel(via: LookupBoxDropVia): string {
   }
 }
 
+/** Split tbh-data `dropStageRangeLabel` into one line per range chunk. */
+export function splitDropStageRangeLines(label: string): string[] {
+  const trimmed = label.trim();
+  if (!trimmed || trimmed === "—") return [];
+  return trimmed
+    .split(" · ")
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+export interface BoxDropViaSummary {
+  via: LookupBoxDropVia;
+  label: string;
+  minPct: number;
+  maxPct: number;
+}
+
+const DROP_VIA_ORDER: LookupBoxDropVia[] = ["monster_box", "boss_box", "act_boss"];
+
+/** Group farm stages by kill type with min/max spawn % per via. */
+export function boxDropViaSummaries(stages: LookupBoxStageRef[]): BoxDropViaSummary[] {
+  const buckets = new Map<LookupBoxDropVia, number[]>();
+  for (const stage of stages) {
+    const pcts = buckets.get(stage.via) ?? [];
+    pcts.push(stage.spawnPct);
+    buckets.set(stage.via, pcts);
+  }
+
+  return DROP_VIA_ORDER.filter((via) => buckets.has(via)).map((via) => {
+    const pcts = buckets.get(via)!;
+    return {
+      via,
+      label: boxDropViaLabel(via),
+      minPct: Math.min(...pcts),
+      maxPct: Math.max(...pcts),
+    };
+  });
+}
+
 /** Min/max spawnPct across farm stages (JSON already in %). */
 export function summarizeSpawnPcts(
   stages: LookupBoxStageRef[],
@@ -39,67 +78,4 @@ export function summarizeSpawnPcts(
   if (stages.length === 0) return null;
   const pcts = stages.map((s) => s.spawnPct);
   return { min: Math.min(...pcts), max: Math.max(...pcts) };
-}
-
-function isConsecutiveStageKey(prev: number, next: number): boolean {
-  const delta = next - prev;
-  return delta === 1 || delta === 92 || delta === 100;
-}
-
-function parseStageKey(key: number) {
-  const k = Math.trunc(key);
-  return {
-    difficulty: Math.floor(k / 1000),
-    act: Math.floor(k / 100) % 10,
-    stage: k % 100,
-  };
-}
-
-function formatStageKeyChunk(keys: number[]): string {
-  if (keys.length === 0) return "";
-  if (keys.length === 1) return stageName(keys[0]);
-
-  const byAct = new Map<
-    string,
-    { diffName: string; difficulty: number; act: number; stages: number[] }
-  >();
-  for (const key of keys) {
-    const { difficulty, act, stage } = parseStageKey(key);
-    const diffName = stageName(key).split(" ")[0];
-    const groupKey = `${difficulty}:${act}`;
-    if (!byAct.has(groupKey)) byAct.set(groupKey, { diffName, difficulty, act, stages: [] });
-    byAct.get(groupKey)!.stages.push(stage);
-  }
-
-  const parts: string[] = [];
-  for (const { diffName, act, stages } of [...byAct.values()].sort(
-    (a, b) => a.difficulty - b.difficulty || a.act - b.act,
-  )) {
-    stages.sort((x, y) => x - y);
-    const min = stages[0];
-    const max = stages[stages.length - 1];
-    if (min === max) parts.push(`${diffName} ${act}-${min}`);
-    else parts.push(`${diffName} ${act}-${min} – ${act}-${max}`);
-  }
-
-  return parts.join(" · ");
-}
-
-/** Compress sorted stage keys into a human range label (matches stage_boxes tracker). */
-export function dropStageRangeLabel(stageKeys: number[]): string {
-  const sorted = [...new Set(stageKeys.map((k) => Math.trunc(k)))]
-    .filter((k) => k > 0)
-    .sort((a, b) => a - b);
-  if (sorted.length === 0) return "—";
-  if (sorted.length === 1) return stageName(sorted[0]);
-
-  const chunks: number[][] = [[sorted[0]]];
-  for (let i = 1; i < sorted.length; i++) {
-    const prev = sorted[i - 1];
-    const cur = sorted[i];
-    if (isConsecutiveStageKey(prev, cur)) chunks[chunks.length - 1].push(cur);
-    else chunks.push([cur]);
-  }
-
-  return chunks.map((chunk) => formatStageKeyChunk(chunk)).join(" · ");
 }

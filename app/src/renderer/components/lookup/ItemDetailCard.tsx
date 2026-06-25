@@ -14,7 +14,6 @@ import { fmtDropPct, fmtLookupPct, hasDropChance, humanizeStatKey } from "../../
 import { gradeColor } from "../../lib/gradeColor";
 import { cn } from "../../lib/cn";
 import { offeringForCoin, offeringSourcesForItem } from "../../../core/lookup/offerings";
-import { FIRST_DROP_ONLY_LABEL } from "../../../core/lookup/boxDisplay";
 import { Card } from "../../design-system/primitives/Card/Card";
 import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
 import { DataList, DataListRow } from "../../design-system/primitives/DataList/DataList";
@@ -294,25 +293,19 @@ export function ItemDetailCard({
                   <SectionLabelRow label="Drop" help={DROP_HELP} helpLabel="How drops work" />
                   <Card padding="none" className="overflow-hidden">
                     <DataList scrollable className={SCROLL_SECTION_MAX}>
-                      {sortedDrops.map((drop, i) => {
-                        const boxMeta = peekBox?.(drop.boxItemKey);
-                        const suffix = boxMeta?.firstDropOnly
-                          ? `· ${fmtDropPct(drop.dropPct)}% · ${FIRST_DROP_ONLY_LABEL}`
-                          : `· ${fmtDropPct(drop.dropPct)}%`;
-                        return (
-                          <DataListRow key={drop.boxItemKey} index={i}>
-                            <ItemLink
-                              node={{ type: "box", id: drop.boxItemKey }}
-                              name={drop.boxName}
-                              grade={drop.grade}
-                              iconPath={boxIconPath(drop.boxItemKey)}
-                              suffix={suffix}
-                              onNavigate={onNavigate}
-                              peekBox={peekBox}
-                            />
-                          </DataListRow>
-                        );
-                      })}
+                      {sortedDrops.map((drop, i) => (
+                        <DataListRow key={drop.boxItemKey} index={i}>
+                          <ItemLink
+                            node={{ type: "box", id: drop.boxItemKey }}
+                            name={drop.boxName}
+                            grade={drop.grade}
+                            iconPath={boxIconPath(drop.boxItemKey)}
+                            suffix={`· ${fmtDropPct(drop.dropPct)}%`}
+                            onNavigate={onNavigate}
+                            peekBox={peekBox}
+                          />
+                        </DataListRow>
+                      ))}
                     </DataList>
                   </Card>
                 </div>

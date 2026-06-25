@@ -1,3 +1,4 @@
+import { FIRST_DROP_ONLY_LABEL } from "../../../core/lookup/boxDisplay";
 import { cn } from "../../lib/cn";
 import { gradeColor } from "../../lib/gradeColor";
 import { iconSrc } from "../../lib/iconSrc";
@@ -33,6 +34,10 @@ export function ItemLink({
   peekBox?: (id: number) => LookupBoxSources | undefined;
 }) {
   const color = grade ? gradeColor(grade) : undefined;
+  const boxMeta = node.type === "box" ? peekBox?.(node.id) : undefined;
+  const isFirstClearBox = boxMeta?.firstDropOnly === true;
+  const effectiveSuffix = isFirstClearBox ? `· ${FIRST_DROP_ONLY_LABEL}` : suffix;
+
   const linkInner = (
     <>
       {iconPath ? (
@@ -59,7 +64,7 @@ export function ItemLink({
   );
 
   const peek = node.type === "item" ? peekItem?.(node.id) : undefined;
-  const boxPeek = node.type === "box" ? peekBox?.(node.id) : undefined;
+  const boxPeek = node.type === "box" ? boxMeta : undefined;
   const interactive =
     peek != null ? (
       <Tooltip trigger={linkTrigger} className="w-64 border-0 bg-transparent p-0 shadow-none">
@@ -77,14 +82,16 @@ export function ItemLink({
       linkTrigger
     );
 
-  if (!suffix) {
+  if (!effectiveSuffix) {
     return <span className="w-fit max-w-full self-start">{interactive}</span>;
   }
 
   return (
     <span className="inline-flex w-fit max-w-full self-start items-center gap-1 text-[13px]">
       {interactive}
-      <span className="shrink-0 text-[11px] text-muted">{suffix}</span>
+      <span className={cn("shrink-0 text-[11px]", isFirstClearBox ? "text-gold" : "text-muted")}>
+        {effectiveSuffix}
+      </span>
     </span>
   );
 }
