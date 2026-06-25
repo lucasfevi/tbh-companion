@@ -73559,6 +73559,9 @@
   },
   "boxes": {
     "910011": {
+      "name": "Normal Monster Box 1",
+      "grade": "COMMON",
+      "category": "common",
       "drops": [
         {
           "itemKey": 300001,
@@ -73876,19 +73879,31 @@
       "stages": [
         {
           "stageKey": 1101,
-          "stageName": "Pasture"
+          "stageName": "Pasture",
+          "via": "monster_box",
+          "spawnPct": 16
         },
         {
           "stageKey": 1102,
-          "stageName": "Shadow Meadow"
+          "stageName": "Shadow Meadow",
+          "via": "monster_box",
+          "spawnPct": 16
         },
         {
           "stageKey": 1103,
-          "stageName": "Wasteland"
+          "stageName": "Wasteland",
+          "via": "monster_box",
+          "spawnPct": 16
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 1-1 – 1-3",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "910051": {
+      "name": "Normal Monster Box 2",
+      "grade": "COMMON",
+      "category": "common",
       "drops": [
         {
           "itemKey": 300002,
@@ -74236,23 +74251,37 @@
       "stages": [
         {
           "stageKey": 1104,
-          "stageName": "Eerie Canyon"
+          "stageName": "Eerie Canyon",
+          "via": "monster_box",
+          "spawnPct": 12
         },
         {
           "stageKey": 1105,
-          "stageName": "Burning Village Entrance"
+          "stageName": "Burning Village Entrance",
+          "via": "monster_box",
+          "spawnPct": 12
         },
         {
           "stageKey": 1106,
-          "stageName": "Rumstreet Square"
+          "stageName": "Rumstreet Square",
+          "via": "monster_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 1107,
-          "stageName": "City Outskirts"
+          "stageName": "City Outskirts",
+          "via": "monster_box",
+          "spawnPct": 8
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 1-4 – 1-7",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "910101": {
+      "name": "Normal Monster Box 3",
+      "grade": "COMMON",
+      "category": "common",
       "drops": [
         {
           "itemKey": 300003,
@@ -74600,23 +74629,37 @@
       "stages": [
         {
           "stageKey": 1108,
-          "stageName": "Cemetery"
+          "stageName": "Cemetery",
+          "via": "monster_box",
+          "spawnPct": 3
         },
         {
           "stageKey": 1109,
-          "stageName": "Cursed Land"
+          "stageName": "Cursed Land",
+          "via": "monster_box",
+          "spawnPct": 3
         },
         {
           "stageKey": 1201,
-          "stageName": "Oasis Road"
+          "stageName": "Oasis Road",
+          "via": "monster_box",
+          "spawnPct": 3
         },
         {
           "stageKey": 1202,
-          "stageName": "Sandstorm Valley"
+          "stageName": "Sandstorm Valley",
+          "via": "monster_box",
+          "spawnPct": 3
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 1-8 – 1-9 · Normal 2-1 – 2-2",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "910151": {
+      "name": "Normal Monster Box Lv15",
+      "grade": "COMMON",
+      "category": "common",
       "drops": [
         {
           "itemKey": 300004,
@@ -75582,27 +75625,43 @@
       "stages": [
         {
           "stageKey": 1203,
-          "stageName": "Desert Underground Cave"
+          "stageName": "Desert Underground Cave",
+          "via": "monster_box",
+          "spawnPct": 2.5
         },
         {
           "stageKey": 1204,
-          "stageName": "Bug Nest"
+          "stageName": "Bug Nest",
+          "via": "monster_box",
+          "spawnPct": 2.5
         },
         {
           "stageKey": 1205,
-          "stageName": "Scorching Dunes"
+          "stageName": "Scorching Dunes",
+          "via": "monster_box",
+          "spawnPct": 2.5
         },
         {
           "stageKey": 1206,
-          "stageName": "Sunset Ruins"
+          "stageName": "Sunset Ruins",
+          "via": "monster_box",
+          "spawnPct": 2.5
         },
         {
           "stageKey": 1207,
-          "stageName": "Midnight Sands"
+          "stageName": "Midnight Sands",
+          "via": "monster_box",
+          "spawnPct": 2.5
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 2-3 – 2-7",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "910201": {
+      "name": "Normal Monster Box Lv20",
+      "grade": "COMMON",
+      "category": "common",
       "drops": [
         {
           "itemKey": 300005,
@@ -76706,43 +76765,67 @@
       "stages": [
         {
           "stageKey": 1208,
-          "stageName": "Sacred Tomb"
+          "stageName": "Sacred Tomb",
+          "via": "monster_box",
+          "spawnPct": 2
         },
         {
           "stageKey": 1209,
-          "stageName": "Pharaoh's Crypt"
+          "stageName": "Pharaoh's Crypt",
+          "via": "monster_box",
+          "spawnPct": 2
         },
         {
           "stageKey": 1301,
-          "stageName": "Snowbound Outpost"
+          "stageName": "Snowbound Outpost",
+          "via": "monster_box",
+          "spawnPct": 2
         },
         {
           "stageKey": 1302,
-          "stageName": "Frozen Battlefield"
+          "stageName": "Frozen Battlefield",
+          "via": "monster_box",
+          "spawnPct": 2
         },
         {
           "stageKey": 1303,
-          "stageName": "Glacial Cave Entrance"
+          "stageName": "Glacial Cave Entrance",
+          "via": "monster_box",
+          "spawnPct": 2
         },
         {
           "stageKey": 1304,
-          "stageName": "Frozen Glacier Cavern"
+          "stageName": "Frozen Glacier Cavern",
+          "via": "monster_box",
+          "spawnPct": 2
         },
         {
           "stageKey": 1305,
-          "stageName": "Hell Gate"
+          "stageName": "Hell Gate",
+          "via": "monster_box",
+          "spawnPct": 2
         },
         {
           "stageKey": 1306,
-          "stageName": "Burning Ravine"
+          "stageName": "Burning Ravine",
+          "via": "monster_box",
+          "spawnPct": 2
         },
         {
           "stageKey": 1307,
-          "stageName": "Plains of Torment"
+          "stageName": "Plains of Torment",
+          "via": "monster_box",
+          "spawnPct": 2
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 2-8 – 2-9 · Normal 3-1 – 3-7",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "910301": {
+      "name": "Normal Monster Box Lv30",
+      "grade": "COMMON",
+      "category": "common",
       "drops": [
         {
           "itemKey": 300007,
@@ -77474,47 +77557,73 @@
       "stages": [
         {
           "stageKey": 1308,
-          "stageName": "Citadel of Ruin"
+          "stageName": "Citadel of Ruin",
+          "via": "monster_box",
+          "spawnPct": 2
         },
         {
           "stageKey": 1309,
-          "stageName": "Core of the Abyss"
+          "stageName": "Core of the Abyss",
+          "via": "monster_box",
+          "spawnPct": 2
         },
         {
           "stageKey": 2101,
-          "stageName": "Pasture"
+          "stageName": "Pasture",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2102,
-          "stageName": "Shadow Meadow"
+          "stageName": "Shadow Meadow",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2103,
-          "stageName": "Wasteland"
+          "stageName": "Wasteland",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2104,
-          "stageName": "Eerie Canyon"
+          "stageName": "Eerie Canyon",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2105,
-          "stageName": "Burning Village Entrance"
+          "stageName": "Burning Village Entrance",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2106,
-          "stageName": "Rumstreet Square"
+          "stageName": "Rumstreet Square",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2107,
-          "stageName": "City Outskirts"
+          "stageName": "City Outskirts",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2108,
-          "stageName": "Cemetery"
+          "stageName": "Cemetery",
+          "via": "monster_box",
+          "spawnPct": 1.5
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 3-8 – 3-9 · Nightmare 1-1 – 1-8",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "910401": {
+      "name": "Normal Monster Box Lv40",
+      "grade": "COMMON",
+      "category": "common",
       "drops": [
         {
           "itemKey": 300009,
@@ -78738,63 +78847,97 @@
       "stages": [
         {
           "stageKey": 2109,
-          "stageName": "Cursed Land"
+          "stageName": "Cursed Land",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2201,
-          "stageName": "Oasis Road"
+          "stageName": "Oasis Road",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2202,
-          "stageName": "Sandstorm Valley"
+          "stageName": "Sandstorm Valley",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2203,
-          "stageName": "Desert Underground Cave"
+          "stageName": "Desert Underground Cave",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2204,
-          "stageName": "Bug Nest"
+          "stageName": "Bug Nest",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2205,
-          "stageName": "Scorching Dunes"
+          "stageName": "Scorching Dunes",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2206,
-          "stageName": "Sunset Ruins"
+          "stageName": "Sunset Ruins",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2207,
-          "stageName": "Midnight Sands"
+          "stageName": "Midnight Sands",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2208,
-          "stageName": "Sacred Tomb"
+          "stageName": "Sacred Tomb",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2209,
-          "stageName": "Pharaoh's Crypt"
+          "stageName": "Pharaoh's Crypt",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2301,
-          "stageName": "Snowbound Outpost"
+          "stageName": "Snowbound Outpost",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2302,
-          "stageName": "Frozen Battlefield"
+          "stageName": "Frozen Battlefield",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2303,
-          "stageName": "Glacial Cave Entrance"
+          "stageName": "Glacial Cave Entrance",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2304,
-          "stageName": "Frozen Glacier Cavern"
+          "stageName": "Frozen Glacier Cavern",
+          "via": "monster_box",
+          "spawnPct": 1.5
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Nightmare 1-9 · Nightmare 2-1 – 2-9 · Nightmare 3-1 – 3-4",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "910501": {
+      "name": "Normal Monster Box Lv50",
+      "grade": "COMMON",
+      "category": "common",
       "drops": [
         {
           "itemKey": 300011,
@@ -80060,79 +80203,121 @@
       "stages": [
         {
           "stageKey": 2305,
-          "stageName": "Hell Gate"
+          "stageName": "Hell Gate",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2306,
-          "stageName": "Burning Ravine"
+          "stageName": "Burning Ravine",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2307,
-          "stageName": "Plains of Torment"
+          "stageName": "Plains of Torment",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2308,
-          "stageName": "Citadel of Ruin"
+          "stageName": "Citadel of Ruin",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 2309,
-          "stageName": "Core of the Abyss"
+          "stageName": "Core of the Abyss",
+          "via": "monster_box",
+          "spawnPct": 1.5
         },
         {
           "stageKey": 3101,
-          "stageName": "Pasture"
+          "stageName": "Pasture",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3102,
-          "stageName": "Shadow Meadow"
+          "stageName": "Shadow Meadow",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3103,
-          "stageName": "Wasteland"
+          "stageName": "Wasteland",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3104,
-          "stageName": "Eerie Canyon"
+          "stageName": "Eerie Canyon",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3105,
-          "stageName": "Burning Village Entrance"
+          "stageName": "Burning Village Entrance",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3106,
-          "stageName": "Rumstreet Square"
+          "stageName": "Rumstreet Square",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3107,
-          "stageName": "City Outskirts"
+          "stageName": "City Outskirts",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3108,
-          "stageName": "Cemetery"
+          "stageName": "Cemetery",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3109,
-          "stageName": "Cursed Land"
+          "stageName": "Cursed Land",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3201,
-          "stageName": "Oasis Road"
+          "stageName": "Oasis Road",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3202,
-          "stageName": "Sandstorm Valley"
+          "stageName": "Sandstorm Valley",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3203,
-          "stageName": "Desert Underground Cave"
+          "stageName": "Desert Underground Cave",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3204,
-          "stageName": "Bug Nest"
+          "stageName": "Bug Nest",
+          "via": "monster_box",
+          "spawnPct": 1
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Nightmare 3-5 – 3-9 · Hell 1-1 – 1-9 · Hell 2-1 – 2-4",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "910651": {
+      "name": "Normal Monster Box Lv65",
+      "grade": "COMMON",
+      "category": "common",
       "drops": [
         {
           "itemKey": 300014,
@@ -81032,71 +81217,109 @@
       "stages": [
         {
           "stageKey": 3205,
-          "stageName": "Scorching Dunes"
+          "stageName": "Scorching Dunes",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3206,
-          "stageName": "Sunset Ruins"
+          "stageName": "Sunset Ruins",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3207,
-          "stageName": "Midnight Sands"
+          "stageName": "Midnight Sands",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3208,
-          "stageName": "Sacred Tomb"
+          "stageName": "Sacred Tomb",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3209,
-          "stageName": "Pharaoh's Crypt"
+          "stageName": "Pharaoh's Crypt",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3301,
-          "stageName": "Snowbound Outpost"
+          "stageName": "Snowbound Outpost",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3302,
-          "stageName": "Frozen Battlefield"
+          "stageName": "Frozen Battlefield",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3303,
-          "stageName": "Glacial Cave Entrance"
+          "stageName": "Glacial Cave Entrance",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3304,
-          "stageName": "Frozen Glacier Cavern"
+          "stageName": "Frozen Glacier Cavern",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3305,
-          "stageName": "Hell Gate"
+          "stageName": "Hell Gate",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3306,
-          "stageName": "Burning Ravine"
+          "stageName": "Burning Ravine",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3307,
-          "stageName": "Plains of Torment"
+          "stageName": "Plains of Torment",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3308,
-          "stageName": "Citadel of Ruin"
+          "stageName": "Citadel of Ruin",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 3309,
-          "stageName": "Core of the Abyss"
+          "stageName": "Core of the Abyss",
+          "via": "monster_box",
+          "spawnPct": 1
         },
         {
           "stageKey": 4101,
-          "stageName": "Pasture"
+          "stageName": "Pasture",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4102,
-          "stageName": "Shadow Meadow"
+          "stageName": "Shadow Meadow",
+          "via": "monster_box",
+          "spawnPct": 0.8
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Hell 2-5 – 2-9 · Hell 3-1 – 3-9 · Torment 1-1 – 1-2",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "910801": {
+      "name": "Normal Monster Box Lv80",
+      "grade": "COMMON",
+      "category": "common",
       "drops": [
         {
           "itemKey": 300017,
@@ -82080,107 +82303,163 @@
       "stages": [
         {
           "stageKey": 4103,
-          "stageName": "Wasteland"
+          "stageName": "Wasteland",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4104,
-          "stageName": "Eerie Canyon"
+          "stageName": "Eerie Canyon",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4105,
-          "stageName": "Burning Village Entrance"
+          "stageName": "Burning Village Entrance",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4106,
-          "stageName": "Rumstreet Square"
+          "stageName": "Rumstreet Square",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4107,
-          "stageName": "City Outskirts"
+          "stageName": "City Outskirts",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4108,
-          "stageName": "Cemetery"
+          "stageName": "Cemetery",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4109,
-          "stageName": "Cursed Land"
+          "stageName": "Cursed Land",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4201,
-          "stageName": "Oasis Road"
+          "stageName": "Oasis Road",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4202,
-          "stageName": "Sandstorm Valley"
+          "stageName": "Sandstorm Valley",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4203,
-          "stageName": "Desert Underground Cave"
+          "stageName": "Desert Underground Cave",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4204,
-          "stageName": "Bug Nest"
+          "stageName": "Bug Nest",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4205,
-          "stageName": "Scorching Dunes"
+          "stageName": "Scorching Dunes",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4206,
-          "stageName": "Sunset Ruins"
+          "stageName": "Sunset Ruins",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4207,
-          "stageName": "Midnight Sands"
+          "stageName": "Midnight Sands",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4208,
-          "stageName": "Sacred Tomb"
+          "stageName": "Sacred Tomb",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4209,
-          "stageName": "Pharaoh's Crypt"
+          "stageName": "Pharaoh's Crypt",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4301,
-          "stageName": "Snowbound Outpost"
+          "stageName": "Snowbound Outpost",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4302,
-          "stageName": "Frozen Battlefield"
+          "stageName": "Frozen Battlefield",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4303,
-          "stageName": "Glacial Cave Entrance"
+          "stageName": "Glacial Cave Entrance",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4304,
-          "stageName": "Frozen Glacier Cavern"
+          "stageName": "Frozen Glacier Cavern",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4305,
-          "stageName": "Hell Gate"
+          "stageName": "Hell Gate",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4306,
-          "stageName": "Burning Ravine"
+          "stageName": "Burning Ravine",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4307,
-          "stageName": "Plains of Torment"
+          "stageName": "Plains of Torment",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4308,
-          "stageName": "Citadel of Ruin"
+          "stageName": "Citadel of Ruin",
+          "via": "monster_box",
+          "spawnPct": 0.8
         },
         {
           "stageKey": 4309,
-          "stageName": "Core of the Abyss"
+          "stageName": "Core of the Abyss",
+          "via": "monster_box",
+          "spawnPct": 0.8
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Torment 1-3 – 1-9 · Torment 2-1 – 2-9 · Torment 3-1 – 3-9",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "920001": {
+      "name": "Stage Boss Box 1",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 300001,
@@ -82189,9 +82468,20 @@
           "dropPct": 100
         }
       ],
-      "stages": []
+      "stages": [],
+      "dropStageRangeLabel": "Normal 1-1",
+      "firstDropOnly": true,
+      "firstDropStages": [
+        {
+          "stageKey": 1101,
+          "stageName": "Pasture"
+        }
+      ]
     },
     "920002": {
+      "name": "Stage Boss Box 2",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 310001,
@@ -82200,9 +82490,20 @@
           "dropPct": 100
         }
       ],
-      "stages": []
+      "stages": [],
+      "dropStageRangeLabel": "Normal 1-1",
+      "firstDropOnly": true,
+      "firstDropStages": [
+        {
+          "stageKey": 1101,
+          "stageName": "Pasture"
+        }
+      ]
     },
     "920003": {
+      "name": "Stage Boss Box 3",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 320001,
@@ -82211,9 +82512,20 @@
           "dropPct": 100
         }
       ],
-      "stages": []
+      "stages": [],
+      "dropStageRangeLabel": "Normal 1-1",
+      "firstDropOnly": true,
+      "firstDropStages": [
+        {
+          "stageKey": 1101,
+          "stageName": "Pasture"
+        }
+      ]
     },
     "920004": {
+      "name": "Stage Boss Box 3",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 330001,
@@ -82222,9 +82534,20 @@
           "dropPct": 100
         }
       ],
-      "stages": []
+      "stages": [],
+      "dropStageRangeLabel": "Normal 1-1",
+      "firstDropOnly": true,
+      "firstDropStages": [
+        {
+          "stageKey": 1101,
+          "stageName": "Pasture"
+        }
+      ]
     },
     "920005": {
+      "name": "Stage Boss Box 3",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 340001,
@@ -82233,9 +82556,20 @@
           "dropPct": 100
         }
       ],
-      "stages": []
+      "stages": [],
+      "dropStageRangeLabel": "Normal 1-1",
+      "firstDropOnly": true,
+      "firstDropStages": [
+        {
+          "stageKey": 1101,
+          "stageName": "Pasture"
+        }
+      ]
     },
     "920006": {
+      "name": "Stage Boss Box 3",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 350001,
@@ -82244,9 +82578,20 @@
           "dropPct": 100
         }
       ],
-      "stages": []
+      "stages": [],
+      "dropStageRangeLabel": "Normal 1-1",
+      "firstDropOnly": true,
+      "firstDropStages": [
+        {
+          "stageKey": 1101,
+          "stageName": "Pasture"
+        }
+      ]
     },
     "920011": {
+      "name": "Stage Boss Box 4",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 300001,
@@ -82726,19 +83071,31 @@
       "stages": [
         {
           "stageKey": 1101,
-          "stageName": "Pasture"
+          "stageName": "Pasture",
+          "via": "boss_box",
+          "spawnPct": 100
         },
         {
           "stageKey": 1102,
-          "stageName": "Shadow Meadow"
+          "stageName": "Shadow Meadow",
+          "via": "boss_box",
+          "spawnPct": 100
         },
         {
           "stageKey": 1103,
-          "stageName": "Wasteland"
+          "stageName": "Wasteland",
+          "via": "boss_box",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 1-1 – 1-3",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "920022": {
+      "name": "Stage Boss Box 6",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 190001,
@@ -82747,9 +83104,28 @@
           "dropPct": 100
         }
       ],
-      "stages": []
+      "stages": [],
+      "dropStageRangeLabel": "Normal 1-9 · Normal 2-9 · Normal 3-9",
+      "firstDropOnly": true,
+      "firstDropStages": [
+        {
+          "stageKey": 1109,
+          "stageName": "Cursed Land"
+        },
+        {
+          "stageKey": 1209,
+          "stageName": "Pharaoh's Crypt"
+        },
+        {
+          "stageKey": 1309,
+          "stageName": "Core of the Abyss"
+        }
+      ]
     },
     "920032": {
+      "name": "Stage Boss Box 6",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 190002,
@@ -82758,9 +83134,28 @@
           "dropPct": 100
         }
       ],
-      "stages": []
+      "stages": [],
+      "dropStageRangeLabel": "Nightmare 1-9 · Nightmare 2-9 · Nightmare 3-9",
+      "firstDropOnly": true,
+      "firstDropStages": [
+        {
+          "stageKey": 2109,
+          "stageName": "Cursed Land"
+        },
+        {
+          "stageKey": 2209,
+          "stageName": "Pharaoh's Crypt"
+        },
+        {
+          "stageKey": 2309,
+          "stageName": "Core of the Abyss"
+        }
+      ]
     },
     "920042": {
+      "name": "Stage Boss Box 6",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 190003,
@@ -82769,9 +83164,28 @@
           "dropPct": 100
         }
       ],
-      "stages": []
+      "stages": [],
+      "dropStageRangeLabel": "Hell 1-9 · Hell 2-9 · Hell 3-9",
+      "firstDropOnly": true,
+      "firstDropStages": [
+        {
+          "stageKey": 3109,
+          "stageName": "Cursed Land"
+        },
+        {
+          "stageKey": 3209,
+          "stageName": "Pharaoh's Crypt"
+        },
+        {
+          "stageKey": 3309,
+          "stageName": "Core of the Abyss"
+        }
+      ]
     },
     "920051": {
+      "name": "Stage Boss Box 5",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 300002,
@@ -83317,23 +83731,37 @@
       "stages": [
         {
           "stageKey": 1104,
-          "stageName": "Eerie Canyon"
+          "stageName": "Eerie Canyon",
+          "via": "boss_box",
+          "spawnPct": 100
         },
         {
           "stageKey": 1105,
-          "stageName": "Burning Village Entrance"
+          "stageName": "Burning Village Entrance",
+          "via": "boss_box",
+          "spawnPct": 80
         },
         {
           "stageKey": 1106,
-          "stageName": "Rumstreet Square"
+          "stageName": "Rumstreet Square",
+          "via": "boss_box",
+          "spawnPct": 80
         },
         {
           "stageKey": 1107,
-          "stageName": "City Outskirts"
+          "stageName": "City Outskirts",
+          "via": "boss_box",
+          "spawnPct": 60
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 1-4 – 1-7",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "920052": {
+      "name": "Stage Boss Box 6",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 190004,
@@ -83342,9 +83770,28 @@
           "dropPct": 100
         }
       ],
-      "stages": []
+      "stages": [],
+      "dropStageRangeLabel": "Torment 1-9 · Torment 2-9 · Torment 3-9",
+      "firstDropOnly": true,
+      "firstDropStages": [
+        {
+          "stageKey": 4109,
+          "stageName": "Cursed Land"
+        },
+        {
+          "stageKey": 4209,
+          "stageName": "Pharaoh's Crypt"
+        },
+        {
+          "stageKey": 4309,
+          "stageName": "Core of the Abyss"
+        }
+      ]
     },
     "920101": {
+      "name": "Stage Boss Box 7",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 301031,
@@ -83818,23 +84265,37 @@
       "stages": [
         {
           "stageKey": 1108,
-          "stageName": "Cemetery"
+          "stageName": "Cemetery",
+          "via": "boss_box",
+          "spawnPct": 40
         },
         {
           "stageKey": 1109,
-          "stageName": "Cursed Land"
+          "stageName": "Cursed Land",
+          "via": "boss_box",
+          "spawnPct": 40
         },
         {
           "stageKey": 1201,
-          "stageName": "Oasis Road"
+          "stageName": "Oasis Road",
+          "via": "boss_box",
+          "spawnPct": 40
         },
         {
           "stageKey": 1202,
-          "stageName": "Sandstorm Valley"
+          "stageName": "Sandstorm Valley",
+          "via": "boss_box",
+          "spawnPct": 40
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 1-8 – 1-9 · Normal 2-1 – 2-2",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "920151": {
+      "name": "Stage Boss Box Lv15",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 300004,
@@ -84986,27 +85447,43 @@
       "stages": [
         {
           "stageKey": 1203,
-          "stageName": "Desert Underground Cave"
+          "stageName": "Desert Underground Cave",
+          "via": "boss_box",
+          "spawnPct": 30
         },
         {
           "stageKey": 1204,
-          "stageName": "Bug Nest"
+          "stageName": "Bug Nest",
+          "via": "boss_box",
+          "spawnPct": 30
         },
         {
           "stageKey": 1205,
-          "stageName": "Scorching Dunes"
+          "stageName": "Scorching Dunes",
+          "via": "boss_box",
+          "spawnPct": 30
         },
         {
           "stageKey": 1206,
-          "stageName": "Sunset Ruins"
+          "stageName": "Sunset Ruins",
+          "via": "boss_box",
+          "spawnPct": 30
         },
         {
           "stageKey": 1207,
-          "stageName": "Midnight Sands"
+          "stageName": "Midnight Sands",
+          "via": "boss_box",
+          "spawnPct": 30
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 2-3 – 2-7",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "920201": {
+      "name": "Stage Boss Box Lv20",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 300005,
@@ -86278,43 +86755,67 @@
       "stages": [
         {
           "stageKey": 1208,
-          "stageName": "Sacred Tomb"
+          "stageName": "Sacred Tomb",
+          "via": "boss_box",
+          "spawnPct": 20
         },
         {
           "stageKey": 1209,
-          "stageName": "Pharaoh's Crypt"
+          "stageName": "Pharaoh's Crypt",
+          "via": "boss_box",
+          "spawnPct": 20
         },
         {
           "stageKey": 1301,
-          "stageName": "Snowbound Outpost"
+          "stageName": "Snowbound Outpost",
+          "via": "boss_box",
+          "spawnPct": 20
         },
         {
           "stageKey": 1302,
-          "stageName": "Frozen Battlefield"
+          "stageName": "Frozen Battlefield",
+          "via": "boss_box",
+          "spawnPct": 20
         },
         {
           "stageKey": 1303,
-          "stageName": "Glacial Cave Entrance"
+          "stageName": "Glacial Cave Entrance",
+          "via": "boss_box",
+          "spawnPct": 20
         },
         {
           "stageKey": 1304,
-          "stageName": "Frozen Glacier Cavern"
+          "stageName": "Frozen Glacier Cavern",
+          "via": "boss_box",
+          "spawnPct": 20
         },
         {
           "stageKey": 1305,
-          "stageName": "Hell Gate"
+          "stageName": "Hell Gate",
+          "via": "boss_box",
+          "spawnPct": 20
         },
         {
           "stageKey": 1306,
-          "stageName": "Burning Ravine"
+          "stageName": "Burning Ravine",
+          "via": "boss_box",
+          "spawnPct": 20
         },
         {
           "stageKey": 1307,
-          "stageName": "Plains of Torment"
+          "stageName": "Plains of Torment",
+          "via": "boss_box",
+          "spawnPct": 20
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 2-8 – 2-9 · Normal 3-1 – 3-7",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "920301": {
+      "name": "Stage Boss Box Lv30",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 300007,
@@ -87190,47 +87691,73 @@
       "stages": [
         {
           "stageKey": 1308,
-          "stageName": "Citadel of Ruin"
+          "stageName": "Citadel of Ruin",
+          "via": "boss_box",
+          "spawnPct": 20
         },
         {
           "stageKey": 1309,
-          "stageName": "Core of the Abyss"
+          "stageName": "Core of the Abyss",
+          "via": "boss_box",
+          "spawnPct": 20
         },
         {
           "stageKey": 2101,
-          "stageName": "Pasture"
+          "stageName": "Pasture",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2102,
-          "stageName": "Shadow Meadow"
+          "stageName": "Shadow Meadow",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2103,
-          "stageName": "Wasteland"
+          "stageName": "Wasteland",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2104,
-          "stageName": "Eerie Canyon"
+          "stageName": "Eerie Canyon",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2105,
-          "stageName": "Burning Village Entrance"
+          "stageName": "Burning Village Entrance",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2106,
-          "stageName": "Rumstreet Square"
+          "stageName": "Rumstreet Square",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2107,
-          "stageName": "City Outskirts"
+          "stageName": "City Outskirts",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2108,
-          "stageName": "Cemetery"
+          "stageName": "Cemetery",
+          "via": "boss_box",
+          "spawnPct": 15
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 3-8 – 3-9 · Nightmare 1-1 – 1-8",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "920401": {
+      "name": "Stage Boss Box Lv40",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 300009,
@@ -88706,63 +89233,97 @@
       "stages": [
         {
           "stageKey": 2109,
-          "stageName": "Cursed Land"
+          "stageName": "Cursed Land",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2201,
-          "stageName": "Oasis Road"
+          "stageName": "Oasis Road",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2202,
-          "stageName": "Sandstorm Valley"
+          "stageName": "Sandstorm Valley",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2203,
-          "stageName": "Desert Underground Cave"
+          "stageName": "Desert Underground Cave",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2204,
-          "stageName": "Bug Nest"
+          "stageName": "Bug Nest",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2205,
-          "stageName": "Scorching Dunes"
+          "stageName": "Scorching Dunes",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2206,
-          "stageName": "Sunset Ruins"
+          "stageName": "Sunset Ruins",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2207,
-          "stageName": "Midnight Sands"
+          "stageName": "Midnight Sands",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2208,
-          "stageName": "Sacred Tomb"
+          "stageName": "Sacred Tomb",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2209,
-          "stageName": "Pharaoh's Crypt"
+          "stageName": "Pharaoh's Crypt",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2301,
-          "stageName": "Snowbound Outpost"
+          "stageName": "Snowbound Outpost",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2302,
-          "stageName": "Frozen Battlefield"
+          "stageName": "Frozen Battlefield",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2303,
-          "stageName": "Glacial Cave Entrance"
+          "stageName": "Glacial Cave Entrance",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2304,
-          "stageName": "Frozen Glacier Cavern"
+          "stageName": "Frozen Glacier Cavern",
+          "via": "boss_box",
+          "spawnPct": 15
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Nightmare 1-9 · Nightmare 2-1 – 2-9 · Nightmare 3-1 – 3-4",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "920501": {
+      "name": "Stage Boss Box Lv50",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 300011,
@@ -90262,79 +90823,121 @@
       "stages": [
         {
           "stageKey": 2305,
-          "stageName": "Hell Gate"
+          "stageName": "Hell Gate",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2306,
-          "stageName": "Burning Ravine"
+          "stageName": "Burning Ravine",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2307,
-          "stageName": "Plains of Torment"
+          "stageName": "Plains of Torment",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2308,
-          "stageName": "Citadel of Ruin"
+          "stageName": "Citadel of Ruin",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 2309,
-          "stageName": "Core of the Abyss"
+          "stageName": "Core of the Abyss",
+          "via": "boss_box",
+          "spawnPct": 15
         },
         {
           "stageKey": 3101,
-          "stageName": "Pasture"
+          "stageName": "Pasture",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3102,
-          "stageName": "Shadow Meadow"
+          "stageName": "Shadow Meadow",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3103,
-          "stageName": "Wasteland"
+          "stageName": "Wasteland",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3104,
-          "stageName": "Eerie Canyon"
+          "stageName": "Eerie Canyon",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3105,
-          "stageName": "Burning Village Entrance"
+          "stageName": "Burning Village Entrance",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3106,
-          "stageName": "Rumstreet Square"
+          "stageName": "Rumstreet Square",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3107,
-          "stageName": "City Outskirts"
+          "stageName": "City Outskirts",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3108,
-          "stageName": "Cemetery"
+          "stageName": "Cemetery",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3109,
-          "stageName": "Cursed Land"
+          "stageName": "Cursed Land",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3201,
-          "stageName": "Oasis Road"
+          "stageName": "Oasis Road",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3202,
-          "stageName": "Sandstorm Valley"
+          "stageName": "Sandstorm Valley",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3203,
-          "stageName": "Desert Underground Cave"
+          "stageName": "Desert Underground Cave",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3204,
-          "stageName": "Bug Nest"
+          "stageName": "Bug Nest",
+          "via": "boss_box",
+          "spawnPct": 10
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Nightmare 3-5 – 3-9 · Hell 1-1 – 1-9 · Hell 2-1 – 2-4",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "920651": {
+      "name": "Stage Boss Box Lv65",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 300014,
@@ -91384,71 +91987,109 @@
       "stages": [
         {
           "stageKey": 3205,
-          "stageName": "Scorching Dunes"
+          "stageName": "Scorching Dunes",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3206,
-          "stageName": "Sunset Ruins"
+          "stageName": "Sunset Ruins",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3207,
-          "stageName": "Midnight Sands"
+          "stageName": "Midnight Sands",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3208,
-          "stageName": "Sacred Tomb"
+          "stageName": "Sacred Tomb",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3209,
-          "stageName": "Pharaoh's Crypt"
+          "stageName": "Pharaoh's Crypt",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3301,
-          "stageName": "Snowbound Outpost"
+          "stageName": "Snowbound Outpost",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3302,
-          "stageName": "Frozen Battlefield"
+          "stageName": "Frozen Battlefield",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3303,
-          "stageName": "Glacial Cave Entrance"
+          "stageName": "Glacial Cave Entrance",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3304,
-          "stageName": "Frozen Glacier Cavern"
+          "stageName": "Frozen Glacier Cavern",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3305,
-          "stageName": "Hell Gate"
+          "stageName": "Hell Gate",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3306,
-          "stageName": "Burning Ravine"
+          "stageName": "Burning Ravine",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3307,
-          "stageName": "Plains of Torment"
+          "stageName": "Plains of Torment",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3308,
-          "stageName": "Citadel of Ruin"
+          "stageName": "Citadel of Ruin",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 3309,
-          "stageName": "Core of the Abyss"
+          "stageName": "Core of the Abyss",
+          "via": "boss_box",
+          "spawnPct": 10
         },
         {
           "stageKey": 4101,
-          "stageName": "Pasture"
+          "stageName": "Pasture",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4102,
-          "stageName": "Shadow Meadow"
+          "stageName": "Shadow Meadow",
+          "via": "boss_box",
+          "spawnPct": 8
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Hell 2-5 – 2-9 · Hell 3-1 – 3-9 · Torment 1-1 – 1-2",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "920801": {
+      "name": "Stage Boss Box Lv80",
+      "grade": "RARE",
+      "category": "stage_boss",
       "drops": [
         {
           "itemKey": 300017,
@@ -92504,107 +93145,163 @@
       "stages": [
         {
           "stageKey": 4103,
-          "stageName": "Wasteland"
+          "stageName": "Wasteland",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4104,
-          "stageName": "Eerie Canyon"
+          "stageName": "Eerie Canyon",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4105,
-          "stageName": "Burning Village Entrance"
+          "stageName": "Burning Village Entrance",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4106,
-          "stageName": "Rumstreet Square"
+          "stageName": "Rumstreet Square",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4107,
-          "stageName": "City Outskirts"
+          "stageName": "City Outskirts",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4108,
-          "stageName": "Cemetery"
+          "stageName": "Cemetery",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4109,
-          "stageName": "Cursed Land"
+          "stageName": "Cursed Land",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4201,
-          "stageName": "Oasis Road"
+          "stageName": "Oasis Road",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4202,
-          "stageName": "Sandstorm Valley"
+          "stageName": "Sandstorm Valley",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4203,
-          "stageName": "Desert Underground Cave"
+          "stageName": "Desert Underground Cave",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4204,
-          "stageName": "Bug Nest"
+          "stageName": "Bug Nest",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4205,
-          "stageName": "Scorching Dunes"
+          "stageName": "Scorching Dunes",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4206,
-          "stageName": "Sunset Ruins"
+          "stageName": "Sunset Ruins",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4207,
-          "stageName": "Midnight Sands"
+          "stageName": "Midnight Sands",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4208,
-          "stageName": "Sacred Tomb"
+          "stageName": "Sacred Tomb",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4209,
-          "stageName": "Pharaoh's Crypt"
+          "stageName": "Pharaoh's Crypt",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4301,
-          "stageName": "Snowbound Outpost"
+          "stageName": "Snowbound Outpost",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4302,
-          "stageName": "Frozen Battlefield"
+          "stageName": "Frozen Battlefield",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4303,
-          "stageName": "Glacial Cave Entrance"
+          "stageName": "Glacial Cave Entrance",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4304,
-          "stageName": "Frozen Glacier Cavern"
+          "stageName": "Frozen Glacier Cavern",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4305,
-          "stageName": "Hell Gate"
+          "stageName": "Hell Gate",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4306,
-          "stageName": "Burning Ravine"
+          "stageName": "Burning Ravine",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4307,
-          "stageName": "Plains of Torment"
+          "stageName": "Plains of Torment",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4308,
-          "stageName": "Citadel of Ruin"
+          "stageName": "Citadel of Ruin",
+          "via": "boss_box",
+          "spawnPct": 8
         },
         {
           "stageKey": 4309,
-          "stageName": "Core of the Abyss"
+          "stageName": "Core of the Abyss",
+          "via": "boss_box",
+          "spawnPct": 8
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Torment 1-3 – 1-9 · Torment 2-1 – 2-9 · Torment 3-1 – 3-9",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930101": {
+      "name": "Act Boss Box 1",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302031,
@@ -93090,11 +93787,19 @@
       "stages": [
         {
           "stageKey": 1110,
-          "stageName": "Throne of Darkness"
+          "stageName": "Throne of Darkness",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 1-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930201": {
+      "name": "Act Boss Box Lv20",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302051,
@@ -94114,11 +94819,19 @@
       "stages": [
         {
           "stageKey": 1210,
-          "stageName": "Pharaoh's Underchannel"
+          "stageName": "Pharaoh's Underchannel",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 2-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930301": {
+      "name": "Act Boss Box Lv30",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302071,
@@ -94844,11 +95557,19 @@
       "stages": [
         {
           "stageKey": 1310,
-          "stageName": "Hell Command Chamber"
+          "stageName": "Hell Command Chamber",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Normal 3-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930401": {
+      "name": "Act Boss Box Lv40",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302091,
@@ -95988,11 +96709,19 @@
       "stages": [
         {
           "stageKey": 2110,
-          "stageName": "Throne of Darkness"
+          "stageName": "Throne of Darkness",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Nightmare 1-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930451": {
+      "name": "Act Boss Box Lv45",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302091,
@@ -96850,11 +97579,19 @@
       "stages": [
         {
           "stageKey": 2210,
-          "stageName": "Pharaoh's Underchannel"
+          "stageName": "Pharaoh's Underchannel",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Nightmare 2-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930501": {
+      "name": "Act Boss Box Lv50",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302111,
@@ -98132,11 +98869,19 @@
       "stages": [
         {
           "stageKey": 2310,
-          "stageName": "Hell Command Chamber"
+          "stageName": "Hell Command Chamber",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Nightmare 3-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930601": {
+      "name": "Act Boss Box Lv60",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302111,
@@ -99012,11 +99757,19 @@
       "stages": [
         {
           "stageKey": 3110,
-          "stageName": "Throne of Darkness"
+          "stageName": "Throne of Darkness",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Hell 1-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930651": {
+      "name": "Act Boss Box Lv65",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302141,
@@ -99868,11 +100621,19 @@
       "stages": [
         {
           "stageKey": 3210,
-          "stageName": "Pharaoh's Underchannel"
+          "stageName": "Pharaoh's Underchannel",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Hell 2-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930701": {
+      "name": "Act Boss Box Lv70",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302141,
@@ -100820,11 +101581,19 @@
       "stages": [
         {
           "stageKey": 3310,
-          "stageName": "Hell Command Chamber"
+          "stageName": "Hell Command Chamber",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Hell 3-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930851": {
+      "name": "Act Boss Box Lv85",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302171,
@@ -101784,11 +102553,19 @@
       "stages": [
         {
           "stageKey": 4110,
-          "stageName": "Throne of Darkness"
+          "stageName": "Throne of Darkness",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Torment 1-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     },
     "930901": {
+      "name": "Act Boss Box Lv90",
+      "grade": "LEGENDARY",
+      "category": "act_boss",
       "drops": [
         {
           "itemKey": 302171,
@@ -102760,13 +103537,20 @@
       "stages": [
         {
           "stageKey": 4210,
-          "stageName": "Pharaoh's Underchannel"
+          "stageName": "Pharaoh's Underchannel",
+          "via": "act_boss",
+          "spawnPct": 100
         },
         {
           "stageKey": 4310,
-          "stageName": "Hell Command Chamber"
+          "stageName": "Hell Command Chamber",
+          "via": "act_boss",
+          "spawnPct": 100
         }
-      ]
+      ],
+      "dropStageRangeLabel": "Torment 2-10 · Torment 3-10",
+      "firstDropOnly": false,
+      "firstDropStages": []
     }
   },
   "stages": {

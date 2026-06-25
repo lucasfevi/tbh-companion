@@ -717,14 +717,32 @@ export interface LookupBoxDrop {
   dropPct: number;
 }
 
+export type LookupBoxDropVia = "monster_box" | "boss_box" | "act_boss";
+
+export type LookupBoxCategory = "common" | "stage_boss" | "act_boss" | "unknown";
+
 export interface LookupBoxStageRef {
+  stageKey: number;
+  stageName: string;
+  via: LookupBoxDropVia;
+  /** Spawn chance % (converted at tbh-data extract). Act boss = 100. */
+  spawnPct: number;
+}
+
+export interface LookupBoxFirstDropStageRef {
   stageKey: number;
   stageName: string;
 }
 
 export interface LookupBoxSources {
+  name: string;
+  grade: string | null;
+  category: LookupBoxCategory;
   drops: LookupBoxDrop[];
   stages: LookupBoxStageRef[];
+  dropStageRangeLabel: string;
+  firstDropOnly: boolean;
+  firstDropStages: LookupBoxFirstDropStageRef[];
 }
 
 export interface LookupStageBoxRef {

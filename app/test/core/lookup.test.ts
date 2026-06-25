@@ -32,6 +32,12 @@ describe("lookup catalog", () => {
     expect(Object.keys(sources.items).length).toBeGreaterThan(0);
     expect(Object.keys(sources.boxes).length).toBeGreaterThan(0);
     expect(Object.keys(sources.stages).length).toBeGreaterThan(0);
+    const box = sources.boxes["910011"];
+    expect(box.name).toBeTruthy();
+    expect(box.category).toBe("common");
+    expect(box.dropStageRangeLabel).toBeTruthy();
+    expect(box.firstDropOnly).toBe(false);
+    expect(box.stages[0]?.spawnPct).toBeGreaterThan(0);
   });
 });
 

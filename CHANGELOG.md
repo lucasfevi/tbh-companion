@@ -4,6 +4,12 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+### Lookup
+
+- Box detail panel: **Where to find** with per-stage spawn %, searchable loot table, and **First clear** treatment for one-time chests.
+- Box hover peek shows the same stage ranges and drop sources summary as the detail header.
+- Item **Drop** rows label first-clear chests with **First clear only**.
+
 ## [1.16.1] - 2026-06-23
 
 ### Fixed

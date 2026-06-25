@@ -27,6 +27,7 @@ import {
 import { ItemLink } from "./ItemLink";
 import { OfferingLoot } from "./OfferingLoot";
 import type {
+  LookupBoxSources,
   LookupItem,
   LookupItemSources,
   OfferingsModel,
@@ -167,6 +168,7 @@ export function ItemDetailCard({
   offerings,
   onNavigate,
   peekItem,
+  peekBox,
 }: {
   item: LookupItem;
   sources?: LookupItemSources;
@@ -174,6 +176,7 @@ export function ItemDetailCard({
   offerings?: OfferingsModel | null;
   onNavigate?: (node: LookupNavNode) => void;
   peekItem?: (id: number) => LookupItem | undefined;
+  peekBox?: (id: number) => LookupBoxSources | undefined;
 }) {
   const synthesisPaths = useMemo(
     () => (synthesisModel ? pathsToItem(item, synthesisModel) : []),
@@ -299,6 +302,7 @@ export function ItemDetailCard({
                             iconPath={boxIconPath(drop.boxItemKey)}
                             suffix={`· ${fmtDropPct(drop.dropPct)}%`}
                             onNavigate={onNavigate}
+                            peekBox={peekBox}
                           />
                         </DataListRow>
                       ))}
