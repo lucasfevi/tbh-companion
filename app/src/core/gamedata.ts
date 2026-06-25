@@ -40,6 +40,11 @@ export function catalogItemKeyFromSave(itemKey: number): number {
   return itemKey;
 }
 
+/** `ItemKey` ending in …900 — Steam Market pipeline (Ship / listed); not playable inventory. */
+export function isMarketPipelineSaveItemKey(itemKey: number): boolean {
+  return itemKey >= 1_000_000 && itemKey % 1000 === 900;
+}
+
 /** Normalize a catalog row loaded from JSON (tolerates legacy icon/gearId fields). */
 export function normalizeGameItem(raw: Record<string, unknown>): GameItem | null {
   const id = Number(raw.id);

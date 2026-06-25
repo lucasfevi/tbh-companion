@@ -1,6 +1,6 @@
 // Parse owned items and chests from decrypted save JSON.
 
-import { catalogItemKeyFromSave } from "../gamedata";
+import { catalogItemKeyFromSave, isMarketPipelineSaveItemKey } from "../gamedata";
 import { unwrapEs3Entry } from "../save/snapshot";
 import { materialStacksFromAggregates, parseAggregateEntries } from "./aggregates";
 import type {
@@ -102,45 +102,75 @@ function resolveLocation(
   return "unknown";
 }
 
-function parseItemsFromPlayerString(playerStr: string): InventoryItemInstance[] {
+function parseItemsFromPlayerString(playerStr: string): {
+  items: InventoryItemInstance[];
+  marketPipelineOnlyCatalogKeys: Set<number>;
+} {
   const equipped = parseEquippedIds(playerStr);
   const inventory = parseSlotUniqueIds(playerStr, '"inventorySaveDatas":');
   const stash = parseSlotUniqueIds(playerStr, '"stashSaveDatas":');
   const trading = parseSlotUniqueIds(playerStr, '"tradingStashSaveDatas":');
   const arr = sliceJsonArray(playerStr, '"itemSaveDatas":');
   const items: InventoryItemInstance[] = [];
+  const assignableCatalogIds = new Set<number>();
+  const pipelineCatalogIds = new Set<number>();
   for (const m of arr.matchAll(ITEM_TRIPLE_RE)) {
-    const itemKey = catalogItemKeyFromSave(Math.trunc(Number(m[1])));
-    if (itemKey <= 0) continue;
+    const rawItemKey = Math.trunc(Number(m[1]));
+    const catalogId = catalogItemKeyFromSave(rawItemKey);
+    if (catalogId <= 0) continue;
+    if (isMarketPipelineSaveItemKey(rawItemKey)) {
+      pipelineCatalogIds.add(catalogId);
+      continue;
+    }
+    assignableCatalogIds.add(catalogId);
     const uniqueId = m[2];
     const location = resolveLocation(uniqueId, equipped, inventory, stash, trading);
     items.push({
-      itemKey,
+      itemKey: catalogId,
       isChaotic: m[3] === "true",
       inUse: equipped.has(uniqueId),
       location,
     });
   }
-  return items;
+  const marketPipelineOnlyCatalogKeys = new Set(
+    [...pipelineCatalogIds].filter((id) => !assignableCatalogIds.has(id)),
+  );
+  return { items, marketPipelineOnlyCatalogKeys };
 }
 
-function parseItemsFromPlayerObject(player: Record<string, unknown>): InventoryItemInstance[] {
+function parseItemsFromPlayerObject(player: Record<string, unknown>): {
+  items: InventoryItemInstance[];
+  marketPipelineOnlyCatalogKeys: Set<number>;
+} {
   const items: InventoryItemInstance[] = [];
+  const assignableCatalogIds = new Set<number>();
+  const pipelineCatalogIds = new Set<number>();
   const arr = player.itemSaveDatas;
-  if (!Array.isArray(arr)) return items;
+  if (!Array.isArray(arr)) {
+    return { items, marketPipelineOnlyCatalogKeys: new Set() };
+  }
   for (const raw of arr) {
     if (!raw || typeof raw !== "object") continue;
     const it = raw as Record<string, unknown>;
-    const itemKey = catalogItemKeyFromSave(Math.trunc(toNum(it.ItemKey, 0)));
-    if (itemKey <= 0) continue;
+    const rawItemKey = Math.trunc(toNum(it.ItemKey, 0));
+    const catalogId = catalogItemKeyFromSave(rawItemKey);
+    if (catalogId <= 0) continue;
+    if (isMarketPipelineSaveItemKey(rawItemKey)) {
+      pipelineCatalogIds.add(catalogId);
+      continue;
+    }
+    assignableCatalogIds.add(catalogId);
     items.push({
-      itemKey,
+      itemKey: catalogId,
       isChaotic: Boolean(it.IsChaotic),
       inUse: false,
       location: "unknown",
     });
   }
-  return items;
+  const marketPipelineOnlyCatalogKeys = new Set(
+    [...pipelineCatalogIds].filter((id) => !assignableCatalogIds.has(id)),
+  );
+  return { items, marketPipelineOnlyCatalogKeys };
 }
 
 function parseChests(player: Record<string, unknown> | undefined): ChestHolding[] {
@@ -169,10 +199,11 @@ export function parseInventory(
   const player = unwrapEs3Entry(root?.PlayerSaveData) as Record<string, unknown> | undefined;
 
   let items: InventoryItemInstance[] = [];
+  let marketPipelineOnlyCatalogKeys: Set<number> | undefined;
   if (playerStr) {
-    items = parseItemsFromPlayerString(playerStr);
+    ({ items, marketPipelineOnlyCatalogKeys } = parseItemsFromPlayerString(playerStr));
   } else if (player && typeof player === "object") {
-    items = parseItemsFromPlayerObject(player);
+    ({ items, marketPipelineOnlyCatalogKeys } = parseItemsFromPlayerObject(player));
   }
 
   const chests = parseChests(player);
@@ -196,5 +227,13 @@ export function parseInventory(
     }
   }
 
-  return { items, chests, saveMtime, materialStacks, inventoryCapacity, inventoryUsed };
+  return {
+    items,
+    chests,
+    saveMtime,
+    materialStacks,
+    inventoryCapacity,
+    inventoryUsed,
+    marketPipelineOnlyCatalogKeys,
+  };
 }

@@ -80,11 +80,34 @@ describe("parseInventory", () => {
     expect(snap.saveMtime).toBe(123);
   });
 
+  it("leaves unslotted itemSaveDatas rows as unknown location", () => {
+    const snap = parseInventory(wrapPlayer(playerInner), 0);
+    const unslotted = snap.items.find((i) => i.itemKey === 888888);
+    expect(unslotted?.location).toBe("unknown");
+    expect(unslotted?.inUse).toBe(false);
+  });
+
   it("leaves stage-box ItemKeys outside slots as unknown location", () => {
     const snap = parseInventory(wrapPlayer(playerInner), 0);
     const box = snap.items.find((i) => i.itemKey === 910151);
     expect(box?.location).toBe("unknown");
     expect(box?.inUse).toBe(false);
+  });
+
+  it("omits market-pipeline ItemKeys (suffix 900) from itemSaveDatas", () => {
+    const inner = `{
+      "stashSaveDatas":[{"Index":0,"ItemUniqueId":514119247889201002,"IsUnlock":true}],
+      "remakeTradingStashSaveDatas":[{"Index":0,"ItemUniqueId":514119247889201003,"IsUnlock":true}],
+      "itemSaveDatas":[
+        {"ItemKey":141002,"UniqueId":514119247889201002,"IsChaotic":false},
+        {"ItemKey":141002900,"UniqueId":514119247889201003,"IsChaotic":false},
+        {"ItemKey":160006900,"UniqueId":514119247889201004,"IsChaotic":false}
+      ]
+    }`;
+    const snap = parseInventory(wrapPlayer(inner), 0);
+    expect(snap.items).toHaveLength(1);
+    expect(snap.items[0]?.itemKey).toBe(141002);
+    expect(snap.items[0]?.location).toBe("stash");
   });
 
   it("parses material stacks from aggregateSaveDatas when mapped", () => {
@@ -113,11 +136,11 @@ describe("parseInventory", () => {
     expect(snap.inventoryUsed).toBe(1);
   });
 
-  it("normalizes suffixed ItemKeys from newer saves", () => {
+  it("normalizes non-market suffixed ItemKeys from newer saves", () => {
     const inner = `{
       "itemSaveDatas":[
-        {"ItemKey":514051900,"UniqueId":514119247889201010,"IsChaotic":false},
-        {"ItemKey":140001900,"UniqueId":514119247889201011,"IsChaotic":false}
+        {"ItemKey":514051800,"UniqueId":514119247889201010,"IsChaotic":false},
+        {"ItemKey":140001800,"UniqueId":514119247889201011,"IsChaotic":false}
       ]
     }`;
     const snap = parseInventory(wrapPlayer(inner), 0);
@@ -252,6 +275,44 @@ describe("resolveInventory", () => {
     expect(res.composition.total).toBe(10);
   });
 
+  it("excludes market-pipeline suffix-900 rows from inventory totals", () => {
+    const inner = `{
+      "stashSaveDatas":[{"Index":0,"ItemUniqueId":514119247889201002,"IsUnlock":true}],
+      "itemSaveDatas":[
+        {"ItemKey":141002,"UniqueId":514119247889201002,"IsChaotic":false},
+        {"ItemKey":141002900,"UniqueId":514119247889201003,"IsChaotic":false}
+      ]
+    }`;
+    const snap = parseInventory(wrapPlayer(inner), 0, isMaterial);
+    const res = resolveInventory(snap, lookup, true);
+    const ingot = res.rows.find((r) => r.itemKey === 141002)!;
+    expect(ingot.count).toBe(1);
+    expect(ingot.stashCount).toBe(1);
+  });
+
+  it("does not inflate material count from lifetime aggregates when instances exist", () => {
+    const inner = `{
+      "stashSaveDatas":[{"Index":0,"ItemUniqueId":514119247889201002,"IsUnlock":true}],
+      "itemSaveDatas":[{"ItemKey":141002,"UniqueId":514119247889201002,"IsChaotic":false}],
+      "aggregateSaveDatas":[{"Type":0,"SubKey":10002,"Value":99}]
+    }`;
+    const snap = parseInventory(wrapPlayer(inner), 0, isMaterial);
+    const res = resolveInventory(snap, lookup, true);
+    const ingot = res.rows.find((r) => r.itemKey === 141002)!;
+    expect(ingot.count).toBe(1);
+    expect(ingot.stashCount).toBe(1);
+  });
+
+  it("hides materials that exist only as market-pipeline rows", () => {
+    const inner = `{
+      "itemSaveDatas":[{"ItemKey":141002900,"UniqueId":514119247889201004,"IsChaotic":false}],
+      "aggregateSaveDatas":[{"Type":0,"SubKey":141002,"Value":3}]
+    }`;
+    const snap = parseInventory(wrapPlayer(inner), 0, isMaterial);
+    const res = resolveInventory(snap, lookup, true);
+    expect(res.rows.find((r) => r.itemKey === 141002)).toBeUndefined();
+  });
+
   it("prices gear from variant A market hash", () => {
     const snap = parseInventory(wrapPlayer(playerInner), 0);
     const priceLookup = (name: string) =>
@@ -288,8 +349,9 @@ describe("resolveInventory", () => {
 
   it("resolves suffixed ItemKeys against the catalog", () => {
     const inner = `{
+      "inventorySaveDatas":[{"Index":0,"ItemUniqueId":514119247889201010,"IsUnlock":true}],
       "itemSaveDatas":[
-        {"ItemKey":514051900,"UniqueId":514119247889201010,"IsChaotic":false}
+        {"ItemKey":514051800,"UniqueId":514119247889201010,"IsChaotic":false}
       ]
     }`;
     const snap = parseInventory(wrapPlayer(inner), 0);

@@ -20,8 +20,14 @@ itemSaveDatas:      179 entries  { ItemKey, UniqueId, IsChaotic, IsBlocked,
                                    EnchantCount[3], EnchantData[6], ... }
 inventorySaveDatas: 260 slots    { Index, ItemUniqueId, IsUnlock }
 stashSaveDatas:     343 slots    { Index, ItemUniqueId, IsUnLock }
-tradingStashSaveDatas: ...       (same shape)
+tradingStashSaveDatas / remakeTradingStashSaveDatas: Ship UI slots (often empty once listed)
 ```
+
+**Steam Market pipeline:** `itemSaveDatas` rows whose `ItemKey` ends in `…900`
+(e.g. `160006900` for catalog `160006`) are omitted from the Inventory tab.
+Verified on live saves: on-Ship, listed, and sold-today copies all use suffix
+`900`; slot arrays (`remakeTradingStashSaveDatas`) clear when items are listed
+and are not a reliable sold vs on-Ship signal.
 
 Resolution: `inventory/stash slot.ItemUniqueId -> itemSaveDatas[].UniqueId ->
 ItemKey -> gamedata`. Items are **per-instance** (each gear piece is its own
@@ -91,8 +97,8 @@ Confirmed mapping (59 entries, [taskbarhero.wiki/stage-boxes](https://taskbarher
 Bundled in `data/stage_boxes.json` (`app/src/core/stageBoxes.ts`). Merged into
 the lookup index at load; **excluded from the Inventory tab** (not gear/materials
 to value). Unopened chest counts stay in `BoxData` (`BoxTypes` / `BoxQuantity`).
-Stage-box rows in `itemSaveDatas` that are not in a slot array have location
-`unknown` in parse — they never appear in the inventory grid.
+Stage-box rows in `itemSaveDatas` that are not in a slot array are parsed as
+`unknown` and excluded from the inventory grid via `excludeItemKey` (stage boxes).
 
 ## Mapping rule
 

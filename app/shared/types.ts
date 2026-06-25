@@ -178,6 +178,8 @@ export interface InventorySnapshot {
   inventoryCapacity: number;
   /** Count of unlocked slots holding an item (ItemUniqueId !== 0). */
   inventoryUsed: number;
+  /** Catalog ids with pipeline (…900) rows but no assignable itemSaveDatas instances. */
+  marketPipelineOnlyCatalogKeys?: ReadonlySet<number>;
 }
 
 // Owned items grouped by ItemKey and resolved against the game catalog.
