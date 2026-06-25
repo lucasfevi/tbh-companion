@@ -88,6 +88,29 @@ function parseSlotCapacity(arrText: string): { capacity: number; used: number } 
 const ITEM_TRIPLE_RE =
   /"ItemKey"\s*:\s*(\d+)\s*,\s*"UniqueId"\s*:\s*(\d+)\s*,\s*"IsChaotic"\s*:\s*(true|false)/g;
 
+/** Returns catalog id for assignable rows; tracks pipeline vs playable ids in the sets. */
+function trackSaveItemKey(
+  rawItemKey: number,
+  assignableCatalogIds: Set<number>,
+  pipelineCatalogIds: Set<number>,
+): number | null {
+  const catalogId = catalogItemKeyFromSave(rawItemKey);
+  if (catalogId <= 0) return null;
+  if (isMarketPipelineSaveItemKey(rawItemKey)) {
+    pipelineCatalogIds.add(catalogId);
+    return null;
+  }
+  assignableCatalogIds.add(catalogId);
+  return catalogId;
+}
+
+function marketPipelineOnlyCatalogKeys(
+  assignableCatalogIds: Set<number>,
+  pipelineCatalogIds: Set<number>,
+): Set<number> {
+  return new Set([...pipelineCatalogIds].filter((id) => !assignableCatalogIds.has(id)));
+}
+
 function resolveLocation(
   uniqueId: string,
   equipped: Set<string>,
@@ -116,13 +139,8 @@ function parseItemsFromPlayerString(playerStr: string): {
   const pipelineCatalogIds = new Set<number>();
   for (const m of arr.matchAll(ITEM_TRIPLE_RE)) {
     const rawItemKey = Math.trunc(Number(m[1]));
-    const catalogId = catalogItemKeyFromSave(rawItemKey);
-    if (catalogId <= 0) continue;
-    if (isMarketPipelineSaveItemKey(rawItemKey)) {
-      pipelineCatalogIds.add(catalogId);
-      continue;
-    }
-    assignableCatalogIds.add(catalogId);
+    const catalogId = trackSaveItemKey(rawItemKey, assignableCatalogIds, pipelineCatalogIds);
+    if (catalogId === null) continue;
     const uniqueId = m[2];
     const location = resolveLocation(uniqueId, equipped, inventory, stash, trading);
     items.push({
@@ -132,10 +150,13 @@ function parseItemsFromPlayerString(playerStr: string): {
       location,
     });
   }
-  const marketPipelineOnlyCatalogKeys = new Set(
-    [...pipelineCatalogIds].filter((id) => !assignableCatalogIds.has(id)),
-  );
-  return { items, marketPipelineOnlyCatalogKeys };
+  return {
+    items,
+    marketPipelineOnlyCatalogKeys: marketPipelineOnlyCatalogKeys(
+      assignableCatalogIds,
+      pipelineCatalogIds,
+    ),
+  };
 }
 
 function parseItemsFromPlayerObject(player: Record<string, unknown>): {
@@ -153,13 +174,8 @@ function parseItemsFromPlayerObject(player: Record<string, unknown>): {
     if (!raw || typeof raw !== "object") continue;
     const it = raw as Record<string, unknown>;
     const rawItemKey = Math.trunc(toNum(it.ItemKey, 0));
-    const catalogId = catalogItemKeyFromSave(rawItemKey);
-    if (catalogId <= 0) continue;
-    if (isMarketPipelineSaveItemKey(rawItemKey)) {
-      pipelineCatalogIds.add(catalogId);
-      continue;
-    }
-    assignableCatalogIds.add(catalogId);
+    const catalogId = trackSaveItemKey(rawItemKey, assignableCatalogIds, pipelineCatalogIds);
+    if (catalogId === null) continue;
     items.push({
       itemKey: catalogId,
       isChaotic: Boolean(it.IsChaotic),
@@ -167,10 +183,13 @@ function parseItemsFromPlayerObject(player: Record<string, unknown>): {
       location: "unknown",
     });
   }
-  const marketPipelineOnlyCatalogKeys = new Set(
-    [...pipelineCatalogIds].filter((id) => !assignableCatalogIds.has(id)),
-  );
-  return { items, marketPipelineOnlyCatalogKeys };
+  return {
+    items,
+    marketPipelineOnlyCatalogKeys: marketPipelineOnlyCatalogKeys(
+      assignableCatalogIds,
+      pipelineCatalogIds,
+    ),
+  };
 }
 
 function parseChests(player: Record<string, unknown> | undefined): ChestHolding[] {

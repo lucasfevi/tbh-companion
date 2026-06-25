@@ -210,7 +210,9 @@ function hasSavedInstances(
   itemKey: number,
   excludeItemKey?: (itemKey: number) => boolean,
 ): boolean {
-  return items.some((instance) => instance.itemKey === itemKey && !excludeItemKey?.(itemKey));
+  return items.some(
+    (instance) => instance.itemKey === itemKey && !excludeItemKey?.(instance.itemKey),
+  );
 }
 
 function mergeMaterialStacks(
@@ -263,6 +265,7 @@ export function resolveInventory(
     );
   }
 
+  // Drop zero-count rows (e.g. pipeline-only materials skipped during merge).
   const rows = [...rowsByItemKey.values()].filter((row) => row.count > 0);
   const composition = computeInventoryComposition(rows, feeRates);
 

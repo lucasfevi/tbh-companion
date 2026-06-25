@@ -178,7 +178,11 @@ export interface InventorySnapshot {
   inventoryCapacity: number;
   /** Count of unlocked slots holding an item (ItemUniqueId !== 0). */
   inventoryUsed: number;
-  /** Catalog ids with pipeline (…900) rows but no assignable itemSaveDatas instances. */
+  /**
+   * Parse-time only: catalog ids with pipeline (…900) rows and no assignable
+   * itemSaveDatas instances. Used by resolve; not sent over IPC (renderer gets
+   * ResolvedInventory).
+   */
   marketPipelineOnlyCatalogKeys?: ReadonlySet<number>;
 }
 

@@ -97,7 +97,6 @@ describe("parseInventory", () => {
   it("omits market-pipeline ItemKeys (suffix 900) from itemSaveDatas", () => {
     const inner = `{
       "stashSaveDatas":[{"Index":0,"ItemUniqueId":514119247889201002,"IsUnlock":true}],
-      "remakeTradingStashSaveDatas":[{"Index":0,"ItemUniqueId":514119247889201003,"IsUnlock":true}],
       "itemSaveDatas":[
         {"ItemKey":141002,"UniqueId":514119247889201002,"IsChaotic":false},
         {"ItemKey":141002900,"UniqueId":514119247889201003,"IsChaotic":false},
