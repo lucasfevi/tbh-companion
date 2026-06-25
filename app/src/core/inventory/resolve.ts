@@ -205,15 +205,27 @@ function accumulateInstances(
   });
 }
 
+function hasSavedInstances(
+  items: InventoryItemInstance[],
+  itemKey: number,
+  excludeItemKey?: (itemKey: number) => boolean,
+): boolean {
+  return items.some(
+    (instance) => instance.itemKey === itemKey && !excludeItemKey?.(instance.itemKey),
+  );
+}
+
 function mergeMaterialStacks(
   rowsByItemKey: Map<number, ResolvedInventoryRow>,
   stacks: Map<number, number>,
+  snapshot: InventorySnapshot,
   lookup: (itemKey: number) => GameItem | undefined,
   priceLookup: PriceLookup | undefined,
   excludeItemKey?: (itemKey: number) => boolean,
 ): void {
   stacks.forEach((stackQty, itemKey) => {
     if (excludeItemKey?.(itemKey)) return;
+    if (snapshot.marketPipelineOnlyCatalogKeys?.has(itemKey)) return;
 
     const catalogItem = lookup(itemKey);
     if (!catalogItem) return;
@@ -222,6 +234,7 @@ function mergeMaterialStacks(
       ? rowsByItemKey.get(itemKey)!
       : ensureRow(rowsByItemKey, itemKey, catalogItem, priceLookup);
     if (row.type !== "MATERIAL" || stackQty <= row.count) return;
+    if (hasSavedInstances(snapshot.items, itemKey, excludeItemKey)) return;
 
     row.count = stackQty;
     row.inventoryCount = stackQty;
@@ -245,13 +258,15 @@ export function resolveInventory(
     mergeMaterialStacks(
       rowsByItemKey,
       snapshot.materialStacks,
+      snapshot,
       lookup,
       priceLookup,
       excludeItemKey,
     );
   }
 
-  const rows = [...rowsByItemKey.values()];
+  // Drop zero-count rows (e.g. pipeline-only materials skipped during merge).
+  const rows = [...rowsByItemKey.values()].filter((row) => row.count > 0);
   const composition = computeInventoryComposition(rows, feeRates);
 
   return {

@@ -4,6 +4,10 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+### Fixed
+
+- **Inventory** counts and totals no longer include Steam Market pipeline copies (items on Ship or listed for sale use duplicate save rows that the companion now ignores).
+
 ### Lookup
 
 - Box detail panel: **Where to find** with per-stage spawn %, searchable loot table, and **First clear** treatment for one-time chests.

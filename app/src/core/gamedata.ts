@@ -30,14 +30,20 @@ const SAVE_CATALOG_ITEM_KEY_MAX = 939_999;
 
 /**
  * Map a save `itemSaveDatas[].ItemKey` to the catalog `id`.
- * Newer game builds append a 3-digit suffix (commonly `900`) so keys look like
- * `514051900` instead of `514051`.
+ * Newer builds may append a 3-digit suffix (e.g. `514051800` → catalog `514051`).
+ * Suffix `900` is Steam Market pipeline only — stripped here for id lookup, but
+ * those rows are excluded from playable inventory (`isMarketPipelineSaveItemKey`).
  */
 export function catalogItemKeyFromSave(itemKey: number): number {
   if (itemKey < 1_000_000) return itemKey;
   const base = Math.trunc(itemKey / 1000);
   if (base >= SAVE_CATALOG_ITEM_KEY_MIN && base <= SAVE_CATALOG_ITEM_KEY_MAX) return base;
   return itemKey;
+}
+
+/** `ItemKey` ending in …900 — Steam Market pipeline (Ship / listed); not playable inventory. */
+export function isMarketPipelineSaveItemKey(itemKey: number): boolean {
+  return itemKey >= 1_000_000 && itemKey % 1000 === 900;
 }
 
 /** Normalize a catalog row loaded from JSON (tolerates legacy icon/gearId fields). */
