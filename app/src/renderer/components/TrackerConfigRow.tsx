@@ -1,7 +1,7 @@
 import type { BoxTimerCatalogEntry } from "../../../shared/types";
 import { formatCooldownMinutes, parseCooldownMinutesInput } from "../lib/boxTrackerUi";
 import { TrackerFarmStageSelect } from "./TrackerFarmStageSelect";
-import { Field } from "../design-system/primitives/Field/Field";
+import { Checkbox } from "../design-system/primitives/Checkbox/Checkbox";
 import { Button } from "../design-system/primitives/Button/Button";
 import { NumberField } from "../design-system/primitives/NumberField/NumberField";
 import { cn } from "../lib/cn";
@@ -76,18 +76,17 @@ export function TrackerConfigRow({
 
       <TrackerFarmStageSelect entry={entry} />
 
-      <Field
-        label="Notify when ready"
-        checkbox
-        hint={!notificationsEnabled ? "Enable notification sounds in Settings." : undefined}
-      >
-        <input
-          type="checkbox"
+      <div className="flex flex-col gap-1">
+        <Checkbox
+          label="Notify when ready"
           checked={entry.notifyWhenReady}
           disabled={!notificationsEnabled}
-          onChange={(e) => void window.tbh.setBoxTrackerNotify(entry.boxId, e.target.checked)}
+          onCheckedChange={(checked) => void window.tbh.setBoxTrackerNotify(entry.boxId, checked)}
         />
-      </Field>
+        {!notificationsEnabled ? (
+          <span className="text-xs text-muted">Enable notification sounds in Settings.</span>
+        ) : null}
+      </div>
     </article>
   );
 }

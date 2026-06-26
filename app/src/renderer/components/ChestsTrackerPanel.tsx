@@ -116,6 +116,7 @@ export function ChestsTrackerPanel() {
         </div>
         <div className={cn("mt-1.5 grid gap-1", TRACKER_LEVEL_CHIP_GRID_CLASS)}>
           {state.catalog.map((entry) => (
+            /* Raw toggle chip — no ToggleChip primitive yet; pill shape + grid density are one-off. */
             <button
               key={entry.boxId}
               type="button"

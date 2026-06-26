@@ -10,6 +10,8 @@ import { Accordion } from "../design-system/primitives/Accordion/Accordion";
 import { NotificationSoundAccordion } from "../components/NotificationKindRow";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Card } from "../design-system/primitives/Card/Card";
+import { Checkbox } from "../design-system/primitives/Checkbox/Checkbox";
+import { Slider } from "../design-system/primitives/Slider/Slider";
 import { Field } from "../design-system/primitives/Field/Field";
 import { NumberInput } from "../design-system/primitives/NumberField/NumberField";
 import { Section } from "../design-system/primitives/Section/Section";
@@ -394,14 +396,12 @@ export function Settings() {
               />
             </Field>
 
-            <Field label="Log XP history to CSV" checkbox>
-              <input
-                type="checkbox"
-                checked={cfg.logHistoryCsv}
-                disabled={saveBusy}
-                onChange={(e) => void savePartial({ logHistoryCsv: e.target.checked })}
-              />
-            </Field>
+            <Checkbox
+              label="Log XP history to CSV"
+              checked={cfg.logHistoryCsv}
+              disabled={saveBusy}
+              onCheckedChange={(checked) => void savePartial({ logHistoryCsv: checked })}
+            />
           </div>
         </Section>
 
@@ -425,79 +425,72 @@ export function Settings() {
             notification when that option is on.
           </p>
           <div className="flex flex-col gap-3">
-            <Field label="Enable notifications" checkbox>
-              <input
-                type="checkbox"
-                checked={cfg.notificationsEnabled}
-                disabled={saveBusy}
-                onChange={(e) => void savePartial({ notificationsEnabled: e.target.checked })}
-              />
-            </Field>
+            <Checkbox
+              label="Enable notifications"
+              checked={cfg.notificationsEnabled}
+              disabled={saveBusy}
+              onCheckedChange={(checked) => void savePartial({ notificationsEnabled: checked })}
+            />
 
-            <Field
-              label="Notify when an app update is available"
-              checkbox
-              hint={!cfg.notificationsEnabled ? "Enable notifications above first." : undefined}
-            >
-              <input
-                type="checkbox"
+            <div className="flex flex-col gap-1">
+              <Checkbox
+                label="Notify when an app update is available"
                 checked={cfg.notifyOnUpdateAvailable}
                 disabled={!cfg.notificationsEnabled || saveBusy}
-                onChange={(e) => void savePartial({ notifyOnUpdateAvailable: e.target.checked })}
+                onCheckedChange={(checked) =>
+                  void savePartial({ notifyOnUpdateAvailable: checked })
+                }
               />
-            </Field>
+              {!cfg.notificationsEnabled ? (
+                <span className="text-xs text-muted">Enable notifications above first.</span>
+              ) : null}
+            </div>
 
-            <Field
-              label={`Sound volume (${cfg.notificationVolume}%)`}
-              hint={
-                !cfg.notificationsEnabled
-                  ? "Enable notifications above first."
-                  : "Applies to all notification sounds below. Windows update toasts are not affected."
-              }
-            >
-              <input
-                type="range"
+            <div className="flex flex-col gap-1">
+              <Slider
                 min={0}
                 max={100}
                 step={1}
                 value={cfg.notificationVolume}
                 disabled={!cfg.notificationsEnabled}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
+                label="Sound volume"
+                formatValue={(n) => `${n}%`}
+                onValueChange={(value) => {
                   setCfg({ ...cfg, notificationVolume: value });
                   scheduleVolumeSave(value);
                 }}
                 onPointerUp={flushVolumeSave}
                 onBlur={flushVolumeSave}
-                className="h-2 w-full cursor-pointer accent-accent disabled:cursor-not-allowed disabled:opacity-50"
               />
-            </Field>
-
-            <Field
-              label={`Inventory almost full threshold (${cfg.inventoryAlmostFullThresholdPercent}%)`}
-              hint={
-                !cfg.notificationsEnabled
+              <span className="text-xs text-muted">
+                {!cfg.notificationsEnabled
                   ? "Enable notifications above first."
-                  : "Notifies once your unlocked inventory slots reach this fill percentage."
-              }
-            >
-              <input
-                type="range"
+                  : "Applies to all notification sounds below. Windows update toasts are not affected."}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <Slider
                 min={50}
                 max={100}
                 step={1}
                 value={cfg.inventoryAlmostFullThresholdPercent}
                 disabled={!cfg.notificationsEnabled || saveBusy}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
+                label="Inventory almost full threshold"
+                formatValue={(n) => `${n}%`}
+                onValueChange={(value) => {
                   setCfg({ ...cfg, inventoryAlmostFullThresholdPercent: value });
                   scheduleThresholdSave(value);
                 }}
                 onPointerUp={flushThresholdSave}
                 onBlur={flushThresholdSave}
-                className="h-2 w-full cursor-pointer accent-accent disabled:cursor-not-allowed disabled:opacity-50"
               />
-            </Field>
+              <span className="text-xs text-muted">
+                {!cfg.notificationsEnabled
+                  ? "Enable notifications above first."
+                  : "Notifies once your unlocked inventory slots reach this fill percentage."}
+              </span>
+            </div>
 
             <Accordion variant="panel" title="Notification sounds">
               <NotificationSoundAccordion
@@ -520,14 +513,12 @@ export function Settings() {
 
         <Section title="Window & tray">
           <div className="flex flex-col gap-3">
-            <Field label="Keep all windows on top" checkbox>
-              <input
-                type="checkbox"
-                checked={cfg.startTopmost}
-                disabled={saveBusy}
-                onChange={(e) => void savePartial({ startTopmost: e.target.checked })}
-              />
-            </Field>
+            <Checkbox
+              label="Keep all windows on top"
+              checked={cfg.startTopmost}
+              disabled={saveBusy}
+              onCheckedChange={(checked) => void savePartial({ startTopmost: checked })}
+            />
             <p className="m-0 text-xs text-muted">
               Closing the main window keeps TBH Companion running in the system tray. Use{" "}
               <strong>Quit</strong> from the tray menu to exit fully.

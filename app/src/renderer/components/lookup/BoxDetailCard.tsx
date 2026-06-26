@@ -7,7 +7,7 @@ import { DataList, DataListRow } from "../../design-system/primitives/DataList/D
 import { Input } from "../../design-system/primitives/Input/Input";
 import { SectionHeadingRow } from "./itemCardParts";
 import { BoxCardDropSummary, BoxCardHeader } from "./BoxCardParts";
-import { ItemLink } from "./ItemLink";
+import { ItemLink } from "../ItemLink";
 import { BoxLoot } from "./BoxLoot";
 import type { LookupBoxSources, LookupItem } from "../../../../shared/types";
 import type { LookupNavNode } from "../../lib/useLookupNav";

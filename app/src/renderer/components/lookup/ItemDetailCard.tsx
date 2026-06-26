@@ -24,7 +24,7 @@ import {
   SectionLabelRow,
   StatGroup,
 } from "./itemCardParts";
-import { ItemLink } from "./ItemLink";
+import { ItemLink } from "../ItemLink";
 import { OfferingLoot } from "./OfferingLoot";
 import type {
   LookupBoxSources,

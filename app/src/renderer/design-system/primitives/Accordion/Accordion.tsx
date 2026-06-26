@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Accordion as BaseAccordion } from "@base-ui/react/accordion";
+import { LuChevronDown } from "react-icons/lu";
 import { cn, cva } from "../../lib/variants";
 
 type Variant = "default" | "panel" | "card";
@@ -15,16 +16,19 @@ const rootVariants = cva("", {
   defaultVariants: { variant: "default" },
 });
 
-const triggerVariants = cva("block w-full cursor-pointer text-left", {
-  variants: {
-    variant: {
-      default: "text-[13px] font-semibold text-muted",
-      panel: "bg-panel px-3 py-2.5 text-[13px] font-semibold text-muted hover:bg-card",
-      card: "text-xs font-semibold text-fg",
+const triggerVariants = cva(
+  "flex w-full cursor-pointer items-center justify-between gap-2 text-left",
+  {
+    variants: {
+      variant: {
+        default: "text-[13px] font-semibold text-muted",
+        panel: "bg-panel px-3 py-2.5 text-[13px] font-semibold text-muted hover:bg-card",
+        card: "text-xs font-semibold text-fg",
+      },
     },
+    defaultVariants: { variant: "default" },
   },
-  defaultVariants: { variant: "default" },
-});
+);
 
 const panelContentVariants = cva(
   "overflow-hidden transition-[height] duration-200 ease-out h-(--accordion-panel-height) data-[starting-style]:h-0 data-[ending-style]:h-0",
@@ -72,8 +76,12 @@ export function Accordion({
     <BaseAccordion.Root className={cn(rootVariants({ variant }), className)}>
       <BaseAccordion.Item>
         <BaseAccordion.Header>
-          <BaseAccordion.Trigger className={triggerVariants({ variant })}>
-            {title}
+          <BaseAccordion.Trigger className={cn(triggerVariants({ variant }), "group")}>
+            <span>{title}</span>
+            <LuChevronDown
+              aria-hidden
+              className="size-3 shrink-0 text-muted transition-transform duration-150 group-data-[panel-open]:rotate-180"
+            />
           </BaseAccordion.Trigger>
         </BaseAccordion.Header>
         <BaseAccordion.Panel className={panelContentVariants({ variant })}>

@@ -6,7 +6,7 @@ import { Card } from "../../design-system/primitives/Card/Card";
 import { DataList, DataListRow } from "../../design-system/primitives/DataList/DataList";
 import { Input } from "../../design-system/primitives/Input/Input";
 import { SectionHeadingRow } from "./itemCardParts";
-import { ItemLink } from "./ItemLink";
+import { ItemLink } from "../ItemLink";
 import type { LookupItem, OfferingEntry } from "../../../../shared/types";
 import type { LookupNavNode } from "../../lib/useLookupNav";
 

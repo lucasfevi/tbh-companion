@@ -4,12 +4,7 @@ import { cn } from "../../lib/variants";
 
 /**
  * Groups `TabsList`/`TabsTab`/`TabsPanel` (see `./TabsParts`) and owns the
- * active-tab state. Documented as the intended future upgrade for
- * `AppTabBar.tsx`, which today is a plain `<nav>` of `<button>`s with no
- * `role="tablist"`/`role="tab"` at all — a real a11y gap. **Not migrated in
- * this phase**: `AppTabBar` also hosts `AppToolbar` (non-tab buttons) in the
- * same row, which adds composition risk best handled as its own task, so
- * AppTabBar keeps its current markup for now.
+ * active-tab state. `AppTabBar` uses this for the main window's tab navigation.
  */
 export function Tabs({
   value,

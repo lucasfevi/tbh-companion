@@ -8,17 +8,29 @@ import { cn } from "../../lib/variants";
  * exports in one file breaks Fast Refresh boundary detection,
  * react-refresh/only-export-components). Active tab gets an accent
  * underline (Base UI's Indicator part, baked into TabsList so consumers
- * don't have to think about it) rather than relying on AppTabBar's subtle
- * bg-card/bg-panel contrast, which is too low-contrast to read as "active"
- * outside that file's specific page context.
+ * don't have to think about it). Used by `AppTabBar` for the main window tabs.
  */
-export function TabsList({ children, className }: { children: ReactNode; className?: string }) {
+export function TabsList({
+  children,
+  className,
+  indicatorClassName,
+}: {
+  children: ReactNode;
+  className?: string;
+  /** Override the sliding underline — e.g. `transition-none` for instant tab bars. */
+  indicatorClassName?: string;
+}) {
   return (
     <BaseTabs.List
       className={cn("relative flex min-w-0 gap-0.5 border-b border-border bg-panel", className)}
     >
       {children}
-      <BaseTabs.Indicator className="absolute bottom-0 h-0.5 rounded-full bg-accent transition-all duration-200 ease-out left-(--active-tab-left) w-(--active-tab-width)" />
+      <BaseTabs.Indicator
+        className={cn(
+          "absolute bottom-0 h-0.5 rounded-full bg-accent transition-all duration-200 ease-out left-(--active-tab-left) w-(--active-tab-width)",
+          indicatorClassName,
+        )}
+      />
     </BaseTabs.List>
   );
 }

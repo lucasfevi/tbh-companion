@@ -11,6 +11,7 @@ import {
 } from "../../../shared/notificationCatalog";
 import { playNotificationSound } from "../lib/notificationSounds";
 import { Button } from "../design-system/primitives/Button/Button";
+import { Checkbox } from "../design-system/primitives/Checkbox/Checkbox";
 import { Field } from "../design-system/primitives/Field/Field";
 import { Select } from "../design-system/primitives/Select/Select";
 
@@ -52,14 +53,12 @@ export function NotificationKindRow({
         <p className="m-0 text-[13px] font-semibold text-fg">{kind.label}</p>
         <p className="m-0 mt-0.5 text-xs text-muted">{kind.description}</p>
       </div>
-      <Field label="Enabled" checkbox>
-        <input
-          type="checkbox"
-          checked={pref.enabled}
-          disabled={disabled || saveBusy}
-          onChange={(e) => onChange({ ...pref, enabled: e.target.checked })}
-        />
-      </Field>
+      <Checkbox
+        label="Enabled"
+        checked={pref.enabled}
+        disabled={disabled || saveBusy}
+        onCheckedChange={(checked) => onChange({ ...pref, enabled: checked })}
+      />
       <Field label="Sound">
         <Select
           value={pref.sound}
