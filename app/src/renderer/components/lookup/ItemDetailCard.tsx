@@ -1,35 +1,4 @@
 import { useMemo, useState } from "react";
-import { gradeLabel } from "../../../core/labels";
-import {
-  formatMaterialAverageLevelRange,
-  formatSynthesisResultRange,
-  materialAverageLevelRange,
-  pathsToItem,
-  recipeTierResultRange,
-  synthesisPathKey,
-  synthesisTypeForItem,
-} from "../../../core/lookup/synthesis";
-import { boxIconPath } from "../../lib/boxIconPath";
-import { fmtDropPct, fmtLookupPct, hasDropChance, humanizeStatKey } from "../../lib/lookupDisplay";
-import { filterUsedInOutputs, sortUsedInRecipes } from "../../lib/usedInFilters";
-import { gradeColor } from "../../lib/gradeColor";
-import { cn } from "../../lib/cn";
-import { offeringForCoin, offeringSourcesForItem } from "../../../core/lookup/offerings";
-import { Card } from "../../design-system/primitives/Card/Card";
-import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
-import { Accordion } from "../../design-system/primitives/Accordion/Accordion";
-import { DataList, DataListRow } from "../../design-system/primitives/DataList/DataList";
-import { Input } from "../../design-system/primitives/Input/Input";
-import {
-  ItemCardHeader,
-  MaterialGroup,
-  SectionHeading,
-  SectionHeadingRow,
-  SectionLabelRow,
-  StatGroup,
-} from "./itemCardParts";
-import { ItemLink } from "../ItemLink";
-import { OfferingLoot } from "./OfferingLoot";
 import type {
   LookupBoxSources,
   LookupItem,
@@ -39,7 +8,38 @@ import type {
   SynthesisModel,
   SynthesisPathToItem,
 } from "../../../../shared/types";
+import { gradeLabel } from "../../../core/labels";
+import { offeringForCoin, offeringSourcesForItem } from "../../../core/lookup/offerings";
+import {
+  formatMaterialAverageLevelRange,
+  formatSynthesisResultRange,
+  materialAverageLevelRange,
+  pathsToItem,
+  recipeTierResultRange,
+  synthesisPathKey,
+  synthesisTypeForItem,
+} from "../../../core/lookup/synthesis";
+import { Accordion } from "../../design-system/primitives/Accordion/Accordion";
+import { Card } from "../../design-system/primitives/Card/Card";
+import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
+import { DataList, DataListRow } from "../../design-system/primitives/DataList/DataList";
+import { Input } from "../../design-system/primitives/Input/Input";
+import { boxIconPath } from "../../lib/boxIconPath";
+import { cn } from "../../lib/cn";
+import { gradeColor } from "../../lib/gradeColor";
+import { fmtDropPct, fmtLookupPct, hasDropChance, humanizeStatKey } from "../../lib/lookupDisplay";
+import { filterUsedInOutputs, sortUsedInRecipes } from "../../lib/usedInFilters";
 import type { LookupNavNode } from "../../lib/useLookupNav";
+import { ItemLink } from "../ItemLink";
+import {
+  ItemCardHeader,
+  MaterialGroup,
+  SectionHeading,
+  SectionHeadingRow,
+  SectionLabelRow,
+  StatGroup,
+} from "./itemCardParts";
+import { OfferingLoot } from "./OfferingLoot";
 
 const SCROLL_SECTION_MAX = "max-h-44";
 
@@ -206,7 +206,7 @@ function UsedInRecipeCard({
           );
         })}
       </div>
-      <Accordion title={`${entry.outputs.length} items`}>
+      <Accordion title={`${entry.outputs.length} items`} variant="panel">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
             <Input

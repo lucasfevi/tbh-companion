@@ -1,8 +1,18 @@
 import { memo } from "react";
+import { cn } from "../../lib/cn";
 import { Card } from "../../design-system/primitives/Card/Card";
 import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
 import { ItemCardHeader, MaterialGroup, StatGroup } from "./itemCardParts";
 import type { LookupItem } from "../../../../shared/types";
+
+function lookupItemCardHasBody(item: LookupItem): boolean {
+  if (item.stats) {
+    if (item.stats.base.length > 0 || item.stats.inherent.length > 0 || item.stats.unique != null) {
+      return true;
+    }
+  }
+  return item.gearGroups?.some((group) => group.outcomes.length > 0) ?? false;
+}
 
 export const ItemCard = memo(function ItemCard({
   item,
@@ -11,36 +21,44 @@ export const ItemCard = memo(function ItemCard({
   item: LookupItem;
   onSelect?: (item: LookupItem) => void;
 }) {
+  const hasBody = lookupItemCardHasBody(item);
+  const cardClassName = cn(
+    "flex flex-col",
+    hasBody && "h-full gap-2 [contain-intrinsic-size:0_180px] [content-visibility:auto]",
+  );
+
   const content = (
     <>
       <CardHeader>
         <ItemCardHeader item={item} iconSize="md" />
       </CardHeader>
 
-      <CardContent>
-        {item.stats ? (
-          <>
-            <StatGroup title="Base stats" rows={item.stats.base} tone="base" />
-            <StatGroup title="Inherent stats" rows={item.stats.inherent} tone="inherent" />
-            {item.stats.unique ? (
-              <StatGroup
-                title="Unique effect"
-                rows={[{ display: item.stats.unique.text }]}
-                tone="unique"
-              />
-            ) : null}
-          </>
-        ) : null}
+      {hasBody ? (
+        <CardContent>
+          {item.stats ? (
+            <>
+              <StatGroup title="Base stats" rows={item.stats.base} tone="base" />
+              <StatGroup title="Inherent stats" rows={item.stats.inherent} tone="inherent" />
+              {item.stats.unique ? (
+                <StatGroup
+                  title="Unique effect"
+                  rows={[{ display: item.stats.unique.text }]}
+                  tone="unique"
+                />
+              ) : null}
+            </>
+          ) : null}
 
-        {item.gearGroups?.map((group) => (
-          <MaterialGroup
-            key={group.gearGroup}
-            group={group}
-            materialType={item.materialType}
-            compact
-          />
-        ))}
-      </CardContent>
+          {item.gearGroups?.map((group) => (
+            <MaterialGroup
+              key={group.gearGroup}
+              group={group}
+              materialType={item.materialType}
+              compact
+            />
+          ))}
+        </CardContent>
+      ) : null}
 
       {/* Footer: Steam Market price (future) */}
     </>
@@ -51,7 +69,7 @@ export const ItemCard = memo(function ItemCard({
       <Card
         as="li"
         padding="compact"
-        className="flex h-full cursor-pointer flex-col gap-2 hover:border-ideal/40 [contain-intrinsic-size:0_180px] [content-visibility:auto]"
+        className={cn(cardClassName, "cursor-pointer hover:border-ideal/40")}
         onClick={() => onSelect(item)}
       >
         {content}
@@ -60,10 +78,7 @@ export const ItemCard = memo(function ItemCard({
   }
 
   return (
-    <Card
-      padding="compact"
-      className="flex h-full flex-col gap-2 [contain-intrinsic-size:0_180px] [content-visibility:auto]"
-    >
+    <Card padding="compact" className={cardClassName}>
       {content}
     </Card>
   );
