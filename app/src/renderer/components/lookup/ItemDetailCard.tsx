@@ -479,9 +479,6 @@ export function ItemDetailCard({
               help={USED_IN_HELP}
               helpLabel="How ingredient recipes work"
             />
-            <p className="m-0 text-xs text-muted">
-              Recipes that spend this material — not recipes that produce it.
-            </p>
             <div className="flex flex-col gap-3">
               {usedInRecipes.map((entry) => (
                 <UsedInRecipeCard

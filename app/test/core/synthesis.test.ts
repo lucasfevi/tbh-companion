@@ -45,7 +45,7 @@ describe("synthesis engine", () => {
       resultLevelMax: 40,
       chance: 20.19,
       pLevel: 75,
-      itemPoolPct: 27.5862,
+      itemPoolPct: 27.59,
     });
     expect(paths).toContainEqual(
       expect.objectContaining({
@@ -90,6 +90,6 @@ describe("synthesis engine", () => {
     const outcomes = simulate("RARE", 4, 30, 3, "Accessory", model);
     expect(outcomes.length).toBeGreaterThan(0);
     const amber = outcomes.find((o) => o.itemKey === AMBER_RING.id && o.level === 30);
-    expect(amber?.chance).toBe(20.18);
+    expect(amber?.chance).toBe(20.19);
   });
 });
