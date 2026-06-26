@@ -1,4 +1,4 @@
-import { memo, type ReactNode } from "react";
+import { memo, useMemo, type ReactNode } from "react";
 import { gradeLabel, typeLabel } from "../../../core/labels";
 import {
   isInventoryColumnVisible,
@@ -7,12 +7,16 @@ import {
 import { formatMoney, formatRawMoney } from "../../../core/steamPrice";
 import { unassignedCount } from "../../../core/inventory/location";
 import { gradeColor } from "../../lib/gradeColor";
+import { useLookupCatalog } from "../../lib/useLookupCatalog";
+import { useEntityPanel } from "../../context/entityPanelContext";
+import { ItemLink } from "../ItemLink";
 import { MarketListingLink } from "./MarketListingLink";
 import { MarketPriceCell } from "./MarketPriceCell";
 import { ItemPriceRefreshButton } from "./ItemPriceRefreshButton";
 import type {
   InventoryColumnId,
   InventoryTablePrefs,
+  LookupItem,
   ResolvedInventoryRow,
 } from "../../../../shared/types";
 import { Badge } from "../../design-system/primitives/Badge/Badge";
@@ -71,230 +75,262 @@ type ColumnDef = {
   render: (row: ResolvedInventoryRow, currency: string) => ReactNode;
 };
 
-const COLUMN_DEFS: ColumnDef[] = [
-  {
-    id: "name",
-    label: "Name",
-    sortKey: "name",
-    align: "left",
-    alwaysVisible: true,
-    render: (row) => (
-      <span className="inline-flex min-w-0 items-center gap-0.5">
-        <span
-          className="mr-1 inline-block size-[9px] shrink-0 rounded-full"
-          style={{ background: gradeColor(row.grade) }}
-        />
-        <span className="min-w-0 truncate">{row.name}</span>
-        {row.chaoticCount > 0 && (
-          <span className="shrink-0 text-gold" title="Chaotic">
-            {" "}
-            &#9670;
-          </span>
-        )}
-        {row.marketHashName ? (
+function buildColumnDefs(
+  itemIndex: Map<number, LookupItem>,
+  onNavigate: (itemKey: number) => void,
+): ColumnDef[] {
+  return [
+    {
+      id: "name",
+      label: "Name",
+      sortKey: "name",
+      align: "left",
+      alwaysVisible: true,
+      render: (row) => {
+        const catalogItem = itemIndex.get(row.itemKey);
+        const suffix = row.chaoticCount > 0 ? "◆" : undefined;
+        const refreshButton = row.marketHashName ? (
           <ItemPriceRefreshButton itemKey={row.itemKey} itemName={row.name} />
-        ) : null}
-      </span>
-    ),
-  },
-  {
-    id: "grade",
-    label: "Grade",
-    sortKey: "grade",
-    align: "left",
-    render: (row) => <span style={{ color: gradeColor(row.grade) }}>{gradeLabel(row.grade)}</span>,
-  },
-  {
-    id: "level",
-    label: "Level",
-    sortKey: "level",
-    align: "right",
-    render: (row) => (row.level != null ? row.level : <span className="text-muted">-</span>),
-  },
-  {
-    id: "type",
-    label: "Type",
-    sortKey: "type",
-    align: "left",
-    render: (row) => <span className="text-muted">{typeLabel(row.type)}</span>,
-  },
-  {
-    id: "count",
-    label: "Count",
-    sortKey: "count",
-    align: "right",
-    alwaysVisible: true,
-    render: (row) => row.count,
-  },
-  {
-    id: "location",
-    label: "Location",
-    align: "right",
-    render: (row) => {
-      const inUse = row.inUseCount ?? 0;
-      return (
-        <>
-          {(row.inventoryCount ?? 0) > 0 && (
-            <span className="mr-1.5 inline-block text-[11px] text-muted" title="Inventory">
-              Inv {row.inventoryCount}
+        ) : null;
+
+        if (catalogItem) {
+          return (
+            <span className="inline-flex min-w-0 items-center gap-0.5">
+              <ItemLink
+                node={{ type: "item", id: row.itemKey }}
+                name={row.name}
+                grade={row.grade}
+                iconPath={catalogItem.iconPath}
+                suffix={suffix}
+                onNavigate={() => onNavigate(row.itemKey)}
+                peekItem={(id) => itemIndex.get(id)}
+              />
+              {refreshButton}
             </span>
-          )}
-          {(row.stashCount ?? 0) > 0 && (
-            <span className="mr-1.5 inline-block text-[11px] text-muted" title="Stash">
-              St {row.stashCount}
-            </span>
-          )}
-          {(row.tradingCount ?? 0) > 0 && (
-            <span className="mr-1.5 inline-block text-[11px] text-muted" title="Trading">
-              Tr {row.tradingCount}
-            </span>
-          )}
-          {inUse > 0 && (
-            <span className="mr-1.5 inline-block text-[11px] text-muted" title="Equipped">
-              Eq {inUse}
-            </span>
-          )}
-          {unassignedCount(row) > 0 && (
-            <span className="mr-1.5 inline-block text-[11px] text-muted" title="Unassigned">
-              ?
-            </span>
-          )}
-        </>
-      );
-    },
-  },
-  {
-    id: "inUse",
-    label: "Equipped",
-    sortKey: "inUse",
-    align: "right",
-    render: (row) => {
-      const inUse = row.inUseCount ?? 0;
-      if (inUse <= 0) return <span className="text-muted">-</span>;
-      const title =
-        inUse < row.count
-          ? `${inUse} of ${row.count} owned are currently equipped; the rest are in your inventory/stash`
-          : "All owned copies are currently equipped";
-      return (
-        <span className="text-accent" title={title}>
-          {inUse}
-          {inUse < row.count ? `/${row.count}` : ""}
-        </span>
-      );
-    },
-  },
-  {
-    id: "marketPrice",
-    label: "Market price",
-    sortKey: "price",
-    align: "right",
-    render: (row, currency) => {
-      if (!row.marketHashName) {
+          );
+        }
+
         return (
-          <span className="text-muted" title="Not priced (non-tradable or below Legendary gear)">
-            -
+          <span className="inline-flex min-w-0 items-center gap-0.5">
+            <span
+              className="mr-1 inline-block size-[9px] shrink-0 rounded-full"
+              style={{ background: gradeColor(row.grade) }}
+            />
+            <span className="min-w-0 truncate">{row.name}</span>
+            {row.chaoticCount > 0 && (
+              <span className="shrink-0 text-gold" title="Chaotic">
+                {" "}
+                &#9670;
+              </span>
+            )}
+            {refreshButton}
           </span>
         );
-      }
-      return <MarketPriceCell row={row} hash={row.marketHashName} currency={currency} />;
+      },
     },
-  },
-  {
-    id: "listValue",
-    label: "Market total",
-    sortKey: "value",
-    align: "right",
-    render: (row, currency) => {
-      if (!row.marketHashName) return "-";
-      return (
-        <MarketListingLink
-          hash={row.marketHashName}
-          title={
-            row.value != null && Number.isFinite(row.value)
-              ? `${priceSourceTitle(row.priceSource) ?? "Steam Market"} · total if listed at market price`
-              : "Open on Steam Market"
-          }
-        >
-          {row.value != null && Number.isFinite(row.value) ? formatMoney(row.value, currency) : "-"}
-        </MarketListingLink>
-      );
+    {
+      id: "grade",
+      label: "Grade",
+      sortKey: "grade",
+      align: "left",
+      render: (row) => (
+        <span style={{ color: gradeColor(row.grade) }}>{gradeLabel(row.grade)}</span>
+      ),
     },
-  },
-  {
-    id: "instantSell",
-    label: "Instant sell",
-    sortKey: "buyOrder",
-    align: "right",
-    render: (row, currency) => {
-      if (!row.marketHashName) return "-";
-      const empty = emptyBuyOrderDisplay(row);
-      if (row.buyOrderRaw) {
-        const display = formatRawMoney(row.buyOrderRaw, currency) ?? row.buyOrderRaw;
+    {
+      id: "level",
+      label: "Level",
+      sortKey: "level",
+      align: "right",
+      render: (row) => (row.level != null ? row.level : <span className="text-muted">-</span>),
+    },
+    {
+      id: "type",
+      label: "Type",
+      sortKey: "type",
+      align: "left",
+      render: (row) => <span className="text-muted">{typeLabel(row.type)}</span>,
+    },
+    {
+      id: "count",
+      label: "Count",
+      sortKey: "count",
+      align: "right",
+      alwaysVisible: true,
+      render: (row) => row.count,
+    },
+    {
+      id: "location",
+      label: "Location",
+      align: "right",
+      render: (row) => {
+        const inUse = row.inUseCount ?? 0;
+        return (
+          <>
+            {(row.inventoryCount ?? 0) > 0 && (
+              <span className="mr-1.5 inline-block text-[11px] text-muted" title="Inventory">
+                Inv {row.inventoryCount}
+              </span>
+            )}
+            {(row.stashCount ?? 0) > 0 && (
+              <span className="mr-1.5 inline-block text-[11px] text-muted" title="Stash">
+                St {row.stashCount}
+              </span>
+            )}
+            {(row.tradingCount ?? 0) > 0 && (
+              <span className="mr-1.5 inline-block text-[11px] text-muted" title="Trading">
+                Tr {row.tradingCount}
+              </span>
+            )}
+            {inUse > 0 && (
+              <span className="mr-1.5 inline-block text-[11px] text-muted" title="Equipped">
+                Eq {inUse}
+              </span>
+            )}
+            {unassignedCount(row) > 0 && (
+              <span className="mr-1.5 inline-block text-[11px] text-muted" title="Unassigned">
+                ?
+              </span>
+            )}
+          </>
+        );
+      },
+    },
+    {
+      id: "inUse",
+      label: "Equipped",
+      sortKey: "inUse",
+      align: "right",
+      render: (row) => {
+        const inUse = row.inUseCount ?? 0;
+        if (inUse <= 0) return <span className="text-muted">-</span>;
+        const title =
+          inUse < row.count
+            ? `${inUse} of ${row.count} owned are currently equipped; the rest are in your inventory/stash`
+            : "All owned copies are currently equipped";
+        return (
+          <span className="text-accent" title={title}>
+            {inUse}
+            {inUse < row.count ? `/${row.count}` : ""}
+          </span>
+        );
+      },
+    },
+    {
+      id: "marketPrice",
+      label: "Market price",
+      sortKey: "price",
+      align: "right",
+      render: (row, currency) => {
+        if (!row.marketHashName) {
+          return (
+            <span className="text-muted" title="Not priced (non-tradable or below Legendary gear)">
+              -
+            </span>
+          );
+        }
+        return <MarketPriceCell row={row} hash={row.marketHashName} currency={currency} />;
+      },
+    },
+    {
+      id: "listValue",
+      label: "Market total",
+      sortKey: "value",
+      align: "right",
+      render: (row, currency) => {
+        if (!row.marketHashName) return "-";
         return (
           <MarketListingLink
             hash={row.marketHashName}
-            title="Highest buy order — price if you sold to the order book immediately"
+            title={
+              row.value != null && Number.isFinite(row.value)
+                ? `${priceSourceTitle(row.priceSource) ?? "Steam Market"} · total if listed at market price`
+                : "Open on Steam Market"
+            }
           >
-            {display}
+            {row.value != null && Number.isFinite(row.value)
+              ? formatMoney(row.value, currency)
+              : "-"}
           </MarketListingLink>
         );
-      }
-      return (
-        <MarketListingLink hash={row.marketHashName} title={empty.title}>
-          <span className="text-muted">{empty.label}</span>
-        </MarketListingLink>
-      );
+      },
     },
-  },
-  {
-    id: "instantTotal",
-    label: "Instant total",
-    sortKey: "buyOrderValue",
-    align: "right",
-    render: (row, currency) => {
-      if (!row.marketHashName) return "-";
-      const covered = row.buyOrderCoveredCount ?? 0;
-      const capped = row.buyOrderValue != null && covered < row.count;
-      const title = capped
-        ? `Selling into the order book level-by-level — covers ${covered.toLocaleString()} of ${row.count.toLocaleString()} owned; no buy orders deep enough for the rest. No listing fees.`
-        : "Selling into the order book level-by-level, best price first. No listing fees.";
-      return (
-        <MarketListingLink hash={row.marketHashName} title={title}>
-          {row.buyOrderValue != null && Number.isFinite(row.buyOrderValue)
-            ? formatMoney(row.buyOrderValue, currency)
-            : "-"}
-          {capped ? (
-            <Badge variant="muted" className="ml-1.5">
-              {covered.toLocaleString()} / {row.count.toLocaleString()}
-            </Badge>
-          ) : null}
-        </MarketListingLink>
-      );
+    {
+      id: "instantSell",
+      label: "Instant sell",
+      sortKey: "buyOrder",
+      align: "right",
+      render: (row, currency) => {
+        if (!row.marketHashName) return "-";
+        const empty = emptyBuyOrderDisplay(row);
+        if (row.buyOrderRaw) {
+          const display = formatRawMoney(row.buyOrderRaw, currency) ?? row.buyOrderRaw;
+          return (
+            <MarketListingLink
+              hash={row.marketHashName}
+              title="Highest buy order — price if you sold to the order book immediately"
+            >
+              {display}
+            </MarketListingLink>
+          );
+        }
+        return (
+          <MarketListingLink hash={row.marketHashName} title={empty.title}>
+            <span className="text-muted">{empty.label}</span>
+          </MarketListingLink>
+        );
+      },
     },
-  },
-  {
-    id: "instantSellAverage",
-    label: "Instant avg",
-    sortKey: "buyOrderAverage",
-    align: "right",
-    render: (row, currency) => {
-      if (!row.marketHashName) return "-";
-      const average = buyOrderAverage(row);
-      return (
-        <MarketListingLink
-          hash={row.marketHashName}
-          title="Average price per unit across the order-book levels used to fill this stack."
-        >
-          {average != null && Number.isFinite(average) ? formatMoney(average, currency) : "-"}
-        </MarketListingLink>
-      );
+    {
+      id: "instantTotal",
+      label: "Instant total",
+      sortKey: "buyOrderValue",
+      align: "right",
+      render: (row, currency) => {
+        if (!row.marketHashName) return "-";
+        const covered = row.buyOrderCoveredCount ?? 0;
+        const capped = row.buyOrderValue != null && covered < row.count;
+        const title = capped
+          ? `Selling into the order book level-by-level — covers ${covered.toLocaleString()} of ${row.count.toLocaleString()} owned; no buy orders deep enough for the rest. No listing fees.`
+          : "Selling into the order book level-by-level, best price first. No listing fees.";
+        return (
+          <MarketListingLink hash={row.marketHashName} title={title}>
+            {row.buyOrderValue != null && Number.isFinite(row.buyOrderValue)
+              ? formatMoney(row.buyOrderValue, currency)
+              : "-"}
+            {capped ? (
+              <Badge variant="muted" className="ml-1.5">
+                {covered.toLocaleString()} / {row.count.toLocaleString()}
+              </Badge>
+            ) : null}
+          </MarketListingLink>
+        );
+      },
     },
-  },
-];
+    {
+      id: "instantSellAverage",
+      label: "Instant avg",
+      sortKey: "buyOrderAverage",
+      align: "right",
+      render: (row, currency) => {
+        if (!row.marketHashName) return "-";
+        const average = buyOrderAverage(row);
+        return (
+          <MarketListingLink
+            hash={row.marketHashName}
+            title="Average price per unit across the order-book levels used to fill this stack."
+          >
+            {average != null && Number.isFinite(average) ? formatMoney(average, currency) : "-"}
+          </MarketListingLink>
+        );
+      },
+    },
+  ]; // end buildColumnDefs
+}
 
-function visibleColumns(prefs: InventoryTablePrefs): ColumnDef[] {
+function visibleColumns(defs: ColumnDef[], prefs: InventoryTablePrefs): ColumnDef[] {
   const normalized = normalizeInventoryTablePrefs(prefs);
-  return COLUMN_DEFS.filter((col) => {
+  return defs.filter((col) => {
     if (col.alwaysVisible) return true;
     return isInventoryColumnVisible(normalized, col.id as InventoryColumnId);
   });
@@ -335,7 +371,17 @@ export function InventoryTable({
   onClearFilters,
   emptyMessage = "No items match these filters.",
 }: InventoryTableProps) {
-  const columns = visibleColumns(columnPrefs);
+  const catalog = useLookupCatalog();
+  const { open } = useEntityPanel();
+  const itemIndex = useMemo(
+    () => new Map((catalog ?? []).map((item) => [item.id, item])),
+    [catalog],
+  );
+  const columnDefs = useMemo(
+    () => buildColumnDefs(itemIndex, (id) => open({ type: "item", id })),
+    [itemIndex, open],
+  );
+  const columns = visibleColumns(columnDefs, columnPrefs);
 
   return (
     <Card padding="none" className="min-h-[200px] flex-1 overflow-auto">
