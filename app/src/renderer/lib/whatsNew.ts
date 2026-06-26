@@ -16,6 +16,16 @@ export const WHATS_NEW_STORAGE_KEY = "tbh.whatsNew.lastSeenVersion";
 
 const WHATS_NEW_ENTRIES: WhatsNewEntry[] = [
   {
+    version: "1.17.0",
+    title: "What's new in v1.17.0",
+    bullets: [
+      "Box detail panels in Lookup show per-stage spawn chances, full loot tables, and First clear labels.",
+      "Material pages now list every recipe that uses them in a Used in crafting section.",
+      "Item names in Inventory are now links — click to jump to the item's detail in Lookup.",
+      "Drop chances and pool percentages corrected to match game data (v1.00.21).",
+    ],
+  },
+  {
     version: "1.16.0",
     title: "What's new in v1.16.0",
     bullets: [

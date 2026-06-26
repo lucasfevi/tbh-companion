@@ -4,15 +4,27 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
-### Fixed
-
-- **Inventory** counts and totals no longer include Steam Market pipeline copies (items on Ship or listed for sale use duplicate save rows that the companion now ignores).
+## [1.17.0] - 2026-06-26
 
 ### Lookup
 
 - Box detail panel: **Where to find** with per-stage spawn %, searchable loot table, and **First clear** treatment for one-time chests.
 - Box hover peek shows the same stage ranges and drop sources summary as the detail header.
 - Item **Drop** rows label first-clear chests with **First clear only**.
+- Material pages now show a **Used in crafting** section listing every recipe that consumes the material.
+
+### Inventory
+
+- Item names in the **Inventory** table are now links; click any row to open its detail in the **Lookup** side panel.
+
+### Fixed
+
+- **Inventory** counts and totals no longer include Steam Market pipeline copies (items on Ship or listed for sale use duplicate save rows that the companion now ignores).
+- Drop chances and pool percentages in **Lookup** now match game-extracted values, correcting over- and undercounts from earlier catalog entries.
+
+### Data
+
+- Bundled catalogs synced with game **v1.00.21**; item display texts match current in-game names.
 
 ## [1.16.1] - 2026-06-23
 
