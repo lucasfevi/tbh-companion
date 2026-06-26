@@ -54,9 +54,9 @@ export function NotificationKindRow({
         <p className="m-0 mt-0.5 text-xs text-muted">{kind.description}</p>
       </div>
       <Checkbox
-        label="Enabled"
         checked={pref.enabled}
         disabled={disabled || saveBusy}
+        aria-label={`Enable ${kind.label}`}
         onCheckedChange={(checked) => onChange({ ...pref, enabled: checked })}
       />
       <Field label="Sound">

@@ -83,9 +83,11 @@ export function TrackerConfigRow({
           disabled={!notificationsEnabled}
           onCheckedChange={(checked) => void window.tbh.setBoxTrackerNotify(entry.boxId, checked)}
         />
-        {!notificationsEnabled ? (
-          <span className="text-xs text-muted">Enable notification sounds in Settings.</span>
-        ) : null}
+        <span
+          className={cn("min-h-[1.125rem] text-xs text-muted", notificationsEnabled && "invisible")}
+        >
+          Enable notification sounds in Settings.
+        </span>
       </div>
     </article>
   );

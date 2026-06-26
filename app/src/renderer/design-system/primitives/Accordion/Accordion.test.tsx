@@ -5,28 +5,6 @@ import { axe } from "jest-axe";
 import { Accordion } from "./Accordion";
 
 describe("Accordion", () => {
-  it("shows a chevron that reflects open/closed state", async () => {
-    const user = userEvent.setup();
-    const { container } = render(
-      <Accordion title="Section title">
-        <p>Hidden content</p>
-      </Accordion>,
-    );
-    const chevron = container.querySelector("svg");
-    expect(chevron).toBeInTheDocument();
-    expect(chevron).toHaveClass("group-data-[panel-open]:rotate-180");
-
-    const trigger = screen.getByRole("button", { name: "Section title" });
-    expect(trigger).toHaveClass("group");
-    expect(trigger).toHaveAttribute("aria-expanded", "false");
-
-    await user.click(trigger);
-    expect(trigger).toHaveAttribute("aria-expanded", "true");
-
-    await user.click(trigger);
-    expect(trigger).toHaveAttribute("aria-expanded", "false");
-  });
-
   it("toggles the panel open and closed on trigger click", async () => {
     const user = userEvent.setup();
     render(

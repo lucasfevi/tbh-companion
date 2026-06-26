@@ -6,6 +6,7 @@ import type {
 } from "../../../shared/notificationCatalog";
 import type { AppConfig, AppDataClearTarget, AppDataPaths } from "../../../shared/types";
 import { reportIpcError } from "../lib/reportError";
+import { cn } from "../lib/cn";
 import { Accordion } from "../design-system/primitives/Accordion/Accordion";
 import { NotificationSoundAccordion } from "../components/NotificationKindRow";
 import { Button } from "../design-system/primitives/Button/Button";
@@ -441,9 +442,14 @@ export function Settings() {
                   void savePartial({ notifyOnUpdateAvailable: checked })
                 }
               />
-              {!cfg.notificationsEnabled ? (
-                <span className="text-xs text-muted">Enable notifications above first.</span>
-              ) : null}
+              <span
+                className={cn(
+                  "min-h-[1.125rem] text-xs text-muted",
+                  cfg.notificationsEnabled && "invisible",
+                )}
+              >
+                Enable notifications above first.
+              </span>
             </div>
 
             <div className="flex flex-col gap-1">
@@ -462,7 +468,7 @@ export function Settings() {
                 onPointerUp={flushVolumeSave}
                 onBlur={flushVolumeSave}
               />
-              <span className="text-xs text-muted">
+              <span className="min-h-[2.5rem] text-xs text-muted">
                 {!cfg.notificationsEnabled
                   ? "Enable notifications above first."
                   : "Applies to all notification sounds below. Windows update toasts are not affected."}
@@ -485,7 +491,7 @@ export function Settings() {
                 onPointerUp={flushThresholdSave}
                 onBlur={flushThresholdSave}
               />
-              <span className="text-xs text-muted">
+              <span className="min-h-[2.5rem] text-xs text-muted">
                 {!cfg.notificationsEnabled
                   ? "Enable notifications above first."
                   : "Notifies once your unlocked inventory slots reach this fill percentage."}

@@ -115,26 +115,28 @@ export function ChestsTrackerPanel() {
           </Button>
         </div>
         <div className={cn("mt-1.5 grid gap-1", TRACKER_LEVEL_CHIP_GRID_CLASS)}>
-          {state.catalog.map((entry) => (
+          {state.catalog.map((entry) => {
             /* Raw toggle chip — no ToggleChip primitive yet; pill shape + grid density are one-off. */
-            <button
-              key={entry.boxId}
-              type="button"
-              className={cn(
-                "box-border cursor-pointer rounded-full border px-1 py-0.5 text-center text-[10px] font-semibold leading-tight break-words whitespace-normal",
-                TRACKER_LEVEL_CHIP_WIDTH_CLASS,
-                entry.enabled
-                  ? "border-accent bg-ideal/15 text-accent"
-                  : "border-border bg-card text-muted hover:border-muted hover:text-fg",
-              )}
-              title={`${entry.idealStageLabel} · ${entry.dropStageRangeLabel}${
-                entry.enabled ? " — tracking" : " — tap to track"
-              }`}
-              onClick={() => toggleTrackedLevel(entry, state.catalog)}
-            >
-              Lv{entry.level}
-            </button>
-          ))}
+            return (
+              <button
+                key={entry.boxId}
+                type="button"
+                className={cn(
+                  "box-border cursor-pointer rounded-full border px-1 py-0.5 text-center text-[10px] font-semibold leading-tight break-words whitespace-normal",
+                  TRACKER_LEVEL_CHIP_WIDTH_CLASS,
+                  entry.enabled
+                    ? "border-accent bg-ideal/15 text-accent"
+                    : "border-border bg-card text-muted hover:border-muted hover:text-fg",
+                )}
+                title={`${entry.idealStageLabel} · ${entry.dropStageRangeLabel}${
+                  entry.enabled ? " — tracking" : " — tap to track"
+                }`}
+                onClick={() => toggleTrackedLevel(entry, state.catalog)}
+              >
+                Lv{entry.level}
+              </button>
+            );
+          })}
         </div>
       </PanelSection>
 

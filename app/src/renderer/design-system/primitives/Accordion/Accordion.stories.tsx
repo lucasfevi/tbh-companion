@@ -3,8 +3,9 @@ import { Accordion } from "./Accordion";
 
 /**
  * One collapsible section per instance — each Accordion you render is fully
- * independent (not part of a shared open/close group). `variant="panel"` is
- * for boxed sections with a visible border (Settings Advanced, Notification
+ * independent (not part of a shared open/close group). Triggers show a chevron
+ * that rotates on open (`group-data-[panel-open]:rotate-180`). `variant="panel"`
+ * is for boxed sections with a visible border (Settings Advanced, Notification
  * sounds). `variant="card"` is for lightweight inline disclosure inside an
  * already-bordered Card (Pets "Best stages", Chests "Capacity details").
  * `variant="default"` is unstyled chrome for ad hoc use.

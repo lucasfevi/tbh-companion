@@ -36,6 +36,27 @@ describe("EntityLink", () => {
     expect(screen.getByText("Rare Sword")).toHaveStyle({ color: "#ff6600" });
   });
 
+  it("renders a suffix with muted tone", () => {
+    render(<EntityLink label="Iron Ore" suffix="· x2" suffixTone="muted" />);
+    expect(screen.getByText("· x2")).toHaveClass("text-muted");
+  });
+
+  it("renders an icon slot", () => {
+    render(<EntityLink label="Iron Ore" icon={<span data-testid="entity-icon" />} />);
+    expect(screen.getByTestId("entity-icon")).toBeInTheDocument();
+  });
+
+  it("supports peek and onClick together", async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    render(<EntityLink label="Iron Ore" onClick={onClick} peek={<p>Peek content</p>} />);
+    const trigger = screen.getByRole("button", { name: "Iron Ore" });
+    await user.hover(trigger);
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Peek content");
+    await user.click(trigger);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
   it("has no detectable accessibility violations", async () => {
     const { container } = render(
       <EntityLink label="Iron Ore" color="#8b5cf6" suffix="· x2" onClick={() => {}} />,

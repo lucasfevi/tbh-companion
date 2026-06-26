@@ -26,11 +26,11 @@ export function LookupHelpTrigger({
   ariaLabel: string;
   children: string;
 }) {
+  /* Raw 16px circle — too small for Button; not a general IconButton primitive. */
   return (
     <Tooltip
       side="left"
       trigger={
-        /* Raw 16px circle — too small for Button; not a general IconButton primitive. */
         <button
           type="button"
           className="inline-flex size-4 shrink-0 items-center justify-center rounded-full border border-border text-[10px] font-semibold leading-none text-muted hover:border-fg/30 hover:text-fg"

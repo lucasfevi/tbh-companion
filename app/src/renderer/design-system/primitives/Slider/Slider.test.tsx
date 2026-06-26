@@ -50,6 +50,26 @@ describe("Slider", () => {
     expect(onValueChange).toHaveBeenCalledWith(51);
   });
 
+  it("does not change value when disabled", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <Slider
+        min={0}
+        max={100}
+        value={50}
+        disabled
+        onValueChange={onValueChange}
+        label="Volume"
+        formatValue={(n) => `${n}%`}
+      />,
+    );
+    const thumb = screen.getByRole("slider");
+    thumb.focus();
+    await user.keyboard("{ArrowRight}");
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
   it("has no detectable accessibility violations", async () => {
     const { container } = render(<ControlledSlider initial={50} />);
     expect(await axe(container)).toHaveNoViolations();

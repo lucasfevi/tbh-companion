@@ -17,6 +17,7 @@
 | Status pill | `Badge` |
 | Form text input | `Input` |
 | Labeled form row (with optional checkbox layout) | `Field` |
+| Labeled boolean checkbox (settings rows, filters) | `Checkbox` — use for labeled on/off rows; `Switch` fits compact immediate toggles without a separate label row (Live auto-open kept Checkbox for legacy parity) |
 | Dropdown / listbox | `Select` |
 | Numeric input with stepping | `NumberField` |
 | Single-value slider | `Slider` |
@@ -27,7 +28,7 @@
 | Collapsible section | `Accordion` |
 | Hover/focus info bubble | `Tooltip` |
 | Boolean on/off toggle | `Switch` |
-| Tabbed panels (main app tab bar + in-tab panel groups) | `Tabs` (+ `TabsList`/`TabsTab`/`TabsPanel` from `TabsParts`) |
+| Tabbed panels (main app tab bar + in-tab panel groups) | `Tabs` (+ `TabsList`/`TabsTab`/`TabsPanel` from `TabsParts`; `TabsList` accepts optional `indicatorClassName` to override the default 200ms underline slide) |
 | Gold-accent inline callout | `HintBanner` |
 | Linear fill bar with label | `ProgressBar` |
 | Pill-shaped capacity/cooldown bar | `CapacityBar` |
