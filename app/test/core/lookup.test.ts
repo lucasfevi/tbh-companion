@@ -39,6 +39,33 @@ describe("lookup catalog", () => {
     expect(box.firstDropOnly).toBe(false);
     expect(box.stages[0]?.spawnPct).toBeGreaterThan(0);
   });
+
+  it("material items carry a usedIn reverse-index for crafting recipes", () => {
+    const sources = loadLookupSources();
+    const leather = sources.items["140003"];
+    expect(leather).toBeDefined();
+    expect(leather.usedIn).toBeDefined();
+    expect(leather.usedIn!.length).toBeGreaterThan(0);
+    const entry = leather.usedIn![0];
+    expect(entry.recipeKey).toBeGreaterThan(0);
+    expect(typeof entry.craftingType).toBe("string");
+    expect(entry.tier).toBeGreaterThan(0);
+    expect(entry.level.min).toBeGreaterThan(0);
+    expect(entry.level.max).toBeGreaterThanOrEqual(entry.level.min);
+    expect(entry.materials.length).toBeGreaterThan(0);
+    expect(entry.outputs.length).toBeGreaterThan(0);
+    expect(entry.outputs[0].itemKey).toBeGreaterThan(0);
+    expect(entry.outputs[0].poolPct).toBeGreaterThan(0);
+  });
+
+  it("usedIn is present on craftable materials only", () => {
+    const sources = loadLookupSources();
+    const withUsedIn = Object.values(sources.items).filter((src) => (src.usedIn?.length ?? 0) > 0);
+    expect(withUsedIn).toHaveLength(31);
+    expect(sources.items["301011"]?.usedIn).toBeUndefined();
+    expect(sources.items["112005"]?.usedIn).toBeUndefined();
+    expect(sources.items["144002"]?.usedIn?.length).toBeGreaterThan(0);
+  });
 });
 
 describe("classForGearType", () => {

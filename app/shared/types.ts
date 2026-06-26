@@ -653,9 +653,25 @@ export interface LookupCraftingEntry {
   outputPct: number;
 }
 
+export interface LookupUsedInOutput {
+  itemKey: number;
+  poolPct: number;
+}
+
+export interface LookupUsedInEntry {
+  recipeKey: number;
+  craftingType: string;
+  tier: number;
+  level: { min: number; max: number };
+  materials: { itemKey: number; name: string; amount: number }[];
+  outputs: LookupUsedInOutput[];
+}
+
 export interface LookupItemSources {
   drops: LookupDropEntry[];
   crafting: LookupCraftingEntry[];
+  /** Crafting recipes that consume this material (MATERIAL items only). */
+  usedIn?: LookupUsedInEntry[];
 }
 
 // --- Synthesis model (bundled synthesis_model.json + core/lookup/synthesis.ts) ---

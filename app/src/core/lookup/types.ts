@@ -18,6 +18,8 @@ export type {
   LookupItemSources,
   LookupMaterialGearGroup,
   LookupMaterialOutcome,
+  LookupUsedInEntry,
+  LookupUsedInOutput,
   LookupSources,
   LookupStageBoxRef,
   LookupStageSources,
