@@ -15,7 +15,7 @@ import { reportIpcError } from "../lib/reportError";
 import { stageName } from "../../core/stages";
 import { Button } from "../design-system/primitives/Button/Button";
 import { DataListRow } from "../design-system/primitives/DataList/DataList";
-import { Field } from "../design-system/primitives/Field/Field";
+import { Checkbox } from "../design-system/primitives/Checkbox/Checkbox";
 import { PanelSection } from "../design-system/primitives/PanelSection/PanelSection";
 import { StatCard } from "../design-system/primitives/StatCard/StatCard";
 import { MetricHero } from "../design-system/primitives/MetricHero/MetricHero";
@@ -271,20 +271,16 @@ export function Live() {
         </div>
 
         <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-border pt-3">
-          <Field label="Common chests auto-open" checkbox>
-            <input
-              type="checkbox"
-              checked={autoOpenEnabled.common}
-              onChange={(e) => toggleAutoOpen("common", e.target.checked)}
-            />
-          </Field>
-          <Field label="Stage boss chests auto-open" checkbox>
-            <input
-              type="checkbox"
-              checked={autoOpenEnabled.stageBoss}
-              onChange={(e) => toggleAutoOpen("stageBoss", e.target.checked)}
-            />
-          </Field>
+          <Checkbox
+            label="Common chests auto-open"
+            checked={autoOpenEnabled.common}
+            onCheckedChange={(checked) => toggleAutoOpen("common", checked)}
+          />
+          <Checkbox
+            label="Stage boss chests auto-open"
+            checked={autoOpenEnabled.stageBoss}
+            onCheckedChange={(checked) => toggleAutoOpen("stageBoss", checked)}
+          />
         </div>
       </PanelSection>
 

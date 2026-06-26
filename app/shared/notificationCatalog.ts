@@ -25,7 +25,7 @@ export const NOTIFICATION_KIND_ENTRIES = [
   {
     id: "chestDrop",
     label: "Chest drop",
-    description: "When a tracked stage boss drops a chest (Player.log or Dropped button).",
+    description: "When a tracked stage boss drops a chest.",
   },
   {
     id: "chestReady",

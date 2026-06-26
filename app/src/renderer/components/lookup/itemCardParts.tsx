@@ -26,6 +26,7 @@ export function LookupHelpTrigger({
   ariaLabel: string;
   children: string;
 }) {
+  /* Raw 16px circle — too small for Button; not a general IconButton primitive. */
   return (
     <Tooltip
       side="left"

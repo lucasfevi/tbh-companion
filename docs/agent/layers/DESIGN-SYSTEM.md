@@ -16,15 +16,19 @@
 | Bordered panel | `Card` |
 | Status pill | `Badge` |
 | Form text input | `Input` |
-| Labeled form row (with optional checkbox layout) | `Field` |
+| Labeled form row (label + control + optional hint) | `Field` — use `Checkbox` directly for boolean rows; `Field`'s legacy `checkbox` layout prop is deprecated |
+| Labeled boolean checkbox (settings rows, filters) | `Checkbox` — use for labeled on/off rows; `Switch` fits compact immediate toggles without a separate label row (Live auto-open kept Checkbox for legacy parity) |
 | Dropdown / listbox | `Select` |
 | Numeric input with stepping | `NumberField` |
+| Single-value slider | `Slider` |
+| Dual-thumb range slider | `RangeSlider` |
+| Inline entity link (icon + label + optional peek) | `EntityLink` |
 | Anchored popup panel | `Popover` |
 | Modal dialog | `Dialog` (+ `DialogTitle`/`DialogClose` from `DialogParts`) |
 | Collapsible section | `Accordion` |
 | Hover/focus info bubble | `Tooltip` |
 | Boolean on/off toggle | `Switch` |
-| Tabbed panels (not the main app tab bar — see below) | `Tabs` (+ `TabsList`/`TabsTab`/`TabsPanel` from `TabsParts`) |
+| Tabbed panels (main app tab bar + in-tab panel groups) | `Tabs` (+ `TabsList`/`TabsTab`/`TabsPanel` from `TabsParts`; `TabsList` accepts optional `indicatorClassName` to override the default 200ms underline slide) |
 | Gold-accent inline callout | `HintBanner` |
 | Linear fill bar with label | `ProgressBar` |
 | Pill-shaped capacity/cooldown bar | `CapacityBar` |
@@ -40,7 +44,9 @@
 - `OverlayFrame.tsx` — frameless overlay window shell. Conceptually Electron-overlay-specific even though it has no literal Electron imports; moving it into the "portable" tree would be a category error.
 - `ExternalLink.tsx` — `inline`/`accent` link variants that aren't button-shaped (the `button`/`primaryButton` variants were absorbed into `ButtonLink` back in the Button migration).
 
-**Not migrated, stays as plain markup:** `AppTabBar.tsx` (the main window's `Live | Inventory | Chests | …` navigation) is still a bare `<nav>` of `<button>`s, not `Tabs`. It also hosts `AppToolbar` (non-tab buttons) in the same row, which makes a `Tabs` migration its own scoped task rather than a drop-in swap. `Tabs` exists and is documented for future tabbed-content use elsewhere in the app.
+**Domain wrappers over primitives:** game-entity inline links use a thin domain wrapper (`components/ItemLink.tsx`) over the presentational `EntityLink` primitive — the wrapper owns grade→color, peek-card choice, and lookup navigation; future entity types (`StageLink`, `MonsterLink`, …) should follow the same split. Do not confuse `EntityLink` (primitive) with `EntityDetail.tsx` (domain detail panel).
+
+**Intentional raw-markup holdouts** (see inline comments at each site): `SortControl` direction toggle (glued button-group seam), `ChestsTrackerPanel` level chips (candidate for a future `ToggleChip` primitive), `LookupHelpTrigger` in `itemCardParts.tsx` (16px info button — too small for `Button`).
 
 ## The portability boundary (why, not just what)
 

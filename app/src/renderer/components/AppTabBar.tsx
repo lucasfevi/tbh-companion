@@ -1,5 +1,6 @@
 import { AppToolbar } from "./AppToolbar";
-import { cn } from "../lib/cn";
+import { Tabs } from "../design-system/primitives/Tabs/Tabs";
+import { TabsList, TabsTab } from "../design-system/primitives/Tabs/TabsParts";
 
 export type TabId =
   | "live"
@@ -25,21 +26,23 @@ const TABS: { id: TabId; label: string }[] = [
 export function AppTabBar({ tab, onTabChange }: { tab: TabId; onTabChange: (tab: TabId) => void }) {
   return (
     <div className="flex items-end gap-2 border-b border-border bg-panel px-2 pt-1.5">
-      <nav className="flex min-w-0 flex-1 gap-0.5" aria-label="Main tabs">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            className={cn(
-              "cursor-pointer rounded-t-md border-none px-3.5 py-2 text-[13px]",
-              t.id === tab ? "bg-card text-fg" : "bg-transparent text-muted hover:text-fg",
-            )}
-            onClick={() => onTabChange(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </nav>
+      <Tabs
+        value={tab}
+        onValueChange={(value) => onTabChange(value as TabId)}
+        className="min-w-0 flex-1"
+      >
+        <TabsList
+          className="border-b-0 bg-transparent px-0"
+          indicatorClassName="transition-none"
+          aria-label="Main tabs"
+        >
+          {TABS.map((t) => (
+            <TabsTab key={t.id} value={t.id} className="data-[selected]:font-medium">
+              {t.label}
+            </TabsTab>
+          ))}
+        </TabsList>
+      </Tabs>
       <AppToolbar />
     </div>
   );

@@ -3,7 +3,7 @@ import { boxIconPath } from "../../lib/boxIconPath";
 import { ItemDetailCard } from "./ItemDetailCard";
 import { BoxDetailCard } from "./BoxDetailCard";
 import { SectionLabel } from "./itemCardParts";
-import { ItemLink } from "./ItemLink";
+import { ItemLink } from "../ItemLink";
 import type {
   LookupItem,
   LookupSources,

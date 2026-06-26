@@ -41,6 +41,7 @@ export function SortControl({
           options={options}
           title="Sort by"
         />
+        {/* Raw button: glued to Select's trigger — no Button primitive (would break the shared border seam). */}
         <button
           type="button"
           onClick={onSortDirToggle}

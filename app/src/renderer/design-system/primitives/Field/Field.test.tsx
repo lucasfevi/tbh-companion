@@ -15,17 +15,6 @@ describe("Field", () => {
     expect(screen.getByRole("textbox")).toBeInTheDocument();
   });
 
-  it("renders checkbox layout with children before the label", () => {
-    render(
-      <Field label="Enable notifications" checkbox>
-        <input type="checkbox" />
-      </Field>,
-    );
-    const checkbox = screen.getByRole("checkbox");
-    const label = screen.getByText("Enable notifications");
-    expect(checkbox.compareDocumentPosition(label) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  });
-
   it("associates the input with the label via implicit <label> wrapping", () => {
     render(
       <Field label="Search">

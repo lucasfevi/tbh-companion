@@ -2,7 +2,6 @@ import { useChests } from "../lib/useChests";
 import type { BoxSlotStatus, ChestCapacityBreakdown } from "../../../shared/types";
 import { Badge } from "../design-system/primitives/Badge/Badge";
 import { CapacityBar } from "../design-system/primitives/CapacityBar/CapacityBar";
-import { Accordion } from "../design-system/primitives/Accordion/Accordion";
 import { Card } from "../design-system/primitives/Card/Card";
 import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
 import { TabPage } from "../design-system/primitives/TabPage/TabPage";
@@ -52,9 +51,10 @@ function ChestCategoryCard({
       <p className="m-0 mt-1.5 min-h-[1.125rem] text-xs text-muted">
         {!slot.isFull ? `${slot.slotsRemaining} slot(s) left` : "\u00a0"}
       </p>
-      <Accordion variant="card" title="Capacity details" className="mt-auto pt-2">
+      <div className="mt-auto flex flex-col gap-0.5 pt-2">
+        <p className="m-0 text-xs font-semibold text-fg/80">Capacity details</p>
         <p className="m-0 text-xs text-muted">{capacityParts(breakdown).join(", ")}</p>
-      </Accordion>
+      </div>
     </Card>
   );
 }

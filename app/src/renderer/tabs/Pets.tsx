@@ -79,7 +79,7 @@ function PetCard({ pet }: { pet: PetRow }) {
       {pet.bestStages?.length || pet.appearsOnStages?.length ? (
         <div className="mt-auto flex flex-col gap-2 pt-2">
           {pet.bestStages && pet.bestStages.length > 0 ? (
-            <Accordion variant="card" title="Best stages">
+            <Accordion variant="panel" title="Best stages">
               <ul className="m-0 list-none space-y-2 p-0">
                 {pet.bestStages.map((stage) => (
                   <BestStageBlock key={stage.stageKey} stage={stage} />
@@ -89,7 +89,7 @@ function PetCard({ pet }: { pet: PetRow }) {
           ) : null}
 
           {pet.appearsOnStages && pet.appearsOnStages.length > 0 ? (
-            <Accordion variant="card" title="Where to find it">
+            <Accordion variant="panel" title="Where to find it">
               <ul className="m-0 list-none space-y-0.5 p-0 text-xs text-muted">
                 {pet.appearsOnStages.map((stage) => (
                   <li key={`${stage.act}-${stage.stage}`}>{stage.label}</li>
