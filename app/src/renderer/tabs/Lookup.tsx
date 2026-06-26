@@ -2,10 +2,7 @@ import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { useLookupCatalog } from "../lib/useLookupCatalog";
 import { useLookupSources } from "../lib/useLookupSources";
 import { useLookupSynthesisModel } from "../lib/useLookupSynthesisModel";
-import { useOfferings } from "../lib/useOfferings";
-import { useLookupNav, type LookupNavNode } from "../lib/useLookupNav";
 import type { LookupItem } from "../../../shared/types";
-import { buildBoxNameIndex, buildStageNameIndex } from "../lib/lookupGraph";
 import {
   defaultLookupSortDir,
   effectGroupsFromItems,
@@ -18,21 +15,18 @@ import {
   typeOptionsFromItems,
   type LookupSortKey,
 } from "../lib/lookupFilters";
+import { useEntityPanel } from "../context/entityPanelContext";
 import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
 import { TabPage } from "../design-system/primitives/TabPage/TabPage";
-import { SidePanel } from "../design-system/primitives/SidePanel/SidePanel";
 import { LookupFilters } from "../components/lookup/LookupFilters";
 import { ItemCard } from "../components/lookup/ItemCard";
-import { EntityDetail } from "../components/lookup/EntityDetail";
 import { BackToTop } from "../components/lookup/BackToTop";
 
 export function Lookup() {
   const items = useLookupCatalog();
   const sources = useLookupSources();
   const synthesisModel = useLookupSynthesisModel();
-  const offerings = useOfferings();
-  const nav = useLookupNav();
-  const [panelOpen, setPanelOpen] = useState(false);
+  const { open } = useEntityPanel();
 
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
@@ -72,19 +66,6 @@ export function Lookup() {
     setSortDir(defaultLookupSortDir(key));
   }
 
-  const itemIndex = useMemo(() => new Map((items ?? []).map((item) => [item.id, item])), [items]);
-  const boxNames = useMemo(() => (sources ? buildBoxNameIndex(sources) : new Map()), [sources]);
-  const stageNames = useMemo(() => (sources ? buildStageNameIndex(sources) : new Map()), [sources]);
-
-  const labelFor = useCallback(
-    (node: LookupNavNode): string => {
-      if (node.type === "item") return itemIndex.get(node.id)?.name ?? `Item #${node.id}`;
-      if (node.type === "box") return boxNames.get(node.id) ?? `Box #${node.id}`;
-      return stageNames.get(node.id) ?? `Stage #${node.id}`;
-    },
-    [itemIndex, boxNames, stageNames],
-  );
-
   const filtered = useMemo(() => {
     if (!items) return [];
     return filterAndSortItems(items, {
@@ -113,13 +94,11 @@ export function Lookup() {
     sortDir,
   ]);
 
-  const { push: navPush } = nav;
   const handleItemSelect = useCallback(
     (item: LookupItem) => {
-      navPush({ type: "item", id: item.id });
-      setPanelOpen(true);
+      open({ type: "item", id: item.id });
     },
-    [navPush],
+    [open],
   );
 
   const gradeOptions = useMemo(() => (items ? gradeOptionsFromItems(items) : []), [items]);
@@ -185,24 +164,6 @@ export function Lookup() {
       </ul>
 
       <BackToTop />
-
-      <SidePanel
-        open={panelOpen}
-        onOpenChange={setPanelOpen}
-        title={nav.current ? labelFor(nav.current) : "Details"}
-      >
-        {nav.current ? (
-          <EntityDetail
-            node={nav.current}
-            itemIndex={itemIndex}
-            sources={sources}
-            synthesisModel={synthesisModel}
-            offerings={offerings}
-            labelFor={labelFor}
-            onNavigate={nav.push}
-          />
-        ) : null}
-      </SidePanel>
     </TabPage>
   );
 }
