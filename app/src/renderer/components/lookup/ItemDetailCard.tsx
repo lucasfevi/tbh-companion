@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { gradeLabel } from "../../../core/labels";
 import {
   formatMaterialAverageLevelRange,
@@ -11,16 +11,20 @@ import {
 } from "../../../core/lookup/synthesis";
 import { boxIconPath } from "../../lib/boxIconPath";
 import { fmtDropPct, fmtLookupPct, hasDropChance, humanizeStatKey } from "../../lib/lookupDisplay";
+import { filterUsedInOutputs, sortUsedInRecipes } from "../../lib/usedInFilters";
 import { gradeColor } from "../../lib/gradeColor";
 import { cn } from "../../lib/cn";
 import { offeringForCoin, offeringSourcesForItem } from "../../../core/lookup/offerings";
 import { Card } from "../../design-system/primitives/Card/Card";
 import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
+import { Accordion } from "../../design-system/primitives/Accordion/Accordion";
 import { DataList, DataListRow } from "../../design-system/primitives/DataList/DataList";
+import { Input } from "../../design-system/primitives/Input/Input";
 import {
   ItemCardHeader,
   MaterialGroup,
   SectionHeading,
+  SectionHeadingRow,
   SectionLabelRow,
   StatGroup,
 } from "./itemCardParts";
@@ -30,6 +34,7 @@ import type {
   LookupBoxSources,
   LookupItem,
   LookupItemSources,
+  LookupUsedInEntry,
   OfferingsModel,
   SynthesisModel,
   SynthesisPathToItem,
@@ -49,6 +54,9 @@ const SYNTHESIS_HELP =
 
 const OFFERING_SOURCE_HELP =
   "Toss one of the coins below into the Cube for a chance at this item, among everything else in its loot table. The % is your chance of landing this specific item from that coin.";
+
+const USED_IN_HELP =
+  "Crafting recipes that consume this material. Each block shows the recipe tier and level band, all ingredients, and the possible output items from that recipe's loot pool.";
 
 function SynthesisPathRow({
   path,
@@ -157,6 +165,93 @@ function groupPathsByInput(paths: SynthesisPathToItem[]) {
     .toSorted((a, b) => b.bestChance - a.bestChance);
 }
 
+function UsedInRecipeCard({
+  entry,
+  peekItem,
+  onNavigate,
+  outputItemIndex,
+}: {
+  entry: LookupUsedInEntry;
+  peekItem?: (id: number) => LookupItem | undefined;
+  onNavigate?: (node: LookupNavNode) => void;
+  outputItemIndex: Map<number, LookupItem>;
+}) {
+  const [query, setQuery] = useState("");
+  const filteredOutputs = useMemo(
+    () => filterUsedInOutputs(entry.outputs, query, outputItemIndex),
+    [entry.outputs, query, outputItemIndex],
+  );
+  const showPoolPct = entry.outputs.length > 1;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="m-0 text-[13px] text-fg">
+        T{entry.tier} (Lv {entry.level.min}–{entry.level.max}) ·{" "}
+        {humanizeStatKey(entry.craftingType)}
+      </p>
+      <div className="flex flex-col gap-1 pl-1">
+        {entry.materials.map((material) => {
+          const matItem = peekItem?.(material.itemKey);
+          return (
+            <ItemLink
+              key={material.itemKey}
+              node={{ type: "item", id: material.itemKey }}
+              name={matItem?.name ?? material.name}
+              grade={matItem?.grade}
+              iconPath={matItem?.iconPath}
+              suffix={material.amount > 1 ? `×${material.amount}` : undefined}
+              onNavigate={onNavigate}
+              peekItem={peekItem}
+            />
+          );
+        })}
+      </div>
+      <Accordion title={`${entry.outputs.length} items`}>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <Input
+              className="min-w-0 flex-1"
+              placeholder="Search items..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <span className="shrink-0 whitespace-nowrap text-xs text-muted">
+              {filteredOutputs.length} items
+            </span>
+          </div>
+          <Card padding="none" className="overflow-hidden">
+            <DataList scrollable className={SCROLL_SECTION_MAX}>
+              {filteredOutputs.length === 0 ? (
+                <DataListRow index={0} className="text-xs text-muted">
+                  No items match your search.
+                </DataListRow>
+              ) : (
+                filteredOutputs.map((output, i) => {
+                  const outItem = peekItem?.(output.itemKey);
+                  const pctSuffix = showPoolPct ? ` · ${fmtLookupPct(output.poolPct)}%` : undefined;
+                  return (
+                    <DataListRow key={output.itemKey} index={i}>
+                      <ItemLink
+                        node={{ type: "item", id: output.itemKey }}
+                        name={outItem?.name ?? `Item ${output.itemKey}`}
+                        grade={outItem?.grade}
+                        iconPath={outItem?.iconPath}
+                        suffix={pctSuffix}
+                        onNavigate={onNavigate}
+                        peekItem={peekItem}
+                      />
+                    </DataListRow>
+                  );
+                })
+              )}
+            </DataList>
+          </Card>
+        </div>
+      </Accordion>
+    </div>
+  );
+}
+
 /**
  * Reusable item detail surface — drives the Lookup tab's detail panel and
  * (later) Inventory row hover. Links are inert unless onNavigate is passed.
@@ -198,6 +293,21 @@ export function ItemDetailCard({
   const hasDrops = sortedDrops.length > 0;
   const hasOfferingSources = offeringSources.length > 0;
   const hasAcquisition = hasCrafting || hasSynthesis || hasDrops || hasOfferingSources;
+  const hasUsedIn = item.type === "MATERIAL" && (sources?.usedIn?.length ?? 0) > 0;
+
+  const usedInRecipes = useMemo(() => sortUsedInRecipes(sources?.usedIn ?? []), [sources?.usedIn]);
+
+  const outputItemIndex = useMemo(() => {
+    const map = new Map<number, LookupItem>();
+    if (!sources?.usedIn || !peekItem) return map;
+    for (const entry of sources.usedIn) {
+      for (const output of entry.outputs) {
+        const resolved = peekItem(output.itemKey);
+        if (resolved) map.set(output.itemKey, resolved);
+      }
+    }
+    return map;
+  }, [sources, peekItem]);
 
   const pathGroups = groupPathsByInput(synthesisPaths);
   const synthesisType = synthesisTypeForItem(item);
@@ -366,6 +476,27 @@ export function ItemDetailCard({
             </div>
           )}
         </div>
+
+        {hasUsedIn ? (
+          <div className="flex flex-col gap-3 border-t border-border pt-3">
+            <SectionHeadingRow
+              label="Used in crafting"
+              help={USED_IN_HELP}
+              helpLabel="How material crafting works"
+            />
+            <div className="flex flex-col gap-3">
+              {usedInRecipes.map((entry) => (
+                <UsedInRecipeCard
+                  key={entry.recipeKey}
+                  entry={entry}
+                  peekItem={peekItem}
+                  onNavigate={onNavigate}
+                  outputItemIndex={outputItemIndex}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {offering ? (
           <div className="flex flex-col gap-3 border-t border-border pt-3">
