@@ -31,7 +31,11 @@ export function AppTabBar({ tab, onTabChange }: { tab: TabId; onTabChange: (tab:
         onValueChange={(value) => onTabChange(value as TabId)}
         className="min-w-0 flex-1"
       >
-        <TabsList className="border-b-0 bg-transparent px-0" aria-label="Main tabs">
+        <TabsList
+          className="border-b-0 bg-transparent px-0"
+          indicatorClassName="transition-none"
+          aria-label="Main tabs"
+        >
           {TABS.map((t) => (
             <TabsTab key={t.id} value={t.id} className="data-[selected]:font-medium">
               {t.label}
