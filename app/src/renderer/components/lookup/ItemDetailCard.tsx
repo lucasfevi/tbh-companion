@@ -56,7 +56,7 @@ const OFFERING_SOURCE_HELP =
   "Toss one of the coins below into the Cube for a chance at this item, among everything else in its loot table. The % is your chance of landing this specific item from that coin.";
 
 const USED_IN_HELP =
-  "Crafting recipes that consume this material. Each block shows the recipe tier and level band, all ingredients, and the possible output items from that recipe's loot pool.";
+  "Recipes that consume this material as an ingredient. Each block lists what you need and the possible gear from that recipe's loot pool — not recipes that craft this item.";
 
 function SynthesisPathRow({
   path,
@@ -206,19 +206,14 @@ function UsedInRecipeCard({
           );
         })}
       </div>
-      <Accordion title={`${entry.outputs.length} items`} variant="panel">
+      <Accordion title={`${entry.outputs.length} possible outputs`} variant="panel">
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <Input
-              className="min-w-0 flex-1"
-              placeholder="Search items..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <span className="shrink-0 whitespace-nowrap text-xs text-muted">
-              {filteredOutputs.length} items
-            </span>
-          </div>
+          <Input
+            className="min-w-0 flex-1"
+            placeholder="Search outputs..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
           <Card padding="none" className="overflow-hidden">
             <DataList scrollable className={SCROLL_SECTION_MAX}>
               {filteredOutputs.length === 0 ? (
@@ -480,10 +475,13 @@ export function ItemDetailCard({
         {hasUsedIn ? (
           <div className="flex flex-col gap-3 border-t border-border pt-3">
             <SectionHeadingRow
-              label="Used in crafting"
+              label="Used as ingredient"
               help={USED_IN_HELP}
-              helpLabel="How material crafting works"
+              helpLabel="How ingredient recipes work"
             />
+            <p className="m-0 text-xs text-muted">
+              Recipes that spend this material — not recipes that produce it.
+            </p>
             <div className="flex flex-col gap-3">
               {usedInRecipes.map((entry) => (
                 <UsedInRecipeCard

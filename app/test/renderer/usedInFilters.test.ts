@@ -78,6 +78,10 @@ describe("filterUsedInOutputs", () => {
     expect(rows[0].itemKey).toBe(sword.id);
   });
 
+  it("trims the query before matching", () => {
+    expect(filterUsedInOutputs(outputs, " sword ", itemIndex)).toHaveLength(1);
+  });
+
   it("includes unknown items when query is empty and excludes them when filtering", () => {
     const withUnknown = [{ itemKey: 999999, poolPct: 5 }];
     expect(filterUsedInOutputs(withUnknown, "", itemIndex)).toHaveLength(1);

@@ -3,16 +3,8 @@ import { cn } from "../../lib/cn";
 import { Card } from "../../design-system/primitives/Card/Card";
 import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
 import { ItemCardHeader, MaterialGroup, StatGroup } from "./itemCardParts";
+import { lookupItemCardHasBody } from "../../lib/lookupItemCard";
 import type { LookupItem } from "../../../../shared/types";
-
-function lookupItemCardHasBody(item: LookupItem): boolean {
-  if (item.stats) {
-    if (item.stats.base.length > 0 || item.stats.inherent.length > 0 || item.stats.unique != null) {
-      return true;
-    }
-  }
-  return item.gearGroups?.some((group) => group.outcomes.length > 0) ?? false;
-}
 
 export const ItemCard = memo(function ItemCard({
   item,

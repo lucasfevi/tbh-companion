@@ -9184,1665 +9184,1665 @@
     "UNCOMMON|Gear|1": [
       {
         "itemKey": 301011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 311011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 321011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 331011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 401011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 411011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 421011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 431011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 501011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 511011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 521011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 531011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 341011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 441011,
-        "poolPct": 1.32
+        "poolPct": 1.3153
       },
       {
         "itemKey": 351011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 451011,
-        "poolPct": 1.32
+        "poolPct": 1.3153
       }
     ],
     "RARE|Gear|1": [
       {
         "itemKey": 302011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 312011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 322011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 332011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 402011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 412011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 422011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 432011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 502011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 512011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 522011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 532011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 342011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 442011,
-        "poolPct": 1.32
+        "poolPct": 1.3153
       },
       {
         "itemKey": 352011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 452011,
-        "poolPct": 1.32
+        "poolPct": 1.3153
       }
     ],
     "LEGENDARY|Gear|1": [
       {
         "itemKey": 303011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 313011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 323011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 333011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 403011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 413011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 423011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 433011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 503011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 513011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 523011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 533011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 343011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 443011,
-        "poolPct": 1.32
+        "poolPct": 1.3153
       },
       {
         "itemKey": 353011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 453011,
-        "poolPct": 1.32
+        "poolPct": 1.3153
       }
     ],
     "IMMORTAL|Gear|1": [
       {
         "itemKey": 304011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 314011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 324011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 334011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 404011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 414011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 424011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 434011,
-        "poolPct": 1.315
+        "poolPct": 1.3162
       },
       {
         "itemKey": 504011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 514011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 524011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 534011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 344011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 444011,
-        "poolPct": 1.32
+        "poolPct": 1.3153
       },
       {
         "itemKey": 354011,
-        "poolPct": 9.21
+        "poolPct": 9.2105
       },
       {
         "itemKey": 454011,
-        "poolPct": 1.32
+        "poolPct": 1.3153
       }
     ],
     "UNCOMMON|Gear|5": [
       {
         "itemKey": 301021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 311021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 321021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 331021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 401021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 411021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 421021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 431021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 501021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 511021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 521021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 531021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "RARE|Gear|5": [
       {
         "itemKey": 302021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 312021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 322021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 332021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 402021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 412021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 422021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 432021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 502021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 512021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 522021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 532021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "LEGENDARY|Gear|5": [
       {
         "itemKey": 303021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 313021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 323021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 333021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 403021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 413021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 423021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 433021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 503021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 513021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 523021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 533021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "IMMORTAL|Gear|5": [
       {
         "itemKey": 304021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 314021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 324021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 334021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 404021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 414021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 424021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 434021,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 504021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 514021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 524021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 534021,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "UNCOMMON|Gear|10": [
       {
         "itemKey": 301031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 311031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 321031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 331031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 401031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 411031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 421031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 431031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 501031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 511031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 521031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 531031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "RARE|Gear|10": [
       {
         "itemKey": 302031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 312031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 322031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 332031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 402031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 412031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 422031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 432031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 502031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 512031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 522031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 532031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "LEGENDARY|Gear|10": [
       {
         "itemKey": 303031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 313031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 323031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 333031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 403031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 413031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 423031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 433031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 503031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 513031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 523031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 533031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "IMMORTAL|Gear|10": [
       {
         "itemKey": 304031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 314031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 324031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 334031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 404031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 414031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 424031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 434031,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 504031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 514031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 524031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 534031,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "UNCOMMON|Gear|15": [
       {
         "itemKey": 301041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 311041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 321041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 331041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 401041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 411041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 421041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 431041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 501041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 511041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 521041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 531041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "RARE|Gear|15": [
       {
         "itemKey": 302041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 312041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 322041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 332041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 402041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 412041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 422041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 432041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 502041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 512041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 522041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 532041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "LEGENDARY|Gear|15": [
       {
         "itemKey": 303041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 313041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 323041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 333041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 403041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 413041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 423041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 433041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 503041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 513041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 523041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 533041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "IMMORTAL|Gear|15": [
       {
         "itemKey": 304041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 314041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 324041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 334041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 404041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 414041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 424041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 434041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 504041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 514041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 524041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 534041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "ARCANA|Gear|15": [
       {
         "itemKey": 305041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 315041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 325041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 335041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 405041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 415041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 425041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 435041,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 505041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 515041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 525041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 535041,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "UNCOMMON|Gear|20": [
       {
         "itemKey": 301051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 311051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 321051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 331051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 401051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 411051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 421051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 431051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 501051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 511051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 521051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 531051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "RARE|Gear|20": [
       {
         "itemKey": 302051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 312051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 322051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 332051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 402051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 412051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 422051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 432051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 502051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 512051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 522051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 532051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "LEGENDARY|Gear|20": [
       {
         "itemKey": 303051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 313051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 323051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 333051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 403051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 413051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 423051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 433051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 503051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 513051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 523051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 533051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "IMMORTAL|Gear|20": [
       {
         "itemKey": 304051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 314051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 324051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 334051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 404051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 414051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 424051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 434051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 504051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 514051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 524051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 534051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "ARCANA|Gear|20": [
       {
         "itemKey": 305051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 315051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 325051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 335051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 405051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 415051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 425051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 435051,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 505051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 515051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 525051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 535051,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "UNCOMMON|Gear|30": [
       {
         "itemKey": 301071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 311071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 321071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 331071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 401071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 411071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 421071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 431071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 501071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 511071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 521071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 531071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "RARE|Gear|30": [
       {
         "itemKey": 302071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 312071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 322071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 332071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 402071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 412071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 422071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 432071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 502071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 512071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 522071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 532071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "LEGENDARY|Gear|30": [
       {
         "itemKey": 303071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 313071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 323071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 333071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 403071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 413071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 423071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 433071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 503071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 513071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 523071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 533071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "IMMORTAL|Gear|30": [
       {
         "itemKey": 304071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 314071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 324071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 334071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 404071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 414071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 424071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 434071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 504071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 514071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 524071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 534071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "ARCANA|Gear|30": [
       {
         "itemKey": 305071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 315071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 325071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 335071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 405071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 415071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 425071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 435071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 505071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 515071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 525071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 535071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "UNCOMMON|Gear|40": [
       {
         "itemKey": 301091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 311091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 321091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 331091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 401091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 411091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 421091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 431091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 501091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 511091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 521091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 531091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "RARE|Gear|40": [
       {
         "itemKey": 302091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 312091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 322091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 332091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 402091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 412091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 422091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 432091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 502091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 512091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 522091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 532091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "LEGENDARY|Gear|40": [
       {
         "itemKey": 303091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 313091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 323091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 333091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 403091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 413091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 423091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 433091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 503091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 513091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 523091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 533091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "IMMORTAL|Gear|40": [
       {
         "itemKey": 304091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 314091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 324091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 334091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 404091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 414091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 424091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 434091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 504091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 514091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 524091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 534091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "ARCANA|Gear|40": [
       {
         "itemKey": 305091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 315091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 325091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 335091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 405091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 415091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 425091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 435091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 505091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 515091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 525091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 535091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "UNCOMMON|Gear|50": [
@@ -12432,1009 +12432,1009 @@
     "UNCOMMON|Accessory|1": [
       {
         "itemKey": 601011,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 611011,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 621011,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 631011,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "RARE|Accessory|1": [
       {
         "itemKey": 602011,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 612011,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 622011,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 632011,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "LEGENDARY|Accessory|1": [
       {
         "itemKey": 603011,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 613011,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 623011,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 633011,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "IMMORTAL|Accessory|1": [
       {
         "itemKey": 604011,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 614011,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 624011,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 634011,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "UNCOMMON|Accessory|5": [
       {
         "itemKey": 601021,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 611021,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 621021,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 631021,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "RARE|Accessory|5": [
       {
         "itemKey": 602021,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 612021,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 622021,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 632021,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "LEGENDARY|Accessory|5": [
       {
         "itemKey": 603021,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 613021,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 623021,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 633021,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "IMMORTAL|Accessory|5": [
       {
         "itemKey": 604021,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 614021,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 624021,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 634021,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "UNCOMMON|Accessory|10": [
       {
         "itemKey": 601031,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 611031,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 621031,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 631031,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "RARE|Accessory|10": [
       {
         "itemKey": 602031,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 612031,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 622031,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 632031,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "LEGENDARY|Accessory|10": [
       {
         "itemKey": 603031,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 613031,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 623031,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 633031,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "IMMORTAL|Accessory|10": [
       {
         "itemKey": 604031,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 614031,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 624031,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 634031,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "UNCOMMON|Accessory|15": [
       {
         "itemKey": 601041,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 611041,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 621041,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 631041,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "RARE|Accessory|15": [
       {
         "itemKey": 602041,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 612041,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 622041,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 632041,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "LEGENDARY|Accessory|15": [
       {
         "itemKey": 603041,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 613041,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 623041,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 633041,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "IMMORTAL|Accessory|15": [
       {
         "itemKey": 604041,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 614041,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 624041,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 634041,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "ARCANA|Accessory|15": [
       {
         "itemKey": 605041,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 615041,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 625041,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 635041,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "UNCOMMON|Accessory|20": [
       {
         "itemKey": 601051,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 611051,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 621051,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 631051,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "RARE|Accessory|20": [
       {
         "itemKey": 602051,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 612051,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 622051,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 632051,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "LEGENDARY|Accessory|20": [
       {
         "itemKey": 603051,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 613051,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 623051,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 633051,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "IMMORTAL|Accessory|20": [
       {
         "itemKey": 604051,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 614051,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 624051,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 634051,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "ARCANA|Accessory|20": [
       {
         "itemKey": 605051,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 615051,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 625051,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 635051,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "UNCOMMON|Accessory|30": [
       {
         "itemKey": 601071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 611071,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 621071,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 631071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "RARE|Accessory|30": [
       {
         "itemKey": 602071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 612071,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 622071,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 632071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "LEGENDARY|Accessory|30": [
       {
         "itemKey": 603071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 613071,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 623071,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 633071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "IMMORTAL|Accessory|30": [
       {
         "itemKey": 604071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 614071,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 624071,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 634071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "ARCANA|Accessory|30": [
       {
         "itemKey": 605071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 615071,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 625071,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 635071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "UNCOMMON|Accessory|40": [
       {
         "itemKey": 601091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 611091,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 621091,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 631091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "RARE|Accessory|40": [
       {
         "itemKey": 602091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 612091,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 622091,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 632091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "LEGENDARY|Accessory|40": [
       {
         "itemKey": 603091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 613091,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 623091,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 633091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "IMMORTAL|Accessory|40": [
       {
         "itemKey": 604091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 614091,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 624091,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 634091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "ARCANA|Accessory|40": [
       {
         "itemKey": 605091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 615091,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 625091,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 635091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "UNCOMMON|Accessory|50": [
       {
         "itemKey": 601111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 611111,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 621111,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 631111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "RARE|Accessory|50": [
       {
         "itemKey": 602111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 612111,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 622111,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 632111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "LEGENDARY|Accessory|50": [
       {
         "itemKey": 603111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 613111,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 623111,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 633111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "IMMORTAL|Accessory|50": [
       {
         "itemKey": 604111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 614111,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 624111,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 634111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "ARCANA|Accessory|50": [
       {
         "itemKey": 605111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 615111,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 625111,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 635111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "BEYOND|Accessory|50": [
       {
         "itemKey": 606111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 616111,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 626111,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 636111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "UNCOMMON|Accessory|65": [
       {
         "itemKey": 601141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 611141,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 621141,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 631141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "RARE|Accessory|65": [
       {
         "itemKey": 602141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 612141,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 622141,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 632141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "LEGENDARY|Accessory|65": [
       {
         "itemKey": 603141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 613141,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 623141,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 633141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "IMMORTAL|Accessory|65": [
       {
         "itemKey": 604141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 614141,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 624141,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 634141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "ARCANA|Accessory|65": [
       {
         "itemKey": 605141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 615141,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 625141,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 635141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "BEYOND|Accessory|65": [
       {
         "itemKey": 606141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 616141,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 626141,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 636141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "CELESTIAL|Accessory|65": [
       {
         "itemKey": 607141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 617141,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 627141,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 637141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "DIVINE|Accessory|65": [
       {
         "itemKey": 608141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 618141,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 628141,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 638141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "COSMIC|Accessory|65": [
       {
         "itemKey": 609141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 619141,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 629141,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 639141,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "UNCOMMON|Accessory|80": [
       {
         "itemKey": 601171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 611171,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 621171,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 631171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "RARE|Accessory|80": [
       {
         "itemKey": 602171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 612171,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 622171,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 632171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "LEGENDARY|Accessory|80": [
       {
         "itemKey": 603171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 613171,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 623171,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 633171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "IMMORTAL|Accessory|80": [
       {
         "itemKey": 604171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 614171,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 624171,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 634171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "ARCANA|Accessory|80": [
       {
         "itemKey": 605171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 615171,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 625171,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 635171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "BEYOND|Accessory|80": [
       {
         "itemKey": 606171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 616171,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 626171,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 636171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "CELESTIAL|Accessory|80": [
       {
         "itemKey": 607171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 617171,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 627171,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 637171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "DIVINE|Accessory|80": [
       {
         "itemKey": 608171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 618171,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 628171,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 638171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "COSMIC|Accessory|80": [
       {
         "itemKey": 609171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 619171,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 629171,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 639171,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "UNCOMMON|Material|1": [
@@ -13770,151 +13770,151 @@
     "BEYOND|Gear|30": [
       {
         "itemKey": 306071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 316071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 326071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 336071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 406071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 416071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 426071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 436071,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 506071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 516071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 526071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 536071,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "BEYOND|Gear|40": [
       {
         "itemKey": 306091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 316091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 326091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 336091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 406091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 416091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 426091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 436091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 506091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 516091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 526091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 536091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "CELESTIAL|Gear|40": [
       {
         "itemKey": 307091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 317091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 327091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 337091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 407091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 417091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 427091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 437091,
-        "poolPct": 1.6675
+        "poolPct": 1.6671
       },
       {
         "itemKey": 507091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 517091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 527091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       },
       {
         "itemKey": 537091,
-        "poolPct": 11.6675
+        "poolPct": 11.6664
       }
     ],
     "CELESTIAL|Gear|50": [
@@ -14052,91 +14052,91 @@
     "BEYOND|Accessory|30": [
       {
         "itemKey": 606071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 616071,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 626071,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 636071,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "BEYOND|Accessory|40": [
       {
         "itemKey": 606091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 616091,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 626091,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 636091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "CELESTIAL|Accessory|40": [
       {
         "itemKey": 607091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 617091,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 627091,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 637091,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "CELESTIAL|Accessory|50": [
       {
         "itemKey": 607111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 617111,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 627111,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 637111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ],
     "DIVINE|Accessory|50": [
       {
         "itemKey": 608111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       },
       {
         "itemKey": 618111,
-        "poolPct": 3.45
+        "poolPct": 3.4483
       },
       {
         "itemKey": 628111,
-        "poolPct": 27.59
+        "poolPct": 27.5862
       },
       {
         "itemKey": 638111,
-        "poolPct": 34.48
+        "poolPct": 34.4828
       }
     ]
   }
