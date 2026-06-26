@@ -9,11 +9,11 @@ import {
   NOTIFICATION_KIND_ENTRIES,
   NOTIFICATION_SOUND_ENTRIES,
 } from "../../../shared/notificationCatalog";
-import { playNotificationSound } from "../lib/notificationSounds";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Checkbox } from "../design-system/primitives/Checkbox/Checkbox";
 import { Field } from "../design-system/primitives/Field/Field";
 import { Select } from "../design-system/primitives/Select/Select";
+import { playNotificationSound } from "../lib/notificationSounds";
 
 const SOUND_OPTIONS: { value: NotificationSoundId; label: string }[] = [
   ...NOTIFICATION_SOUND_ENTRIES.map((s) => ({ value: s.id, label: s.label })),
@@ -49,16 +49,15 @@ export function NotificationKindRow({
 
   return (
     <div className="flex flex-col gap-2.5 rounded-lg border border-border bg-card/40 p-3">
-      <div>
+      <div className="flex flex-col gap-1">
         <p className="m-0 text-[13px] font-semibold text-fg">{kind.label}</p>
-        <p className="m-0 mt-0.5 text-xs text-muted">{kind.description}</p>
+        <Checkbox
+          label={kind.description}
+          checked={pref.enabled}
+          disabled={disabled || saveBusy}
+          onCheckedChange={(checked) => onChange({ ...pref, enabled: checked })}
+        />
       </div>
-      <Checkbox
-        checked={pref.enabled}
-        disabled={disabled || saveBusy}
-        aria-label={`Enable ${kind.label}`}
-        onCheckedChange={(checked) => onChange({ ...pref, enabled: checked })}
-      />
       <Field label="Sound">
         <Select
           value={pref.sound}

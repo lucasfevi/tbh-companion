@@ -35,9 +35,7 @@ export function Slider({
     <div className={cn("flex flex-col gap-1", className)}>
       {label != null ? (
         <div className="flex items-baseline justify-between gap-2">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted">
-            {label}
-          </span>
+          <span className="text-xs text-muted">{label}</span>
           <span className="text-[11px] tabular-nums text-fg">{formatValue(value)}</span>
         </div>
       ) : null}

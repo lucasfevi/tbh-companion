@@ -16,7 +16,7 @@
 | Bordered panel | `Card` |
 | Status pill | `Badge` |
 | Form text input | `Input` |
-| Labeled form row (with optional checkbox layout) | `Field` |
+| Labeled form row (label + control + optional hint) | `Field` — use `Checkbox` directly for boolean rows; `Field`'s legacy `checkbox` layout prop is deprecated |
 | Labeled boolean checkbox (settings rows, filters) | `Checkbox` — use for labeled on/off rows; `Switch` fits compact immediate toggles without a separate label row (Live auto-open kept Checkbox for legacy parity) |
 | Dropdown / listbox | `Select` |
 | Numeric input with stepping | `NumberField` |

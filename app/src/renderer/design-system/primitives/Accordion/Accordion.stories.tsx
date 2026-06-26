@@ -7,8 +7,8 @@ import { Accordion } from "./Accordion";
  * that rotates on open (`group-data-[panel-open]:rotate-180`). `variant="panel"`
  * is for boxed sections with a visible border (Settings Advanced, Notification
  * sounds). `variant="card"` is for lightweight inline disclosure inside an
- * already-bordered Card (Pets "Best stages", Chests "Capacity details").
- * `variant="default"` is unstyled chrome for ad hoc use.
+ * already-bordered Card when a nested border is not wanted. `variant="default"`
+ * is unstyled chrome for ad hoc use.
  */
 const meta = {
   title: "Design System/Accordion",

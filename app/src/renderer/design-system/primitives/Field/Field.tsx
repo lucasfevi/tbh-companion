@@ -11,6 +11,7 @@ export function Field({
 }: {
   label: ReactNode;
   hint?: ReactNode;
+  /** @deprecated Use the `Checkbox` primitive with its own `label` prop instead. */
   checkbox?: boolean;
   children: ReactNode;
   className?: string;
