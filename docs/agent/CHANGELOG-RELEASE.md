@@ -65,6 +65,7 @@ Progress:
 - [ ] Step 5: Commit on main (if user asked for a commit)
 - [ ] Step 6: Recommend semver; confirm before push
 - [ ] Step 7: Report next steps
+- [ ] Step 8: Draft Discord announcement (after push)
 ```
 
 ### Step 0 — On `main` and synced
@@ -189,6 +190,29 @@ Include:
 - Confirmed What's New modal copy applied, or the drafted copy if the app data file does not exist yet
 - Recommended version with semver rationale (one short paragraph)
 - Next manual step: “Run **Release prepare** with `{version}` on GitHub Actions” (release cuts only)
+
+### Step 8 — Draft Discord announcement (after push)
+
+Once changes are pushed to `main`, draft a Discord announcement based on the promoted changelog section. Post it in chat immediately after push without waiting for the user to ask.
+
+**Format:**
+
+```
+**TBH Companion vX.Y.Z is out! 🎉**
+
+One-sentence summary of the release theme.
+
+**What's new:**
+
+<one emoji + bold topic heading per group, matching the changelog ### headings>
+- 2–3 concise bullets per group; collapse minor bullets into one if needed.
+
+Close with a short line for fixes and data updates if present (no separate heading needed).
+```
+
+**Voice:** player-facing, enthusiastic but concise. Use the same topic labels as the changelog (`### Lookup`, `### Inventory`, etc.) mapped to readable headings. Don't repeat the version number in bullets. Keep the whole announcement under ~200 words.
+
+**Do not post** to Discord — output the draft in chat for the user to copy.
 
 ## Examples
 
