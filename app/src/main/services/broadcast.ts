@@ -6,7 +6,12 @@ import type { NotificationSoundPayload } from "../../../shared/types";
 /** Send a channel payload to every live renderer window. */
 export function broadcast(channel: string, payload: unknown): void {
   for (const win of BrowserWindow.getAllWindows()) {
-    if (!win.isDestroyed()) win.webContents.send(channel, payload);
+    if (win.isDestroyed() || win.webContents.isDestroyed()) continue;
+    try {
+      win.webContents.send(channel, payload);
+    } catch {
+      // Frame disposed between the isDestroyed check and send — safe to ignore
+    }
   }
 }
 
