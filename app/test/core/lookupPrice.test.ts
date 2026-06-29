@@ -4,10 +4,12 @@ import {
   assembleSnapshot,
   buildSnapshot,
   priceableHashes,
+  resolveLookupPrice,
   sweepListedPrices,
   type ListedResult,
   type PriceState,
 } from "../../src/core/lookupPrice";
+import type { LookupPriceSnapshot } from "../../shared/types";
 
 function item(partial: Partial<GameItem> & Pick<GameItem, "name" | "grade" | "type">): GameItem {
   return { id: 1, level: null, marketTradable: true, ...partial };
@@ -254,5 +256,77 @@ describe("assembleSnapshot", () => {
       resumeFx: { BRL: 4.8 },
     });
     expect(snap.fx).toEqual({ BRL: 4.8 });
+  });
+});
+
+describe("resolveLookupPrice", () => {
+  const snap: LookupPriceSnapshot = {
+    schemaVersion: 1,
+    generatedUtc: "2026-06-29T00:00:00Z",
+    baseCurrency: "USD",
+    prices: {
+      "Ancient Ember": 2,
+      "Knight Boots (Legendary) A": null, // tradable, no active listing
+    },
+    fx: { USD: 1, BRL: 5 },
+  };
+  const material = item({ name: "Ancient Ember", grade: "EPIC", type: "MATERIAL" });
+  const gear = item({ name: "Knight Boots", grade: "LEGENDARY", type: "GEAR" });
+
+  it("prices a material in USD with a listing URL", () => {
+    const r = resolveLookupPrice(material, snap, "USD");
+    expect(r.state).toBe("priced");
+    expect(r.usd).toBe(2);
+    expect(r.amount).toBe(2);
+    expect(r.display).toBe("$2.00");
+    expect(r.hash).toBe("Ancient Ember");
+    expect(r.listingUrl).toContain("Ancient%20Ember");
+  });
+
+  it("converts to the display currency via the FX rate", () => {
+    const r = resolveLookupPrice(material, snap, "BRL");
+    expect(r.amount).toBe(10);
+    expect(r.display).toBe("R$ 10,00");
+  });
+
+  it("falls back to USD display when the currency has no FX rate", () => {
+    const r = resolveLookupPrice(material, snap, "JPY");
+    expect(r.amount).toBe(2);
+    expect(r.display).toBe("$2.00");
+  });
+
+  it("returns no-listing for a tradable item with a null snapshot price", () => {
+    const r = resolveLookupPrice(gear, snap, "USD");
+    expect(r.state).toBe("no-listing");
+    expect(r.display).toBeNull();
+    expect(r.hash).toBe("Knight Boots (Legendary) A");
+    expect(r.listingUrl).toContain("Knight%20Boots");
+  });
+
+  it("returns no-listing for a tradable item absent from the snapshot", () => {
+    const r = resolveLookupPrice(
+      item({ name: "Mythic Charm", grade: "EPIC", type: "MATERIAL" }),
+      snap,
+      "USD",
+    );
+    expect(r.state).toBe("no-listing");
+    expect(r.hash).toBe("Mythic Charm");
+  });
+
+  it("returns no-listing (still linkable) when there is no snapshot at all", () => {
+    const r = resolveLookupPrice(material, null, "USD");
+    expect(r.state).toBe("no-listing");
+    expect(r.listingUrl).toContain("Ancient%20Ember");
+  });
+
+  it("returns not-tradable for a non-priceable item", () => {
+    const r = resolveLookupPrice(
+      item({ name: "Knight Boots", grade: "RARE", type: "GEAR" }),
+      snap,
+      "USD",
+    );
+    expect(r.state).toBe("not-tradable");
+    expect(r.hash).toBeNull();
+    expect(r.listingUrl).toBeNull();
   });
 });
