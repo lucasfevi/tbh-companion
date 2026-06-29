@@ -316,6 +316,23 @@ export interface PriceRefreshResult {
   queued?: boolean;
 }
 
+/**
+ * Shared Lookup price snapshot: a single file built server-side (GitHub Action)
+ * holding USD listed prices for every priceable catalog item plus an FX table,
+ * so the app prices the whole Lookup catalog from one download with no Steam
+ * calls. Distinct from the owned-inventory price cache (`prices.{CUR}.json`).
+ */
+export interface LookupPriceSnapshot {
+  schemaVersion: 1;
+  /** ISO timestamp the snapshot was generated; drives "updated {age} ago". */
+  generatedUtc: string;
+  baseCurrency: "USD";
+  /** market_hash_name -> lowest active listing in USD; null = no active listing. */
+  prices: Record<string, number | null>;
+  /** ISO currency code -> units per 1 USD (e.g. BRL: 5.1). */
+  fx: Record<string, number>;
+}
+
 /** Work area snapshot used to match a monitor across restarts. */
 export interface DisplayWorkArea {
   x: number;
