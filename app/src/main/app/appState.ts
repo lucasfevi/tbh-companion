@@ -15,6 +15,7 @@ import { PetService } from "../services/PetService";
 import { BoxTimerService } from "../services/BoxTimerService";
 import { SessionStateService } from "../services/SessionStateService";
 import { LookupService } from "../services/LookupService";
+import { LookupPriceService } from "../services/LookupPriceService";
 import { applyConfigPatch } from "../ipc/configPatch";
 import { clearDiagnosticLogs, createLogger, logRendererError } from "../log";
 import { clearAppDataFiles, getAppDataPaths } from "../services/appData";
@@ -42,6 +43,7 @@ const chests = new ChestService();
 const pets = new PetService();
 const boxTimers = new BoxTimerService();
 const lookup = new LookupService();
+const lookupPrices = new LookupPriceService();
 
 function focusMainWindow(): void {
   if (mainWindow && !mainWindow.isDestroyed()) {
@@ -112,6 +114,7 @@ export function startTracking(): SessionUiSnapshot {
   config = loadConfig();
   inventory.initMarket(config.currency);
   inventory.loadGameData();
+  lookupPrices.start();
   const ui = sessionState.load(config);
   tracking.start(config);
   return ui;
@@ -136,6 +139,7 @@ export function stopTracking(): void {
   tracking.flushSession();
   tracking.stop();
   boxTimers.stopTick();
+  lookupPrices.stop();
 }
 
 export function openMainWindow(): BrowserWindow {
@@ -271,10 +275,12 @@ export function getAppServices() {
       }
 
       const reloadPrices = target === "prices" || target === "all-except-config";
+      const reloadLookupPrices = target === "lookup-prices" || target === "all-except-config";
       const reloadTimers = target === "box-timers" || target === "all-except-config";
       const reloadSession = target === "session" || target === "all-except-config";
 
       if (reloadPrices) inventory.reloadPriceCache();
+      if (reloadLookupPrices) lookupPrices.reloadFromDisk();
       if (reloadTimers) boxTimers.resetStorage();
       if (reloadSession) {
         tracking.onSessionFileDeleted();
@@ -333,6 +339,7 @@ export function getAppServices() {
     getLookupSources: () => lookup.getSources(),
     getLookupSynthesisModel: () => lookup.getSynthesisModel(),
     getOfferings: () => lookup.getOfferings(),
+    getLookupPrices: () => lookupPrices.getSnapshot(),
   };
 }
 

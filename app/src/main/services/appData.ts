@@ -12,6 +12,7 @@ import { DIAGNOSTIC_LOG_FILE, getDiagnosticLogPath, listDiagnosticLogFiles } fro
 export const BOX_TIMERS_FILE = "box_timers.json";
 export const SESSION_STATE_FILE = "session_state.json";
 export const CONFIG_FILE = "config.json";
+export const LOOKUP_PRICES_FILE = "lookup_prices.json";
 const PRICE_CACHE_PREFIX = "prices.";
 const PRICE_CACHE_SUFFIX = ".json";
 
@@ -44,6 +45,12 @@ export function getAppDataPaths(userDataDir = resolveUserDataDir()): AppDataPath
           ? priceFiles
           : [`${PRICE_CACHE_PREFIX}<currency>${PRICE_CACHE_SUFFIX}`],
       exists: priceFiles.length > 0,
+    },
+    {
+      id: "lookup-prices",
+      label: "Lookup market prices",
+      files: [LOOKUP_PRICES_FILE],
+      exists: existsSync(join(userDataDir, LOOKUP_PRICES_FILE)),
     },
     {
       id: "box-timers",
@@ -81,12 +88,19 @@ export function filesForClearTarget(
   switch (target) {
     case "prices":
       return listPriceCacheFiles(userDataDir);
+    case "lookup-prices":
+      return [LOOKUP_PRICES_FILE];
     case "box-timers":
       return [BOX_TIMERS_FILE];
     case "session":
       return [SESSION_STATE_FILE];
     case "all-except-config":
-      return [...listPriceCacheFiles(userDataDir), BOX_TIMERS_FILE, SESSION_STATE_FILE];
+      return [
+        ...listPriceCacheFiles(userDataDir),
+        LOOKUP_PRICES_FILE,
+        BOX_TIMERS_FILE,
+        SESSION_STATE_FILE,
+      ];
     default:
       return [];
   }

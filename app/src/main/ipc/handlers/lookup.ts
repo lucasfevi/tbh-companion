@@ -7,4 +7,5 @@ export function registerLookupHandlers(ipc: IpcMain, services: AppServices): voi
   ipc.handle(IPC.GET_LOOKUP_SOURCES, () => services.getLookupSources());
   ipc.handle(IPC.GET_LOOKUP_SYNTHESIS_MODEL, () => services.getLookupSynthesisModel());
   ipc.handle(IPC.GET_OFFERINGS, () => services.getOfferings());
+  ipc.handle(IPC.GET_LOOKUP_PRICES, () => services.getLookupPrices());
 }

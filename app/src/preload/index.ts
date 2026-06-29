@@ -9,6 +9,7 @@ import type {
   ClearAppDataResult,
   ClearDiagnosticLogResult,
   LookupItem,
+  LookupPriceSnapshot,
   LookupSources,
   OfferingsModel,
   SynthesisModel,
@@ -192,6 +193,14 @@ const api: TbhApi = {
   },
   getOfferings(): Promise<OfferingsModel> {
     return ipcRenderer.invoke(IPC.GET_OFFERINGS);
+  },
+  getLookupPrices(): Promise<LookupPriceSnapshot | null> {
+    return ipcRenderer.invoke(IPC.GET_LOOKUP_PRICES);
+  },
+  onLookupPrices(cb: (snapshot: LookupPriceSnapshot | null) => void): () => void {
+    const listener = (_e: unknown, snapshot: LookupPriceSnapshot | null): void => cb(snapshot);
+    ipcRenderer.on(IPC.LOOKUP_PRICES, listener);
+    return () => ipcRenderer.removeListener(IPC.LOOKUP_PRICES, listener);
   },
 };
 

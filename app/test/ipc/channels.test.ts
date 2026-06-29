@@ -39,6 +39,8 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.GET_LOOKUP_SOURCES");
     expect(preload).toContain("IPC.GET_LOOKUP_SYNTHESIS_MODEL");
     expect(preload).toContain("IPC.GET_OFFERINGS");
+    expect(preload).toContain("IPC.GET_LOOKUP_PRICES");
+    expect(preload).toContain("IPC.LOOKUP_PRICES");
   });
 
   it("IPC handlers wire invoke and send channels", () => {
@@ -69,6 +71,7 @@ describe("IPC channel registry", () => {
     expect(lookupHandler).toContain("IPC.GET_LOOKUP_SOURCES");
     expect(lookupHandler).toContain("IPC.GET_LOOKUP_SYNTHESIS_MODEL");
     expect(lookupHandler).toContain("IPC.GET_OFFERINGS");
+    expect(lookupHandler).toContain("IPC.GET_LOOKUP_PRICES");
   });
 
   it("services broadcast on IPC push constants", () => {
@@ -111,6 +114,11 @@ describe("IPC channel registry", () => {
       "utf-8",
     );
     expect(updates).toContain("IPC.UPDATE_STATUS");
+    const lookupPrices = readFileSync(
+      join(__dirname, "../../src/main/services/LookupPriceService.ts"),
+      "utf-8",
+    );
+    expect(lookupPrices).toContain("IPC.LOOKUP_PRICES");
   });
 
   it("preload uses send channels via IPC constants", () => {
