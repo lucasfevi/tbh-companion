@@ -1,0 +1,59 @@
+name: Lookup prices
+
+# Builds the shared Steam Market listed-price snapshot (USD + FX) for the Lookup
+# tab and publishes it as the single `prices.json` asset on the rolling
+# `lookup-prices` release. This is the ONLY place that calls Steam for Lookup
+# pricing — clients just download the asset.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *" # every 6h
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lookup-prices
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  RELEASE_TAG: lookup-prices
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Ensure rolling release exists
+        run: |
+          gh release view "$RELEASE_TAG" >/dev/null 2>&1 || \
+            gh release create "$RELEASE_TAG" \
+              --title "Lookup price snapshot" \
+              --notes "Auto-generated Steam Market listed-price snapshot (USD + FX) for the Lookup tab. Rebuilt every 6h. Not an app release." \
+              --latest=false
+
+      - name: Download previous snapshot (resume)
+        run: gh release download "$RELEASE_TAG" --pattern prices.json --dir . || echo "no prior snapshot"
+
+      - name: Build snapshot
+        run: pnpm build:lookup-prices
+
+      - name: Publish snapshot
+        run: gh release upload "$RELEASE_TAG" prices.json --clobber
