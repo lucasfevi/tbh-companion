@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { gradeLabel, typeLabel } from "../../../core/labels";
 import { cn } from "../../lib/cn";
 import { gradeColor } from "../../lib/gradeColor";
@@ -85,14 +86,23 @@ export function SectionHeadingRow({
  * card and detail panel — only the icon size (and the resulting name markup:
  * `<h2>` for the detail panel's page title, `<p>` for the grid card) differs.
  */
-export function ItemCardHeader({ item, iconSize }: { item: LookupItem; iconSize: "md" | "lg" }) {
+export function ItemCardHeader({
+  item,
+  iconSize,
+  trailing,
+}: {
+  item: LookupItem;
+  iconSize: "md" | "lg";
+  /** Optional element pinned to the header's right edge (e.g. the Steam price). */
+  trailing?: ReactNode;
+}) {
   const metaLine = itemMetaLine(item);
   const isDetail = iconSize === "lg";
 
   return (
     <>
       <ItemIcon src={iconSrc(item.iconPath)} color={gradeColor(item.grade)} size={iconSize} />
-      <div className={isDetail ? "min-w-0" : "min-w-0 flex-1"}>
+      <div className="min-w-0 flex-1">
         {isDetail ? (
           <h2 className="m-0 truncate text-base font-semibold text-fg">{item.name}</h2>
         ) : (
@@ -110,6 +120,7 @@ export function ItemCardHeader({ item, iconSize }: { item: LookupItem; iconSize:
           </p>
         ) : null}
       </div>
+      {trailing ? <div className="ml-auto shrink-0 self-start">{trailing}</div> : null}
     </>
   );
 }

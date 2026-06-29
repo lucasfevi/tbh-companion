@@ -3,6 +3,7 @@ import { cn } from "../../lib/cn";
 import { Card } from "../../design-system/primitives/Card/Card";
 import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
 import { ItemCardHeader, MaterialGroup, StatGroup } from "./itemCardParts";
+import { LookupPrice } from "./LookupPrice";
 import { lookupItemCardHasBody } from "../../lib/lookupItemCard";
 import type { LookupItem } from "../../../../shared/types";
 
@@ -14,6 +15,9 @@ export const ItemCard = memo(function ItemCard({
   onSelect?: (item: LookupItem) => void;
 }) {
   const hasBody = lookupItemCardHasBody(item);
+  // Grid cards (onSelect) link the price in a footer; peeks (no onSelect) show
+  // a quiet inline price in the header instead.
+  const interactive = Boolean(onSelect);
   const cardClassName = cn(
     "flex flex-col",
     hasBody && "h-full gap-2 [contain-intrinsic-size:0_180px] [content-visibility:auto]",
@@ -22,7 +26,11 @@ export const ItemCard = memo(function ItemCard({
   const content = (
     <>
       <CardHeader>
-        <ItemCardHeader item={item} iconSize="md" />
+        <ItemCardHeader
+          item={item}
+          iconSize="md"
+          trailing={interactive ? undefined : <LookupPrice item={item} variant="inline" />}
+        />
       </CardHeader>
 
       {hasBody ? (
@@ -52,7 +60,7 @@ export const ItemCard = memo(function ItemCard({
         </CardContent>
       ) : null}
 
-      {/* Footer: Steam Market price (future) */}
+      {interactive ? <LookupPrice item={item} variant="footer" interactive /> : null}
     </>
   );
 

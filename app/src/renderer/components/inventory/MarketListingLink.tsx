@@ -17,6 +17,7 @@ export function MarketListingLink({
       target="_blank"
       rel="noopener noreferrer"
       title={title ?? "Open on Steam Market"}
+      onClick={(e) => e.stopPropagation()}
     >
       {children}
     </a>
