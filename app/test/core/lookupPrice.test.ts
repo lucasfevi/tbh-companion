@@ -6,6 +6,7 @@ import {
   priceableHashes,
   sweepListedPrices,
   type ListedResult,
+  type PriceState,
 } from "../../src/core/lookupPrice";
 
 function item(partial: Partial<GameItem> & Pick<GameItem, "name" | "grade" | "type">): GameItem {
@@ -13,6 +14,9 @@ function item(partial: Partial<GameItem> & Pick<GameItem, "name" | "grade" | "ty
 }
 
 const noSleep = (): Promise<void> => Promise.resolve();
+const NOW = Date.parse("2026-06-29T00:00:00.000Z");
+const NOW_ISO = "2026-06-29T00:00:00.000Z";
+const empty = (): PriceState => ({ prices: {}, fetchedUtc: {} });
 
 describe("priceableHashes", () => {
   it("includes tradable materials by display name", () => {
@@ -51,150 +55,169 @@ describe("priceableHashes", () => {
 });
 
 describe("buildSnapshot", () => {
-  it("emits the v1 snapshot shape with USD base and passthrough prices/fx", () => {
+  it("emits the v1 snapshot shape with USD base, timestamps, and passthrough prices/fx", () => {
     const snap = buildSnapshot({
       prices: { "Ancient Ember": 1.23, "Knight Boots (Legendary) A": null },
+      fetchedUtc: { "Ancient Ember": "2026-06-28T00:00:00.000Z" },
       fx: { BRL: 5.1 },
-      now: () => "2026-06-29T00:00:00.000Z",
+      now: () => NOW,
     });
     expect(snap.schemaVersion).toBe(1);
     expect(snap.baseCurrency).toBe("USD");
-    expect(snap.generatedUtc).toBe("2026-06-29T00:00:00.000Z");
+    expect(snap.generatedUtc).toBe(NOW_ISO);
     expect(snap.prices).toEqual({ "Ancient Ember": 1.23, "Knight Boots (Legendary) A": null });
+    expect(snap.fetchedUtc).toEqual({ "Ancient Ember": "2026-06-28T00:00:00.000Z" });
     expect(snap.fx).toEqual({ BRL: 5.1 });
   });
 });
 
 describe("sweepListedPrices", () => {
-  it("records USD values and null for no active listing", async () => {
+  it("prices missing hashes and stamps fetchedUtc", async () => {
     const responses: Record<string, ListedResult> = {
       A: { ok: true, usd: 2.5 },
       B: { ok: true, usd: null },
     };
-    const result = await sweepListedPrices(
-      ["A", "B"],
-      {},
-      {
-        fetchListedUsd: (hash) => Promise.resolve(responses[hash]),
-        sleep: noSleep,
-        baseDelayMs: 0,
-      },
-    );
-    expect(result).toEqual({ A: 2.5, B: null });
+    const result = await sweepListedPrices(["A", "B"], empty(), {
+      fetchListedUsd: (hash) => Promise.resolve(responses[hash]),
+      sleep: noSleep,
+      baseDelayMs: 0,
+      now: () => NOW,
+    });
+    expect(result.prices).toEqual({ A: 2.5, B: null });
+    expect(result.fetchedUtc).toEqual({ A: NOW_ISO, B: NOW_ISO });
   });
 
-  it("skips hashes already priced in a prior run (resume)", async () => {
+  it("fetches missing hashes before re-pricing stale ones", async () => {
     const fetched: string[] = [];
-    const result = await sweepListedPrices(
-      ["A", "B"],
-      { A: 9.99 },
-      {
-        fetchListedUsd: (hash) => {
-          fetched.push(hash);
-          return Promise.resolve({ ok: true, usd: 1 });
-        },
-        sleep: noSleep,
-        baseDelayMs: 0,
+    const prior: PriceState = { prices: { A: 1 }, fetchedUtc: { A: "2020-01-01T00:00:00.000Z" } };
+    await sweepListedPrices(["A", "B"], prior, {
+      fetchListedUsd: (hash) => {
+        fetched.push(hash);
+        return Promise.resolve({ ok: true, usd: 1 });
       },
-    );
-    expect(fetched).toEqual(["B"]);
-    expect(result).toEqual({ A: 9.99, B: 1 });
+      sleep: noSleep,
+      baseDelayMs: 0,
+      now: () => NOW,
+      minRefreshAgeMs: 0,
+    });
+    expect(fetched).toEqual(["B", "A"]);
+  });
+
+  it("re-prices existing hashes oldest-first", async () => {
+    const fetched: string[] = [];
+    const prior: PriceState = {
+      prices: { A: 1, B: 2 },
+      fetchedUtc: { A: "2026-06-28T12:00:00.000Z", B: "2026-06-28T00:00:00.000Z" },
+    };
+    await sweepListedPrices(["A", "B"], prior, {
+      fetchListedUsd: (hash) => {
+        fetched.push(hash);
+        return Promise.resolve({ ok: true, usd: 9 });
+      },
+      sleep: noSleep,
+      baseDelayMs: 0,
+      now: () => NOW,
+      minRefreshAgeMs: 0,
+    });
+    expect(fetched).toEqual(["B", "A"]);
+  });
+
+  it("skips already-priced hashes younger than the minimum refresh age", async () => {
+    const fetched: string[] = [];
+    const prior: PriceState = {
+      prices: { A: 1 },
+      fetchedUtc: { A: new Date(NOW - 1000).toISOString() },
+    };
+    const result = await sweepListedPrices(["A"], prior, {
+      fetchListedUsd: (hash) => {
+        fetched.push(hash);
+        return Promise.resolve({ ok: true, usd: 5 });
+      },
+      sleep: noSleep,
+      baseDelayMs: 0,
+      now: () => NOW,
+      minRefreshAgeMs: 60_000,
+    });
+    expect(fetched).toEqual([]);
+    expect(result.prices).toEqual({ A: 1 });
   });
 
   it("backs off and retries the same hash on a rate limit, with growing delay", async () => {
     const sleeps: number[] = [];
     let calls = 0;
-    const result = await sweepListedPrices(
-      ["A"],
-      {},
-      {
-        fetchListedUsd: () => {
-          calls += 1;
-          if (calls <= 2) return Promise.resolve({ ok: false, rateLimited: true });
-          return Promise.resolve({ ok: true, usd: 3 });
-        },
-        sleep: (ms) => {
-          sleeps.push(ms);
-          return Promise.resolve();
-        },
-        baseDelayMs: 10,
-        maxDelayMs: 1000,
+    const result = await sweepListedPrices(["A"], empty(), {
+      fetchListedUsd: () => {
+        calls += 1;
+        if (calls <= 2) return Promise.resolve({ ok: false, rateLimited: true });
+        return Promise.resolve({ ok: true, usd: 3 });
       },
-    );
-    expect(result).toEqual({ A: 3 });
-    const backoffSleeps = sleeps.slice(0, 2);
-    expect(backoffSleeps).toEqual([20, 40]);
+      sleep: (ms) => {
+        sleeps.push(ms);
+        return Promise.resolve();
+      },
+      baseDelayMs: 10,
+      maxDelayMs: 1000,
+      now: () => NOW,
+    });
+    expect(result.prices).toEqual({ A: 3 });
+    expect(sleeps.slice(0, 2)).toEqual([20, 40]);
   });
 
   it("stops the sweep after N consecutive rate limits (quota spent)", async () => {
     const fetched: string[] = [];
-    const result = await sweepListedPrices(
-      ["A", "B", "C", "D"],
-      {},
-      {
-        fetchListedUsd: (hash) => {
-          fetched.push(hash);
-          return Promise.resolve({ ok: false, rateLimited: true });
-        },
-        sleep: noSleep,
-        baseDelayMs: 0,
-        maxConsecutiveRateLimits: 3,
+    const result = await sweepListedPrices(["A", "B", "C", "D"], empty(), {
+      fetchListedUsd: (hash) => {
+        fetched.push(hash);
+        return Promise.resolve({ ok: false, rateLimited: true });
       },
-    );
-    // 3 consecutive rate limits on "A" trip the breaker before reaching B/C/D.
+      sleep: noSleep,
+      baseDelayMs: 0,
+      now: () => NOW,
+      maxConsecutiveRateLimits: 3,
+    });
     expect(fetched).toEqual(["A", "A", "A"]);
-    expect(result).toEqual({});
+    expect(result.prices).toEqual({});
   });
 
   it("resets the consecutive-rate-limit counter after a success", async () => {
     const responses: ListedResult[] = [
       { ok: false, rateLimited: true },
-      { ok: true, usd: 7 }, // resets the counter
+      { ok: true, usd: 7 },
       { ok: false, rateLimited: true },
       { ok: true, usd: 8 },
     ];
     let call = 0;
-    const result = await sweepListedPrices(
-      ["A", "B"],
-      {},
-      {
-        fetchListedUsd: () => Promise.resolve(responses[call++]),
-        sleep: noSleep,
-        baseDelayMs: 0,
-        maxConsecutiveRateLimits: 2,
-      },
-    );
-    // Without the reset, the 2nd isolated rate limit would have tripped the breaker.
-    expect(result).toEqual({ A: 7, B: 8 });
+    const result = await sweepListedPrices(["A", "B"], empty(), {
+      fetchListedUsd: () => Promise.resolve(responses[call++]),
+      sleep: noSleep,
+      baseDelayMs: 0,
+      now: () => NOW,
+      maxConsecutiveRateLimits: 2,
+    });
+    expect(result.prices).toEqual({ A: 7, B: 8 });
   });
 
   it("reports progress after each newly-priced hash for incremental persistence", async () => {
-    const snapshots: Array<Record<string, number | null>> = [];
-    await sweepListedPrices(
-      ["A", "B"],
-      {},
-      {
-        fetchListedUsd: (hash) => Promise.resolve({ ok: true, usd: hash === "A" ? 1 : 2 }),
-        sleep: noSleep,
-        baseDelayMs: 0,
-        onProgress: (priced) => snapshots.push({ ...priced }),
-      },
-    );
-    expect(snapshots).toEqual([{ A: 1 }, { A: 1, B: 2 }]);
+    const states: Array<Record<string, number | null>> = [];
+    await sweepListedPrices(["A", "B"], empty(), {
+      fetchListedUsd: (hash) => Promise.resolve({ ok: true, usd: hash === "A" ? 1 : 2 }),
+      sleep: noSleep,
+      baseDelayMs: 0,
+      now: () => NOW,
+      onProgress: (state) => states.push({ ...state.prices }),
+    });
+    expect(states).toEqual([{ A: 1 }, { A: 1, B: 2 }]);
   });
 
-  it("leaves errored (non-rate-limited) hashes absent so the next run retries", async () => {
-    const result = await sweepListedPrices(
-      ["A"],
-      {},
-      {
-        fetchListedUsd: () => Promise.resolve({ ok: false, rateLimited: false }),
-        sleep: noSleep,
-        baseDelayMs: 0,
-      },
-    );
-    expect(result).toEqual({});
-    expect("A" in result).toBe(false);
+  it("leaves errored (non-rate-limited) missing hashes absent so the next run retries", async () => {
+    const result = await sweepListedPrices(["A"], empty(), {
+      fetchListedUsd: () => Promise.resolve({ ok: false, rateLimited: false }),
+      sleep: noSleep,
+      baseDelayMs: 0,
+      now: () => NOW,
+    });
+    expect(result.prices).toEqual({});
+    expect("A" in result.prices).toBe(false);
   });
 });
 
@@ -204,7 +227,7 @@ describe("assembleSnapshot", () => {
     item({ name: "Knight Boots", grade: "LEGENDARY", type: "GEAR", id: 2 }),
   ];
 
-  it("builds a snapshot from injected price + FX fetchers", async () => {
+  it("builds a snapshot from injected price + FX fetchers, stamping timestamps", async () => {
     const prices: Record<string, number | null> = {
       "Ancient Ember": 1.5,
       "Knight Boots (Legendary) A": null,
@@ -214,12 +237,12 @@ describe("assembleSnapshot", () => {
       fetchFxRates: () => Promise.resolve({ BRL: 5.1, EUR: 0.92 }),
       sleep: noSleep,
       baseDelayMs: 0,
-      now: () => "2026-06-29T00:00:00.000Z",
+      now: () => NOW,
     });
     expect(snap.prices).toEqual({ "Ancient Ember": 1.5, "Knight Boots (Legendary) A": null });
+    expect(snap.fetchedUtc?.["Ancient Ember"]).toBe(NOW_ISO);
     expect(snap.fx).toEqual({ BRL: 5.1, EUR: 0.92 });
-    expect(snap.schemaVersion).toBe(1);
-    expect(snap.generatedUtc).toBe("2026-06-29T00:00:00.000Z");
+    expect(snap.generatedUtc).toBe(NOW_ISO);
   });
 
   it("falls back to prior FX when the FX fetch fails", async () => {

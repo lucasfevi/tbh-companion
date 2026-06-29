@@ -22,20 +22,23 @@ export function priceableHashes(items: GameItem[]): string[] {
 export interface SnapshotParts {
   /** market_hash_name -> USD lowest listing; null = confirmed no active listing. */
   prices: Record<string, number | null>;
+  /** market_hash_name -> ISO time the price was last fetched. */
+  fetchedUtc: Record<string, string>;
   /** ISO currency -> units per 1 USD. */
   fx: Record<string, number>;
-  /** Defaults to the current time; injectable for deterministic tests. */
-  now?: () => string;
+  /** Current time in epoch ms; defaults to now, injectable for deterministic tests. */
+  now?: () => number;
 }
 
-/** Assemble the snapshot JSON from already-fetched prices and FX rates. */
+/** Assemble the snapshot JSON from already-fetched prices, timestamps, and FX. */
 export function buildSnapshot(parts: SnapshotParts): LookupPriceSnapshot {
-  const now = parts.now ?? (() => new Date().toISOString());
+  const nowMs = (parts.now ?? Date.now)();
   return {
     schemaVersion: 1,
-    generatedUtc: now(),
+    generatedUtc: new Date(nowMs).toISOString(),
     baseCurrency: "USD",
     prices: parts.prices,
+    fetchedUtc: parts.fetchedUtc,
     fx: parts.fx,
   };
 }

@@ -329,6 +329,8 @@ export interface LookupPriceSnapshot {
   baseCurrency: "USD";
   /** market_hash_name -> lowest active listing in USD; null = no active listing. */
   prices: Record<string, number | null>;
+  /** market_hash_name -> ISO time that price was last fetched; drives rolling refresh. */
+  fetchedUtc?: Record<string, string>;
   /** ISO currency code -> units per 1 USD (e.g. BRL: 5.1). */
   fx: Record<string, number>;
 }

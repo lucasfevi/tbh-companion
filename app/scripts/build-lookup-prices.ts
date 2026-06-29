@@ -15,7 +15,7 @@ import { assembleSnapshot, buildSnapshot } from "../src/core/lookupPrice";
 import { normalizeGameItem, type GameItem } from "../src/core/gamedata";
 import { currencyCode, parseMoney, TBH_STEAM_APP_ID } from "../src/core/steamPrice";
 import type { LookupPriceSnapshot } from "../shared/types";
-import type { ListedResult } from "../src/core/lookupPrice";
+import type { ListedResult, PriceState } from "../src/core/lookupPrice";
 
 const GAMEDATA_PATH = fileURLToPath(new URL("../../data/gamedata.json", import.meta.url));
 const PRICEOVERVIEW = "https://steamcommunity.com/market/priceoverview/";
@@ -42,14 +42,17 @@ function loadCatalog(): GameItem[] {
   return items.filter((item) => item.marketTradable).slice(0, LIMIT * 4);
 }
 
-function loadResume(): { prices: Record<string, number | null>; fx: Record<string, number> } {
-  if (!existsSync(OUT)) return { prices: {}, fx: {} };
+function loadResume(): { state: PriceState; fx: Record<string, number> } {
+  if (!existsSync(OUT)) return { state: { prices: {}, fetchedUtc: {} }, fx: {} };
   try {
     const prior = JSON.parse(readFileSync(OUT, "utf-8")) as LookupPriceSnapshot;
-    log(`resuming from ${OUT} (${Object.keys(prior.prices ?? {}).length} priced)`);
-    return { prices: prior.prices ?? {}, fx: prior.fx ?? {} };
+    log(`resuming from ${OUT} (${Object.keys(prior.prices ?? {}).length} known)`);
+    return {
+      state: { prices: prior.prices ?? {}, fetchedUtc: prior.fetchedUtc ?? {} },
+      fx: prior.fx ?? {},
+    };
   } catch {
-    return { prices: {}, fx: {} };
+    return { state: { prices: {}, fetchedUtc: {} }, fx: {} };
   }
 }
 
@@ -90,11 +93,16 @@ async function main(): Promise<void> {
   // Persist partial progress periodically so a killed/timed-out CI run still
   // leaves a resumable snapshot on disk (uploaded by the workflow's always-step).
   let sincePersist = 0;
-  const persistPartial = (prices: Record<string, number | null>): void => {
+  const persistPartial = (state: PriceState): void => {
     sincePersist += 1;
     if (sincePersist < PERSIST_EVERY) return;
     sincePersist = 0;
-    writeFileSync(OUT, JSON.stringify(buildSnapshot({ prices, fx: resume.fx })));
+    writeFileSync(
+      OUT,
+      JSON.stringify(
+        buildSnapshot({ prices: state.prices, fetchedUtc: state.fetchedUtc, fx: resume.fx }),
+      ),
+    );
   };
 
   const snapshot = await assembleSnapshot(items, {
@@ -102,7 +110,7 @@ async function main(): Promise<void> {
     fetchFxRates,
     sleep,
     baseDelayMs: DELAY_MS,
-    resumePrices: resume.prices,
+    resume: resume.state,
     resumeFx: resume.fx,
     onProgress: persistPartial,
     log,
