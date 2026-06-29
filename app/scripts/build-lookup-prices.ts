@@ -11,7 +11,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { assembleSnapshot } from "../src/core/lookupPrice";
+import { assembleSnapshot, buildSnapshot } from "../src/core/lookupPrice";
 import { normalizeGameItem, type GameItem } from "../src/core/gamedata";
 import { currencyCode, parseMoney, TBH_STEAM_APP_ID } from "../src/core/steamPrice";
 import type { LookupPriceSnapshot } from "../shared/types";
@@ -25,6 +25,7 @@ const USD = currencyCode("USD");
 const OUT = process.env.OUT ?? "prices.json";
 const LIMIT = process.env.LIMIT ? Number(process.env.LIMIT) : undefined;
 const DELAY_MS = process.env.DELAY_MS ? Number(process.env.DELAY_MS) : 1500;
+const PERSIST_EVERY = 25;
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 const log = (message: string): void => console.log(`[lookup-prices] ${message}`);
@@ -86,6 +87,16 @@ async function main(): Promise<void> {
   const items = loadCatalog();
   const resume = loadResume();
 
+  // Persist partial progress periodically so a killed/timed-out CI run still
+  // leaves a resumable snapshot on disk (uploaded by the workflow's always-step).
+  let sincePersist = 0;
+  const persistPartial = (prices: Record<string, number | null>): void => {
+    sincePersist += 1;
+    if (sincePersist < PERSIST_EVERY) return;
+    sincePersist = 0;
+    writeFileSync(OUT, JSON.stringify(buildSnapshot({ prices, fx: resume.fx })));
+  };
+
   const snapshot = await assembleSnapshot(items, {
     fetchListedUsd,
     fetchFxRates,
@@ -93,6 +104,7 @@ async function main(): Promise<void> {
     baseDelayMs: DELAY_MS,
     resumePrices: resume.prices,
     resumeFx: resume.fx,
+    onProgress: persistPartial,
     log,
   });
 

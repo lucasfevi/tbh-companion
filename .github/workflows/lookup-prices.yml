@@ -24,6 +24,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Steam blocks the runner IP after ~hundreds of calls; the sweep's circuit
+    # breaker exits well before this, but cap the job so a stuck run can't burn
+    # GitHub's 6h default (and skip the publish step).
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: app
@@ -55,5 +59,13 @@ jobs:
       - name: Build snapshot
         run: pnpm build:lookup-prices
 
+      # Always publish whatever progress exists (the script persists partial
+      # results), so a timed-out run still advances coverage for the next resume.
       - name: Publish snapshot
-        run: gh release upload "$RELEASE_TAG" prices.json --clobber
+        if: always()
+        run: |
+          if [ -f prices.json ]; then
+            gh release upload "$RELEASE_TAG" prices.json --clobber
+          else
+            echo "no prices.json produced; nothing to publish"
+          fi

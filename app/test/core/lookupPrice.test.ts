@@ -126,6 +126,63 @@ describe("sweepListedPrices", () => {
     expect(backoffSleeps).toEqual([20, 40]);
   });
 
+  it("stops the sweep after N consecutive rate limits (quota spent)", async () => {
+    const fetched: string[] = [];
+    const result = await sweepListedPrices(
+      ["A", "B", "C", "D"],
+      {},
+      {
+        fetchListedUsd: (hash) => {
+          fetched.push(hash);
+          return Promise.resolve({ ok: false, rateLimited: true });
+        },
+        sleep: noSleep,
+        baseDelayMs: 0,
+        maxConsecutiveRateLimits: 3,
+      },
+    );
+    // 3 consecutive rate limits on "A" trip the breaker before reaching B/C/D.
+    expect(fetched).toEqual(["A", "A", "A"]);
+    expect(result).toEqual({});
+  });
+
+  it("resets the consecutive-rate-limit counter after a success", async () => {
+    const responses: ListedResult[] = [
+      { ok: false, rateLimited: true },
+      { ok: true, usd: 7 }, // resets the counter
+      { ok: false, rateLimited: true },
+      { ok: true, usd: 8 },
+    ];
+    let call = 0;
+    const result = await sweepListedPrices(
+      ["A", "B"],
+      {},
+      {
+        fetchListedUsd: () => Promise.resolve(responses[call++]),
+        sleep: noSleep,
+        baseDelayMs: 0,
+        maxConsecutiveRateLimits: 2,
+      },
+    );
+    // Without the reset, the 2nd isolated rate limit would have tripped the breaker.
+    expect(result).toEqual({ A: 7, B: 8 });
+  });
+
+  it("reports progress after each newly-priced hash for incremental persistence", async () => {
+    const snapshots: Array<Record<string, number | null>> = [];
+    await sweepListedPrices(
+      ["A", "B"],
+      {},
+      {
+        fetchListedUsd: (hash) => Promise.resolve({ ok: true, usd: hash === "A" ? 1 : 2 }),
+        sleep: noSleep,
+        baseDelayMs: 0,
+        onProgress: (priced) => snapshots.push({ ...priced }),
+      },
+    );
+    expect(snapshots).toEqual([{ A: 1 }, { A: 1, B: 2 }]);
+  });
+
   it("leaves errored (non-rate-limited) hashes absent so the next run retries", async () => {
     const result = await sweepListedPrices(
       ["A"],

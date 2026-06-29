@@ -17,6 +17,9 @@ export interface AssembleDeps {
   resumeFx?: Record<string, number>;
   baseDelayMs?: number;
   maxDelayMs?: number;
+  maxConsecutiveRateLimits?: number;
+  /** Called with the running price map after each newly-priced hash. */
+  onProgress?: (priced: Record<string, number | null>) => void;
   now?: () => string;
   log?: (message: string) => void;
 }
@@ -34,6 +37,8 @@ export async function assembleSnapshot(
     sleep: deps.sleep,
     baseDelayMs: deps.baseDelayMs,
     maxDelayMs: deps.maxDelayMs,
+    maxConsecutiveRateLimits: deps.maxConsecutiveRateLimits,
+    onProgress: deps.onProgress,
     log: deps.log,
   });
 
