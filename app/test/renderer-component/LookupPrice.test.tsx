@@ -26,7 +26,7 @@ function setResolved(partial: Partial<ResolvedLookupPrice>): void {
 beforeEach(() => setResolved({}));
 
 describe("LookupPrice", () => {
-  it("renders a clickable footer price for a priced item", () => {
+  it("renders a clickable price for a priced item", () => {
     setResolved({
       hash: "Knight Boots (Legendary) A",
       state: "priced",
@@ -35,7 +35,7 @@ describe("LookupPrice", () => {
       display: "R$ 5,00",
       listingUrl: "https://steamcommunity.com/market/listings/3678970/x",
     });
-    render(<LookupPrice item={item} variant="footer" interactive />);
+    render(<LookupPrice item={item} interactive />);
     const link = screen.getByRole("link");
     expect(link).toHaveTextContent("R$ 5,00");
     expect(link.getAttribute("href")).toContain("Knight%20Boots");
@@ -47,13 +47,13 @@ describe("LookupPrice", () => {
       state: "no-listing",
       listingUrl: "https://x",
     });
-    render(<LookupPrice item={item} variant="footer" interactive />);
+    render(<LookupPrice item={item} interactive />);
     expect(screen.getByRole("link")).toHaveTextContent("No listed price");
   });
 
   it("renders nothing for a non-tradable item", () => {
     setResolved({ state: "not-tradable" });
-    const { container } = render(<LookupPrice item={item} variant="footer" interactive />);
+    const { container } = render(<LookupPrice item={item} interactive />);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -66,14 +66,14 @@ describe("LookupPrice", () => {
       display: "$1.00",
       listingUrl: "https://x",
     });
-    render(<LookupPrice item={item} variant="inline" />);
+    render(<LookupPrice item={item} />);
     expect(screen.queryByRole("link")).toBeNull();
     expect(screen.getByText("$1.00")).toBeInTheDocument();
   });
 
   it("hides a no-listing price in a non-interactive peek", () => {
     setResolved({ hash: "h", state: "no-listing", listingUrl: "https://x" });
-    const { container } = render(<LookupPrice item={item} variant="inline" />);
+    const { container } = render(<LookupPrice item={item} />);
     expect(container).toBeEmptyDOMElement();
   });
 });

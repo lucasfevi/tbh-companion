@@ -15,8 +15,8 @@ export const ItemCard = memo(function ItemCard({
   onSelect?: (item: LookupItem) => void;
 }) {
   const hasBody = lookupItemCardHasBody(item);
-  // Grid cards (onSelect) link the price in a footer; peeks (no onSelect) show
-  // a quiet inline price in the header instead.
+  // Price sits top-right of the header — a Steam link on grid cards (onSelect),
+  // a quiet non-clickable price on peeks (no onSelect).
   const interactive = Boolean(onSelect);
   const cardClassName = cn(
     "flex flex-col",
@@ -29,7 +29,7 @@ export const ItemCard = memo(function ItemCard({
         <ItemCardHeader
           item={item}
           iconSize="md"
-          trailing={interactive ? undefined : <LookupPrice item={item} variant="inline" />}
+          trailing={<LookupPrice item={item} interactive={interactive} />}
         />
       </CardHeader>
 
@@ -59,8 +59,6 @@ export const ItemCard = memo(function ItemCard({
           ))}
         </CardContent>
       ) : null}
-
-      {interactive ? <LookupPrice item={item} variant="footer" interactive /> : null}
     </>
   );
 

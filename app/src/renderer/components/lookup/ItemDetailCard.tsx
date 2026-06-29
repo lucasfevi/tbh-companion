@@ -322,7 +322,7 @@ export function ItemDetailCard({
         <ItemCardHeader
           item={item}
           iconSize="lg"
-          trailing={<LookupPrice item={item} variant="inline" interactive />}
+          trailing={<LookupPrice item={item} interactive />}
         />
       </CardHeader>
 

@@ -12,19 +12,17 @@ function steamTitle(isNoListing: boolean): string {
 }
 
 /**
- * Steam Market price for a Lookup item.
- * - `variant="footer"` — full-width row at the bottom of the grid card / detail panel.
- * - `variant="inline"` — compact price next to the item name (peek, panel header).
- * - `interactive` — wrap in a link to the Steam listing (grid + panel); peek passes false.
- * Renders nothing for non-tradable items, or for no-listing items in non-interactive peeks.
+ * Compact Steam Market price pinned to the top-right of an item's header
+ * (grid card, detail panel, and peek). `interactive` wraps it in a link to the
+ * Steam listing — true for grid cards and the detail panel, false for peeks.
+ * Renders nothing for non-tradable items, or for no-listing items in a
+ * non-interactive peek (kept clean).
  */
 export function LookupPrice({
   item,
-  variant,
   interactive = false,
 }: {
   item: LookupItem;
-  variant: "footer" | "inline";
   interactive?: boolean;
 }) {
   const { resolve } = useLookupPrices();
@@ -34,53 +32,27 @@ export function LookupPrice({
   if (price.state === "no-listing" && !interactive) return null;
 
   const isNoListing = price.state === "no-listing";
-  const value = (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 whitespace-nowrap",
-        isNoListing ? "italic text-muted" : "font-medium text-accent",
-      )}
-    >
-      {isNoListing ? "No listed price" : price.display}
-      {interactive ? <LuExternalLink className="size-3 text-muted" aria-hidden /> : null}
+  const body = (
+    <span className="inline-flex items-center gap-1 text-[12px]">
+      <SiSteam className="size-3 text-muted" aria-hidden />
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 whitespace-nowrap",
+          isNoListing ? "italic text-muted" : "font-medium text-accent",
+        )}
+      >
+        {isNoListing ? "No listed price" : price.display}
+        {interactive ? <LuExternalLink className="size-3 text-muted" aria-hidden /> : null}
+      </span>
     </span>
   );
 
-  if (variant === "inline") {
-    const body = (
-      <span className="inline-flex items-center gap-1 text-[12px]">
-        <SiSteam className="size-3 text-muted" aria-hidden />
-        {value}
-      </span>
+  if (interactive && price.hash) {
+    return (
+      <MarketListingLink hash={price.hash} title={steamTitle(isNoListing)}>
+        {body}
+      </MarketListingLink>
     );
-    if (interactive && price.hash) {
-      return (
-        <MarketListingLink hash={price.hash} title={steamTitle(isNoListing)}>
-          {body}
-        </MarketListingLink>
-      );
-    }
-    return body;
   }
-
-  const row = (
-    <span className="flex items-center justify-between gap-2">
-      <span className="inline-flex items-center gap-1.5 text-[11px] text-muted">
-        <SiSteam className="size-3.5" aria-hidden />
-        Steam Market
-      </span>
-      {value}
-    </span>
-  );
-  return (
-    <div className="mt-2 border-t border-border/60 pt-2 text-[13px]">
-      {price.hash ? (
-        <MarketListingLink hash={price.hash} title={steamTitle(isNoListing)}>
-          {row}
-        </MarketListingLink>
-      ) : (
-        row
-      )}
-    </div>
-  );
+  return body;
 }
