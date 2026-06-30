@@ -109,10 +109,14 @@ export function BoxTracker() {
           Stage boss chest tracker
         </span>
         <div className="no-drag flex gap-1">
+          {/* nativeTitle: this frameless window never hosts a Base UI portal
+              (DESIGN-SYSTEM.md) - a Tooltip popup escaping its bounds would
+              be visually broken, so these keep the plain title attribute. */}
           <Button
             variant="icon"
             type="button"
             title="Minimize"
+            nativeTitle
             onClick={() => window.tbh.minimizeBoxTracker()}
           >
             {"\u2212"}
@@ -121,6 +125,7 @@ export function BoxTracker() {
             variant="icon"
             type="button"
             title="Open full window"
+            nativeTitle
             onClick={() => window.tbh.showMain()}
           >
             {"\u2922"}
@@ -130,6 +135,7 @@ export function BoxTracker() {
             type="button"
             edge="end"
             title="Close"
+            nativeTitle
             onClick={() => window.tbh.closeBoxTracker()}
           >
             {"\u2715"}

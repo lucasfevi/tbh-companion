@@ -16,6 +16,7 @@ import { Button } from "../design-system/primitives/Button/Button";
 import { Field } from "../design-system/primitives/Field/Field";
 import { PanelSection } from "../design-system/primitives/PanelSection/PanelSection";
 import { Select } from "../design-system/primitives/Select/Select";
+import { Tooltip } from "../design-system/primitives/Tooltip/Tooltip";
 import { cn } from "../lib/cn";
 
 export function ChestsTrackerPanel() {
@@ -117,23 +118,28 @@ export function ChestsTrackerPanel() {
         {/* Raw toggle chips — no ToggleChip primitive yet; pill shape + grid density are one-off. */}
         <div className={cn("mt-1.5 grid gap-1", TRACKER_LEVEL_CHIP_GRID_CLASS)}>
           {state.catalog.map((entry) => (
-            <button
+            <Tooltip
               key={entry.boxId}
-              type="button"
-              className={cn(
-                "box-border cursor-pointer rounded-full border px-1 py-0.5 text-center text-[10px] font-semibold leading-tight break-words whitespace-normal",
-                TRACKER_LEVEL_CHIP_WIDTH_CLASS,
-                entry.enabled
-                  ? "border-accent bg-ideal/15 text-accent"
-                  : "border-border bg-card text-muted hover:border-muted hover:text-fg",
-              )}
-              title={`${entry.idealStageLabel} · ${entry.dropStageRangeLabel}${
+              trigger={
+                <button
+                  type="button"
+                  className={cn(
+                    "box-border cursor-pointer rounded-full border px-1 py-0.5 text-center text-[10px] font-semibold leading-tight break-words whitespace-normal",
+                    TRACKER_LEVEL_CHIP_WIDTH_CLASS,
+                    entry.enabled
+                      ? "border-accent bg-ideal/15 text-accent"
+                      : "border-border bg-card text-muted hover:border-muted hover:text-fg",
+                  )}
+                  onClick={() => toggleTrackedLevel(entry, state.catalog)}
+                >
+                  Lv{entry.level}
+                </button>
+              }
+            >
+              {`${entry.idealStageLabel} · ${entry.dropStageRangeLabel}${
                 entry.enabled ? " — tracking" : " — tap to track"
               }`}
-              onClick={() => toggleTrackedLevel(entry, state.catalog)}
-            >
-              Lv{entry.level}
-            </button>
+            </Tooltip>
           ))}
         </div>
       </PanelSection>
