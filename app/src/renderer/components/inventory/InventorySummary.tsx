@@ -3,6 +3,7 @@ import { GradeBars } from "./GradeBars";
 import type { InventoryComposition } from "../../../../shared/types";
 import { HintBanner } from "../../design-system/primitives/HintBanner/HintBanner";
 import { StatCard } from "../../design-system/primitives/StatCard/StatCard";
+import { Tooltip } from "../../design-system/primitives/Tooltip/Tooltip";
 import { ExternalLink } from "../ui/ExternalLink";
 import { DISCORD_URL } from "../../lib/externalLinks";
 
@@ -46,10 +47,16 @@ export function InventorySummary({
           title={LIST_VALUE_TIP}
           value={hasListValue ? formatMoney(c.valuedTotal, currency) : "-"}
           detail={
-            <span title={NET_FEES_TIP}>
-              <span className="font-semibold text-gold">{netAfterFees}</span> after Steam fees
-              {feeDetail ? <span className="block">{feeDetail}</span> : null}
-            </span>
+            <Tooltip
+              trigger={
+                <span tabIndex={0}>
+                  <span className="font-semibold text-gold">{netAfterFees}</span> after Steam fees
+                  {feeDetail ? <span className="block">{feeDetail}</span> : null}
+                </span>
+              }
+            >
+              {NET_FEES_TIP}
+            </Tooltip>
           }
         />
 

@@ -22,6 +22,7 @@ import type {
 import { Badge } from "../../design-system/primitives/Badge/Badge";
 import { Button } from "../../design-system/primitives/Button/Button";
 import { Card } from "../../design-system/primitives/Card/Card";
+import { Tooltip } from "../../design-system/primitives/Tooltip/Tooltip";
 import { cn } from "../../lib/cn";
 import { buyOrderAverage, type SortKey } from "../../lib/inventoryFilters";
 
@@ -118,10 +119,16 @@ function buildColumnDefs(
             />
             <span className="min-w-0 truncate">{row.name}</span>
             {row.chaoticCount > 0 && (
-              <span className="shrink-0 text-gold" title="Chaotic">
-                {" "}
-                &#9670;
-              </span>
+              <Tooltip
+                trigger={
+                  <span className="shrink-0 text-gold" tabIndex={0}>
+                    {" "}
+                    &#9670;
+                  </span>
+                }
+              >
+                Chaotic
+              </Tooltip>
             )}
             {refreshButton}
           </span>
@@ -168,29 +175,59 @@ function buildColumnDefs(
         return (
           <>
             {(row.inventoryCount ?? 0) > 0 && (
-              <span className="mr-1.5 inline-block text-[11px] text-muted" title="Inventory">
-                Inv {row.inventoryCount}
-              </span>
+              <Tooltip
+                trigger={
+                  <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
+                    Inv {row.inventoryCount}
+                  </span>
+                }
+              >
+                Inventory
+              </Tooltip>
             )}
             {(row.stashCount ?? 0) > 0 && (
-              <span className="mr-1.5 inline-block text-[11px] text-muted" title="Stash">
-                St {row.stashCount}
-              </span>
+              <Tooltip
+                trigger={
+                  <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
+                    St {row.stashCount}
+                  </span>
+                }
+              >
+                Stash
+              </Tooltip>
             )}
             {(row.tradingCount ?? 0) > 0 && (
-              <span className="mr-1.5 inline-block text-[11px] text-muted" title="Trading">
-                Tr {row.tradingCount}
-              </span>
+              <Tooltip
+                trigger={
+                  <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
+                    Tr {row.tradingCount}
+                  </span>
+                }
+              >
+                Trading
+              </Tooltip>
             )}
             {inUse > 0 && (
-              <span className="mr-1.5 inline-block text-[11px] text-muted" title="Equipped">
-                Eq {inUse}
-              </span>
+              <Tooltip
+                trigger={
+                  <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
+                    Eq {inUse}
+                  </span>
+                }
+              >
+                Equipped
+              </Tooltip>
             )}
             {unassignedCount(row) > 0 && (
-              <span className="mr-1.5 inline-block text-[11px] text-muted" title="Unassigned">
-                ?
-              </span>
+              <Tooltip
+                trigger={
+                  <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
+                    ?
+                  </span>
+                }
+              >
+                Unassigned
+              </Tooltip>
             )}
           </>
         );
@@ -209,10 +246,16 @@ function buildColumnDefs(
             ? `${inUse} of ${row.count} owned are currently equipped; the rest are in your inventory/stash`
             : "All owned copies are currently equipped";
         return (
-          <span className="text-accent" title={title}>
-            {inUse}
-            {inUse < row.count ? `/${row.count}` : ""}
-          </span>
+          <Tooltip
+            trigger={
+              <span className="text-accent" tabIndex={0}>
+                {inUse}
+                {inUse < row.count ? `/${row.count}` : ""}
+              </span>
+            }
+          >
+            {title}
+          </Tooltip>
         );
       },
     },
@@ -224,9 +267,15 @@ function buildColumnDefs(
       render: (row, currency) => {
         if (!row.marketHashName) {
           return (
-            <span className="text-muted" title="Not priced (non-tradable or below Legendary gear)">
-              -
-            </span>
+            <Tooltip
+              trigger={
+                <span className="text-muted" tabIndex={0}>
+                  -
+                </span>
+              }
+            >
+              Not priced (non-tradable or below Legendary gear)
+            </Tooltip>
           );
         }
         return <MarketPriceCell row={row} hash={row.marketHashName} currency={currency} />;

@@ -2,23 +2,27 @@ import { GRADE_ORDER } from "../../../core/grades";
 import { gradeLabel } from "../../../core/labels";
 import type { InventoryComposition } from "../../../../shared/types";
 import { gradeColor } from "../../lib/gradeColor";
+import { Tooltip } from "../../design-system/primitives/Tooltip/Tooltip";
 
 export function GradeBars({ composition }: { composition: InventoryComposition }) {
   return (
     <div className="flex flex-wrap gap-x-4 gap-y-2">
       {GRADE_ORDER.filter((g) => composition.byGrade[g]).map((g) => (
-        <div
+        <Tooltip
           key={g}
-          className="flex items-center gap-1.5 text-xs"
-          title={`${g}: ${composition.byGrade[g]}`}
+          trigger={
+            <div className="flex items-center gap-1.5 text-xs" tabIndex={0}>
+              <span
+                className="inline-block size-[9px] shrink-0 rounded-full"
+                style={{ background: gradeColor(g) }}
+              />
+              <span style={{ color: gradeColor(g) }}>{gradeLabel(g)}</span>
+              <span className="text-muted">{composition.byGrade[g]}</span>
+            </div>
+          }
         >
-          <span
-            className="inline-block size-[9px] shrink-0 rounded-full"
-            style={{ background: gradeColor(g) }}
-          />
-          <span style={{ color: gradeColor(g) }}>{gradeLabel(g)}</span>
-          <span className="text-muted">{composition.byGrade[g]}</span>
-        </div>
+          {`${g}: ${composition.byGrade[g]}`}
+        </Tooltip>
       ))}
     </div>
   );
