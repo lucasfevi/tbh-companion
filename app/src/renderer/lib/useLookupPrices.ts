@@ -7,6 +7,13 @@ import { reportIpcError } from "./reportError";
 // App-lifetime singleton: fetch the snapshot once and subscribe to updates, so
 // the hundreds of Lookup cards share one IPC fetch + listener instead of each
 // fetching. Backed by useSyncExternalStore.
+//
+// Deviates from RENDERER.md rule #1 ("one IPC listener per channel in
+// TbhProvider.tsx") on purpose: the snapshot can hold ~1k entries and is read
+// by every Lookup card, so routing it through TbhProvider's context would
+// re-render the whole tab tree on every update. A module-level singleton with
+// useSyncExternalStore avoids that — same call pattern TbhProvider already
+// makes, just outside the context tree.
 let snapshot: LookupPriceSnapshot | null = null;
 let started = false;
 const listeners = new Set<() => void>();
