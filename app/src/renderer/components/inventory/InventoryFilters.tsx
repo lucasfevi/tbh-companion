@@ -7,6 +7,7 @@ import {
   MultiSelect,
   type MultiSelectOption,
 } from "../../design-system/primitives/MultiSelect/MultiSelect";
+import { Tooltip } from "../../design-system/primitives/Tooltip/Tooltip";
 
 const LOCATION_OPTIONS: MultiSelectOption[] = [
   { value: "inventory", label: "Inventory" },
@@ -92,13 +93,24 @@ export function InventoryFilters({
           onChange={(e) => onQueryChange(e.target.value)}
         />
         <span className="shrink-0 whitespace-nowrap text-xs text-muted">{shownCount} items</span>
-        <span title="Hides only items where every copy you own is equipped. Items with some copies equipped and some in your inventory/stash still show.">
-          <Checkbox
-            label="Unequipped only"
-            checked={unequippedOnly}
-            onCheckedChange={onUnequippedOnlyChange}
-          />
-        </span>
+        <Tooltip
+          trigger={
+            <span>
+              <Checkbox
+                label={
+                  <span className="underline decoration-dotted decoration-muted underline-offset-2">
+                    Unequipped only
+                  </span>
+                }
+                checked={unequippedOnly}
+                onCheckedChange={onUnequippedOnlyChange}
+              />
+            </span>
+          }
+        >
+          Hides only items where every copy you own is equipped. Items with some copies equipped and
+          some in your inventory/stash still show.
+        </Tooltip>
         <Checkbox
           label="Tradable only"
           checked={tradableOnly}

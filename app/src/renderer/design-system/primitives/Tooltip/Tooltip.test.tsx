@@ -64,4 +64,33 @@ describe("Tooltip", () => {
       await axe(document.body, { rules: { region: { enabled: false } } }),
     ).toHaveNoViolations();
   });
+
+  it("adds a dotted-underline + help-cursor affordance to the trigger when underline is set", () => {
+    render(
+      <Tooltip underline trigger={<span>5m ago</span>}>
+        When XP last changed
+      </Tooltip>,
+    );
+    const trigger = screen.getByText("5m ago");
+    expect(trigger.className).toContain("underline");
+    expect(trigger.className).toContain("decoration-dotted");
+    expect(trigger.className).toContain("cursor-help");
+  });
+
+  it("does not add the underline affordance by default", () => {
+    renderTooltip();
+    const trigger = screen.getByRole("button", { name: "Rate" });
+    expect(trigger.className).not.toContain("decoration-dotted");
+  });
+
+  it("merges underline classes with the trigger's own className", () => {
+    render(
+      <Tooltip underline trigger={<span className="text-accent">5m ago</span>}>
+        When XP last changed
+      </Tooltip>,
+    );
+    const trigger = screen.getByText("5m ago");
+    expect(trigger.className).toContain("text-accent");
+    expect(trigger.className).toContain("decoration-dotted");
+  });
 });

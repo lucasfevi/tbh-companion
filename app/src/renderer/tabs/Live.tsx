@@ -21,6 +21,7 @@ import { StatCard } from "../design-system/primitives/StatCard/StatCard";
 import { MetricHero } from "../design-system/primitives/MetricHero/MetricHero";
 import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
 import { TabPage } from "../design-system/primitives/TabPage/TabPage";
+import { Tooltip } from "../design-system/primitives/Tooltip/Tooltip";
 import { ChestDropPanel } from "../components/live/ChestDropPanel";
 import { LiveHistoryPanel } from "../components/live/LiveHistoryPanel";
 import { LiveMatchedPair } from "../components/live/LiveMatchedPair";
@@ -154,21 +155,38 @@ export function Live() {
 
       <MetricHero
         primary={
-          <div className="flex cursor-help items-baseline gap-2" title={RATE_TIP}>
-            <span className="text-[40px] font-bold leading-none text-accent">
-              {fmtCompact(stats.rollingRate)}
-            </span>
-            <span className="text-[13px] tracking-wide text-muted">XP / hr</span>
-          </div>
+          <Tooltip
+            trigger={
+              <div className="flex cursor-help items-baseline gap-2" tabIndex={0}>
+                <span className="text-[40px] font-bold leading-none text-accent">
+                  {fmtCompact(stats.rollingRate)}
+                </span>
+                <span className="text-[13px] tracking-wide text-muted underline decoration-dotted decoration-muted underline-offset-2">
+                  XP / hr
+                </span>
+              </div>
+            }
+          >
+            {RATE_TIP}
+          </Tooltip>
         }
         center={
           <>
-            <div
-              className="cursor-help text-[15px] font-semibold leading-tight text-gold"
-              title={GOLD_TIP}
+            <Tooltip
+              trigger={
+                <div
+                  className="cursor-help text-[15px] font-semibold leading-tight text-gold"
+                  tabIndex={0}
+                >
+                  {fmtCompact(stats.goldRate)}{" "}
+                  <span className="underline decoration-dotted decoration-muted underline-offset-2">
+                    gold / hr
+                  </span>
+                </div>
+              }
             >
-              {fmtCompact(stats.goldRate)} gold / hr
-            </div>
+              {GOLD_TIP}
+            </Tooltip>
             <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-xs text-muted">
               <span>
                 Map{" "}
@@ -176,15 +194,18 @@ export function Live() {
                   {stageName(stats.stageKey, stats.stageWave)}
                 </b>
               </span>
-              <span
-                title={
-                  stats.secondsSinceGain === null
-                    ? "Connected and reading your save. Rates update when the game writes progress."
-                    : "When XP last changed in your save"
+              <Tooltip
+                underline
+                trigger={
+                  <span tabIndex={0}>
+                    <b className="font-semibold text-fg">{fmtXpUpdated(stats.secondsSinceGain)}</b>
+                  </span>
                 }
               >
-                <b className="font-semibold text-fg">{fmtXpUpdated(stats.secondsSinceGain)}</b>
-              </span>
+                {stats.secondsSinceGain === null
+                  ? "Connected and reading your save. Rates update when the game writes progress."
+                  : "When XP last changed in your save"}
+              </Tooltip>
             </div>
           </>
         }
@@ -231,12 +252,18 @@ export function Live() {
         title={
           <span className="inline-flex items-center gap-1.5">
             Inventory fill prediction
-            <span
-              className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-border text-[10px] normal-case leading-none tracking-normal text-muted"
-              title={INVENTORY_PREDICTION_TIP}
+            <Tooltip
+              trigger={
+                <span
+                  className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-border text-[10px] normal-case leading-none tracking-normal text-muted"
+                  tabIndex={0}
+                >
+                  ?
+                </span>
+              }
             >
-              ?
-            </span>
+              {INVENTORY_PREDICTION_TIP}
+            </Tooltip>
           </span>
         }
         boxed

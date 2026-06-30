@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Select as BaseSelect } from "@base-ui/react/select";
 import { cn, cva, type VariantProps } from "../../lib/variants";
+import { Tooltip } from "../Tooltip/Tooltip";
 
 export type SelectOption = {
   value: string | number;
@@ -79,6 +80,26 @@ export function Select({
   disabled?: boolean;
   title?: string;
 } & VariantProps<typeof triggerVariants>) {
+  const trigger = (
+    <BaseSelect.Trigger className={cn(triggerVariants({ variant }), "group", triggerClassName)}>
+      <span className="grid min-w-0 grid-cols-1 grid-rows-1">
+        {options.map((option) => (
+          <span
+            key={option.value}
+            aria-hidden="true"
+            className="invisible col-start-1 row-start-1 whitespace-nowrap"
+          >
+            {option.label}
+          </span>
+        ))}
+        <BaseSelect.Value className="col-start-1 row-start-1 min-w-0 truncate" />
+      </span>
+      <span className="flex w-6 shrink-0 items-center justify-center">
+        <SelectChevron />
+      </span>
+    </BaseSelect.Trigger>
+  );
+
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       <BaseSelect.Root<string | number>
@@ -95,26 +116,7 @@ export function Select({
             {label}
           </BaseSelect.Label>
         ) : null}
-        <BaseSelect.Trigger
-          title={title}
-          className={cn(triggerVariants({ variant }), "group", triggerClassName)}
-        >
-          <span className="grid min-w-0 grid-cols-1 grid-rows-1">
-            {options.map((option) => (
-              <span
-                key={option.value}
-                aria-hidden="true"
-                className="invisible col-start-1 row-start-1 whitespace-nowrap"
-              >
-                {option.label}
-              </span>
-            ))}
-            <BaseSelect.Value className="col-start-1 row-start-1 min-w-0 truncate" />
-          </span>
-          <span className="flex w-6 shrink-0 items-center justify-center">
-            <SelectChevron />
-          </span>
-        </BaseSelect.Trigger>
+        {title ? <Tooltip trigger={trigger}>{title}</Tooltip> : trigger}
         <BaseSelect.Portal>
           <BaseSelect.Positioner alignItemWithTrigger={false} sideOffset={4} className="z-50">
             <BaseSelect.Popup className="max-h-52 w-(--anchor-width) overflow-y-auto rounded-md border border-border bg-card py-1 shadow-[0_8px_24px_rgb(0_0_0/0.45)]">

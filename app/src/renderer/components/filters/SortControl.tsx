@@ -1,5 +1,6 @@
 import { LuArrowDownNarrowWide, LuArrowUpNarrowWide } from "react-icons/lu";
 import { Select, type SelectOption } from "../../design-system/primitives/Select/Select";
+import { Tooltip } from "../../design-system/primitives/Tooltip/Tooltip";
 import { cn } from "../../design-system/lib/variants";
 
 /**
@@ -42,15 +43,24 @@ export function SortControl({
           title="Sort by"
         />
         {/* Raw button: glued to Select's trigger — no Button primitive (would break the shared border seam). */}
-        <button
-          type="button"
-          onClick={onSortDirToggle}
-          title={ascending ? "Ascending" : "Descending"}
-          aria-label={ascending ? "Sort ascending" : "Sort descending"}
-          className="flex items-center justify-center border-l border-border bg-card px-2 text-fg hover:bg-panel focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ideal/50"
+        <Tooltip
+          trigger={
+            <button
+              type="button"
+              onClick={onSortDirToggle}
+              aria-label={ascending ? "Sort ascending" : "Sort descending"}
+              className="flex items-center justify-center border-l border-border bg-card px-2 text-fg hover:bg-panel focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ideal/50"
+            >
+              {ascending ? (
+                <LuArrowUpNarrowWide aria-hidden />
+              ) : (
+                <LuArrowDownNarrowWide aria-hidden />
+              )}
+            </button>
+          }
         >
-          {ascending ? <LuArrowUpNarrowWide aria-hidden /> : <LuArrowDownNarrowWide aria-hidden />}
-        </button>
+          {ascending ? "Ascending" : "Descending"}
+        </Tooltip>
       </div>
     </div>
   );

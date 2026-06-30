@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { Combobox } from "@base-ui/react/combobox";
 import { LuCheck, LuChevronDown, LuX } from "react-icons/lu";
 import { cn } from "../../lib/variants";
+import { Tooltip } from "../Tooltip/Tooltip";
 
 export type MultiSelectOption = { value: string; label: string };
 export type MultiSelectGroup = { label: string; options: MultiSelectOption[] };
@@ -60,6 +61,24 @@ export function MultiSelect({
 
   const { contains } = Combobox.useFilter();
 
+  const trigger = (
+    <Combobox.Trigger className="group flex w-full min-w-0 items-center justify-between gap-2 rounded-md border border-border bg-card py-1.5 pl-2.5 pr-2 text-left text-[13px] text-fg focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ideal/50 disabled:cursor-not-allowed disabled:opacity-50 data-[popup-open]:z-50">
+      <span className="min-w-0 truncate">
+        <Combobox.Value>
+          {(selected: MultiSelectOption[]) =>
+            summarize ? summarize(selected) : defaultSummary(selected, allLabel)
+          }
+        </Combobox.Value>
+      </span>
+      <span className="flex w-6 shrink-0 items-center justify-center">
+        <LuChevronDown
+          className="text-muted transition-transform duration-150 group-data-[popup-open]:rotate-180"
+          aria-hidden
+        />
+      </span>
+    </Combobox.Trigger>
+  );
+
   const renderItem = (option: MultiSelectOption) => (
     <Combobox.Item
       key={option.value}
@@ -94,24 +113,7 @@ export function MultiSelect({
         ) : null}
 
         <div className="relative">
-          <Combobox.Trigger
-            title={title}
-            className="group flex w-full min-w-0 items-center justify-between gap-2 rounded-md border border-border bg-card py-1.5 pl-2.5 pr-2 text-left text-[13px] text-fg focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ideal/50 disabled:cursor-not-allowed disabled:opacity-50 data-[popup-open]:z-50"
-          >
-            <span className="min-w-0 truncate">
-              <Combobox.Value>
-                {(selected: MultiSelectOption[]) =>
-                  summarize ? summarize(selected) : defaultSummary(selected, allLabel)
-                }
-              </Combobox.Value>
-            </span>
-            <span className="flex w-6 shrink-0 items-center justify-center">
-              <LuChevronDown
-                className="text-muted transition-transform duration-150 group-data-[popup-open]:rotate-180"
-                aria-hidden
-              />
-            </span>
-          </Combobox.Trigger>
+          {title ? <Tooltip trigger={trigger}>{title}</Tooltip> : trigger}
 
           {value.length > 0 && !disabled ? (
             <button

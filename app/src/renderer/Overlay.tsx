@@ -34,11 +34,15 @@ export function Overlay() {
           TBH Companion
         </span>
         <div className="no-drag flex gap-1">
+          {/* nativeTitle: this frameless 280x94 window never hosts a Base UI
+              portal (DESIGN-SYSTEM.md) - a Tooltip popup escaping its bounds
+              would be visually broken, so these keep the plain title attribute. */}
           <Button
             variant="icon"
             type="button"
             className="text-xs"
             title="Reset session stats"
+            nativeTitle
             onClick={() => window.tbh.reset()}
           >
             {"\u21bb"}
@@ -48,6 +52,7 @@ export function Overlay() {
             type="button"
             className="text-xs"
             title="Open full window"
+            nativeTitle
             onClick={() => window.tbh.showMain()}
           >
             {"\u2922"}
@@ -58,6 +63,7 @@ export function Overlay() {
             edge="end"
             className="text-xs"
             title="Close mini overlay (app keeps running in the tray)"
+            nativeTitle
             onClick={() => window.tbh.closeOverlay()}
           >
             {"\u2715"}
@@ -69,6 +75,9 @@ export function Overlay() {
         <p className="m-0 text-muted">Connecting...</p>
       ) : (
         <div className="flex flex-col gap-1">
+          {/* Native title (not Tooltip): this frameless window never hosts a
+              Base UI portal - see DESIGN-SYSTEM.md "Base UI portals are safe
+              per-window". */}
           <div className="flex items-baseline justify-between gap-2.5">
             <p className="m-0 flex min-w-0 cursor-help items-baseline gap-1" title={RATE_TIP}>
               <span className="text-2xl font-bold leading-none tabular-nums text-accent">

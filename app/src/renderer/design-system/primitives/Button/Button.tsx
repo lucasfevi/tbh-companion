@@ -1,19 +1,46 @@
 import { forwardRef, type AnchorHTMLAttributes, type ButtonHTMLAttributes } from "react";
 import { cn } from "../../lib/variants";
 import { buttonVariants, type ButtonVariants } from "./buttonVariants";
+import { Tooltip } from "../Tooltip/Tooltip";
 
 export const Button = forwardRef<
   HTMLButtonElement,
-  ButtonHTMLAttributes<HTMLButtonElement> & ButtonVariants
->(function Button({ className, variant, size, edge, type = "button", ...props }, ref) {
-  return (
+  ButtonHTMLAttributes<HTMLButtonElement> &
+    ButtonVariants & {
+      /**
+       * Keep `title` as a plain native attribute instead of wrapping it in a
+       * Tooltip. Only for the frameless overlay/box-tracker windows, which
+       * never host a Base UI portal (see DESIGN-SYSTEM.md "Base UI portals
+       * are safe per-window") — a Tooltip popup escaping those tiny bounds
+       * would be visually broken.
+       */
+      nativeTitle?: boolean;
+    }
+>(function Button(
+  {
+    className,
+    variant,
+    size,
+    edge,
+    type = "button",
+    title,
+    nativeTitle,
+    "aria-label": ariaLabel,
+    ...props
+  },
+  ref,
+) {
+  const button = (
     <button
       ref={ref}
       type={type}
       className={cn(buttonVariants({ variant, size, edge }), className)}
+      title={nativeTitle ? title : undefined}
+      aria-label={ariaLabel ?? (variant === "icon" ? title : undefined)}
       {...props}
     />
   );
+  return title && !nativeTitle ? <Tooltip trigger={button}>{title}</Tooltip> : button;
 });
 
 /**

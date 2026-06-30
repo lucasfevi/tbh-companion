@@ -1,5 +1,6 @@
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { Button, ButtonLink } from "./Button";
@@ -67,6 +68,62 @@ describe("Button", () => {
       </>,
     );
     expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("shows a Tooltip (not a native title attribute) when title is set, and falls back aria-label to it", async () => {
+    render(
+      <Button variant="icon" title="Reset session stats">
+        {"↻"}
+      </Button>,
+    );
+    const button = screen.getByRole("button", { name: "Reset session stats" });
+    expect(button).not.toHaveAttribute("title");
+
+    button.focus();
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Reset session stats");
+  });
+
+  it("still forwards a caller ref to the underlying DOM button when title is also set", async () => {
+    const ref = createRef<HTMLButtonElement>();
+    render(
+      <Button ref={ref} variant="icon" title="Back to top" aria-label="Back to top">
+        ↑
+      </Button>,
+    );
+    await waitFor(() => expect(ref.current).toBeInstanceOf(HTMLButtonElement));
+    expect(ref.current).toBe(screen.getByRole("button", { name: "Back to top" }));
+  });
+
+  it("does not override aria-label from title on a labeled (non-icon) button", () => {
+    render(
+      <Button title="Open mini stats overlay" onClick={() => {}}>
+        Mini
+      </Button>,
+    );
+    // Visible text stays the accessible name (WCAG 2.5.3 Label in Name) —
+    // the title tooltip is supplementary, not a replacement name.
+    const button = screen.getByRole("button", { name: "Mini" });
+    expect(button).not.toHaveAttribute("aria-label");
+  });
+
+  it("still respects an explicit aria-label on a labeled button", () => {
+    render(
+      <Button title="Open mini stats overlay" aria-label="Custom label" onClick={() => {}}>
+        Mini
+      </Button>,
+    );
+    expect(screen.getByRole("button", { name: "Custom label" })).toBeInTheDocument();
+  });
+
+  it("keeps the plain native title attribute (no Tooltip) when nativeTitle is set", () => {
+    render(
+      <Button variant="icon" title="Minimize" nativeTitle>
+        {"−"}
+      </Button>,
+    );
+    const button = screen.getByRole("button", { name: "Minimize" });
+    expect(button).toHaveAttribute("title", "Minimize");
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
 });
 
