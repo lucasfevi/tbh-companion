@@ -68,11 +68,7 @@ export function StatCard({
   const card = (
     <Card
       padding={variant === "highlight" ? "default" : "compact"}
-      className={cn(
-        cardVariants({ variant }),
-        variant === "highlight" && title && "cursor-help",
-        className,
-      )}
+      className={cn(cardVariants({ variant }), title && "cursor-help", className)}
       tabIndex={title ? 0 : undefined}
     >
       {valueFirst ? (

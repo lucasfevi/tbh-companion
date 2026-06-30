@@ -121,7 +121,7 @@ function buildColumnDefs(
             {row.chaoticCount > 0 && (
               <Tooltip
                 trigger={
-                  <span className="shrink-0 text-gold" tabIndex={0}>
+                  <span className="shrink-0 cursor-help text-gold" tabIndex={0}>
                     {" "}
                     &#9670;
                   </span>
@@ -176,6 +176,7 @@ function buildColumnDefs(
           <>
             {(row.inventoryCount ?? 0) > 0 && (
               <Tooltip
+                underline
                 trigger={
                   <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
                     Inv {row.inventoryCount}
@@ -187,6 +188,7 @@ function buildColumnDefs(
             )}
             {(row.stashCount ?? 0) > 0 && (
               <Tooltip
+                underline
                 trigger={
                   <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
                     St {row.stashCount}
@@ -198,6 +200,7 @@ function buildColumnDefs(
             )}
             {(row.tradingCount ?? 0) > 0 && (
               <Tooltip
+                underline
                 trigger={
                   <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
                     Tr {row.tradingCount}
@@ -209,6 +212,7 @@ function buildColumnDefs(
             )}
             {inUse > 0 && (
               <Tooltip
+                underline
                 trigger={
                   <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
                     Eq {inUse}
@@ -220,6 +224,7 @@ function buildColumnDefs(
             )}
             {unassignedCount(row) > 0 && (
               <Tooltip
+                underline
                 trigger={
                   <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
                     ?
@@ -247,6 +252,7 @@ function buildColumnDefs(
             : "All owned copies are currently equipped";
         return (
           <Tooltip
+            underline
             trigger={
               <span className="text-accent" tabIndex={0}>
                 {inUse}
@@ -268,6 +274,7 @@ function buildColumnDefs(
         if (!row.marketHashName) {
           return (
             <Tooltip
+              underline
               trigger={
                 <span className="text-muted" tabIndex={0}>
                   -

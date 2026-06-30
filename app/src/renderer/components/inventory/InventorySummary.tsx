@@ -48,6 +48,7 @@ export function InventorySummary({
           value={hasListValue ? formatMoney(c.valuedTotal, currency) : "-"}
           detail={
             <Tooltip
+              underline
               trigger={
                 <span tabIndex={0}>
                   <span className="font-semibold text-gold">{netAfterFees}</span> after Steam fees

@@ -10,6 +10,7 @@ export function GradeBars({ composition }: { composition: InventoryComposition }
       {GRADE_ORDER.filter((g) => composition.byGrade[g]).map((g) => (
         <Tooltip
           key={g}
+          underline
           trigger={
             <div className="flex items-center gap-1.5 text-xs" tabIndex={0}>
               <span

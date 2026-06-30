@@ -32,15 +32,20 @@ describe("StatCard", () => {
     expect(value.className).toContain("text-accent");
   });
 
-  it("shows a help cursor on the highlight variant only when title is set", () => {
-    const { container: withTitle } = render(
+  it("shows a help cursor whenever title is set, regardless of variant", () => {
+    const { container: highlightWithTitle } = render(
       <StatCard label="Market value" value="$1.2K" variant="highlight" title="tooltip" />,
     );
-    expect(withTitle.querySelector(".cursor-help")).not.toBeNull();
+    expect(highlightWithTitle.querySelector(".cursor-help")).not.toBeNull();
 
-    const { container: withoutTitle } = render(
+    const { container: highlightWithoutTitle } = render(
       <StatCard label="Market value" value="$1.2K" variant="highlight" />,
     );
-    expect(withoutTitle.querySelector(".cursor-help")).toBeNull();
+    expect(highlightWithoutTitle.querySelector(".cursor-help")).toBeNull();
+
+    const { container: defaultWithTitle } = render(
+      <StatCard label="Common chests" value="42" title="tooltip" />,
+    );
+    expect(defaultWithTitle.querySelector(".cursor-help")).not.toBeNull();
   });
 });

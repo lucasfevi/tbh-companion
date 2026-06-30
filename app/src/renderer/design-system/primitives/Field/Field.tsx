@@ -38,5 +38,11 @@ export function Field({
   };
 
   const content = renderContent();
-  return title ? <Tooltip trigger={content}>{title}</Tooltip> : content;
+  return title ? (
+    <Tooltip underline trigger={content}>
+      {title}
+    </Tooltip>
+  ) : (
+    content
+  );
 }

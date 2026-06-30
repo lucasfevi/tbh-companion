@@ -190,6 +190,7 @@ export function Live() {
                 </b>
               </span>
               <Tooltip
+                underline
                 trigger={
                   <span tabIndex={0}>
                     <b className="font-semibold text-fg">{fmtXpUpdated(stats.secondsSinceGain)}</b>
