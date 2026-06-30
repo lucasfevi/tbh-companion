@@ -119,14 +119,7 @@ function buildColumnDefs(
             />
             <span className="min-w-0 truncate">{row.name}</span>
             {row.chaoticCount > 0 && (
-              <Tooltip
-                trigger={
-                  <span className="shrink-0 cursor-help text-gold" tabIndex={0}>
-                    {" "}
-                    &#9670;
-                  </span>
-                }
-              >
+              <Tooltip trigger={<span className="shrink-0 cursor-help text-gold"> &#9670;</span>}>
                 Chaotic
               </Tooltip>
             )}
@@ -178,7 +171,7 @@ function buildColumnDefs(
               <Tooltip
                 underline
                 trigger={
-                  <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
+                  <span className="mr-1.5 inline-block text-[11px] text-muted">
                     Inv {row.inventoryCount}
                   </span>
                 }
@@ -190,7 +183,7 @@ function buildColumnDefs(
               <Tooltip
                 underline
                 trigger={
-                  <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
+                  <span className="mr-1.5 inline-block text-[11px] text-muted">
                     St {row.stashCount}
                   </span>
                 }
@@ -202,7 +195,7 @@ function buildColumnDefs(
               <Tooltip
                 underline
                 trigger={
-                  <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
+                  <span className="mr-1.5 inline-block text-[11px] text-muted">
                     Tr {row.tradingCount}
                   </span>
                 }
@@ -214,9 +207,7 @@ function buildColumnDefs(
               <Tooltip
                 underline
                 trigger={
-                  <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
-                    Eq {inUse}
-                  </span>
+                  <span className="mr-1.5 inline-block text-[11px] text-muted">Eq {inUse}</span>
                 }
               >
                 Equipped
@@ -225,11 +216,7 @@ function buildColumnDefs(
             {unassignedCount(row) > 0 && (
               <Tooltip
                 underline
-                trigger={
-                  <span className="mr-1.5 inline-block text-[11px] text-muted" tabIndex={0}>
-                    ?
-                  </span>
-                }
+                trigger={<span className="mr-1.5 inline-block text-[11px] text-muted">?</span>}
               >
                 Unassigned
               </Tooltip>
@@ -254,7 +241,7 @@ function buildColumnDefs(
           <Tooltip
             underline
             trigger={
-              <span className="text-accent" tabIndex={0}>
+              <span className="text-accent">
                 {inUse}
                 {inUse < row.count ? `/${row.count}` : ""}
               </span>
@@ -273,14 +260,7 @@ function buildColumnDefs(
       render: (row, currency) => {
         if (!row.marketHashName) {
           return (
-            <Tooltip
-              underline
-              trigger={
-                <span className="text-muted" tabIndex={0}>
-                  -
-                </span>
-              }
-            >
+            <Tooltip underline trigger={<span className="text-muted">-</span>}>
               Not priced (non-tradable or below Legendary gear)
             </Tooltip>
           );
