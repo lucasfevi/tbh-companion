@@ -48,4 +48,19 @@ describe("StatCard", () => {
     );
     expect(defaultWithTitle.querySelector(".cursor-help")).not.toBeNull();
   });
+
+  it("shows a Tooltip (not a native title attribute) reachable by keyboard focus", async () => {
+    render(<StatCard label="Common chests" value="42" title="Drop rates this session" />);
+    const card = screen.getByText("Common chests").closest("[tabindex]");
+    expect(card).not.toHaveAttribute("title");
+    expect(card).toHaveAttribute("tabindex", "0");
+
+    card!.focus();
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Drop rates this session");
+  });
+
+  it("is not focusable when no title is set", () => {
+    const { container } = render(<StatCard label="Session XP" value="1.2K" />);
+    expect(container.querySelector("[tabindex]")).toBeNull();
+  });
 });
