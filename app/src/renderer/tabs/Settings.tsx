@@ -34,6 +34,13 @@ const CLEAR_ACTIONS: {
       "Remove all cached Steam Market prices? Inventory values will need to be fetched again from the Market tab.",
   },
   {
+    target: "lookup-prices",
+    label: "Clear Lookup market prices",
+    detail: "lookup_prices.json",
+    confirm:
+      "Remove the cached Lookup price snapshot? It will be downloaded again on the next check.",
+  },
+  {
     target: "box-timers",
     label: "Reset stage boss chest tracker",
     detail: "box_timers.json",

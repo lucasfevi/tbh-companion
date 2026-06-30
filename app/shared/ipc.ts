@@ -8,6 +8,7 @@ export const IPC = {
   BOX_TIMERS: "box-timers",
   PRICES_PROGRESS: "prices-progress",
   PRICE_STATUS: "price-status",
+  LOOKUP_PRICES: "lookup-prices-snapshot",
   UPDATE_STATUS: "update-status",
   PLAY_NOTIFICATION_SOUND: "play-notification-sound",
 
@@ -46,6 +47,7 @@ export const IPC = {
   GET_LOOKUP_SOURCES: "get-lookup-sources",
   GET_LOOKUP_SYNTHESIS_MODEL: "get-lookup-synthesis-model",
   GET_OFFERINGS: "get-offerings",
+  GET_LOOKUP_PRICES: "get-lookup-prices",
 
   // Send (renderer → main, no response)
   RESET: "reset",
@@ -95,6 +97,7 @@ export const IPC_INVOKE_CHANNELS = [
   IPC.GET_LOOKUP_SOURCES,
   IPC.GET_LOOKUP_SYNTHESIS_MODEL,
   IPC.GET_OFFERINGS,
+  IPC.GET_LOOKUP_PRICES,
 ] as const;
 
 export const IPC_SEND_CHANNELS = [
@@ -116,6 +119,7 @@ export const IPC_PUSH_CHANNELS = [
   IPC.BOX_TIMERS,
   IPC.PRICES_PROGRESS,
   IPC.PRICE_STATUS,
+  IPC.LOOKUP_PRICES,
   IPC.UPDATE_STATUS,
   IPC.PLAY_NOTIFICATION_SOUND,
 ] as const;

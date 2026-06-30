@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { STEAM_CURRENCIES } from "../../core/steamPrice";
 import { useLastPriceRefreshMessage, usePriceStatus, usePriceActions } from "../lib/usePrices";
+import { useLookupPrices } from "../lib/useLookupPrices";
 import { formatPriceRefreshMessage } from "../lib/formatPriceRefreshMessage";
 import { reportIpcError } from "../lib/reportError";
 import { SteamPriceProgress } from "../components/market/SteamPriceProgress";
@@ -31,6 +32,7 @@ function formatStatusLine(status: NonNullable<ReturnType<typeof usePriceStatus>>
 
 export function Market() {
   const status = usePriceStatus();
+  const { generatedUtc: lookupPricesGeneratedUtc } = useLookupPrices();
   const lastMessage = useLastPriceRefreshMessage();
   const { setPriceStatus, clearPriceProgress, clearLastPriceRefreshMessage } = usePriceActions();
   const [localMessage, setLocalMessage] = useState<string | null>(null);
@@ -130,6 +132,20 @@ export function Market() {
         <SteamPriceProgress variant="full" />
 
         {message && <p className="m-0 text-[13px]">{message}</p>}
+
+        <div className="flex flex-col gap-1.5 border-t border-border pt-3.5">
+          <h3 className="m-0 text-sm font-semibold text-fg">Lookup prices</h3>
+          <p className="m-0 text-[13px] text-muted">
+            Prices on the <span className="text-fg">Lookup</span> tab are separate from the
+            Inventory values above. They come from a shared snapshot rebuilt about every 6 hours,
+            fetched in USD and converted to your currency — so they can differ slightly from the
+            live Steam price. Inventory values here use the prices you refresh above for the items
+            you own.
+          </p>
+          <span className="text-[13px] text-muted">
+            Lookup prices updated {fmtAge(lookupPricesGeneratedUtc)}
+          </span>
+        </div>
       </div>
     </TabPage>
   );

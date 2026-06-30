@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import {
   BOX_TIMERS_FILE,
   CONFIG_FILE,
+  LOOKUP_PRICES_FILE,
   SESSION_STATE_FILE,
   clearAppDataFiles,
   filesForClearTarget,
@@ -77,5 +78,26 @@ describe("appData", () => {
   it("does not include catalog in all-except-config file list", () => {
     expect(filesForClearTarget("all-except-config", userDataDir)).not.toContain("gamedata.json");
     expect(filesForClearTarget("all-except-config", userDataDir)).not.toContain("gear_levels.json");
+  });
+
+  it("reports a lookup-prices path entry", () => {
+    touch(LOOKUP_PRICES_FILE);
+
+    const paths = getAppDataPaths(userDataDir);
+    expect(paths.entries.find((e) => e.id === "lookup-prices")?.exists).toBe(true);
+  });
+
+  it("scopes filesForClearTarget('lookup-prices') to the snapshot cache file only", () => {
+    expect(filesForClearTarget("lookup-prices", userDataDir)).toEqual([LOOKUP_PRICES_FILE]);
+  });
+
+  it("includes the Lookup snapshot in the all-except-config clear", () => {
+    touch(LOOKUP_PRICES_FILE);
+    touch(CONFIG_FILE);
+
+    const result = clearAppDataFiles("all-except-config", userDataDir);
+    expect(result.ok).toBe(true);
+    expect(result.cleared).toContain(LOOKUP_PRICES_FILE);
+    expect(existsSync(join(userDataDir, CONFIG_FILE))).toBe(true);
   });
 });

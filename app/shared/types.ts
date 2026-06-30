@@ -399,7 +399,28 @@ export interface AppConfig {
 }
 
 /** Scoped targets for Settings → Data & cache clear actions. */
-export type AppDataClearTarget = "prices" | "box-timers" | "session" | "all-except-config";
+export type AppDataClearTarget =
+  | "prices"
+  | "lookup-prices"
+  | "box-timers"
+  | "session"
+  | "all-except-config";
+
+/** A `LookupItem` resolved against the price snapshot for display. */
+export interface ResolvedLookupPrice {
+  /** market_hash_name, or null when the item isn't priceable/tradable. */
+  hash: string | null;
+  /** priced = has a USD listing; no-listing = tradable but no active listing; not-tradable = no affordance. */
+  state: "priced" | "no-listing" | "not-tradable";
+  /** USD lowest listing from the snapshot (null unless state === "priced"). */
+  usd: number | null;
+  /** Amount converted to the display currency (null unless priced). */
+  amount: number | null;
+  /** Formatted display string in the user's currency (null unless priced). */
+  display: string | null;
+  /** Steam Market listing URL for the hash (null when not-tradable). */
+  listingUrl: string | null;
+}
 
 export interface AppDataPathEntry {
   id: AppDataClearTarget | "config" | "diagnostic-log";
@@ -877,4 +898,6 @@ export interface TbhApi {
   getLookupSources(): Promise<LookupSources>;
   getLookupSynthesisModel(): Promise<SynthesisModel>;
   getOfferings(): Promise<OfferingsModel>;
+  getLookupPrices(): Promise<LookupPriceSnapshot | null>;
+  onLookupPrices(cb: (snapshot: LookupPriceSnapshot | null) => void): () => void;
 }

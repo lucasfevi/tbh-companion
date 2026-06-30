@@ -123,7 +123,7 @@ export function Lookup() {
     <TabPage>
       <TabHeader
         title="Lookup"
-        intro="Browse every obtainable item, its stats, and where to find it."
+        intro="Browse every obtainable item, its stats, and where to find it — tradable items show their Steam Market price."
       />
 
       <LookupFilters

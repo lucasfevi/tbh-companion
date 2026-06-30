@@ -3,6 +3,7 @@ import { cn } from "../../lib/cn";
 import { Card } from "../../design-system/primitives/Card/Card";
 import { CardContent, CardHeader } from "../../design-system/primitives/Card/CardParts";
 import { ItemCardHeader, MaterialGroup, StatGroup } from "./itemCardParts";
+import { LookupPrice } from "./LookupPrice";
 import { lookupItemCardHasBody } from "../../lib/lookupItemCard";
 import type { LookupItem } from "../../../../shared/types";
 
@@ -14,6 +15,9 @@ export const ItemCard = memo(function ItemCard({
   onSelect?: (item: LookupItem) => void;
 }) {
   const hasBody = lookupItemCardHasBody(item);
+  // Price sits top-right of the header — a Steam link on grid cards (onSelect),
+  // a quiet non-clickable price on peeks (no onSelect).
+  const interactive = Boolean(onSelect);
   const cardClassName = cn(
     "flex flex-col",
     hasBody && "h-full gap-2 [contain-intrinsic-size:0_180px] [content-visibility:auto]",
@@ -22,7 +26,11 @@ export const ItemCard = memo(function ItemCard({
   const content = (
     <>
       <CardHeader>
-        <ItemCardHeader item={item} iconSize="md" />
+        <ItemCardHeader
+          item={item}
+          iconSize="md"
+          trailing={<LookupPrice item={item} interactive={interactive} />}
+        />
       </CardHeader>
 
       {hasBody ? (
@@ -51,8 +59,6 @@ export const ItemCard = memo(function ItemCard({
           ))}
         </CardContent>
       ) : null}
-
-      {/* Footer: Steam Market price (future) */}
     </>
   );
 
@@ -61,7 +67,12 @@ export const ItemCard = memo(function ItemCard({
       <Card
         as="li"
         padding="compact"
-        className={cn(cardClassName, "cursor-pointer hover:border-ideal/40")}
+        className={cn(
+          cardClassName,
+          // Hovering the price link reads as a link hover (underline), not a
+          // card hover — suppress the border highlight while the link is hovered.
+          "cursor-pointer hover:border-ideal/40 has-[a:hover]:border-border",
+        )}
         onClick={() => onSelect(item)}
       >
         {content}

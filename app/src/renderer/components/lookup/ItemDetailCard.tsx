@@ -39,6 +39,7 @@ import {
   SectionLabelRow,
   StatGroup,
 } from "./itemCardParts";
+import { LookupPrice } from "./LookupPrice";
 import { OfferingLoot } from "./OfferingLoot";
 
 const SCROLL_SECTION_MAX = "max-h-44";
@@ -318,7 +319,11 @@ export function ItemDetailCard({
   return (
     <Card className="flex flex-col gap-3">
       <CardHeader>
-        <ItemCardHeader item={item} iconSize="lg" />
+        <ItemCardHeader
+          item={item}
+          iconSize="lg"
+          trailing={<LookupPrice item={item} interactive />}
+        />
       </CardHeader>
 
       <CardContent className="gap-3">

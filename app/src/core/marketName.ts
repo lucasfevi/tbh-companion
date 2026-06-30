@@ -13,6 +13,9 @@ export interface MarketHashMatch {
   name: string;
 }
 
+/** Minimal item shape needed to derive a market hash — satisfied by GameItem and LookupItem. */
+export type MarketHashItem = Pick<GameItem, "name" | "grade" | "type" | "marketTradable">;
+
 export function isPriceableItem(type: string, grade: string, marketTradable: boolean): boolean {
   if (!marketTradable) return false;
   if (type === "MATERIAL") return true;
@@ -49,7 +52,7 @@ export function gearMarketHashCandidates(itemName: string, catalogGrade: string)
 }
 
 /** Resolve a catalog item to a Steam market_hash_name, or null if not priceable. */
-export function marketHashMatch(item: GameItem): MarketHashMatch | null {
+export function marketHashMatch(item: MarketHashItem): MarketHashMatch | null {
   if (!isPriceableItem(item.type, item.grade, item.marketTradable)) return null;
 
   if (item.type === "MATERIAL") {
@@ -64,13 +67,13 @@ export function marketHashMatch(item: GameItem): MarketHashMatch | null {
 }
 
 /** Steam hash names to price (gear: variant A; materials: display name). */
-export function marketHashCandidates(item: GameItem): string[] {
+export function marketHashCandidates(item: MarketHashItem): string[] {
   if (!isPriceableItem(item.type, item.grade, item.marketTradable)) return [];
   if (item.type === "MATERIAL") return [item.name];
   if (item.type === "GEAR") return gearMarketHashCandidates(item.name, item.grade);
   return [];
 }
 
-export function marketHashName(item: GameItem): string | null {
+export function marketHashName(item: MarketHashItem): string | null {
   return marketHashMatch(item)?.name ?? null;
 }
