@@ -1,4 +1,6 @@
-import { Button } from "../design-system/primitives/Button/Button";
+import { SiBuymeacoffee } from "react-icons/si";
+import { Button, ButtonLink } from "../design-system/primitives/Button/Button";
+import { BUYMEACOFFEE_URL } from "../lib/externalLinks";
 
 function MiniOverlayIcon() {
   return (
@@ -62,6 +64,14 @@ export function AppToolbar() {
         <BoxTrackerIcon />
         Boss chests
       </Button>
+      <ButtonLink
+        href={BUYMEACOFFEE_URL}
+        variant="toolbar"
+        className="border-gold/60 text-gold hover:border-gold hover:text-gold"
+      >
+        <SiBuymeacoffee className="size-3.5 shrink-0" aria-hidden />
+        Support
+      </ButtonLink>
     </div>
   );
 }
