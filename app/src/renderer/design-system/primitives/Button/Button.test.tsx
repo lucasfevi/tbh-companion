@@ -86,12 +86,33 @@ describe("Button", () => {
   it("still forwards a caller ref to the underlying DOM button when title is also set", async () => {
     const ref = createRef<HTMLButtonElement>();
     render(
-      <Button ref={ref} title="Back to top">
+      <Button ref={ref} variant="icon" title="Back to top" aria-label="Back to top">
         ↑
       </Button>,
     );
     await waitFor(() => expect(ref.current).toBeInstanceOf(HTMLButtonElement));
     expect(ref.current).toBe(screen.getByRole("button", { name: "Back to top" }));
+  });
+
+  it("does not override aria-label from title on a labeled (non-icon) button", () => {
+    render(
+      <Button title="Open mini stats overlay" onClick={() => {}}>
+        Mini
+      </Button>,
+    );
+    // Visible text stays the accessible name (WCAG 2.5.3 Label in Name) —
+    // the title tooltip is supplementary, not a replacement name.
+    const button = screen.getByRole("button", { name: "Mini" });
+    expect(button).not.toHaveAttribute("aria-label");
+  });
+
+  it("still respects an explicit aria-label on a labeled button", () => {
+    render(
+      <Button title="Open mini stats overlay" aria-label="Custom label" onClick={() => {}}>
+        Mini
+      </Button>,
+    );
+    expect(screen.getByRole("button", { name: "Custom label" })).toBeInTheDocument();
   });
 
   it("keeps the plain native title attribute (no Tooltip) when nativeTitle is set", () => {

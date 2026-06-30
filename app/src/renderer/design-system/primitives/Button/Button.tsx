@@ -36,7 +36,7 @@ export const Button = forwardRef<
       type={type}
       className={cn(buttonVariants({ variant, size, edge }), className)}
       title={nativeTitle ? title : undefined}
-      aria-label={ariaLabel ?? title}
+      aria-label={ariaLabel ?? (variant === "icon" ? title : undefined)}
       {...props}
     />
   );
