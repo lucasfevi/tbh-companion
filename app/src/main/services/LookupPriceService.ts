@@ -87,6 +87,7 @@ export class LookupPriceService {
   reloadFromDisk(): void {
     this.etag = null;
     this.loadFromDisk();
+    this.broadcastFn(IPC.LOOKUP_PRICES, this.snapshot);
   }
 
   private loadFromDisk(): void {

@@ -124,7 +124,7 @@ describe("LookupPriceService.refresh", () => {
 describe("LookupPriceService.reloadFromDisk", () => {
   it("clears the snapshot when the cache file is gone", () => {
     writeFileSync(file, JSON.stringify(snapshot("x")));
-    const service = new LookupPriceService({ cacheFilePath: () => file });
+    const service = new LookupPriceService({ cacheFilePath: () => file, broadcastFn: () => {} });
 
     service.reloadFromDisk();
     expect(service.getSnapshot()?.generatedUtc).toBe("x");
@@ -132,5 +132,22 @@ describe("LookupPriceService.reloadFromDisk", () => {
     rmSync(file);
     service.reloadFromDisk();
     expect(service.getSnapshot()).toBeNull();
+  });
+
+  it("broadcasts the cleared (null) snapshot so the renderer drops stale prices", () => {
+    writeFileSync(file, JSON.stringify(snapshot("x")));
+    const broadcasts: Array<{ channel: string; payload: unknown }> = [];
+    const service = new LookupPriceService({
+      cacheFilePath: () => file,
+      broadcastFn: (channel, payload) => broadcasts.push({ channel, payload }),
+    });
+
+    service.reloadFromDisk();
+    rmSync(file);
+    service.reloadFromDisk();
+
+    expect(broadcasts).toHaveLength(2);
+    expect(broadcasts[0]).toEqual({ channel: IPC.LOOKUP_PRICES, payload: expect.anything() });
+    expect(broadcasts[1]).toEqual({ channel: IPC.LOOKUP_PRICES, payload: null });
   });
 });
