@@ -4,6 +4,28 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-06-30
+
+### Lookup
+
+- **Lookup** tab now shows approximate Steam Market **listed prices** on grid cards, the item detail panel, and hover peek for tradable items — green accent with a Steam logo.
+- Click a price (or **No listed price**) to open the item's Steam Market listing in your browser.
+- Prices come from a shared snapshot refreshed about every 6 hours; switching currency in **Settings** or the **Market** tab re-resolves from the same cached file with no extra download.
+- **Market** tab explains how Lookup prices differ from **Inventory** valuation and shows when Lookup prices were last updated.
+- **Settings** adds **Clear Lookup market prices** to reset the cached snapshot.
+
+### About
+
+- **Buy Me a Coffee** support link in the tab bar (beside **Mini** and **Boss chests**) and on the **About** tab next to **GitHub** and **Discord**.
+
+### UI
+
+- Tooltips across the app now use styled, keyboard-reachable tooltips instead of OS-default hover delays (inventory badges, Live rates, filters, and similar controls). The mini overlay and Boss chests window keep native tooltips because frameless windows cannot host tooltip portals.
+
+### Fixed
+
+- Closing or reloading a window during Steam price fetches no longer logs render-frame disposal errors in the console.
+
 ## [1.17.0] - 2026-06-26
 
 ### Lookup
