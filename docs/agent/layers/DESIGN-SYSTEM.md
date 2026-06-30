@@ -79,9 +79,17 @@ If a component file would also export the `cva` object or multiple sub-component
 
 ## Base UI portals are safe per-window
 
-Each `BrowserWindow` (main, overlay, box tracker) loads the same `index.html` but gets its own separate `document`, so Base UI's default `document.body` portal target is safe per-window — confirmed empirically in this migration's Phase 0 spike. That said, **no Base UI portal component (`Popover`, `Select`, `Dialog`, `Tooltip`) is used inside `Overlay.tsx`/`OverlayFrame.tsx`** — the overlay's frameless 280×94 footprint is the one place a portal escaping bounds would be visually obvious and bad, so overlay code only ever uses non-portal primitives (`Button`, `Switch`).
+Each `BrowserWindow` (main, overlay, box tracker) loads the same `index.html` but gets its own separate `document`, so Base UI's default `document.body` portal target is safe per-window — confirmed empirically in this migration's Phase 0 spike. That said, **no Base UI portal component (`Popover`, `Select`, `Dialog`, `Tooltip`) is used inside `Overlay.tsx`/`OverlayFrame.tsx` or `BoxTracker.tsx`** — both are frameless, small (`OverlayFrame`-wrapped) windows where a portal escaping bounds would be visually obvious and bad, so they only ever use non-portal primitives (`Button`, `Switch`) or `Button`'s `nativeTitle` escape hatch (below).
 
 Some Base UI components don't wire ARIA the way you'd expect from their name — verify against the installed package's `.d.ts` files (`node_modules/@base-ui/react/<component>/`) rather than assuming. Example: `Popover.Popup` gets `role="dialog"` automatically; `Tooltip.Popup` does **not** get `role="tooltip"`/`aria-describedby` automatically in the pinned version — `Tooltip.tsx` wires both manually via `useId()`.
+
+## Always use `Tooltip`, never a native `title` attribute
+
+`Tooltip` (`primitives/Tooltip/`) is the only sanctioned way to show hover/focus help text — never add a raw `title="..."` to a DOM element. Native `title` has an inconsistent OS-controlled delay, isn't reliably reachable by keyboard, and isn't visually styled. `Button`, `StatCard`, `Field`, `Select`, and `MultiSelect` all accept a `title` prop and wrap it in a `Tooltip` internally (falling back `aria-label` to it for icon-only buttons), so most call sites don't need to think about this — just keep passing `title`.
+
+For a raw DOM element with supplementary tooltip text (no existing primitive), wrap it directly: `<Tooltip trigger={<span tabIndex={0}>...</span>}>{tipText}</Tooltip>`. Add `tabIndex={0}` so keyboard users can reach it, unless the trigger already wraps a focusable control (an `<input>`/`<button>` inside it) — focus bubbles to the wrapping trigger in that case, so no extra `tabIndex` is needed (see `Field`'s `<label>` wrapping its child input).
+
+**Exception:** `Overlay.tsx`/`OverlayFrame.tsx` and `BoxTracker.tsx` cannot use `Tooltip` (portal constraint above). Pass `Button`'s `nativeTitle` prop there to keep a plain `title` attribute instead — don't reach for a raw `<button title=...>` outside of `Button`. `Section`/`Accordion`/`TabHeader`/`StatGroup`/`PanelSection`/`CacheActionRow`-style `title` props that render as a heading (not a hover tooltip) are unrelated to this rule and stay as-is.
 
 ## Layout-stability footer-slot pattern
 
