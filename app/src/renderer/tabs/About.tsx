@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SiDiscord, SiGithub } from "react-icons/si";
+import { SiBuymeacoffee, SiDiscord, SiGithub } from "react-icons/si";
 import type { UpdateStatus } from "../../../shared/types";
 import { useUpdate } from "../lib/useUpdate";
 import { reportIpcError } from "../lib/reportError";
@@ -9,7 +9,7 @@ import { ProgressBar } from "../design-system/primitives/ProgressBar/ProgressBar
 import { Section } from "../design-system/primitives/Section/Section";
 import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
 import { TabPage } from "../design-system/primitives/TabPage/TabPage";
-import { DISCORD_URL, GITHUB_REPO, githubReleaseUrl } from "../lib/externalLinks";
+import { BUYMEACOFFEE_URL, DISCORD_URL, GITHUB_REPO, githubReleaseUrl } from "../lib/externalLinks";
 
 function fmtBytes(bytes: number | undefined): string {
   if (!bytes || bytes <= 0) return "";
@@ -102,6 +102,14 @@ export function About() {
             <ButtonLink href={DISCORD_URL} size="sm">
               <SiDiscord className="size-3.5" aria-hidden />
               <span>Discord</span>
+            </ButtonLink>
+            <ButtonLink
+              href={BUYMEACOFFEE_URL}
+              size="sm"
+              className="border-gold/60 text-gold hover:border-gold"
+            >
+              <SiBuymeacoffee className="size-3.5" aria-hidden />
+              <span>Support</span>
             </ButtonLink>
           </p>
           <p className="m-0 max-w-2xl text-xs text-muted">
