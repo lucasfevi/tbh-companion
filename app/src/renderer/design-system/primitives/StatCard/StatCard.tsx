@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Card } from "../Card/Card";
+import { Tooltip } from "../Tooltip/Tooltip";
 import { cn, cva, type VariantProps } from "../../lib/variants";
 
 const cardVariants = cva("flex flex-col gap-1", {
@@ -64,7 +65,7 @@ export function StatCard({
 } & StatCardVariants) {
   const valueNode = <span className={cn(valueVariants({ variant }), valueClassName)}>{value}</span>;
 
-  return (
+  const card = (
     <Card
       padding={variant === "highlight" ? "default" : "compact"}
       className={cn(
@@ -72,7 +73,7 @@ export function StatCard({
         variant === "highlight" && title && "cursor-help",
         className,
       )}
-      title={title}
+      tabIndex={title ? 0 : undefined}
     >
       {valueFirst ? (
         <>
@@ -89,4 +90,6 @@ export function StatCard({
       )}
     </Card>
   );
+
+  return title ? <Tooltip trigger={card}>{title}</Tooltip> : card;
 }

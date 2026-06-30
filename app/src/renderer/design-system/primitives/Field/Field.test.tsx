@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { Field } from "./Field";
 
@@ -31,5 +32,19 @@ describe("Field", () => {
       </Field>,
     );
     expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("shows a Tooltip (not a native title attribute) on the label when title is set", async () => {
+    const user = userEvent.setup();
+    render(
+      <Field label="Search" title="Filters the visible rows">
+        <input />
+      </Field>,
+    );
+    const label = screen.getByText("Search").closest("label");
+    expect(label).not.toHaveAttribute("title");
+
+    await user.hover(label!);
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Filters the visible rows");
   });
 });

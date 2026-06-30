@@ -1,5 +1,6 @@
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { Button, ButtonLink } from "./Button";
@@ -67,6 +68,41 @@ describe("Button", () => {
       </>,
     );
     expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("shows a Tooltip (not a native title attribute) when title is set, and falls back aria-label to it", async () => {
+    render(
+      <Button variant="icon" title="Reset session stats">
+        {"↻"}
+      </Button>,
+    );
+    const button = screen.getByRole("button", { name: "Reset session stats" });
+    expect(button).not.toHaveAttribute("title");
+
+    button.focus();
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Reset session stats");
+  });
+
+  it("still forwards a caller ref to the underlying DOM button when title is also set", async () => {
+    const ref = createRef<HTMLButtonElement>();
+    render(
+      <Button ref={ref} title="Back to top">
+        ↑
+      </Button>,
+    );
+    await waitFor(() => expect(ref.current).toBeInstanceOf(HTMLButtonElement));
+    expect(ref.current).toBe(screen.getByRole("button", { name: "Back to top" }));
+  });
+
+  it("keeps the plain native title attribute (no Tooltip) when nativeTitle is set", () => {
+    render(
+      <Button variant="icon" title="Minimize" nativeTitle>
+        {"−"}
+      </Button>,
+    );
+    const button = screen.getByRole("button", { name: "Minimize" });
+    expect(button).toHaveAttribute("title", "Minimize");
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
 });
 

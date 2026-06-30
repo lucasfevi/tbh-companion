@@ -114,4 +114,21 @@ describe("MultiSelect", () => {
     const { container } = render(<Controlled initial={["EPIC"]} />);
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it("shows a Tooltip (not a native title attribute) on the trigger when title is set", async () => {
+    render(
+      <MultiSelect
+        options={GRADES}
+        value={[]}
+        onValueChange={() => {}}
+        label="Grade"
+        title="Filter by grade"
+      />,
+    );
+    const trigger = getTrigger();
+    expect(trigger).not.toHaveAttribute("title");
+
+    trigger.focus();
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Filter by grade");
+  });
 });

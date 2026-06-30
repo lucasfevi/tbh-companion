@@ -126,6 +126,15 @@ describe("Select", () => {
     expect(screen.getByRole("combobox", { name: "Map" })).toHaveTextContent("Torment 1-1");
   });
 
+  it("shows a Tooltip (not a native title attribute) on the trigger when title is set", async () => {
+    render(<ControlledSelect title="Sort by" />);
+    const trigger = screen.getByRole("combobox", { name: "Map" });
+    expect(trigger).not.toHaveAttribute("title");
+
+    trigger.focus();
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Sort by");
+  });
+
   it("has no detectable accessibility violations when closed", async () => {
     const { container } = render(<ControlledSelect />);
     expect(await axe(container)).toHaveNoViolations();
