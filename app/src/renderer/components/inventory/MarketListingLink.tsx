@@ -13,7 +13,7 @@ export function MarketListingLink({
   return (
     <a
       href={steamMarketListingUrl(hash)}
-      className="text-inherit no-underline hover:text-accent hover:underline"
+      className="group/price text-inherit no-underline hover:text-accent hover:underline"
       target="_blank"
       rel="noopener noreferrer"
       title={title ?? "Open on Steam Market"}

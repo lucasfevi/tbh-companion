@@ -67,7 +67,12 @@ export const ItemCard = memo(function ItemCard({
       <Card
         as="li"
         padding="compact"
-        className={cn(cardClassName, "cursor-pointer hover:border-ideal/40")}
+        className={cn(
+          cardClassName,
+          // Hovering the price link reads as a link hover (underline), not a
+          // card hover — suppress the border highlight while the link is hovered.
+          "cursor-pointer hover:border-ideal/40 has-[a:hover]:border-border",
+        )}
         onClick={() => onSelect(item)}
       >
         {content}

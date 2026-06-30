@@ -32,6 +32,7 @@ export function LookupPrice({
   if (price.state === "no-listing" && !interactive) return null;
 
   const isNoListing = price.state === "no-listing";
+  const label = isNoListing ? "No listed price" : price.display;
   const body = (
     <span className="inline-flex items-center gap-1 text-[12px]">
       <SiSteam className="size-3 text-muted" aria-hidden />
@@ -41,7 +42,9 @@ export function LookupPrice({
           isNoListing ? "italic text-muted" : "font-medium text-accent",
         )}
       >
-        {isNoListing ? "No listed price" : price.display}
+        {/* Plain inline span so the link underline reaches the text — an
+            inline-flex ancestor would otherwise block text-decoration. */}
+        <span className="group-hover/price:underline">{label}</span>
         {interactive ? <LuExternalLink className="size-3 text-muted" aria-hidden /> : null}
       </span>
     </span>
