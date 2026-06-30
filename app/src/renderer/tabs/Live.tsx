@@ -161,7 +161,9 @@ export function Live() {
                 <span className="text-[40px] font-bold leading-none text-accent">
                   {fmtCompact(stats.rollingRate)}
                 </span>
-                <span className="text-[13px] tracking-wide text-muted">XP / hr</span>
+                <span className="text-[13px] tracking-wide text-muted underline decoration-dotted decoration-muted underline-offset-2">
+                  XP / hr
+                </span>
               </div>
             }
           >
@@ -176,7 +178,10 @@ export function Live() {
                   className="cursor-help text-[15px] font-semibold leading-tight text-gold"
                   tabIndex={0}
                 >
-                  {fmtCompact(stats.goldRate)} gold / hr
+                  {fmtCompact(stats.goldRate)}{" "}
+                  <span className="underline decoration-dotted decoration-muted underline-offset-2">
+                    gold / hr
+                  </span>
                 </div>
               }
             >

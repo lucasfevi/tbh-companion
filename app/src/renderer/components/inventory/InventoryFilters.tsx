@@ -97,7 +97,11 @@ export function InventoryFilters({
           trigger={
             <span>
               <Checkbox
-                label="Unequipped only"
+                label={
+                  <span className="underline decoration-dotted decoration-muted underline-offset-2">
+                    Unequipped only
+                  </span>
+                }
                 checked={unequippedOnly}
                 onCheckedChange={onUnequippedOnlyChange}
               />
