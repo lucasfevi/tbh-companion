@@ -8,7 +8,7 @@ import { ExternalLink } from "../ui/ExternalLink";
 import { DISCORD_URL } from "../../lib/externalLinks";
 
 const LIST_VALUE_TIP = "Total list value at Steam market prices (what buyers pay)";
-const NET_FEES_TIP =
+const ESTIMATE_TIP =
   "Estimated wallet proceeds if you listed everything at market prices. Steam listing UI is authoritative.";
 const INSTANT_SELL_TIP =
   "Sum of instant sell per row: selling into the order book level-by-level, best price first, until your stack is covered or the book runs dry. No listing fees.";
@@ -23,10 +23,7 @@ export function InventorySummary({
   const c = composition;
 
   const hasListValue = c.valuedTotal != null && Number.isFinite(c.valuedTotal) && c.valuedTotal > 0;
-  const feeDetail =
-    hasListValue && c.feeTotal > 0
-      ? `−${formatMoney(c.feeTotal, currency)} Steam fees (estimate)`
-      : undefined;
+  const hasFees = hasListValue && c.feeTotal > 0;
 
   const netAfterFees =
     hasListValue && c.netAfterFeesTotal != null && Number.isFinite(c.netAfterFeesTotal)
@@ -47,17 +44,18 @@ export function InventorySummary({
           title={LIST_VALUE_TIP}
           value={hasListValue ? formatMoney(c.valuedTotal, currency) : "-"}
           detail={
-            <Tooltip
-              underline
-              trigger={
-                <span tabIndex={0}>
-                  <span className="font-semibold text-gold">{netAfterFees}</span> after Steam fees
-                  {feeDetail ? <span className="block">{feeDetail}</span> : null}
+            <span>
+              <span className="font-semibold text-gold">{netAfterFees}</span> after Steam fees
+              {hasFees ? (
+                <span className="block">
+                  −{formatMoney(c.feeTotal, currency)} Steam fees (
+                  <Tooltip underline trigger={<span tabIndex={0}>estimate</span>}>
+                    {ESTIMATE_TIP}
+                  </Tooltip>
+                  )
                 </span>
-              }
-            >
-              {NET_FEES_TIP}
-            </Tooltip>
+              ) : null}
+            </span>
           }
         />
 
