@@ -29,3 +29,9 @@ export function readF32(reader: MemoryReader, addr: bigint): number | null {
   const b = reader.readBytes(addr, 4);
   return b && b.length >= 4 ? b.readFloatLE(0) : null;
 }
+
+/** Read a signed 64-bit int; null for short reads. */
+export function readI64(reader: MemoryReader, addr: bigint): bigint | null {
+  const b = reader.readBytes(addr, 8);
+  return b && b.length >= 8 ? b.readBigInt64LE(0) : null;
+}
