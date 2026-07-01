@@ -18,13 +18,15 @@ Persistent decisions, blockers, lessons, and deferred ideas across sessions.
     green (734 tests); Verifier PASS (7/7 ACs, sensor 3/3 killed, no fix tasks). LMR-01..09 + LMR-15
     (seed) Verified. **Manual smoke still owed before ship:** AC3 (<50 ms attach), AC4 (real
     separate-process tick vs game v1.00.21), LMR-09 (packaged NSIS installer runs the reader).
-  - **Phase 2** on branch `feat/live-memory-core-stats` (13 atomic commits off `main`): live gold
-    (ObscuredLong / GoldPinState / stale-pin retry), live heroes (StageManager.HeroList),
-    `XpTracker.updateLive()` ~25 Hz wall-time rate feed, `ChestDropTracker.recordLiveBoxDrop()`
-    box-count-delta drops, removal of `Player.log` / `playerLog.ts`, inventory + pet live reads
-    (offset-gated — real offsets derived in Phase 3), expanded diagnostics tab per-stat health rows.
-    Design/tasks/validation: `.specs/features/live-memory-reader/phase-2-core-stats/`. `pnpm qa` green
-    (534 tests); Verifier PASS (all ACs covered, 4 gaps fixed). LMR-10..15 Verified.
+  - **Phase 2** on branch `feat/live-memory-core-stats` (PR #105): live gold
+    (ObscuredLong / GoldPinState / stale-pin retry), live heroes (`StageManager.HeroList` →
+    `Unit.cache` → `HeroRuntime` ObscuredFloat exp), unified `LiveSessionMeter` for live XP+gold
+    rates at ~25 Hz (party total exp delta, stats push every frame), session reset on live-memory
+    toggle, `ChestDropTracker.recordLiveBoxDrop()` box-count-delta drops, removal of `Player.log` /
+    `playerLog.ts`, inventory + pet live reads (offset-gated — real offsets derived in Phase 3),
+    expanded diagnostics (current gold, per-hero exp, tracker rates). Design/tasks/validation:
+    `.specs/features/live-memory-reader/phase-2-core-stats/`. `pnpm qa` green (548 tests).
+    Verifier PASS on initial ship; post-PR polish documented in `validation.md` § Post-verifier.
     **Placeholder offsets still 0 (gated → null):** `boxCount`, `localInventoryManager` TypeInfo RVA,
     `player.petSaveDatas`, `petSaveData.*`, `inventoryItem.*` — Phase 3 derives real values.
   - **Locked offset schema (Phase 3 consumes this — must not drift):** `LiveOffsets` in
@@ -130,6 +132,16 @@ Persistent decisions, blockers, lessons, and deferred ideas across sessions.
 - 2026-07-01 — Phase 1 vertical-slice stat = **current stage/wave** (live-preferred over save in
   `Live.tsx`); reader **status indicator lives in the global `AppToolbar`** (Badge, off/attached/degraded).
   Gold (ObscuredLong jitter) deferred to Phase 2. [D26]
+- 2026-07-01 — Live hero XP reads **`HeroRuntime` ObscuredFloat exp** (party via `Unit.cache`), not
+  save-layer `HeroExp`. Session gain uses **party total exp delta**; save path owns XP only when live
+  frames are absent (`LIVE_TAKEOVER_SEC`). [D27]
+- 2026-07-01 — Live XP and gold share **`LiveSessionMeter`** in `core/tracker.ts` — same takeover,
+  gain, and per-tick rate refresh. `pushStats()` on every live frame (~25 Hz). [D28]
+- 2026-07-01 — Toggling live memory **resets session stats** (confirm dialog) — save vs runtime
+  baselines must not mix. Persisted sessions tag `liveMemoryEnabled`; implausible totals discarded on
+  restore. [D29]
+- 2026-07-01 — Dev diagnostics tab shows **current gold**, **per-hero live exp**, and tracker
+  session/rolling rates for debugging read vs rate math. [D30]
 
 ## Deferred ideas
 

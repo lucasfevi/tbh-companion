@@ -116,7 +116,7 @@ table); reference POC `il2cpp*` readers on `feat/live-memory-poc` under `poc/mem
 **Scope outline:**
 - Live gold + current gold; gold/hr recomputed from live samples (rolling window) — extend `tracker.ts`
   behind the reader-on path, keep save-path math for fallback.
-- Live XP/level for all party heroes (`StageManager.HeroList : Hero[]`, `Hero` real fields) + XP/hr live.
+- Live XP/level for all party heroes (`StageManager.HeroList` → `Unit.cache` → `HeroRuntime` ObscuredFloat exp) + XP/hr live via `LiveSessionMeter`.
 - Chest drops from memory (`StageManager.OnGetBox` / box-count delta); **remove `Player.log` tail**
   (`core/playerLog.ts` + wiring) and update `Live.tsx` chest copy/tooltips.
 - Inventory/stash live listing (`LocalInventoryManager` bag dicts) blended into inventory panels.
@@ -126,12 +126,13 @@ table); reference POC `il2cpp*` readers on `feat/live-memory-poc` under `poc/mem
 **Verification / done:** per-AC manual pass while farming; reader-off fallback pass; `pnpm qa` green;
 Verifier writes `validation.md`.
 
-**✅ Completed 2026-07-01** on `feat/live-memory-core-stats` (13 atomic commits off `main`; `pnpm qa`
-green, 534 tests; Verifier PASS with 4 gaps fixed — `phase-2-core-stats/validation.md`). Delivered
-live gold (ObscuredLong / GoldPinState), live heroes (StageManager.HeroList), `XpTracker.updateLive()`
-wall-time rate feed at ~25 Hz, `ChestDropTracker.recordLiveBoxDrop()` box-count-delta drops, removal of
-`Player.log` / `playerLog.ts`, inventory + pet live reads (offset-gated, Phase 3 derives real offsets),
-and expanded diagnostics tab per-stat health rows.
+**✅ Completed 2026-07-01** on `feat/live-memory-core-stats` (PR #105; `pnpm qa` green, 548 tests).
+Delivered live gold (ObscuredLong / GoldPinState), live heroes (`HeroList` → `Unit.cache` →
+`HeroRuntime`), unified `LiveSessionMeter` live XP+gold rates (~25 Hz, stats push every frame),
+session reset on live-memory toggle, `ChestDropTracker.recordLiveBoxDrop()` box-count-delta drops,
+removal of `Player.log` / `playerLog.ts`, inventory + pet live reads (offset-gated), and expanded
+diagnostics (current gold, per-hero exp, tracker rates). See `phase-2-core-stats/validation.md` for
+verifier report + post-PR polish notes.
 - **Placeholder offsets still 0 (wire is in, offsets derived in Phase 3):** `boxCount`, `localInventoryManager`
   TypeInfo RVA, `player.petSaveDatas`, `petSaveData.*`, `inventoryItem.*` — all gated to return `null`.
 - **Next:** Phase 3 `feat/live-memory-extractor` (LMR-16..19) runtime self-healing offset extractor, OR

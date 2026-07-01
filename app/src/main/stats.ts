@@ -1,6 +1,6 @@
 // Builds the Stats payload pushed to the renderer from tracker + last snapshot.
 
-import type { Stats, SaveSnapshot } from "../../shared/types";
+import type { LiveMemorySnapshot, Stats, SaveSnapshot } from "../../shared/types";
 
 import type { ChestDropTracker } from "../core/chestDropTracker";
 import type { XpTracker } from "../core/tracker";
@@ -21,27 +21,30 @@ export function buildStats(
   lastSnap: SaveSnapshot | null,
   lastError: string | null,
   statusOverride: string | null = null,
+  liveFrame: LiveMemorySnapshot | null = null,
 ): Stats {
-  const sourceHeroes = lastSnap?.heroes ?? tracker.heroes;
+  const liveXp = liveFrame?.connected === true && tracker.xpLiveActive();
+  const liveHeroes = liveXp && liveFrame?.heroes && liveFrame.heroes.length > 0;
 
-  const heroes = sourceHeroes
-
-    .filter((h) => h.unlocked || h.exp > 0)
-
-    .map((h) => ({
-      key: h.key,
-
-      name: heroName(h.key),
-
-      level: h.level,
-
-      rate: tracker.heroRate(h.key),
-    }));
+  const heroes = liveHeroes
+    ? liveFrame!.heroes!.map((h) => ({
+        key: String(h.heroKey),
+        name: heroName(String(h.heroKey)),
+        level: h.level,
+        rate: tracker.heroRate(String(h.heroKey)),
+      }))
+    : (lastSnap?.heroes ?? tracker.heroes)
+        .filter((h) => h.unlocked || h.exp > 0)
+        .map((h) => ({
+          key: h.key,
+          name: heroName(h.key),
+          level: h.level,
+          rate: tracker.heroRate(h.key),
+        }));
 
   const sinceGain = tracker.secondsSinceGain;
 
   // Age of the save file content (game write time), not our poll clock.
-
   const sinceRead = lastSnap ? nowSeconds() - lastSnap.saveMtime : null;
 
   let status: string;
@@ -57,6 +60,15 @@ export function buildStats(
   } else {
     status = "Tracking";
   }
+
+  const stageKey =
+    liveFrame?.connected && liveFrame.stageKey != null
+      ? liveFrame.stageKey
+      : (lastSnap?.stageKey ?? 0);
+  const stageWave =
+    liveFrame?.connected && liveFrame.stageWave != null
+      ? liveFrame.stageWave
+      : (lastSnap?.stageWave ?? 0);
 
   return {
     connected: lastError === null,
@@ -79,9 +91,9 @@ export function buildStats(
 
     secondsSinceRead: sinceRead,
 
-    stageKey: lastSnap?.stageKey ?? 0,
+    stageKey,
 
-    stageWave: lastSnap?.stageWave ?? 0,
+    stageWave,
 
     heroes,
 

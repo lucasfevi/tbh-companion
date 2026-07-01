@@ -198,4 +198,63 @@ describe("XpTracker.updateLive", () => {
     t.updateLive({ gold: 9999, heroes: null }, 1005);
     expect(t.currentGold).toBe(9999);
   });
+
+  it("uses party total XP delta for session gain when heroes join", () => {
+    const t = new XpTracker(300);
+    t.update(snap(1000, 0));
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 100 }] }, 1000);
+    t.updateLive(
+      {
+        gold: null,
+        heroes: [
+          { heroKey: 101, level: 1, exp: 200 },
+          { heroKey: 201, level: 1, exp: 300 },
+        ],
+      },
+      1001,
+    );
+    expect(t.cumulativeGained).toBe(400);
+  });
+
+  it("refreshes rolling rate on every live tick even without new XP gain", () => {
+    const t = new XpTracker(300);
+    t.update(snap(1000, 0));
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 100 }] }, 1000);
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 1100 }] }, 1001);
+    const rateAfterGain = t.rollingRate;
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 1100 }] }, 1002);
+    expect(rateAfterGain).toBeGreaterThan(0);
+    expect(t.rollingRate).toBeLessThan(rateAfterGain);
+  });
+
+  it("records history entries on live XP gain", () => {
+    const t = new XpTracker(300);
+    t.update(snap(1000, 0));
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 600 }] }, 1000, {
+      stageKey: 3205,
+      stageWave: 2,
+    });
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 1200 }] }, 1060, {
+      stageKey: 3205,
+      stageWave: 2,
+    });
+    expect(t.history).toHaveLength(1);
+    expect(t.history[0].delta).toBe(600);
+    expect(t.history[0].stageKey).toBe(3205);
+    expect(t.history[0].stageWave).toBe(2);
+  });
+
+  it("applySnapshot clears live ownership flags", () => {
+    const t = new XpTracker(300);
+    const now = Date.now() / 1000;
+    t.update(snap(now - 100, 1000));
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 5000 }] }, now);
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 5100 }] }, now + 1);
+    expect(t.cumulativeGained).toBe(100);
+    expect(t.update(snap(now + 2, 1000))).toBe(0);
+
+    const copy = new XpTracker(300);
+    copy.applySnapshot(t.captureSnapshot());
+    expect(copy.update(snap(now + 10, 5600))).toBe(500);
+  });
 });

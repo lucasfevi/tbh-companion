@@ -76,6 +76,7 @@ describe("applyConfigPatch", () => {
   it("starts the reader when liveMemory is enabled with consent (no restart)", () => {
     let cfg = baseConfig();
     const setLiveMemoryEnabled = vi.fn();
+    const onLiveMemoryToggled = vi.fn();
 
     applyConfigPatch(
       {
@@ -93,16 +94,22 @@ describe("applyConfigPatch", () => {
         resolveAndPushInventory: vi.fn(),
         ensureOwnedPrices: vi.fn(),
         setLiveMemoryEnabled,
+        onLiveMemoryToggled,
       },
       { liveMemory: { enabled: true, consentAccepted: true } },
     );
 
     expect(setLiveMemoryEnabled).toHaveBeenCalledWith(true);
+    expect(onLiveMemoryToggled).toHaveBeenCalledTimes(1);
   });
 
   it("stops the reader when liveMemory is disabled", () => {
-    let cfg = baseConfig();
+    let cfg = {
+      ...baseConfig(),
+      liveMemory: { enabled: true, consentAccepted: true },
+    };
     const setLiveMemoryEnabled = vi.fn();
+    const onLiveMemoryToggled = vi.fn();
 
     applyConfigPatch(
       {
@@ -120,16 +127,19 @@ describe("applyConfigPatch", () => {
         resolveAndPushInventory: vi.fn(),
         ensureOwnedPrices: vi.fn(),
         setLiveMemoryEnabled,
+        onLiveMemoryToggled,
       },
       { liveMemory: { enabled: false, consentAccepted: true } },
     );
 
     expect(setLiveMemoryEnabled).toHaveBeenCalledWith(false);
+    expect(onLiveMemoryToggled).toHaveBeenCalledTimes(1);
   });
 
   it("does not start the reader when enabled but consent was not accepted", () => {
     let cfg = baseConfig();
     const setLiveMemoryEnabled = vi.fn();
+    const onLiveMemoryToggled = vi.fn();
 
     applyConfigPatch(
       {
@@ -147,11 +157,13 @@ describe("applyConfigPatch", () => {
         resolveAndPushInventory: vi.fn(),
         ensureOwnedPrices: vi.fn(),
         setLiveMemoryEnabled,
+        onLiveMemoryToggled,
       },
       { liveMemory: { enabled: true, consentAccepted: false } },
     );
 
     expect(setLiveMemoryEnabled).toHaveBeenCalledWith(false);
+    expect(onLiveMemoryToggled).not.toHaveBeenCalled();
   });
 
   it("leaves the reader untouched when the patch does not include liveMemory", () => {

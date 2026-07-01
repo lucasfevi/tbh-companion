@@ -40,15 +40,17 @@ describe("LiveMemorySettings", () => {
     const { onChange, user } = setup({ enabled: false, consentAccepted: true });
 
     await user.click(screen.getByRole("checkbox", { name: /enable live memory reader/i }));
+    expect(screen.queryByRole("button", { name: /accept & enable/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /enable & reset session/i }));
 
-    expect(screen.queryByRole("button", { name: /accept/i })).not.toBeInTheDocument();
     expect(onChange).toHaveBeenCalledWith({ enabled: true, consentAccepted: true });
   });
 
-  it("disables the reader without a dialog", async () => {
+  it("disables the reader after session-reset confirmation", async () => {
     const { onChange, user } = setup({ enabled: true, consentAccepted: true });
 
     await user.click(screen.getByRole("checkbox", { name: /enable live memory reader/i }));
+    await user.click(screen.getByRole("button", { name: /disable & reset session/i }));
 
     expect(onChange).toHaveBeenCalledWith({ enabled: false, consentAccepted: true });
   });

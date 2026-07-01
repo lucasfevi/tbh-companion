@@ -149,6 +149,8 @@ export interface PersistedSessionState {
   savePath: string;
   lastSaveMtime: number;
   rollingWindowMinutes: number;
+  /** Whether the live-memory reader was active when this session was saved. */
+  liveMemoryEnabled?: boolean;
   tracker: TrackerSnapshot;
   chestDropTracker?: ChestDropTrackerSnapshot;
   ui: SessionUiSnapshot;

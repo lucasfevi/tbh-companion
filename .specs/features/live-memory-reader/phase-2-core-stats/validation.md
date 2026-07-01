@@ -31,7 +31,7 @@ the spec's stated acceptance criteria; both are coverage holes that a mutation c
 | LMR-12 boxCount null singleton | `readRuntimeBoxCount > returns null when StageManager singleton is absent` | null | null | ✅ |
 | LMR-12 boxCount negative guard | **NO TEST for negative box count → null** | — | spec: "returns null for negative values (plausibility)" | ❌ GAP |
 | LMR-12 Player.log removed | `playerLog.test.ts` deleted; no references in src/ | — | legacy path removed | ✅ |
-| LMR-12 recordLiveBoxDrop | **`recordLiveBoxDrop` NOT IMPLEMENTED in chestDropTracker.ts** | — | tasks.md T07/T08 require `chestDropTracker.recordLiveBoxDrop(stageKey, wallTime?)` | ❌ GAP (function missing entirely) |
+| LMR-12 recordLiveBoxDrop | `chestDropTracker.test.ts > recordLiveBoxDrop increments commonTotal...` | `commonTotal` incremented; returns true | box-count delta → chest record | ✅ |
 | LMR-12 readerRequired always true | `buildStats > includes chest drop session stats` | `readerRequired === true` | `readerRequired: true` always | ✅ |
 | LMR-13 inventory read | `readRuntimeInventory > reads items from the inventory dict` | 2 items with exact fields | correct item list | ✅ |
 | LMR-13 inventory null offset | `readRuntimeInventory > returns null when localInventoryManager RVA is 0` | null | offset=0 → null | ✅ |
@@ -69,32 +69,21 @@ the spec's stated acceptance criteria; both are coverage holes that a mutation c
 
 ## Gaps (ranked by severity)
 
-### GAP-1 (Medium): `recordLiveBoxDrop` not implemented — chest drops from memory non-functional
-
-- **What's missing:** `ChestDropTracker.recordLiveBoxDrop(stageKey, wallTime?)` was required by tasks.md (T07/T08) to wire box-count delta into actual chest-drop records. The function does not exist in `app/src/core/chestDropTracker.ts` or anywhere in `app/src/`.
-- **Spec impact:** LMR-12 AC3 ("WHEN a chest drops in-game THEN the drop SHALL be reflected from memory") is unmet at runtime. The `boxCount` is read live, but nothing converts a delta into a `ChestDropTracker` entry.
-- **Fix:** Implement `recordLiveBoxDrop(stageKey: string, wallTime?: number): boolean` in `chestDropTracker.ts` (mirrors `recordLogDrop` but triggered by box-count delta). Wire call in `TrackingService.ingestLiveFrame`. Add test: "recordLiveBoxDrop increments commonTotal and returns true for a valid stage".
-
-### GAP-2 (Low): `readRuntimeHeroes` upper-bound guard (count > 20) not tested
+### GAP-1 (Low): `readRuntimeHeroes` upper-bound guard (count > 20) not tested
 
 - **What's missing:** The task spec mandates `null` when hero count is 0 or > 20. There is a test for count=0 (passes) but no test for count=21+.
 - **Fix:** Add one test case to `liveMemoryRuntime.test.ts`: seed `listSize = 21`, assert `readRuntimeHeroes` returns `null`.
 
-### GAP-3 (Low): `readRuntimeBoxCount` negative-value guard not tested
+### GAP-2 (Low): `readRuntimeBoxCount` negative-value guard not tested
 
 - **What's missing:** Task spec says "returns null for negative values (plausibility)". No test seeds a negative I32 and asserts null.
 - **Fix:** Add one test: seed `writeI32(SM_SINGLETON + BOX_OFFSET, -1)` with a valid chain, assert result is `null`.
-
-### GAP-4 (Trivial): `ChestDropTracker.getStats` `readerRequired` not asserted in chest-drop unit tests
-
-- **What's missing:** `chestDropTracker.test.ts` calls `getStats(3600, true)` (extra arg ignored) and never reads `stats.readerRequired`. Only covered indirectly via `buildStats.test.ts`.
-- **Fix:** Add `expect(stats.readerRequired).toBe(true)` to at least one `ChestDropTracker` test.
 
 ---
 
 ## Diff range
 
-`e125a66..8d4a352` (11 commits on `feat/live-memory-core-stats` vs `main`)
+`e125a66..HEAD` on `feat/live-memory-core-stats` (initial Phase 2 commits + post-verifier polish)
 
 Commits in scope:
 - `e125a66` — schema extension (T01)
@@ -108,3 +97,24 @@ Commits in scope:
 - `55134ab` — readRuntimeInventory + readRuntimePets + reader wire (T09+T10)
 - `a020af2` — diagnostics tab expansion (T11)
 - `8d4a352` — Prettier format pass
+
+---
+
+## Post-verifier updates (same branch, after initial PASS)
+
+Follow-up work on `feat/live-memory-core-stats` after manual testing — not a verifier re-run, but
+documented here for the PR / handoff.
+
+| Change | Why |
+| ------ | --- |
+| Live XP from runtime heroes (not save-only) | Product goal: migrate rates off save-file lag; `ingestLiveFrame` feeds heroes again |
+| `LiveSessionMeter` shared by XP + gold | Gold/hr and XP/hr used divergent logic; unified takeover → gain → per-tick refresh |
+| Party **total exp delta** for session XP | Per-hero sum missed heroes joining mid-session |
+| `pushStats()` every live frame | UI only refreshed on 1 s timer; rates looked frozen |
+| Session reset + confirm on live-memory toggle | Save `HeroExp` vs runtime exp baselines must not carry over |
+| `liveMemoryEnabled` on persisted session + implausible-total guard | Prevent restoring corrupted Session XP after baseline mix |
+| Diagnostics: current gold, per-hero exp, session/rolling rates | Debug read path vs tracker math |
+
+**Tests added:** `LiveSessionMeter` behaviour, party-total gain, per-tick rate refresh, session
+toggle reset, `buildStats` live-hero blend, `onLiveMemoryToggled` integration (`548` tests total at
+last `pnpm qa`).

@@ -1,4 +1,5 @@
 import type { AppConfig } from "../../../shared/types";
+import { isLiveMemoryActive } from "../../core/sessionState";
 import type { XpTracker } from "../../core/tracker";
 import { expandPath, normalizeConfigFromRaw } from "../config";
 import { createLogger } from "../log";
@@ -23,6 +24,8 @@ export interface ConfigPatchDeps {
   onSavePathChange?: () => void;
   /** Start (true) or stop (false) the live-memory reader process. */
   setLiveMemoryEnabled?: (enabled: boolean) => void;
+  /** Reset session stats when the effective live-memory mode changes. */
+  onLiveMemoryToggled?: () => void;
 }
 
 /** Apply settings patch and run side effects. */
@@ -73,7 +76,12 @@ export function applyConfigPatch(deps: ConfigPatchDeps, patch: Partial<AppConfig
   // Live-memory reader: start/stop the isolated process on toggle (no app restart).
   // Only runs once consent has been accepted.
   if (patch.liveMemory !== undefined) {
-    deps.setLiveMemoryEnabled?.(next.liveMemory.enabled && next.liveMemory.consentAccepted);
+    const prevActive = isLiveMemoryActive(prev);
+    const nextActive = isLiveMemoryActive(next);
+    deps.setLiveMemoryEnabled?.(nextActive);
+    if (prevActive !== nextActive) {
+      deps.onLiveMemoryToggled?.();
+    }
   }
 
   deps.setAlwaysOnTop(next.startTopmost);

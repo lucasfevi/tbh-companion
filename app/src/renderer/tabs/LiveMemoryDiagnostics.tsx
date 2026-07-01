@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import { useLiveMemory } from "../lib/useLiveMemory";
+import { useStats } from "../lib/useStats";
 import { liveReaderState } from "../../core/liveMemory/status";
+import { heroName } from "../../core/heroes";
+import { fmtCompact } from "../lib/format";
 import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
 
@@ -32,6 +35,7 @@ function StatHealth({ label, value }: { label: string; value: unknown }) {
  */
 export function LiveMemoryDiagnostics() {
   const { snapshot, status } = useLiveMemory();
+  const stats = useStats();
   const state = liveReaderState(status, Boolean(status?.running));
   const lastReadAt = snapshot ? new Date(snapshot.at).toLocaleTimeString() : "—";
 
@@ -58,19 +62,52 @@ export function LiveMemoryDiagnostics() {
 
         <section>
           <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
-            Per-stat health
+            Live values
           </p>
-          <Row label="Stage key" value={snapshot?.stageKey ?? "—"} />
-          <Row label="Stage wave" value={snapshot?.stageWave ?? "—"} />
           <StatHealth label="Gold" value={snapshot?.gold} />
+          <Row
+            label="Current gold"
+            value={snapshot?.gold != null ? fmtCompact(snapshot.gold) : "—"}
+          />
+          {stats ? (
+            <>
+              <Row label="Tracker XP/hr" value={`${fmtCompact(stats.rollingRate)}/hr`} />
+              <Row label="Tracker gold/hr" value={`${fmtCompact(stats.goldRate)}/hr`} />
+              <Row label="Session XP" value={fmtCompact(stats.cumulativeGained)} />
+              <Row label="Session XP/hr" value={`${fmtCompact(stats.sessionRate)}/hr`} />
+            </>
+          ) : null}
+        </section>
+
+        <section>
+          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
+            Heroes (live exp)
+          </p>
           <StatHealth
             label="Heroes"
             value={snapshot?.heroes?.length ? snapshot.heroes.length : null}
           />
-          <Row
-            label="Heroes count"
-            value={snapshot?.heroes != null ? String(snapshot.heroes.length) : "—"}
-          />
+          {snapshot?.heroes && snapshot.heroes.length > 0 ? (
+            <div className="mt-1 space-y-0">
+              {snapshot.heroes.map((h) => (
+                <Row
+                  key={h.heroKey}
+                  label={`${heroName(String(h.heroKey))} (Lv ${h.level})`}
+                  value={fmtCompact(h.exp)}
+                />
+              ))}
+            </div>
+          ) : (
+            <Row label="Party" value="—" />
+          )}
+        </section>
+
+        <section>
+          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
+            Per-stat health
+          </p>
+          <Row label="Stage key" value={snapshot?.stageKey ?? "—"} />
+          <Row label="Stage wave" value={snapshot?.stageWave ?? "—"} />
           <StatHealth label="Box count" value={snapshot?.boxCount} />
           <Row label="Box count (raw)" value={snapshot?.boxCount ?? "—"} />
           <StatHealth

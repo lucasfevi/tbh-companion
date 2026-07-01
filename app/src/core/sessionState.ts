@@ -1,14 +1,44 @@
-import type { AppConfig, PersistedSessionState, SaveSnapshot } from "../../shared/types";
+import type {
+  AppConfig,
+  PersistedSessionState,
+  SaveSnapshot,
+  TrackerSnapshot,
+} from "../../shared/types";
+
+/** Effective live-memory reader state (opt-in + consent). */
+export function isLiveMemoryActive(config: AppConfig): boolean {
+  return Boolean(config.liveMemory?.enabled && config.liveMemory?.consentAccepted);
+}
 
 /** Whether persisted session metadata matches current tracking settings. */
 export function sessionMatchesConfig(
-  persisted: Pick<PersistedSessionState, "savePath" | "rollingWindowMinutes">,
+  persisted: Pick<PersistedSessionState, "savePath" | "rollingWindowMinutes" | "liveMemoryEnabled">,
   savePath: string,
   config: AppConfig,
 ): boolean {
+  const currentLive = isLiveMemoryActive(config);
+  // Older snapshots without the field are treated as save-only.
+  const persistedLive = persisted.liveMemoryEnabled ?? false;
   return (
     persisted.savePath === savePath &&
-    persisted.rollingWindowMinutes === config.rollingWindowMinutes
+    persisted.rollingWindowMinutes === config.rollingWindowMinutes &&
+    persistedLive === currentLive
+  );
+}
+
+/** Reject restored tracker totals that could only come from live/save baseline mixing. */
+const MAX_PLAUSIBLE_SESSION_XP = 1e15;
+
+export function isPlausibleTrackerSnapshot(
+  tracker: Pick<TrackerSnapshot, "cumulativeGained" | "sessionRateValue">,
+): boolean {
+  return (
+    Number.isFinite(tracker.cumulativeGained) &&
+    tracker.cumulativeGained >= 0 &&
+    tracker.cumulativeGained < MAX_PLAUSIBLE_SESSION_XP &&
+    Number.isFinite(tracker.sessionRateValue) &&
+    tracker.sessionRateValue >= 0 &&
+    tracker.sessionRateValue < MAX_PLAUSIBLE_SESSION_XP
   );
 }
 

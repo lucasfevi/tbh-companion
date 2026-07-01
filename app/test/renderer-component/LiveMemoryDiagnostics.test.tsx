@@ -12,6 +12,32 @@ vi.mock("../../src/renderer/lib/useLiveMemory", () => ({
   useLiveMemory: () => ({ snapshot: state.snapshot, status: state.status }),
 }));
 
+vi.mock("../../src/renderer/lib/useStats", () => ({
+  useStats: () => ({
+    rollingRate: 12_000,
+    goldRate: 5000,
+    sessionRate: 10_000,
+    cumulativeGained: 50_000,
+    goldGained: 0,
+    elapsed: 3600,
+    stageKey: 1200,
+    stageWave: 3,
+    secondsSinceGain: 1,
+    status: "Tracking",
+    chestDrops: {
+      commonTotal: 0,
+      rareTotal: 0,
+      commonPerHour: 0,
+      rarePerHour: 0,
+      readerRequired: true,
+      breakdown: [],
+      history: [],
+    },
+    heroes: [],
+    history: [],
+  }),
+}));
+
 describe("dev-only diagnostics tab gating", () => {
   it("hides the debug tab in production builds", () => {
     expect(getVisibleTabs(false).map((t) => t.id)).not.toContain("debug");

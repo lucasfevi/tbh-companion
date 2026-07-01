@@ -19,10 +19,10 @@ import type {
 const HISTORY_LIMIT = 500;
 
 // While live-memory frames keep arriving (~25 Hz), the live path owns XP/gold and
-// the save path must not also process them — the two read different quantities
-// (save `HeroExp` vs runtime `HeroRuntime` exp), so cross-diffing them injects
-// huge spurious "gains". A metric reverts to the save path once no live frame has
-// arrived for this many seconds (reader detached / toggled off / game closed).
+// the save path must not also process them — save `HeroExp` and runtime `HeroRuntime`
+// exp are different quantities, so cross-diffing them inflates session totals.
+// Session gain uses party total runtime exp delta; per-hero meters still drive the
+// heroes panel. See `LiveSessionMeter` (shared with gold).
 const LIVE_TAKEOVER_SEC = 5;
 
 function nowSeconds(): number {
@@ -47,15 +47,18 @@ class RateMeter {
     if (gain <= 0) return;
     this.gained += gain;
     this.samples.push([mtime, this.gained]);
-    while (this.samples.length > 2 && mtime - this.samples[0][0] > this.window) {
+    this.refreshRolling(mtime);
+  }
+
+  /** Recompute rolling rate at `refMtime` (live path: call every tick). */
+  refreshRolling(refMtime: number): void {
+    while (this.samples.length > 2 && refMtime - this.samples[0][0] > this.window) {
       this.samples.shift();
     }
-    if (this.samples.length >= 2) {
-      const [t0, g0] = this.samples[0];
-      const [t1, g1] = this.samples[this.samples.length - 1];
-      const dt = t1 - t0;
-      if (dt > 0) this.rolling = ((g1 - g0) / dt) * 3600;
-    }
+    if (this.samples.length === 0) return;
+    const [t0, g0] = this.samples[0];
+    const dt = refMtime - t0;
+    if (dt > 0) this.rolling = ((this.gained - g0) / dt) * 3600;
   }
 
   toSnapshot(): TrackerRateMeterSnapshot {
@@ -84,6 +87,71 @@ function deltaGain(prev: number | undefined, current: number): number {
   return Math.max(current, 0);
 }
 
+/** Rolling + session rates for one live metric (XP or gold), refreshed every tick. */
+class LiveSessionMeter {
+  sessionTotal = 0;
+  samples: Array<[number, number]> = [];
+  firstAnchor: number | null = null;
+  rolling = 0;
+  sessionRate = 0;
+
+  takeover(wallTimeSec: number): void {
+    this.firstAnchor = wallTimeSec;
+    this.samples = [[wallTimeSec, this.sessionTotal]];
+  }
+
+  applyGain(wallTimeSec: number, gain: number): void {
+    if (gain <= 0) return;
+    this.sessionTotal += gain;
+    this.samples.push([wallTimeSec, this.sessionTotal]);
+  }
+
+  refresh(wallTimeSec: number, window: number): void {
+    while (this.samples.length > 2 && wallTimeSec - this.samples[0][0] > window) {
+      this.samples.shift();
+    }
+    if (this.samples.length >= 1) {
+      const [t0, g0] = this.samples[0];
+      const dt = wallTimeSec - t0;
+      if (dt > 0) this.rolling = ((this.sessionTotal - g0) / dt) * 3600;
+    }
+    if (this.firstAnchor !== null) {
+      const span = wallTimeSec - this.firstAnchor;
+      if (span > 0) this.sessionRate = (this.sessionTotal / span) * 3600;
+    }
+  }
+
+  restore(
+    sessionTotal: number,
+    samples: Array<[number, number]>,
+    firstAnchor: number | null,
+    rolling: number,
+    sessionRate: number,
+  ): void {
+    this.sessionTotal = sessionTotal;
+    this.samples = samples.map(([t, g]) => [t, g] as [number, number]);
+    this.firstAnchor = firstAnchor;
+    this.rolling = rolling;
+    this.sessionRate = sessionRate;
+  }
+
+  capture(): {
+    sessionTotal: number;
+    samples: Array<[number, number]>;
+    firstAnchor: number | null;
+    rolling: number;
+    sessionRate: number;
+  } {
+    return {
+      sessionTotal: this.sessionTotal,
+      samples: this.samples.map(([t, g]) => [t, g] as [number, number]),
+      firstAnchor: this.firstAnchor,
+      rolling: this.rolling,
+      sessionRate: this.sessionRate,
+    };
+  }
+}
+
 export class XpTracker {
   readonly rollingWindow: number;
 
@@ -103,6 +171,10 @@ export class XpTracker {
   private heroMeters!: Map<string, RateMeter>;
   private samples!: Array<[number, number]>;
   private initialized!: boolean;
+  private prevLiveTotalXp: number | null = null;
+
+  private readonly liveXp = new LiveSessionMeter();
+  private readonly liveGold = new LiveSessionMeter();
 
   // Live-vs-save source ownership, tracked per metric (see LIVE_TAKEOVER_SEC).
   private xpLiveOwning!: boolean;
@@ -156,6 +228,9 @@ export class XpTracker {
     this.goldLastChangeMtime = null;
     this.goldRollingRateValue = 0;
     this.goldSessionRateValue = 0;
+    this.prevLiveTotalXp = null;
+    this.liveXp.restore(0, [], null, 0, 0);
+    this.liveGold.restore(0, [], null, 0, 0);
   }
 
   /** Incorporate a new save snapshot. Returns XP gained since last update. */
@@ -267,35 +342,90 @@ export class XpTracker {
       heroes: Array<{ heroKey: number; level: number; exp: number }> | null;
     },
     wallTimeSec: number,
+    stage?: { stageKey: number; stageWave: number },
   ): void {
     if (!this.initialized) return;
 
     if (data.gold != null) {
-      this.currentGold = data.gold;
-      const takingOver = !this.goldLiveOwning;
-      this.goldLiveOwning = true;
-      this.lastLiveGoldSec = wallTimeSec;
-      // On takeover, re-baseline to the live value so the save→live gap isn't
-      // counted as earned gold; otherwise diff against the prior live sample.
-      if (takingOver) this.prevGold = data.gold;
-      else this.updateGold(data.gold, wallTimeSec);
+      this.applyLiveGold(data.gold, wallTimeSec);
     }
 
     if (data.heroes != null && data.heroes.length > 0) {
-      const takingOver = !this.xpLiveOwning;
-      this.xpLiveOwning = true;
-      this.lastLiveXpSec = wallTimeSec;
+      this.applyLiveXp(data.heroes, wallTimeSec, stage);
+    } else if (this.xpLiveOwning) {
+      this.syncXpFromLiveMeter(wallTimeSec);
+    }
+  }
 
-      let gain = 0;
-      let totalXp = 0;
-      for (const h of data.heroes) {
+  private applyLiveGold(gold: number, wallTimeSec: number): void {
+    this.currentGold = gold;
+    const takingOver = !this.goldLiveOwning;
+    this.goldLiveOwning = true;
+    this.lastLiveGoldSec = wallTimeSec;
+
+    const gain = takingOver ? 0 : Math.max(0, gold - (this.prevGold ?? gold));
+    this.prevGold = gold;
+
+    if (takingOver) {
+      this.liveGold.restore(this.goldGained, [[wallTimeSec, this.goldGained]], wallTimeSec, 0, 0);
+    } else {
+      this.liveGold.applyGain(wallTimeSec, gain);
+      if (gain > 0) this.goldLastChangeMtime = wallTimeSec;
+    }
+
+    this.goldGained = this.liveGold.sessionTotal;
+    this.liveGold.refresh(wallTimeSec, this.rollingWindow);
+    this.goldRollingRateValue = this.liveGold.rolling;
+    this.goldSessionRateValue = this.liveGold.sessionRate;
+    this.goldSamples = this.liveGold.samples;
+    this.goldFirstMtime = this.liveGold.firstAnchor;
+  }
+
+  private applyLiveXp(
+    heroes: Array<{ heroKey: number; level: number; exp: number }>,
+    wallTimeSec: number,
+    stage?: { stageKey: number; stageWave: number },
+  ): void {
+    const takingOver = !this.xpLiveOwning;
+    this.xpLiveOwning = true;
+    this.lastLiveXpSec = wallTimeSec;
+
+    let totalXp = 0;
+    for (const h of heroes) {
+      totalXp += h.exp;
+    }
+
+    let gain = 0;
+
+    if (takingOver) {
+      this.liveXp.restore(
+        this.cumulativeGained,
+        [[wallTimeSec, this.cumulativeGained]],
+        wallTimeSec,
+        0,
+        0,
+      );
+      this.prevHero.clear();
+      this.prevLiveTotalXp = totalXp;
+      for (const h of heroes) {
         const key = String(h.heroKey);
-        // On takeover, seed the baseline from the live value (no gain counted);
-        // the save baseline is a different quantity and would inflate the delta.
-        const heroGain = takingOver ? 0 : deltaGain(this.prevHero.get(key), h.exp);
-        gain += heroGain;
         this.prevHero.set(key, h.exp);
-        totalXp += h.exp;
+        let meter = this.heroMeters.get(key);
+        if (meter === undefined) {
+          meter = new RateMeter(this.rollingWindow);
+          meter.init(wallTimeSec);
+          this.heroMeters.set(key, meter);
+        }
+        meter.refreshRolling(wallTimeSec);
+      }
+    } else {
+      gain = deltaGain(this.prevLiveTotalXp ?? undefined, totalXp);
+      this.prevLiveTotalXp = totalXp;
+
+      for (const h of heroes) {
+        const key = String(h.heroKey);
+        const heroGain = deltaGain(this.prevHero.get(key), h.exp);
+        this.prevHero.set(key, h.exp);
 
         let meter = this.heroMeters.get(key);
         if (meter === undefined) {
@@ -303,19 +433,50 @@ export class XpTracker {
           meter.init(wallTimeSec);
           this.heroMeters.set(key, meter);
         }
-        if (!takingOver) meter.add(heroGain, wallTimeSec);
+        if (heroGain > 0) meter.add(heroGain, wallTimeSec);
+        else meter.refreshRolling(wallTimeSec);
       }
 
-      this.currentTotalXp = totalXp;
-
+      this.liveXp.applyGain(wallTimeSec, gain);
       if (gain > 0) {
-        this.cumulativeGained += gain;
         this.lastGainMtime = wallTimeSec;
         this.lastChangeMtime = wallTimeSec;
-        this.samples.push([wallTimeSec, this.cumulativeGained]);
-        this.prune(wallTimeSec);
-        this.recomputeRates();
       }
+    }
+
+    this.currentTotalXp = totalXp;
+    this.syncXpFromLiveMeter(wallTimeSec);
+
+    if (gain > 0) {
+      const entry: HistoryEntry = {
+        wallTime: wallTimeSec,
+        delta: gain,
+        rate: this.rollingRateValue,
+        totalXp: this.currentTotalXp,
+        stageKey: stage?.stageKey ?? 0,
+        stageWave: stage?.stageWave ?? 0,
+      };
+      this.history.push(entry);
+      if (this.history.length > HISTORY_LIMIT) this.history.shift();
+      if (this.onHistory) {
+        try {
+          this.onHistory(entry);
+        } catch {
+          // never let logging break tracking
+        }
+      }
+    }
+  }
+
+  private syncXpFromLiveMeter(wallTimeSec: number): void {
+    this.cumulativeGained = this.liveXp.sessionTotal;
+    this.liveXp.refresh(wallTimeSec, this.rollingWindow);
+    this.rollingRateValue = this.liveXp.rolling;
+    this.sessionRateValue = this.liveXp.sessionRate;
+    this.samples = this.liveXp.samples;
+    this.firstMtime = this.liveXp.firstAnchor;
+    for (const meter of this.heroMeters.values()) {
+      meter.refreshRolling(wallTimeSec);
     }
   }
 
@@ -375,6 +536,16 @@ export class XpTracker {
 
   get rollingRate(): number {
     return this.rollingRateValue;
+  }
+
+  /** True while live-memory frames are actively driving XP (see LIVE_TAKEOVER_SEC). */
+  xpLiveActive(now = nowSeconds()): boolean {
+    return this.lastLiveXpSec !== null && now - this.lastLiveXpSec < LIVE_TAKEOVER_SEC;
+  }
+
+  /** True while live-memory frames are actively driving gold. */
+  goldLiveActive(now = nowSeconds()): boolean {
+    return this.lastLiveGoldSec !== null && now - this.lastLiveGoldSec < LIVE_TAKEOVER_SEC;
   }
 
   heroRate(key: string): number {
@@ -456,5 +627,25 @@ export class XpTracker {
     this.goldLastChangeMtime = snapshot.goldLastChangeMtime;
     this.goldRollingRateValue = snapshot.goldRollingRateValue;
     this.goldSessionRateValue = snapshot.goldSessionRateValue;
+    this.liveXp.restore(
+      snapshot.cumulativeGained,
+      snapshot.samples.map(([t, g]) => [t, g] as [number, number]),
+      snapshot.firstMtime,
+      snapshot.rollingRateValue,
+      snapshot.sessionRateValue,
+    );
+    this.liveGold.restore(
+      snapshot.goldGained,
+      snapshot.goldSamples.map(([t, g]) => [t, g] as [number, number]),
+      snapshot.goldFirstMtime,
+      snapshot.goldRollingRateValue,
+      snapshot.goldSessionRateValue,
+    );
+    this.prevLiveTotalXp = snapshot.currentTotalXp;
+    // Restored sessions always start on the save path; live ownership is runtime-only.
+    this.xpLiveOwning = false;
+    this.goldLiveOwning = false;
+    this.lastLiveXpSec = null;
+    this.lastLiveGoldSec = null;
   }
 }

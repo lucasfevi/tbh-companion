@@ -36,12 +36,17 @@ const IDLE_THRESHOLD = 120;
 
 const DEFAULT_AUTO_OPEN: ChestAutoOpenPrefs = { common: false, stageBoss: false };
 
-const RATE_TIP =
+const RATE_TIP_SAVE =
   "XP/hour updates only when the game writes new XP to the save (often up to " +
   "3 minutes apart, sometimes longer). It holds steady between writes instead of decaying.";
-const GOLD_TIP =
+const RATE_TIP_LIVE =
+  "XP/hour from live memory reads (~25 updates per second). Rates hold steady between " +
+  "gains instead of decaying. Switching between live and save-only resets the session.";
+const GOLD_TIP_SAVE =
   "Gold earned per hour. Counts gold gained only; spending (upgrades, Cube, " +
   "runes) is ignored, so it's accurate while farming.";
+const GOLD_TIP_LIVE =
+  "Gold earned per hour from live memory reads. Counts gold gained only; spending is ignored.";
 const CHEST_RATE_TIP =
   "Drop rates from Player.log lines this session. Only counts while the companion is running.";
 const INVENTORY_PREDICTION_TIP =
@@ -100,6 +105,12 @@ export function Live() {
 
   const idle = stats.secondsSinceGain !== null && stats.secondsSinceGain > IDLE_THRESHOLD;
   const showStatus = stats.status !== "Tracking";
+  const liveActive = liveMemory?.connected === true;
+  const rateTip = liveActive ? RATE_TIP_LIVE : RATE_TIP_SAVE;
+  const goldTip = liveActive ? GOLD_TIP_LIVE : GOLD_TIP_SAVE;
+  const intro = liveActive
+    ? "Live memory is on — XP, gold, and chest stats update in real time from the running game."
+    : "Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer.";
   // Per-stat blend: prefer the live memory stage, fall back to the save value.
   const stage = blendStage(liveMemory, { stageKey: stats.stageKey, stageWave: stats.stageWave });
   const { commonTotal, rareTotal, commonPerHour, rarePerHour, readerRequired } = stats.chestDrops;
@@ -152,10 +163,7 @@ export function Live() {
 
   return (
     <TabPage>
-      <TabHeader
-        title="Live stats"
-        intro="Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer."
-      />
+      <TabHeader title="Live stats" intro={intro} />
 
       <MetricHero
         primary={
@@ -171,7 +179,7 @@ export function Live() {
               </div>
             }
           >
-            {RATE_TIP}
+            {rateTip}
           </Tooltip>
         }
         center={
@@ -189,7 +197,7 @@ export function Live() {
                 </div>
               }
             >
-              {GOLD_TIP}
+              {goldTip}
             </Tooltip>
             <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-xs text-muted">
               <span>

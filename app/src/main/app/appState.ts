@@ -261,6 +261,7 @@ export function getAppServices() {
           ensureOwnedPrices: (force) => inventory.ensureOwnedPrices(force),
           onSavePathChange: () => tracking.onSavePathChanged(),
           setLiveMemoryEnabled: (enabled) => (enabled ? liveMemory.start() : liveMemory.stop()),
+          onLiveMemoryToggled: () => tracking.onLiveMemoryToggled(),
         },
         patch,
       ),

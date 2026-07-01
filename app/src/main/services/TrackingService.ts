@@ -24,6 +24,7 @@ export class TrackingService {
   private watcher: SaveWatcher | null = null;
   private tickTimer: NodeJS.Timeout | null = null;
   private lastSnap: SaveSnapshot | null = null;
+  private lastLiveFrame: LiveMemorySnapshot | null = null;
   private lastError: string | null = null;
   private config!: AppConfig;
   private restoreApplied = false;
@@ -80,6 +81,7 @@ export class TrackingService {
       this.lastSnap,
       this.lastError,
       this.sessionState?.getStatusOverride() ?? null,
+      this.lastLiveFrame,
     );
   }
 
@@ -136,16 +138,43 @@ export class TrackingService {
   }
 
   /**
+   * Reset session stats when switching between live-memory and save-only tracking.
+   * Save-layer and runtime values use different baselines, so totals must not carry over.
+   */
+  onLiveMemoryToggled(): void {
+    this.prevBoxCount = null;
+    this.lastLiveFrame = null;
+    this.tracker.reset();
+    this.chestDropTracker.reset();
+    if (this.lastSnap) {
+      this.tracker.update(this.lastSnap);
+    }
+    this.sessionState?.notifyNewSession();
+    this.sessionState?.onTrackerReset(
+      this.tracker,
+      this.chestDropTracker,
+      this.config,
+      this.lastSnap,
+    );
+    this.pushStats();
+  }
+
+  /**
    * Ingest a live-memory snapshot frame into the tracker.
-   * Called at ~25 Hz from LiveMemoryService; does not push stats (the 1s tick does that).
+   * Called at ~25 Hz from LiveMemoryService; pushes stats each tick while live.
    */
   ingestLiveFrame(snap: LiveMemorySnapshot): void {
     if (!snap.connected) return;
-    // XP stays on the save-layer path: the runtime HeroRuntime exp (ObscuredFloat)
-    // is a different, far larger quantity than the save-layer HeroExp the XP total
-    // and XP/hr are built on, so feeding it inflates the numbers. Live memory drives
-    // gold (same quantity, just fresher); live heroes still surface in diagnostics.
-    this.tracker.updateLive({ gold: snap.gold, heroes: null }, snap.at / 1000);
+    this.lastLiveFrame = snap;
+
+    const stage =
+      snap.stageKey != null
+        ? { stageKey: snap.stageKey, stageWave: snap.stageWave ?? 0 }
+        : undefined;
+
+    this.tracker.updateLive({ gold: snap.gold, heroes: snap.heroes }, snap.at / 1000, stage);
+
+    this.pushStats();
 
     if (snap.boxCount != null && snap.stageKey != null) {
       if (this.prevBoxCount != null && snap.boxCount > this.prevBoxCount) {
