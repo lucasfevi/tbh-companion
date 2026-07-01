@@ -5,7 +5,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { offsetsForVersion, type LiveOffsets } from "../../core/liveMemory/offsets";
-import { readRuntimeStage } from "../../core/liveMemory/runtime";
+import {
+  makeGoldPinState,
+  readRuntimeBoxCount,
+  readRuntimeGold,
+  readRuntimeHeroes,
+  readRuntimeStage,
+  type GoldPinState,
+} from "../../core/liveMemory/runtime";
 import type { LiveMemorySnapshot, LiveMemoryStatus } from "../../../shared/types";
 import { WinProcess } from "./winProcess";
 
@@ -34,6 +41,7 @@ export class LiveMemoryReader {
   private proc: WinProcess | null = null;
   private ga: { base: bigint; size: number } | null = null;
   private offsets: LiveOffsets | null = null;
+  private goldPin: GoldPinState = makeGoldPinState();
   gameVersion: string | null = null;
   supported = false;
 
@@ -65,6 +73,7 @@ export class LiveMemoryReader {
     this.ga = null;
     this.offsets = null;
     this.supported = false;
+    this.goldPin = makeGoldPinState(); // reset pin on detach — new attach needs a fresh walk
   }
 
   /** Live stage snapshot, or null when unattached/unsupported/unreadable. */
@@ -84,11 +93,11 @@ export class LiveMemoryReader {
       connected: true,
       stageKey: stage.stageKey,
       stageWave: stage.wave,
-      gold: null,       // wired in T05
-      heroes: null,     // wired in T05
-      boxCount: null,   // wired in T05
+      gold: readRuntimeGold(p, ga.base, ga.size, o, this.goldPin),
+      heroes: readRuntimeHeroes(p, ga.base, ga.size, o),
+      boxCount: readRuntimeBoxCount(p, ga.base, ga.size, o),
       inventoryItems: null, // wired in T09
-      petData: null,    // wired in T10
+      petData: null,        // wired in T10
       source: `memory v${o.gameVersion}`,
       readMs: Date.now() - t0,
       at: Date.now(),
