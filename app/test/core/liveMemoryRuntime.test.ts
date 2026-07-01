@@ -241,15 +241,12 @@ function seedHeroChain(
   // HeroList pointer at SM_SINGLETON + heroList offset
   m.writePtr(SM_SINGLETON + BigInt(O.runtime.heroList), HERO_LIST_OBJ);
 
-  // List object: items array ptr + size
-  m.writePtr(HERO_LIST_OBJ + BigInt(O.container.listItems), HERO_ITEMS_ARR).writeI32(
-    HERO_LIST_OBJ + BigInt(O.container.listSize),
-    heroes.length,
-  );
+  // HeroList is Hero[] (direct array): length at +listSize, elements at +arrayFirst
+  m.writeI32(HERO_LIST_OBJ + BigInt(O.container.listSize), heroes.length);
 
-  // Seed each hero ptr in the items array, then seed hero fields
+  // Seed each hero ptr directly in HERO_LIST_OBJ, then seed hero fields
   const heroPtrs = [HERO1, HERO2];
-  const first = HERO_ITEMS_ARR + BigInt(O.container.arrayFirst);
+  const first = HERO_LIST_OBJ + BigInt(O.container.arrayFirst);
   for (let i = 0; i < heroes.length; i++) {
     const heroAddr = heroPtrs[i];
     m.writePtr(first + BigInt(i * 8), heroAddr);
@@ -310,7 +307,6 @@ describe("readRuntimeHeroes", () => {
       .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
       .writePtr(SM_BLOCK, SM_SINGLETON)
       .writePtr(SM_SINGLETON + BigInt(O.runtime.heroList), HERO_LIST_OBJ)
-      .writePtr(HERO_LIST_OBJ + BigInt(O.container.listItems), HERO_ITEMS_ARR)
       .writeI32(HERO_LIST_OBJ + BigInt(O.container.listSize), 21); // exceeds MAX_HEROES
     expect(readRuntimeHeroes(m, GA_BASE, GA_SIZE, O)).toBeNull();
   });

@@ -198,14 +198,12 @@ export function readRuntimeHeroes(
   const heroListPtr = readPtr(reader, smSingleton + BigInt(o.runtime.heroList));
   if (heroListPtr == null) return null;
 
-  const itemsArrPtr = readPtr(reader, heroListPtr + BigInt(o.container.listItems));
-  if (itemsArrPtr == null) return null;
-
+  // HeroList is Hero[] (direct IL2CPP array), not List<Hero> — no inner items-array pointer.
   const count = readI32(reader, heroListPtr + BigInt(o.container.listSize));
   if (count == null || count <= 0 || count > MAX_HEROES) return null;
 
   const heroes: LiveHeroData[] = [];
-  const first = itemsArrPtr + BigInt(o.container.arrayFirst);
+  const first = heroListPtr + BigInt(o.container.arrayFirst);
 
   for (let i = 0; i < count; i++) {
     const heroPtr = readPtr(reader, first + BigInt(i * 8));
