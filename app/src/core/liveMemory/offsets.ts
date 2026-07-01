@@ -33,7 +33,23 @@ export interface LiveOffsets {
     currentStageKey: number;
     currentStageWave: number;
   };
+  /** Save-layer HeroSaveData struct offsets (ES3 heap path) — NOT the runtime Hero object. */
   hero: { heroKey: number; level: number; unlock: number; exp: number; equipped: number };
+  /** Runtime Hero (a `Unit`) reached from `StageManager.HeroList`. */
+  unit: { cache: number };
+  /**
+   * Runtime hero progression wrapper (`Unit.cache` → HeroRuntime). Level/exp are
+   * ACTk Obscured values stored as (hiddenValue, currentCryptoKey) pairs.
+   */
+  heroRuntime: {
+    info: number;
+    levelHidden: number;
+    levelKey: number;
+    expHidden: number;
+    expKey: number;
+  };
+  /** Runtime hero identity block (`HeroRuntime.info` → HeroInfoData). */
+  heroInfoData: { heroKey: number };
   /** Save-layer CurrencySaveData — lags the UI; not used for live gold display. */
   currency: { key: number; quantity: number };
   /** PetSaveData struct field offsets (save-layer heap path via CommonSaveData). */
@@ -124,6 +140,15 @@ const V1_00_21: LiveOffsets = {
     currentStageWave: 0x5c,
   },
   hero: { heroKey: 0x10, level: 0x14, unlock: 0x18, exp: 0x1c, equipped: 0x28 },
+  unit: { cache: 0x3a8 }, // Unit.cache → HeroRuntime (stable real field)
+  heroRuntime: {
+    info: 0x30, // → HeroInfoData
+    levelHidden: 0xd0, // ObscuredInt level: hiddenValue
+    levelKey: 0xd4, //    currentCryptoKey
+    expHidden: 0x110, // ObscuredFloat xp: hiddenValue
+    expKey: 0x114, //    currentCryptoKey
+  },
+  heroInfoData: { heroKey: 0x30 },
   currency: { key: 0x10, quantity: 0x18 },
   petSaveData: {
     petKey: 0, // TODO: derive for v1.00.21 (PetSaveData.PetKey)

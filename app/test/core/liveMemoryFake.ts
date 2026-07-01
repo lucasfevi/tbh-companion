@@ -21,6 +21,13 @@ export class FakeMemory implements MemoryReader {
     return this;
   }
 
+  writeU32(addr: bigint, value: number): this {
+    const b = Buffer.alloc(4);
+    b.writeUInt32LE(value >>> 0, 0);
+    this.words.set(addr.toString(), b);
+    return this;
+  }
+
   writeF32(addr: bigint, value: number): this {
     const b = Buffer.alloc(4);
     b.writeFloatLE(value, 0);

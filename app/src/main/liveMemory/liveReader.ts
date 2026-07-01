@@ -7,13 +7,16 @@ import { dirname, join } from "node:path";
 import { offsetsForVersion, type LiveOffsets } from "../../core/liveMemory/offsets";
 import {
   makeGoldPinState,
+  makeSmPinState,
   readRuntimeBoxCount,
   readRuntimeGold,
   readRuntimeHeroes,
   readRuntimeInventory,
   readRuntimePets,
   readRuntimeStage,
+  resolveStageManager,
   type GoldPinState,
+  type SmPinState,
 } from "../../core/liveMemory/runtime";
 import type { LiveMemorySnapshot, LiveMemoryStatus } from "../../../shared/types";
 import { WinProcess } from "./winProcess";
@@ -44,6 +47,7 @@ export class LiveMemoryReader {
   private ga: { base: bigint; size: number } | null = null;
   private offsets: LiveOffsets | null = null;
   private goldPin: GoldPinState = makeGoldPinState();
+  private smPin: SmPinState = makeSmPinState();
   gameVersion: string | null = null;
   supported = false;
 
@@ -75,7 +79,8 @@ export class LiveMemoryReader {
     this.ga = null;
     this.offsets = null;
     this.supported = false;
-    this.goldPin = makeGoldPinState(); // reset pin on detach — new attach needs a fresh walk
+    this.goldPin = makeGoldPinState(); // reset pins on detach — new attach needs fresh walks
+    this.smPin = makeSmPinState();
   }
 
   /** Live stage snapshot, or null when unattached/unsupported/unreadable. */
@@ -89,15 +94,18 @@ export class LiveMemoryReader {
       return null;
     }
     const t0 = Date.now();
-    const stage = readRuntimeStage(p, ga.base, ga.size, o);
+    // Resolve the StageManager instance once per tick; heroes, wave, and box
+    // count all read off it. Cached in smPin, re-scanned only when stale.
+    const smPtr = resolveStageManager(p, ga.base, ga.size, o, this.smPin);
+    const stage = readRuntimeStage(p, ga.base, ga.size, o, smPtr);
     if (!stage) return null;
     return {
       connected: true,
       stageKey: stage.stageKey,
       stageWave: stage.wave,
       gold: readRuntimeGold(p, ga.base, ga.size, o, this.goldPin),
-      heroes: readRuntimeHeroes(p, ga.base, ga.size, o),
-      boxCount: readRuntimeBoxCount(p, ga.base, ga.size, o),
+      heroes: readRuntimeHeroes(p, o, smPtr),
+      boxCount: readRuntimeBoxCount(p, o, smPtr),
       inventoryItems: readRuntimeInventory(p, ga.base, ga.size, o),
       petData: readRuntimePets(p, ga.base, ga.size, o),
       source: `memory v${o.gameVersion}`,

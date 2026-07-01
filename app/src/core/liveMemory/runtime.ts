@@ -2,9 +2,9 @@
 // (CurrencyManager Dictionary<int,T> → ACTk ObscuredLong). Pure: operates over
 // an injected MemoryReader so it is unit-testable over synthetic memory maps.
 
-import { readI32, readI64, readPtr, type MemoryReader } from "./memory";
+import { readI32, readI64, readPtr, readU32, type MemoryReader } from "./memory";
 import { plausibleGold, plausibleStage, plausibleWave, type LiveOffsets } from "./offsets";
-import { readStaticFieldPtr } from "./statics";
+import { readStaticFieldPtr, readStaticFieldsBlock } from "./statics";
 import type { LiveHeroData, LiveInventoryItem, LivePetData } from "../../../shared/types";
 
 export interface RuntimeStage {
@@ -15,6 +15,8 @@ export interface RuntimeStage {
 /**
  * Live stage key from `StageCacheManager → StageCache → StageInfoData.StageKey`,
  * plus the wave counter from the `StageManager` singleton when set.
+ * `smPtr` is the resolved StageManager instance (see {@link resolveStageManager});
+ * pass null when it could not be resolved — wave then falls back to the save value.
  * Returns null when the cache chain can't be walked (fall back to the save value).
  */
 export function readRuntimeStage(
@@ -22,6 +24,7 @@ export function readRuntimeStage(
   gaBase: bigint,
   gaSize: number,
   o: LiveOffsets,
+  smPtr: bigint | null,
 ): RuntimeStage | null {
   const candidates = o.il2cppClass.staticFieldsOffsets;
 
@@ -42,16 +45,8 @@ export function readRuntimeStage(
 
   // StageManager singleton runtime wave counter, when positive.
   let wave: number | null = null;
-  const smSingleton = readStaticFieldPtr(
-    reader,
-    gaBase,
-    gaSize,
-    o.typeInfoRva.stageManager,
-    0,
-    candidates,
-  );
-  if (smSingleton != null) {
-    const runtimeWave = readI32(reader, smSingleton + BigInt(o.runtime.stage.runtimeWave));
+  if (smPtr != null) {
+    const runtimeWave = readI32(reader, smPtr + BigInt(o.runtime.stage.runtimeWave));
     if (plausibleWave(runtimeWave)) wave = runtimeWave;
   }
 
@@ -169,36 +164,51 @@ export function readRuntimeGold(
   return pin.lastKnown;
 }
 
-// ── Heroes (StageManager.HeroList → List<Hero> → per-hero key/level/exp) ─────
+// ── ACTk Obscured value decode (level = ObscuredInt, exp = ObscuredFloat) ─────
+
+/** Swap bytes [1] and [2] of a 32-bit little-endian word (ObscuredFloat quirk). */
+function byteswap12(v: number): number {
+  return (
+    ((v & 0xff) | (((v >>> 16) & 0xff) << 8) | (((v >>> 8) & 0xff) << 16) | (v & 0xff000000)) >>> 0
+  );
+}
+
+/** Reinterpret a uint32 bit pattern as an IEEE-754 float32. */
+function u32ToF32(bits: number): number {
+  const dv = new DataView(new ArrayBuffer(4));
+  dv.setUint32(0, bits >>> 0, true);
+  return dv.getFloat32(0, true);
+}
+
+/** Decode an ACTk ObscuredInt to a signed int32: `(hidden - key) ^ key`. */
+function decodeObscuredInt(hidden: number | null, key: number | null): number | null {
+  if (hidden == null || key == null) return null;
+  const raw = ((((hidden - key) & 0xffffffff) >>> 0) ^ key) >>> 0;
+  return raw | 0; // reinterpret as signed
+}
+
+/** Decode an ACTk ObscuredFloat to a float32: `f32(key ^ byteswap12(hidden))`. */
+function decodeObscuredFloat(hidden: number | null, key: number | null): number | null {
+  if (hidden == null || key == null) return null;
+  return u32ToF32((key ^ byteswap12(hidden)) >>> 0);
+}
+
+// ── Heroes (StageManager.HeroList → Hero[] → Unit.cache → HeroRuntime) ────────
 
 const MAX_HEROES = 20; // sanity cap: game has far fewer party slots
 
 /**
- * Live hero data from `StageManager.HeroList` (real field name at +heroList).
- * Returns null when the singleton or list can't be walked.
+ * Read the live party off a resolved StageManager instance.
+ *
+ * `HeroList` is a `Hero[]` of deployed party members. Each element is a runtime
+ * `Unit`, whose identity/level/exp live behind `Unit.cache → HeroRuntime`
+ * (NOT the save-layer HeroSaveData offsets). Level/exp are ACTk Obscured values.
  */
-export function readRuntimeHeroes(
-  reader: MemoryReader,
-  gaBase: bigint,
-  gaSize: number,
-  o: LiveOffsets,
-): LiveHeroData[] | null {
-  const candidates = o.il2cppClass.staticFieldsOffsets;
-
-  const smSingleton = readStaticFieldPtr(
-    reader,
-    gaBase,
-    gaSize,
-    o.typeInfoRva.stageManager,
-    0,
-    candidates,
-  );
-  if (smSingleton == null) return null;
-
-  const heroListPtr = readPtr(reader, smSingleton + BigInt(o.runtime.heroList));
+function readParty(reader: MemoryReader, smPtr: bigint, o: LiveOffsets): LiveHeroData[] | null {
+  const heroListPtr = readPtr(reader, smPtr + BigInt(o.runtime.heroList));
   if (heroListPtr == null) return null;
 
-  // HeroList is Hero[] (direct IL2CPP array), not List<Hero> — no inner items-array pointer.
+  // HeroList is Hero[] (direct IL2CPP array): length at +listSize, elements at +arrayFirst.
   const count = readI32(reader, heroListPtr + BigInt(o.container.listSize));
   if (count == null || count <= 0 || count > MAX_HEROES) return null;
 
@@ -209,48 +219,124 @@ export function readRuntimeHeroes(
     const heroPtr = readPtr(reader, first + BigInt(i * 8));
     if (heroPtr == null) continue;
 
-    const heroKey = readI32(reader, heroPtr + BigInt(o.hero.heroKey));
-    const level = readI32(reader, heroPtr + BigInt(o.hero.level));
-    const exp = readI32(reader, heroPtr + BigInt(o.hero.exp));
+    const runtimePtr = readPtr(reader, heroPtr + BigInt(o.unit.cache));
+    if (runtimePtr == null) continue;
 
-    if (heroKey == null || heroKey <= 0) continue;
+    const infoPtr = readPtr(reader, runtimePtr + BigInt(o.heroRuntime.info));
+    if (infoPtr == null) continue;
+
+    const heroKey = readI32(reader, infoPtr + BigInt(o.heroInfoData.heroKey));
+    if (heroKey == null || heroKey <= 0 || heroKey >= 10_000_000) continue;
+
+    const level = decodeObscuredInt(
+      readU32(reader, runtimePtr + BigInt(o.heroRuntime.levelHidden)),
+      readU32(reader, runtimePtr + BigInt(o.heroRuntime.levelKey)),
+    );
+    const exp = decodeObscuredFloat(
+      readU32(reader, runtimePtr + BigInt(o.heroRuntime.expHidden)),
+      readU32(reader, runtimePtr + BigInt(o.heroRuntime.expKey)),
+    );
+
     heroes.push({
       heroKey,
-      level: level ?? 1,
-      exp: exp ?? 0,
+      level: level != null && level > 0 && level <= 200 ? level : 1,
+      exp: exp != null && exp >= 0 && Number.isFinite(exp) ? exp : 0,
     });
   }
 
   return heroes.length > 0 ? heroes : null;
 }
 
-// ── Box count (StageManager cumulative-boxes-obtained counter) ────────────────
+/**
+ * Live hero data for the deployed party.
+ * `smPtr` is the resolved StageManager instance (see {@link resolveStageManager});
+ * returns null when it is unresolved or the party can't be walked.
+ */
+export function readRuntimeHeroes(
+  reader: MemoryReader,
+  o: LiveOffsets,
+  smPtr: bigint | null,
+): LiveHeroData[] | null {
+  if (smPtr == null) return null;
+  return readParty(reader, smPtr, o);
+}
+
+// ── StageManager singleton resolution ────────────────────────────────────────
+
+/** Per-reader-instance pin for the StageManager instance pointer. */
+export interface SmPinState {
+  ptr: bigint | null;
+}
+
+export function makeSmPinState(): SmPinState {
+  return { ptr: null };
+}
+
+// The singleton `Instance` static field's offset within the class static block is
+// not name-stable, so scan the block for the pointer that resolves a live party.
+const SM_STATIC_SCAN_MAX = 0x100;
+
+/** A candidate StageManager is "live" when it exposes a walkable, non-empty party. */
+function isLiveStageManager(reader: MemoryReader, ptr: bigint, o: LiveOffsets): boolean {
+  return readParty(reader, ptr, o) != null;
+}
 
 /**
- * Cumulative box count from StageManager.
- * Returns null when the singleton is unavailable or when the field offset
- * has not been derived for this game version (offset === 0, placeholder).
+ * Resolve the live `StageManager` instance pointer.
+ *
+ * The instance is not stored in a name-stable static field, so we scan the
+ * StageManager class static block for the pointer whose `HeroList` resolves a
+ * real party (`readParty`). The winning pointer is pinned and re-validated each
+ * tick; a full re-scan happens only when the pin goes stale (e.g. scene reload).
+ * Returns null between stages when no party is deployed — callers fall back to
+ * save-file values for the affected stats.
  */
-export function readRuntimeBoxCount(
+export function resolveStageManager(
   reader: MemoryReader,
   gaBase: bigint,
   gaSize: number,
   o: LiveOffsets,
-): number | null {
-  if (o.runtime.stage.boxCount === 0) return null; // offset not yet derived
+  pin: SmPinState,
+): bigint | null {
+  if (pin.ptr != null && isLiveStageManager(reader, pin.ptr, o)) return pin.ptr;
+  pin.ptr = null;
 
-  const candidates = o.il2cppClass.staticFieldsOffsets;
-  const smSingleton = readStaticFieldPtr(
+  const block = readStaticFieldsBlock(
     reader,
     gaBase,
     gaSize,
     o.typeInfoRva.stageManager,
-    0,
-    candidates,
+    o.il2cppClass.staticFieldsOffsets,
   );
-  if (smSingleton == null) return null;
+  if (block == null) return null;
 
-  const count = readI32(reader, smSingleton + BigInt(o.runtime.stage.boxCount));
+  for (let off = 0; off <= SM_STATIC_SCAN_MAX; off += 8) {
+    const cand = readPtr(reader, block + BigInt(off));
+    if (cand == null) continue;
+    if (isLiveStageManager(reader, cand, o)) {
+      pin.ptr = cand;
+      return cand;
+    }
+  }
+  return null;
+}
+
+// ── Box count (StageManager cumulative-boxes-obtained counter) ────────────────
+
+/**
+ * Cumulative box count from the resolved StageManager instance.
+ * Returns null when the singleton is unresolved or when the field offset
+ * has not been derived for this game version (offset === 0, placeholder).
+ */
+export function readRuntimeBoxCount(
+  reader: MemoryReader,
+  o: LiveOffsets,
+  smPtr: bigint | null,
+): number | null {
+  if (o.runtime.stage.boxCount === 0) return null; // offset not yet derived
+  if (smPtr == null) return null;
+
+  const count = readI32(reader, smPtr + BigInt(o.runtime.stage.boxCount));
   return count != null && count >= 0 ? count : null;
 }
 

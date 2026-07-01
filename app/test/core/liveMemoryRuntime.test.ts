@@ -6,7 +6,9 @@ import {
   readRuntimeBoxCount,
   readRuntimeInventory,
   readRuntimePets,
+  resolveStageManager,
   makeGoldPinState,
+  makeSmPinState,
   type GoldPinState,
 } from "../../src/core/liveMemory/runtime";
 import { offsetsForVersion } from "../../src/core/liveMemory/offsets";
@@ -37,32 +39,25 @@ function seedStageChain(m: FakeMemory): FakeMemory {
     .writePtr(STAGE_CACHE + BigInt(O.runtime.stage.cacheInfoData), STAGE_INFO);
 }
 
-/** Seed the StageManager singleton so a wave counter can be read at +runtimeWave. */
-function seedStageManager(m: FakeMemory, wave: number): FakeMemory {
-  const slot = GA_BASE + O.typeInfoRva.stageManager;
-  return m
-    .writePtr(slot, SM_CLASS)
-    .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
-    .writePtr(SM_BLOCK, SM_SINGLETON)
-    .writeI32(SM_SINGLETON + BigInt(O.runtime.stage.runtimeWave), wave);
-}
-
 describe("readRuntimeStage", () => {
-  it("reads the live stage key and wave from the full chain", () => {
+  it("reads the live stage key and wave from a resolved StageManager", () => {
     const m = seedStageChain(new FakeMemory()).writeI32(
       STAGE_INFO + BigInt(O.runtime.stage.stageKey),
       1234,
     );
-    seedStageManager(m, 5);
-    expect(readRuntimeStage(m, GA_BASE, GA_SIZE, O)).toEqual({ stageKey: 1234, wave: 5 });
+    m.writeI32(SM_SINGLETON + BigInt(O.runtime.stage.runtimeWave), 5);
+    expect(readRuntimeStage(m, GA_BASE, GA_SIZE, O, SM_SINGLETON)).toEqual({
+      stageKey: 1234,
+      wave: 5,
+    });
   });
 
-  it("returns wave null when the StageManager singleton is absent", () => {
+  it("returns wave null when the StageManager instance is unresolved", () => {
     const m = seedStageChain(new FakeMemory()).writeI32(
       STAGE_INFO + BigInt(O.runtime.stage.stageKey),
       42,
     );
-    expect(readRuntimeStage(m, GA_BASE, GA_SIZE, O)).toEqual({ stageKey: 42, wave: null });
+    expect(readRuntimeStage(m, GA_BASE, GA_SIZE, O, null)).toEqual({ stageKey: 42, wave: null });
   });
 
   it("nulls an implausible stage key (never returns a wrong value)", () => {
@@ -70,8 +65,11 @@ describe("readRuntimeStage", () => {
       STAGE_INFO + BigInt(O.runtime.stage.stageKey),
       0, // implausible
     );
-    seedStageManager(m, 3);
-    expect(readRuntimeStage(m, GA_BASE, GA_SIZE, O)).toEqual({ stageKey: null, wave: 3 });
+    m.writeI32(SM_SINGLETON + BigInt(O.runtime.stage.runtimeWave), 3);
+    expect(readRuntimeStage(m, GA_BASE, GA_SIZE, O, SM_SINGLETON)).toEqual({
+      stageKey: null,
+      wave: 3,
+    });
   });
 
   it("ignores an implausible wave value", () => {
@@ -79,12 +77,15 @@ describe("readRuntimeStage", () => {
       STAGE_INFO + BigInt(O.runtime.stage.stageKey),
       77,
     );
-    seedStageManager(m, 0); // wave 0 is implausible
-    expect(readRuntimeStage(m, GA_BASE, GA_SIZE, O)).toEqual({ stageKey: 77, wave: null });
+    m.writeI32(SM_SINGLETON + BigInt(O.runtime.stage.runtimeWave), 0); // wave 0 is implausible
+    expect(readRuntimeStage(m, GA_BASE, GA_SIZE, O, SM_SINGLETON)).toEqual({
+      stageKey: 77,
+      wave: null,
+    });
   });
 
   it("returns null when the stage-cache chain can't be walked", () => {
-    expect(readRuntimeStage(new FakeMemory(), GA_BASE, GA_SIZE, O)).toBeNull();
+    expect(readRuntimeStage(new FakeMemory(), GA_BASE, GA_SIZE, O, SM_SINGLETON)).toBeNull();
   });
 });
 
@@ -223,92 +224,153 @@ describe("readRuntimeGold", () => {
 // ── readRuntimeHeroes ─────────────────────────────────────────────────────────
 
 const HERO_LIST_OBJ = 0x800000n;
-const HERO_ITEMS_ARR = 0x810000n;
-const HERO1 = 0x820000n;
-const HERO2 = 0x830000n;
+const HERO_PTRS = [0x820000n, 0x830000n];
+const HERO_RT = [0x821000n, 0x831000n]; // Unit.cache → HeroRuntime
+const HERO_INFO = [0x822000n, 0x832000n]; // HeroRuntime.info → HeroInfoData
+const LEVEL_KEY = 0x1234; // arbitrary ACTk crypto keys for the fake
+const EXP_KEY = 0x5678;
 
-/** Seed StageManager singleton → HeroList → items array → hero objects. */
-function seedHeroChain(
+/** Byte-swap [1]/[2] — mirrors the ObscuredFloat quirk in runtime.ts. */
+function byteswap12(v: number): number {
+  return (
+    ((v & 0xff) | (((v >>> 16) & 0xff) << 8) | (((v >>> 8) & 0xff) << 16) | (v & 0xff000000)) >>> 0
+  );
+}
+
+/** Encode an ACTk ObscuredInt (inverse of the reader's decode). */
+function seedObscuredInt(m: FakeMemory, hiddenAddr: bigint, keyAddr: bigint, value: number): void {
+  const u = value >>> 0;
+  const hidden = (((u ^ LEVEL_KEY) >>> 0) + LEVEL_KEY) >>> 0;
+  m.writeU32(hiddenAddr, hidden).writeU32(keyAddr, LEVEL_KEY);
+}
+
+/** Encode an ACTk ObscuredFloat (inverse of the reader's decode). */
+function seedObscuredFloat(
   m: FakeMemory,
+  hiddenAddr: bigint,
+  keyAddr: bigint,
+  value: number,
+): void {
+  const dv = new DataView(new ArrayBuffer(4));
+  dv.setFloat32(0, value, true);
+  const bits = dv.getUint32(0, true);
+  const hidden = byteswap12((bits ^ EXP_KEY) >>> 0);
+  m.writeU32(hiddenAddr, hidden).writeU32(keyAddr, EXP_KEY);
+}
+
+/** Seed a live party off `smPtr`: HeroList → Hero[] → Unit.cache → HeroRuntime chain. */
+function seedParty(
+  m: FakeMemory,
+  smPtr: bigint,
   heroes: Array<{ heroKey: number; level: number; exp: number }>,
 ): FakeMemory {
-  // SM singleton via static-fields block (reuse SM_CLASS/SM_BLOCK/SM_SINGLETON from above)
-  const slot = GA_BASE + O.typeInfoRva.stageManager;
-  m.writePtr(slot, SM_CLASS)
-    .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
-    .writePtr(SM_BLOCK, SM_SINGLETON);
-
-  // HeroList pointer at SM_SINGLETON + heroList offset
-  m.writePtr(SM_SINGLETON + BigInt(O.runtime.heroList), HERO_LIST_OBJ);
-
-  // HeroList is Hero[] (direct array): length at +listSize, elements at +arrayFirst
+  m.writePtr(smPtr + BigInt(O.runtime.heroList), HERO_LIST_OBJ);
   m.writeI32(HERO_LIST_OBJ + BigInt(O.container.listSize), heroes.length);
 
-  // Seed each hero ptr directly in HERO_LIST_OBJ, then seed hero fields
-  const heroPtrs = [HERO1, HERO2];
   const first = HERO_LIST_OBJ + BigInt(O.container.arrayFirst);
   for (let i = 0; i < heroes.length; i++) {
-    const heroAddr = heroPtrs[i];
-    m.writePtr(first + BigInt(i * 8), heroAddr);
-    m.writeI32(heroAddr + BigInt(O.hero.heroKey), heroes[i].heroKey);
-    m.writeI32(heroAddr + BigInt(O.hero.level), heroes[i].level);
-    m.writeI32(heroAddr + BigInt(O.hero.exp), heroes[i].exp);
+    const rt = HERO_RT[i];
+    m.writePtr(first + BigInt(i * 8), HERO_PTRS[i])
+      .writePtr(HERO_PTRS[i] + BigInt(O.unit.cache), rt)
+      .writePtr(rt + BigInt(O.heroRuntime.info), HERO_INFO[i])
+      .writeI32(HERO_INFO[i] + BigInt(O.heroInfoData.heroKey), heroes[i].heroKey);
+    seedObscuredInt(
+      m,
+      rt + BigInt(O.heroRuntime.levelHidden),
+      rt + BigInt(O.heroRuntime.levelKey),
+      heroes[i].level,
+    );
+    seedObscuredFloat(
+      m,
+      rt + BigInt(O.heroRuntime.expHidden),
+      rt + BigInt(O.heroRuntime.expKey),
+      heroes[i].exp,
+    );
   }
 
   return m;
 }
 
 describe("readRuntimeHeroes", () => {
-  it("reads hero list with correct heroKey, level, and exp", () => {
-    const m = seedHeroChain(new FakeMemory(), [
+  it("reads the party with heroKey and decoded (obscured) level and exp", () => {
+    const m = seedParty(new FakeMemory(), SM_SINGLETON, [
       { heroKey: 1001, level: 50, exp: 12345 },
       { heroKey: 1002, level: 30, exp: 6789 },
     ]);
-    const result = readRuntimeHeroes(m, GA_BASE, GA_SIZE, O);
+    const result = readRuntimeHeroes(m, O, SM_SINGLETON);
     expect(result).toHaveLength(2);
     expect(result![0]).toEqual({ heroKey: 1001, level: 50, exp: 12345 });
     expect(result![1]).toEqual({ heroKey: 1002, level: 30, exp: 6789 });
   });
 
-  it("returns null when StageManager singleton is absent", () => {
-    expect(readRuntimeHeroes(new FakeMemory(), GA_BASE, GA_SIZE, O)).toBeNull();
+  it("returns null when smPtr is null (unresolved StageManager)", () => {
+    expect(readRuntimeHeroes(new FakeMemory(), O, null)).toBeNull();
   });
 
-  it("returns null when HeroList pointer is missing", () => {
-    const slot = GA_BASE + O.typeInfoRva.stageManager;
-    const m = new FakeMemory()
-      .writePtr(slot, SM_CLASS)
-      .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
-      .writePtr(SM_BLOCK, SM_SINGLETON);
-    // SM_SINGLETON + heroList → not seeded → null
-    expect(readRuntimeHeroes(m, GA_BASE, GA_SIZE, O)).toBeNull();
+  it("returns null when the HeroList pointer is missing", () => {
+    // smPtr provided but no HeroList seeded off it
+    expect(readRuntimeHeroes(new FakeMemory(), O, SM_SINGLETON)).toBeNull();
   });
 
-  it("skips hero slots with zero heroKey", () => {
-    const m = seedHeroChain(new FakeMemory(), [
+  it("skips hero slots with an invalid heroKey", () => {
+    const m = seedParty(new FakeMemory(), SM_SINGLETON, [
       { heroKey: 0, level: 1, exp: 0 }, // invalid — heroKey 0 skipped
       { heroKey: 1003, level: 10, exp: 500 },
     ]);
-    const result = readRuntimeHeroes(m, GA_BASE, GA_SIZE, O);
+    const result = readRuntimeHeroes(m, O, SM_SINGLETON);
     expect(result).toHaveLength(1);
     expect(result![0].heroKey).toBe(1003);
   });
 
-  it("returns null when list is empty", () => {
-    const m = seedHeroChain(new FakeMemory(), []);
-    // count = 0 → guard rejects
-    expect(readRuntimeHeroes(m, GA_BASE, GA_SIZE, O)).toBeNull();
+  it("returns null when the party is empty", () => {
+    const m = seedParty(new FakeMemory(), SM_SINGLETON, []);
+    expect(readRuntimeHeroes(m, O, SM_SINGLETON)).toBeNull();
   });
 
   it("returns null when hero count exceeds MAX_HEROES (21)", () => {
-    const m = new FakeMemory();
-    const slot = GA_BASE + O.typeInfoRva.stageManager;
-    m.writePtr(slot, SM_CLASS)
-      .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
-      .writePtr(SM_BLOCK, SM_SINGLETON)
+    const m = new FakeMemory()
       .writePtr(SM_SINGLETON + BigInt(O.runtime.heroList), HERO_LIST_OBJ)
       .writeI32(HERO_LIST_OBJ + BigInt(O.container.listSize), 21); // exceeds MAX_HEROES
-    expect(readRuntimeHeroes(m, GA_BASE, GA_SIZE, O)).toBeNull();
+    expect(readRuntimeHeroes(m, O, SM_SINGLETON)).toBeNull();
+  });
+});
+
+// ── resolveStageManager ───────────────────────────────────────────────────────
+
+/** Seed the StageManager class → static block; the instance lives at block+field. */
+function seedSmClass(m: FakeMemory, instanceFieldOffset: number, instance: bigint): FakeMemory {
+  return m
+    .writePtr(GA_BASE + O.typeInfoRva.stageManager, SM_CLASS)
+    .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
+    .writePtr(SM_BLOCK + BigInt(instanceFieldOffset), instance);
+}
+
+describe("resolveStageManager", () => {
+  it("finds the party-bearing instance by scanning the static block", () => {
+    const m = seedSmClass(new FakeMemory(), 0x40, SM_SINGLETON);
+    seedParty(m, SM_SINGLETON, [{ heroKey: 1001, level: 5, exp: 10 }]);
+    const pin = makeSmPinState();
+    expect(resolveStageManager(m, GA_BASE, GA_SIZE, O, pin)).toBe(SM_SINGLETON);
+    expect(pin.ptr).toBe(SM_SINGLETON);
+  });
+
+  it("reuses the pinned pointer without rescanning the block", () => {
+    const m = seedSmClass(new FakeMemory(), 0x40, SM_SINGLETON);
+    seedParty(m, SM_SINGLETON, [{ heroKey: 1001, level: 5, exp: 10 }]);
+    const pin = makeSmPinState();
+    resolveStageManager(m, GA_BASE, GA_SIZE, O, pin);
+
+    // Break the static-block link — a rescan would now fail, but the pin holds.
+    m.writePtr(SM_BLOCK + BigInt(0x40), 0x1n);
+    expect(resolveStageManager(m, GA_BASE, GA_SIZE, O, pin)).toBe(SM_SINGLETON);
+  });
+
+  it("returns null when no party-bearing instance is in the block", () => {
+    const m = new FakeMemory()
+      .writePtr(GA_BASE + O.typeInfoRva.stageManager, SM_CLASS)
+      .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK); // block resolves, no instance seeded
+    const pin = makeSmPinState();
+    expect(resolveStageManager(m, GA_BASE, GA_SIZE, O, pin)).toBeNull();
   });
 });
 
@@ -317,32 +379,25 @@ describe("readRuntimeHeroes", () => {
 describe("readRuntimeBoxCount", () => {
   it("returns null when boxCount offset is 0 (not yet derived for this version)", () => {
     // V1_00_21 has boxCount: 0 — offset not derived yet
-    expect(readRuntimeBoxCount(new FakeMemory(), GA_BASE, GA_SIZE, O)).toBeNull();
+    expect(readRuntimeBoxCount(new FakeMemory(), O, SM_SINGLETON)).toBeNull();
   });
 
-  it("reads the box count from StageManager when offset is non-zero", () => {
-    // Build a patched offsets table with a real boxCount offset
+  it("reads the box count off the resolved StageManager when offset is non-zero", () => {
     const BOX_OFFSET = 0x150;
     const patchedO = {
       ...O,
       runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: BOX_OFFSET } },
     };
-    const m = new FakeMemory();
-    const slot = GA_BASE + O.typeInfoRva.stageManager;
-    m.writePtr(slot, SM_CLASS)
-      .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
-      .writePtr(SM_BLOCK, SM_SINGLETON)
-      .writeI32(SM_SINGLETON + BigInt(BOX_OFFSET), 42);
-
-    expect(readRuntimeBoxCount(m, GA_BASE, GA_SIZE, patchedO)).toBe(42);
+    const m = new FakeMemory().writeI32(SM_SINGLETON + BigInt(BOX_OFFSET), 42);
+    expect(readRuntimeBoxCount(m, patchedO, SM_SINGLETON)).toBe(42);
   });
 
-  it("returns null when StageManager singleton is absent", () => {
+  it("returns null when the StageManager instance is unresolved", () => {
     const patchedO = {
       ...O,
       runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: 0x150 } },
     };
-    expect(readRuntimeBoxCount(new FakeMemory(), GA_BASE, GA_SIZE, patchedO)).toBeNull();
+    expect(readRuntimeBoxCount(new FakeMemory(), patchedO, null)).toBeNull();
   });
 
   it("returns null when box count is negative (plausibility guard)", () => {
@@ -351,13 +406,8 @@ describe("readRuntimeBoxCount", () => {
       ...O,
       runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: BOX_OFFSET } },
     };
-    const m = new FakeMemory();
-    const slot = GA_BASE + O.typeInfoRva.stageManager;
-    m.writePtr(slot, SM_CLASS)
-      .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
-      .writePtr(SM_BLOCK, SM_SINGLETON)
-      .writeI32(SM_SINGLETON + BigInt(BOX_OFFSET), -1);
-    expect(readRuntimeBoxCount(m, GA_BASE, GA_SIZE, patchedO)).toBeNull();
+    const m = new FakeMemory().writeI32(SM_SINGLETON + BigInt(BOX_OFFSET), -1);
+    expect(readRuntimeBoxCount(m, patchedO, SM_SINGLETON)).toBeNull();
   });
 });
 
