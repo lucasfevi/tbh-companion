@@ -2,6 +2,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useStats } from "../lib/useStats";
 import { useInventory } from "../lib/useInventory";
 import { useChests } from "../lib/useChests";
+import { useLiveMemory } from "../lib/useLiveMemory";
+import { blendStage } from "../../core/liveMemory/blend";
 import {
   fmtCompact,
   fmtDuration,
@@ -55,6 +57,7 @@ export function Live() {
   const stats = useStats();
   const inventory = useInventory();
   const chests = useChests();
+  const { snapshot: liveMemory } = useLiveMemory();
   const [autoOpenEnabled, setAutoOpenEnabled] = useState<ChestAutoOpenPrefs>(DEFAULT_AUTO_OPEN);
 
   useEffect(() => {
@@ -97,6 +100,8 @@ export function Live() {
 
   const idle = stats.secondsSinceGain !== null && stats.secondsSinceGain > IDLE_THRESHOLD;
   const showStatus = stats.status !== "Tracking";
+  // Per-stat blend: prefer the live memory stage, fall back to the save value.
+  const stage = blendStage(liveMemory, { stageKey: stats.stageKey, stageWave: stats.stageWave });
   const { commonTotal, rareTotal, commonPerHour, rarePerHour, playerLogAvailable } =
     stats.chestDrops;
   const chestStatsInactive = !playerLogAvailable;
@@ -191,7 +196,7 @@ export function Live() {
               <span>
                 Map{" "}
                 <b className="font-semibold text-fg">
-                  {stageName(stats.stageKey, stats.stageWave)}
+                  {stageName(stage.stageKey, stage.stageWave)}
                 </b>
               </span>
               <Tooltip

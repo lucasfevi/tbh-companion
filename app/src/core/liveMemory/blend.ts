@@ -11,8 +11,14 @@ export interface StagePair {
   stageWave: number | null;
 }
 
-/** Blend stage key + wave independently, each preferring its live value. */
-export function blendStage(live: StagePair | null | undefined, save: StagePair): StagePair {
+/**
+ * Blend stage key + wave independently, each preferring its live value. The save
+ * side is always present (non-null), so the result is always concrete numbers.
+ */
+export function blendStage(
+  live: StagePair | null | undefined,
+  save: { stageKey: number; stageWave: number },
+): { stageKey: number; stageWave: number } {
   return {
     stageKey: pickPreferLive(live?.stageKey, save.stageKey),
     stageWave: pickPreferLive(live?.stageWave, save.stageWave),
