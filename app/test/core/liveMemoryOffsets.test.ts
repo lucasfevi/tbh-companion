@@ -35,11 +35,18 @@ describe("offsetsForVersion", () => {
     expect(Object.keys(o.typeInfoRva).sort()).toEqual([
       "commonSaveData",
       "currencyManager",
+      "localInventoryManager",
       "stageCacheManager",
       "stageManager",
     ]);
     expect(o.runtime.currency.entryObscuredQty).toBe(0x28);
     expect(o.dict.entryKey).toBe(8); // inline int32 key trap (not boxed)
+    // Phase 2 schema additions
+    expect(o.runtime.heroList).toBe(0x30); // StageManager.HeroList — real field
+    expect("boxCount" in o.runtime.stage).toBe(true);
+    expect("petSaveData" in o).toBe(true);
+    expect("inventoryItem" in o).toBe(true);
+    expect("petSaveDatas" in o.player).toBe(true);
   });
 });
 

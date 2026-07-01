@@ -84,6 +84,11 @@ export class LiveMemoryReader {
       connected: true,
       stageKey: stage.stageKey,
       stageWave: stage.wave,
+      gold: null,       // wired in T05
+      heroes: null,     // wired in T05
+      boxCount: null,   // wired in T05
+      inventoryItems: null, // wired in T09
+      petData: null,    // wired in T10
       source: `memory v${o.gameVersion}`,
       readMs: Date.now() - t0,
       at: Date.now(),

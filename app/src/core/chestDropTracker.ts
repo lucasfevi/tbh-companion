@@ -125,6 +125,7 @@ export class ChestDropTracker {
       breakdown,
       history: this.history.slice(-HISTORY_VISIBLE).reverse(),
       playerLogAvailable,
+      readerRequired: true, // Player.log path removed in Phase 2 (T08)
     };
   }
 
