@@ -117,6 +117,8 @@ export function startTracking(): SessionUiSnapshot {
   inventory.initMarket(config.currency);
   inventory.loadGameData();
   lookupPrices.start();
+  // Restore the persisted opt-in reader state (off by default; only if consented).
+  if (config.liveMemory.enabled && config.liveMemory.consentAccepted) liveMemory.start();
   const ui = sessionState.load(config);
   tracking.start(config);
   return ui;
@@ -142,6 +144,7 @@ export function stopTracking(): void {
   tracking.stop();
   boxTimers.stopTick();
   lookupPrices.stop();
+  liveMemory.stop();
 }
 
 export function openMainWindow(): BrowserWindow {
@@ -262,6 +265,7 @@ export function getAppServices() {
           resolveAndPushInventory: () => inventory.resolveAndPushInventory(),
           ensureOwnedPrices: (force) => inventory.ensureOwnedPrices(force),
           onSavePathChange: () => tracking.onSavePathChanged(),
+          setLiveMemoryEnabled: (enabled) => (enabled ? liveMemory.start() : liveMemory.stop()),
         },
         patch,
       ),
