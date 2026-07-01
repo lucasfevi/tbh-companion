@@ -4,6 +4,8 @@ import {
   readRuntimeGold,
   readRuntimeHeroes,
   readRuntimeBoxCount,
+  readRuntimeInventory,
+  readRuntimePets,
   makeGoldPinState,
   type GoldPinState,
 } from "../../src/core/liveMemory/runtime";
@@ -321,5 +323,168 @@ describe("readRuntimeBoxCount", () => {
       runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: 0x150 } },
     };
     expect(readRuntimeBoxCount(new FakeMemory(), GA_BASE, GA_SIZE, patchedO)).toBeNull();
+  });
+});
+
+// ── readRuntimeInventory ──────────────────────────────────────────────────────
+
+// Patched offsets with derived inventory struct fields.
+const INV_RVA = 0x100000n; // fake TypeInfo RVA inside GA range
+const INV_CLASS = 0x900000n;
+const INV_BLOCK = 0xa00000n;
+const INV_DICT = 0xa10000n;
+const INV_ENTRIES = 0xa20000n;
+const INV_ITEM = 0xa30000n;
+
+const INV_O = {
+  ...O,
+  typeInfoRva: { ...O.typeInfoRva, localInventoryManager: INV_RVA },
+  inventoryItem: { itemKey: 0x10, isChaotic: 0x14, location: 0x18 },
+};
+
+function seedInventoryChain(
+  m: FakeMemory,
+  items: Array<{ itemKey: number; isChaotic: boolean; location: number }>,
+): FakeMemory {
+  // TypeInfo → class → static fields block → dict at field offset 0
+  m.writePtr(GA_BASE + INV_RVA, INV_CLASS)
+    .writePtr(INV_CLASS + BigInt(CAND), INV_BLOCK)
+    .writePtr(INV_BLOCK, INV_DICT); // field offset 0 = first bag dict
+
+  // Dict: entries array + count
+  m.writePtr(INV_DICT + BigInt(O.dict.entries), INV_ENTRIES)
+    .writeI32(INV_DICT + BigInt(O.dict.count), items.length);
+
+  // Entries: one per item, each pointing to an INV_ITEM object
+  const first = INV_ENTRIES + BigInt(O.container.arrayFirst);
+  for (let i = 0; i < items.length; i++) {
+    const eBase = first + BigInt(i * O.dict.entrySize);
+    const itemAddr = INV_ITEM + BigInt(i * 0x100);
+    m.writeI32(eBase + BigInt(O.dict.entryHash), 1); // valid slot
+    m.writeI32(eBase + BigInt(O.dict.entryKey), items[i].itemKey);
+    m.writePtr(eBase + BigInt(O.dict.entryValue), itemAddr);
+    m.writeI32(itemAddr + BigInt(INV_O.inventoryItem.itemKey), items[i].itemKey);
+    m.writeI32(itemAddr + BigInt(INV_O.inventoryItem.isChaotic), items[i].isChaotic ? 1 : 0);
+    m.writeI32(itemAddr + BigInt(INV_O.inventoryItem.location), items[i].location);
+  }
+
+  return m;
+}
+
+describe("readRuntimeInventory", () => {
+  it("returns null when localInventoryManager RVA is 0 (offset not derived)", () => {
+    expect(readRuntimeInventory(new FakeMemory(), GA_BASE, GA_SIZE, O)).toBeNull();
+  });
+
+  it("reads items from the inventory dict", () => {
+    const m = seedInventoryChain(new FakeMemory(), [
+      { itemKey: 910151, isChaotic: false, location: 0 },
+      { itemKey: 920201, isChaotic: true, location: 1 },
+    ]);
+    const result = readRuntimeInventory(m, GA_BASE, GA_SIZE, INV_O);
+    expect(result).toHaveLength(2);
+    expect(result![0]).toEqual({ itemKey: 910151, isChaotic: false, location: 0 });
+    expect(result![1]).toEqual({ itemKey: 920201, isChaotic: true, location: 1 });
+  });
+
+  it("skips entries with zero or negative itemKey", () => {
+    const m = seedInventoryChain(new FakeMemory(), [
+      { itemKey: 0, isChaotic: false, location: 0 }, // skipped
+      { itemKey: 910152, isChaotic: false, location: 0 },
+    ]);
+    const result = readRuntimeInventory(m, GA_BASE, GA_SIZE, INV_O);
+    expect(result).toHaveLength(1);
+    expect(result![0].itemKey).toBe(910152);
+  });
+
+  it("returns null when the dict is unreadable", () => {
+    // Seeds class→block but no dict — readStaticFieldPtr returns null for field 0
+    const m = new FakeMemory()
+      .writePtr(GA_BASE + INV_RVA, INV_CLASS)
+      .writePtr(INV_CLASS + BigInt(CAND), INV_BLOCK);
+    // INV_BLOCK + 0 not seeded → readPtr returns null → skip both dicts → results empty
+    expect(readRuntimeInventory(m, GA_BASE, GA_SIZE, INV_O)).toBeNull();
+  });
+});
+
+// ── readRuntimePets ───────────────────────────────────────────────────────────
+
+const PET_PET_SAVEDS_OFFSET = 0x60;
+const PET_KEY_OFFSET = 0x10;
+const PET_UNLOCK_OFFSET = 0x14;
+
+const PET_O = {
+  ...O,
+  player: { ...O.player, petSaveDatas: PET_PET_SAVEDS_OFFSET },
+  petSaveData: { petKey: PET_KEY_OFFSET, isUnlock: PET_UNLOCK_OFFSET },
+};
+
+const CS_CLASS_P = 0xb00000n;
+const CS_BLOCK_P = 0xc00000n;
+const PLAYER_OBJ = 0xc10000n;
+const PET_LIST_OBJ = 0xc20000n;
+const PET_ITEMS_ARR = 0xc30000n;
+const PET1 = 0xc40000n;
+const PET2 = 0xc50000n;
+
+function seedPetChain(
+  m: FakeMemory,
+  pets: Array<{ petKey: number; unlocked: boolean }>,
+): FakeMemory {
+  // CommonSaveData TypeInfo → class → static fields → playerPtr at +commonSaveData(0x10)
+  m.writePtr(GA_BASE + PET_O.typeInfoRva.commonSaveData, CS_CLASS_P)
+    .writePtr(CS_CLASS_P + BigInt(CAND), CS_BLOCK_P)
+    .writePtr(CS_BLOCK_P + BigInt(PET_O.player.commonSaveData), PLAYER_OBJ);
+
+  // Player → petSaveDatas List at +0x60
+  m.writePtr(PLAYER_OBJ + BigInt(PET_PET_SAVEDS_OFFSET), PET_LIST_OBJ)
+    .writePtr(PET_LIST_OBJ + BigInt(O.container.listItems), PET_ITEMS_ARR)
+    .writeI32(PET_LIST_OBJ + BigInt(O.container.listSize), pets.length);
+
+  const petPtrs = [PET1, PET2];
+  const first = PET_ITEMS_ARR + BigInt(O.container.arrayFirst);
+  for (let i = 0; i < pets.length; i++) {
+    const petAddr = petPtrs[i];
+    m.writePtr(first + BigInt(i * 8), petAddr)
+      .writeI32(petAddr + BigInt(PET_KEY_OFFSET), pets[i].petKey)
+      .writeI32(petAddr + BigInt(PET_UNLOCK_OFFSET), pets[i].unlocked ? 1 : 0);
+  }
+
+  return m;
+}
+
+describe("readRuntimePets", () => {
+  it("returns null when petSaveDatas offset is 0 (not yet derived)", () => {
+    expect(readRuntimePets(new FakeMemory(), GA_BASE, GA_SIZE, O)).toBeNull();
+  });
+
+  it("reads pet list with key and unlock status", () => {
+    const m = seedPetChain(new FakeMemory(), [
+      { petKey: 5001, unlocked: true },
+      { petKey: 5002, unlocked: false },
+    ]);
+    const result = readRuntimePets(m, GA_BASE, GA_SIZE, PET_O);
+    expect(result).toHaveLength(2);
+    expect(result![0]).toEqual({ petKey: 5001, unlocked: true });
+    expect(result![1]).toEqual({ petKey: 5002, unlocked: false });
+  });
+
+  it("skips entries with zero petKey", () => {
+    const m = seedPetChain(new FakeMemory(), [
+      { petKey: 0, unlocked: false }, // invalid — skipped
+      { petKey: 5003, unlocked: true },
+    ]);
+    const result = readRuntimePets(m, GA_BASE, GA_SIZE, PET_O);
+    expect(result).toHaveLength(1);
+    expect(result![0].petKey).toBe(5003);
+  });
+
+  it("returns null when CommonSaveData singleton is absent", () => {
+    expect(readRuntimePets(new FakeMemory(), GA_BASE, GA_SIZE, PET_O)).toBeNull();
+  });
+
+  it("returns null when pet list is empty", () => {
+    const m = seedPetChain(new FakeMemory(), []);
+    expect(readRuntimePets(m, GA_BASE, GA_SIZE, PET_O)).toBeNull();
   });
 });

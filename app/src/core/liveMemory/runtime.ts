@@ -5,7 +5,7 @@
 import { readI32, readI64, readPtr, type MemoryReader } from "./memory";
 import { plausibleGold, plausibleStage, plausibleWave, type LiveOffsets } from "./offsets";
 import { readStaticFieldPtr } from "./statics";
-import type { LiveHeroData } from "../../../shared/types";
+import type { LiveHeroData, LiveInventoryItem, LivePetData } from "../../../shared/types";
 
 export interface RuntimeStage {
   stageKey: number | null;
@@ -258,4 +258,126 @@ export function readRuntimeBoxCount(
 
   const count = readI32(reader, smSingleton + BigInt(o.runtime.stage.boxCount));
   return count != null && count >= 0 ? count : null;
+}
+
+// ── Inventory (LocalInventoryManager → bag dicts → InventoryItem entries) ────
+
+const MAX_INVENTORY_ITEMS = 10_000;
+
+/**
+ * Live inventory listing from `LocalInventoryManager`.
+ * Returns null when the TypeInfo RVA has not been derived for this version
+ * (localInventoryManager === 0n, placeholder).
+ */
+export function readRuntimeInventory(
+  reader: MemoryReader,
+  gaBase: bigint,
+  gaSize: number,
+  o: LiveOffsets,
+): LiveInventoryItem[] | null {
+  if (o.typeInfoRva.localInventoryManager === 0n) return null; // offset not yet derived
+  if (o.inventoryItem.itemKey === 0) return null; // struct offsets not yet derived
+
+  const candidates = o.il2cppClass.staticFieldsOffsets;
+
+  // LocalInventoryManager has two bag dicts (equipped + unequipped); walk both.
+  // For Phase 2 we expose a unified flat listing keyed by location field.
+  const results: LiveInventoryItem[] = [];
+
+  for (const fieldOffset of [0, 8]) {
+    const dictPtr = readStaticFieldPtr(
+      reader,
+      gaBase,
+      gaSize,
+      o.typeInfoRva.localInventoryManager,
+      fieldOffset,
+      candidates,
+    );
+    if (dictPtr == null) continue;
+
+    const entriesArrPtr = readPtr(reader, dictPtr + BigInt(o.dict.entries));
+    if (entriesArrPtr == null) continue;
+    const count = readI32(reader, dictPtr + BigInt(o.dict.count));
+    if (count == null || count <= 0 || count > MAX_INVENTORY_ITEMS) continue;
+
+    const first = entriesArrPtr + BigInt(o.container.arrayFirst);
+    for (let i = 0; i < count; i++) {
+      const eBase = first + BigInt(i * o.dict.entrySize);
+      const hash = readI32(reader, eBase + BigInt(o.dict.entryHash));
+      if (hash == null || hash < 0) continue;
+      const entryPtr = readPtr(reader, eBase + BigInt(o.dict.entryValue));
+      if (entryPtr == null) continue;
+
+      const itemKey = readI32(reader, entryPtr + BigInt(o.inventoryItem.itemKey));
+      if (itemKey == null || itemKey <= 0) continue;
+
+      const isChaoticRaw = readI32(reader, entryPtr + BigInt(o.inventoryItem.isChaotic));
+      const location = readI32(reader, entryPtr + BigInt(o.inventoryItem.location));
+
+      results.push({
+        itemKey,
+        isChaotic: (isChaoticRaw ?? 0) !== 0,
+        location: location ?? 0,
+      });
+    }
+  }
+
+  return results.length > 0 ? results : null;
+}
+
+// ── Pets (PlayerSaveData.PetSaveData array) ───────────────────────────────────
+
+const MAX_PETS = 500;
+
+/**
+ * Live pet data from the save-layer `PlayerSaveData.PetSaveData` array.
+ * Returns null when struct offsets have not been derived for this version.
+ */
+export function readRuntimePets(
+  reader: MemoryReader,
+  gaBase: bigint,
+  gaSize: number,
+  o: LiveOffsets,
+): LivePetData[] | null {
+  if (o.player.petSaveDatas === 0) return null; // offset not yet derived
+  if (o.petSaveData.petKey === 0) return null;
+
+  const candidates = o.il2cppClass.staticFieldsOffsets;
+
+  // CommonSaveData → player → petSaveDatas (List<PetSaveData>)
+  const playerPtr = readStaticFieldPtr(
+    reader,
+    gaBase,
+    gaSize,
+    o.typeInfoRva.commonSaveData,
+    o.player.commonSaveData,
+    candidates,
+  );
+  if (playerPtr == null) return null;
+
+  const petListPtr = readPtr(reader, playerPtr + BigInt(o.player.petSaveDatas));
+  if (petListPtr == null) return null;
+
+  const itemsArrPtr = readPtr(reader, petListPtr + BigInt(o.container.listItems));
+  if (itemsArrPtr == null) return null;
+
+  const count = readI32(reader, petListPtr + BigInt(o.container.listSize));
+  if (count == null || count <= 0 || count > MAX_PETS) return null;
+
+  const results: LivePetData[] = [];
+  const first = itemsArrPtr + BigInt(o.container.arrayFirst);
+
+  for (let i = 0; i < count; i++) {
+    const petPtr = readPtr(reader, first + BigInt(i * 8));
+    if (petPtr == null) continue;
+
+    const petKey = readI32(reader, petPtr + BigInt(o.petSaveData.petKey));
+    if (petKey == null || petKey <= 0) continue;
+
+    const isUnlockRaw = readI32(reader, petPtr + BigInt(o.petSaveData.isUnlock));
+
+    results.push({ petKey, unlocked: (isUnlockRaw ?? 0) !== 0 });
+  }
+
+  return results.length > 0 ? results : null;
 }

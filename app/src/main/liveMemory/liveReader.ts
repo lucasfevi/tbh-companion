@@ -10,6 +10,8 @@ import {
   readRuntimeBoxCount,
   readRuntimeGold,
   readRuntimeHeroes,
+  readRuntimeInventory,
+  readRuntimePets,
   readRuntimeStage,
   type GoldPinState,
 } from "../../core/liveMemory/runtime";
@@ -96,8 +98,8 @@ export class LiveMemoryReader {
       gold: readRuntimeGold(p, ga.base, ga.size, o, this.goldPin),
       heroes: readRuntimeHeroes(p, ga.base, ga.size, o),
       boxCount: readRuntimeBoxCount(p, ga.base, ga.size, o),
-      inventoryItems: null, // wired in T09
-      petData: null,        // wired in T10
+      inventoryItems: readRuntimeInventory(p, ga.base, ga.size, o),
+      petData: readRuntimePets(p, ga.base, ga.size, o),
       source: `memory v${o.gameVersion}`,
       readMs: Date.now() - t0,
       at: Date.now(),
