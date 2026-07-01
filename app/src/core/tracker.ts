@@ -18,6 +18,13 @@ import type {
 
 const HISTORY_LIMIT = 500;
 
+// While live-memory frames keep arriving (~25 Hz), the live path owns XP/gold and
+// the save path must not also process them — the two read different quantities
+// (save `HeroExp` vs runtime `HeroRuntime` exp), so cross-diffing them injects
+// huge spurious "gains". A metric reverts to the save path once no live frame has
+// arrived for this many seconds (reader detached / toggled off / game closed).
+const LIVE_TAKEOVER_SEC = 5;
+
 function nowSeconds(): number {
   return Date.now() / 1000;
 }
@@ -96,6 +103,12 @@ export class XpTracker {
   private heroMeters!: Map<string, RateMeter>;
   private samples!: Array<[number, number]>;
   private initialized!: boolean;
+
+  // Live-vs-save source ownership, tracked per metric (see LIVE_TAKEOVER_SEC).
+  private xpLiveOwning!: boolean;
+  private goldLiveOwning!: boolean;
+  private lastLiveXpSec!: number | null;
+  private lastLiveGoldSec!: number | null;
   private firstMtime!: number | null;
   private lastChangeMtime!: number | null;
   private rollingRateValue!: number;
@@ -130,6 +143,10 @@ export class XpTracker {
     this.rollingRateValue = 0;
     this.sessionRateValue = 0;
     this.history = [];
+    this.xpLiveOwning = false;
+    this.goldLiveOwning = false;
+    this.lastLiveXpSec = null;
+    this.lastLiveGoldSec = null;
 
     this.currentGold = 0;
     this.goldGained = 0;
@@ -141,13 +158,11 @@ export class XpTracker {
     this.goldSessionRateValue = 0;
   }
 
-  /** Incorporate a new snapshot. Returns XP gained since last update. */
+  /** Incorporate a new save snapshot. Returns XP gained since last update. */
   update(snap: SaveSnapshot): number {
     const now = nowSeconds();
     const mtime = snap.saveMtime || now;
     this.heroes = snap.heroes;
-    this.currentTotalXp = snap.totalHeroExp;
-    this.currentGold = snap.gold;
 
     if (!this.initialized) {
       for (const h of snap.heroes) {
@@ -164,48 +179,76 @@ export class XpTracker {
       this.goldFirstMtime = mtime;
       this.goldLastChangeMtime = mtime;
       this.goldSamples.push([mtime, 0]);
+      this.currentTotalXp = snap.totalHeroExp;
+      this.currentGold = snap.gold;
       return 0;
     }
 
-    this.updateGold(snap.gold, mtime);
+    const goldLiveDriving =
+      this.lastLiveGoldSec !== null && now - this.lastLiveGoldSec < LIVE_TAKEOVER_SEC;
+    const xpLiveDriving =
+      this.lastLiveXpSec !== null && now - this.lastLiveXpSec < LIVE_TAKEOVER_SEC;
 
-    let gain = 0;
-    for (const h of snap.heroes) {
-      const heroGain = deltaGain(this.prevHero.get(h.key), h.exp);
-      gain += heroGain;
-      this.prevHero.set(h.key, h.exp);
-      let meter = this.heroMeters.get(h.key);
-      if (meter === undefined) {
-        meter = new RateMeter(this.rollingWindow);
-        meter.init(mtime);
-        this.heroMeters.set(h.key, meter);
+    // ── Gold ── save owns it only while the live path isn't driving it.
+    if (!goldLiveDriving) {
+      if (this.goldLiveOwning) {
+        // Handover live → save: re-baseline to the save value, count nothing.
+        this.goldLiveOwning = false;
+        this.prevGold = snap.gold;
+      } else {
+        this.updateGold(snap.gold, mtime);
       }
-      meter.add(heroGain, mtime);
+      this.currentGold = snap.gold;
     }
 
-    if (gain > 0) {
-      this.cumulativeGained += gain;
-      this.lastGainMtime = mtime;
-      this.lastChangeMtime = mtime;
-      this.samples.push([mtime, this.cumulativeGained]);
-      this.prune(mtime);
-      this.recomputeRates();
+    // ── XP ── save owns it only while the live path isn't driving it.
+    let gain = 0;
+    if (!xpLiveDriving) {
+      if (this.xpLiveOwning) {
+        // Handover live → save: re-baseline hero exp to save values, count nothing.
+        this.xpLiveOwning = false;
+        this.currentTotalXp = snap.totalHeroExp;
+        for (const h of snap.heroes) this.prevHero.set(h.key, h.exp);
+      } else {
+        this.currentTotalXp = snap.totalHeroExp;
+        for (const h of snap.heroes) {
+          const heroGain = deltaGain(this.prevHero.get(h.key), h.exp);
+          gain += heroGain;
+          this.prevHero.set(h.key, h.exp);
+          let meter = this.heroMeters.get(h.key);
+          if (meter === undefined) {
+            meter = new RateMeter(this.rollingWindow);
+            meter.init(mtime);
+            this.heroMeters.set(h.key, meter);
+          }
+          meter.add(heroGain, mtime);
+        }
 
-      const entry: HistoryEntry = {
-        wallTime: now,
-        delta: gain,
-        rate: this.rollingRateValue,
-        totalXp: this.currentTotalXp,
-        stageKey: snap.stageKey,
-        stageWave: snap.stageWave,
-      };
-      this.history.push(entry);
-      if (this.history.length > HISTORY_LIMIT) this.history.shift();
-      if (this.onHistory) {
-        try {
-          this.onHistory(entry);
-        } catch {
-          // never let logging break tracking
+        if (gain > 0) {
+          this.cumulativeGained += gain;
+          this.lastGainMtime = mtime;
+          this.lastChangeMtime = mtime;
+          this.samples.push([mtime, this.cumulativeGained]);
+          this.prune(mtime);
+          this.recomputeRates();
+
+          const entry: HistoryEntry = {
+            wallTime: now,
+            delta: gain,
+            rate: this.rollingRateValue,
+            totalXp: this.currentTotalXp,
+            stageKey: snap.stageKey,
+            stageWave: snap.stageWave,
+          };
+          this.history.push(entry);
+          if (this.history.length > HISTORY_LIMIT) this.history.shift();
+          if (this.onHistory) {
+            try {
+              this.onHistory(entry);
+            } catch {
+              // never let logging break tracking
+            }
+          }
         }
       }
     }
@@ -229,16 +272,27 @@ export class XpTracker {
 
     if (data.gold != null) {
       this.currentGold = data.gold;
-      this.updateGold(data.gold, wallTimeSec);
+      const takingOver = !this.goldLiveOwning;
+      this.goldLiveOwning = true;
+      this.lastLiveGoldSec = wallTimeSec;
+      // On takeover, re-baseline to the live value so the save→live gap isn't
+      // counted as earned gold; otherwise diff against the prior live sample.
+      if (takingOver) this.prevGold = data.gold;
+      else this.updateGold(data.gold, wallTimeSec);
     }
 
     if (data.heroes != null && data.heroes.length > 0) {
+      const takingOver = !this.xpLiveOwning;
+      this.xpLiveOwning = true;
+      this.lastLiveXpSec = wallTimeSec;
+
       let gain = 0;
       let totalXp = 0;
-
       for (const h of data.heroes) {
         const key = String(h.heroKey);
-        const heroGain = deltaGain(this.prevHero.get(key), h.exp);
+        // On takeover, seed the baseline from the live value (no gain counted);
+        // the save baseline is a different quantity and would inflate the delta.
+        const heroGain = takingOver ? 0 : deltaGain(this.prevHero.get(key), h.exp);
         gain += heroGain;
         this.prevHero.set(key, h.exp);
         totalXp += h.exp;
@@ -249,7 +303,7 @@ export class XpTracker {
           meter.init(wallTimeSec);
           this.heroMeters.set(key, meter);
         }
-        meter.add(heroGain, wallTimeSec);
+        if (!takingOver) meter.add(heroGain, wallTimeSec);
       }
 
       this.currentTotalXp = totalXp;
