@@ -119,6 +119,7 @@ export function startTracking(): SessionUiSnapshot {
   lookupPrices.start();
   // Restore the persisted opt-in reader state (off by default; only if consented).
   if (config.liveMemory.enabled && config.liveMemory.consentAccepted) liveMemory.start();
+  liveMemory.setOnSnapshot((snap) => tracking.ingestLiveFrame(snap));
   const ui = sessionState.load(config);
   tracking.start(config);
   return ui;

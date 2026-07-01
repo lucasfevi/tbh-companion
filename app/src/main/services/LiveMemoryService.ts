@@ -19,6 +19,12 @@ export class LiveMemoryService {
   private child: UtilityProcess | null = null;
   private lastSnapshot: LiveMemorySnapshot | null = null;
   private lastStatus: LiveMemoryStatus | null = null;
+  private snapshotCb: ((snap: LiveMemorySnapshot) => void) | null = null;
+
+  /** Register a callback invoked on every snapshot frame from the reader worker. */
+  setOnSnapshot(cb: (snap: LiveMemorySnapshot) => void): void {
+    this.snapshotCb = cb;
+  }
 
   get running(): boolean {
     return this.child != null;
@@ -53,6 +59,13 @@ export class LiveMemoryService {
       if (msg.type === "snapshot") {
         this.lastSnapshot = msg.snapshot;
         broadcast(IPC.LIVE_MEMORY, msg.snapshot);
+        if (this.snapshotCb) {
+          try {
+            this.snapshotCb(msg.snapshot);
+          } catch {
+            // never let a callback error bring down the broadcast path
+          }
+        }
       } else if (msg.type === "status") {
         this.lastStatus = msg.status;
         broadcast(IPC.LIVE_MEMORY_STATUS, msg.status);
