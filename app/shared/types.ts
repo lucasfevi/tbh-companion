@@ -855,6 +855,43 @@ export interface OfferingSource {
   poolPct: number;
 }
 
+// --- Live memory reader ---
+
+/**
+ * A live read from game process memory (read-only). Per-stat: a `null` field
+ * means "no live value this tick" — the renderer falls back to the save value.
+ * Phase 1 emits stage only; more stats join in later phases.
+ */
+export interface LiveMemorySnapshot {
+  /** The reader produced a live read this tick. */
+  connected: boolean;
+  /** Live current stage key (null ⇒ fall back to the save value). */
+  stageKey: number | null;
+  /** Live current wave within the stage. */
+  stageWave: number | null;
+  /** Human-readable source, e.g. "memory v1.00.21". */
+  source: string;
+  /** Duration of the last snapshot read in ms (per-tick cost, diagnostics). */
+  readMs: number;
+  /** Epoch ms when the read was taken. */
+  at: number;
+}
+
+/** Reader lifecycle/attach state for the status indicator + diagnostics. */
+export interface LiveMemoryStatus {
+  /** The reader process is up. */
+  running: boolean;
+  /** Attached to the game process. */
+  attached: boolean;
+  pid: number | null;
+  /** Detected game version (from Version.txt). */
+  gameVersion: string | null;
+  /** Bundled offsets exist for the detected version. */
+  supported: boolean;
+  /** e.g. "live stats unavailable for game v1.00.99". */
+  note?: string;
+}
+
 // API surface exposed on `window.tbh` by the preload via contextBridge.
 export interface TbhApi {
   onStats(cb: (stats: Stats) => void): () => void;

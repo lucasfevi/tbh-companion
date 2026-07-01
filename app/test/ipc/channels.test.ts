@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it, expect } from "vitest";
-import { IPC_INVOKE_CHANNELS, IPC_PUSH_CHANNELS, IPC_SEND_CHANNELS } from "../../shared/ipc";
+import { IPC, IPC_INVOKE_CHANNELS, IPC_PUSH_CHANNELS, IPC_SEND_CHANNELS } from "../../shared/ipc";
 
 function readHandler(name: string): string {
   return readFileSync(join(__dirname, `../../src/main/ipc/handlers/${name}.ts`), "utf-8");
@@ -133,5 +133,11 @@ describe("IPC channel registry", () => {
   it("push channel strings are unique", () => {
     const all = [...IPC_INVOKE_CHANNELS, ...IPC_SEND_CHANNELS, ...IPC_PUSH_CHANNELS];
     expect(new Set(all).size).toBe(all.length);
+  });
+
+  it("registers the live-memory channels in the correct registries", () => {
+    expect(IPC_PUSH_CHANNELS).toContain(IPC.LIVE_MEMORY);
+    expect(IPC_PUSH_CHANNELS).toContain(IPC.LIVE_MEMORY_STATUS);
+    expect(IPC_INVOKE_CHANNELS).toContain(IPC.GET_LIVE_MEMORY);
   });
 });
