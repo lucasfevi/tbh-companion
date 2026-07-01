@@ -45,6 +45,9 @@
       "out/**/*",
       "package.json"
     ],
+    "asarUnpack": [
+      "**/node_modules/koffi/**"
+    ],
     "extraResources": [
       {
         "from": "dist/data",
