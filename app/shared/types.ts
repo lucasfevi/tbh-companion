@@ -71,11 +71,9 @@ export interface ChestDropStats {
   rarePerHour: number;
   breakdown: ChestDropBreakdownRow[];
   history: ChestDropHistoryEntry[];
-  /** @deprecated Replaced by readerRequired in Phase 2. Removed in T08. */
-  playerLogAvailable: boolean;
   /**
-   * True when chest drop data can only come from the live reader (Player.log path removed).
-   * Renderer shows a contextual note when reader is off.
+   * True when chest drop data requires the live reader (Player.log path removed in Phase 2).
+   * Renderer shows a contextual note when the reader is off.
    */
   readerRequired: boolean;
 }
@@ -614,8 +612,6 @@ export interface BoxTimerState {
   sortOrder: BoxTrackerSortOrder;
   currentStageKey: number;
   defaultCooldownSeconds: number;
-  playerLogPath: string;
-  playerLogAvailable: boolean;
 }
 
 export type UpdatePhase =

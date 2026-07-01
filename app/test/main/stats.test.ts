@@ -24,10 +24,10 @@ describe("buildStats", () => {
     tracker.update(snap(1000));
     chestDropTracker.recordLogDrop(910151);
 
-    const stats = buildStats(tracker, chestDropTracker, true, snap(1000), null, null);
+    const stats = buildStats(tracker, chestDropTracker, snap(1000), null, null);
     expect(stats.chestDrops.commonTotal).toBe(1);
     expect(stats.chestDrops.combinedTotal).toBe(1);
-    expect(stats.chestDrops.playerLogAvailable).toBe(true);
+    expect(stats.chestDrops.readerRequired).toBe(true);
     expect(stats.chestDrops.breakdown[0]?.name).toBe("Normal Monster Box Lv15");
   });
 });

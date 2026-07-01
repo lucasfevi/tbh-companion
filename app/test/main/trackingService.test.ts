@@ -14,13 +14,6 @@ vi.mock("../../src/main/saveWatcher", () => ({
   },
 }));
 
-vi.mock("../../src/main/playerLogWatcher", () => ({
-  PlayerLogWatcher: class {
-    start = vi.fn();
-    stop = vi.fn();
-  },
-}));
-
 vi.mock("../../src/main/services/broadcast", () => ({
   broadcast: vi.fn(),
 }));
@@ -77,14 +70,7 @@ describe("TrackingService hero level-up callback", () => {
 
   it("does not fire on the first snapshot", () => {
     const onHeroLevelUp = vi.fn();
-    const svc = new TrackingService(
-      vi.fn(),
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      onHeroLevelUp,
-    );
+    const svc = new TrackingService(vi.fn(), undefined, undefined, undefined, onHeroLevelUp);
     svc.start(baseConfig);
     onSnapshot?.(snap(5));
     expect(onHeroLevelUp).not.toHaveBeenCalled();
@@ -93,14 +79,7 @@ describe("TrackingService hero level-up callback", () => {
 
   it("fires when a hero level increases on a later snapshot", () => {
     const onHeroLevelUp = vi.fn();
-    const svc = new TrackingService(
-      vi.fn(),
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      onHeroLevelUp,
-    );
+    const svc = new TrackingService(vi.fn(), undefined, undefined, undefined, onHeroLevelUp);
     svc.start(baseConfig);
     onSnapshot?.(snap(5, 100));
     onSnapshot?.(snap(6, 101));
@@ -111,14 +90,7 @@ describe("TrackingService hero level-up callback", () => {
 
   it("batches multiple hero level-ups from one snapshot into a single callback", () => {
     const onHeroLevelUp = vi.fn();
-    const svc = new TrackingService(
-      vi.fn(),
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      onHeroLevelUp,
-    );
+    const svc = new TrackingService(vi.fn(), undefined, undefined, undefined, onHeroLevelUp);
     svc.start(baseConfig);
     onSnapshot?.({
       ...snap(5, 100),

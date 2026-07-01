@@ -102,9 +102,8 @@ export function Live() {
   const showStatus = stats.status !== "Tracking";
   // Per-stat blend: prefer the live memory stage, fall back to the save value.
   const stage = blendStage(liveMemory, { stageKey: stats.stageKey, stageWave: stats.stageWave });
-  const { commonTotal, rareTotal, commonPerHour, rarePerHour, playerLogAvailable } =
-    stats.chestDrops;
-  const chestStatsInactive = !playerLogAvailable;
+  const { commonTotal, rareTotal, commonPerHour, rarePerHour, readerRequired } = stats.chestDrops;
+  const chestStatsInactive = readerRequired && !liveMemory?.connected;
 
   const fillSources: ChestFillSource[] = [];
   if (chests && autoOpenEnabled.common) {

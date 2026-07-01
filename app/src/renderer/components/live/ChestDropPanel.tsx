@@ -1,6 +1,5 @@
 import type { ChestDropBreakdownRow, ChestDropStats } from "../../../../shared/types";
 import { DataListRow } from "../../design-system/primitives/DataList/DataList";
-import { HintBanner } from "../../design-system/primitives/HintBanner/HintBanner";
 import { PanelSection } from "../../design-system/primitives/PanelSection/PanelSection";
 import { fmtClock } from "../../lib/format";
 import { cn } from "../../lib/cn";
@@ -34,18 +33,12 @@ function ChestCategoryRows({
 }
 
 export function ChestDropPanel({ chestDrops }: { chestDrops: ChestDropStats }) {
-  const { breakdown, history, playerLogAvailable } = chestDrops;
+  const { breakdown, history } = chestDrops;
   const common = breakdown.filter((row) => row.category === "common");
   const rare = breakdown.filter((row) => row.category === "rare");
 
   return (
     <>
-      {!playerLogAvailable ? (
-        <HintBanner className={cn("border-l-muted text-muted")}>
-          Player.log not found beside your save. Launch the game with the companion open to track
-          drops.
-        </HintBanner>
-      ) : null}
 
       <LiveMatchedPair
         left={

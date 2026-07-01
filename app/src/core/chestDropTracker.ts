@@ -87,7 +87,7 @@ export class ChestDropTracker {
     return true;
   }
 
-  getStats(elapsedSeconds: number, playerLogAvailable: boolean): ChestDropStats {
+  getStats(elapsedSeconds: number): ChestDropStats {
     let commonTotal = 0;
     let rareTotal = 0;
     const breakdown: ChestDropBreakdownRow[] = [];
@@ -124,8 +124,7 @@ export class ChestDropTracker {
       rarePerHour,
       breakdown,
       history: this.history.slice(-HISTORY_VISIBLE).reverse(),
-      playerLogAvailable,
-      readerRequired: true, // Player.log path removed in Phase 2 (T08)
+      readerRequired: true,
     };
   }
 

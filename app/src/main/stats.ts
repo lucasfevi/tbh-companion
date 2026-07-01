@@ -18,7 +18,6 @@ function nowSeconds(): number {
 export function buildStats(
   tracker: XpTracker,
   chestDropTracker: ChestDropTracker,
-  playerLogAvailable: boolean,
   lastSnap: SaveSnapshot | null,
   lastError: string | null,
   statusOverride: string | null = null,
@@ -87,6 +86,6 @@ export function buildStats(
     heroes,
 
     history: tracker.history.slice(-HISTORY_VISIBLE).reverse(),
-    chestDrops: chestDropTracker.getStats(tracker.elapsed, playerLogAvailable),
+    chestDrops: chestDropTracker.getStats(tracker.elapsed),
   };
 }

@@ -1,7 +1,5 @@
 import { expandPath } from "../config";
 import { SaveWatcher } from "../saveWatcher";
-import { PlayerLogWatcher } from "../playerLogWatcher";
-import { playerLogPathFromSave } from "../../core/playerLog";
 import { buildStats } from "../stats";
 import { makeHistoryLogger } from "../historyLog";
 import { XpTracker } from "../../core/tracker";
@@ -15,19 +13,10 @@ import type { SessionStateService } from "./SessionStateService";
 
 const log = createLogger("tracking");
 
-const PLAYER_LOG_POLL_MS = 1000;
-
-export interface PlayerLogHooks {
-  onDrop: (itemKey: number) => void;
-  onAvailability: (path: string, available: boolean) => void;
-}
-
 export class TrackingService {
   private tracker!: XpTracker;
   private chestDropTracker!: ChestDropTracker;
-  private playerLogAvailable = false;
   private watcher: SaveWatcher | null = null;
-  private playerLogWatcher: PlayerLogWatcher | null = null;
   private tickTimer: NodeJS.Timeout | null = null;
   private lastSnap: SaveSnapshot | null = null;
   private lastError: string | null = null;
@@ -41,7 +30,6 @@ export class TrackingService {
     parseInventorySnapshot?: (text: string, mtime: number) => InventorySnapshot,
     private readonly onStageKey?: (stageKey: number) => void,
     private readonly sessionState?: SessionStateService,
-    private readonly playerLog?: PlayerLogHooks,
     private readonly onHeroLevelUp?: (events: HeroLevelUpEvent[]) => void,
   ) {
     this.onInventory = onInventory;
@@ -58,8 +46,6 @@ export class TrackingService {
     this.restoreApplied = false;
     this.watcher = this.createWatcher();
     this.watcher.start();
-    this.playerLogWatcher = this.createPlayerLogWatcher();
-    this.playerLogWatcher.start();
     this.tickTimer = setInterval(() => this.pushStats(), 1000);
     this.sessionState?.startAutosave(() => ({
       tracker: this.tracker,
@@ -75,8 +61,6 @@ export class TrackingService {
     this.tickTimer = null;
     this.watcher?.stop();
     this.watcher = null;
-    this.playerLogWatcher?.stop();
-    this.playerLogWatcher = null;
   }
 
   pushStats(): void {
@@ -87,7 +71,6 @@ export class TrackingService {
     return buildStats(
       this.tracker,
       this.chestDropTracker,
-      this.playerLogAvailable,
       this.lastSnap,
       this.lastError,
       this.sessionState?.getStatusOverride() ?? null,
@@ -128,7 +111,6 @@ export class TrackingService {
     this.watcher?.stop();
     this.watcher = this.createWatcher();
     this.watcher.start();
-    this.restartPlayerLogWatcher();
   }
 
   onSessionFileDeleted(): void {
@@ -144,7 +126,6 @@ export class TrackingService {
     this.sessionState?.notifyNewSession();
     this.sessionState?.onTrackerReset(this.tracker, this.chestDropTracker, this.config, null);
     this.pushStats();
-    this.restartPlayerLogWatcher();
   }
 
   /**
@@ -157,18 +138,6 @@ export class TrackingService {
       { gold: snap.gold, heroes: snap.heroes },
       snap.at / 1000,
     );
-  }
-
-  onChestLogDrop(itemKey: number): void {
-    if (this.chestDropTracker.recordLogDrop(itemKey)) {
-      this.pushStats();
-    }
-  }
-
-  private restartPlayerLogWatcher(): void {
-    this.playerLogWatcher?.stop();
-    this.playerLogWatcher = this.createPlayerLogWatcher();
-    this.playerLogWatcher.start();
   }
 
   private createWatcher(): SaveWatcher {
@@ -202,24 +171,6 @@ export class TrackingService {
       },
       onInventory: this.onInventory,
       parseInventorySnapshot: this.parseInventorySnapshot,
-    });
-  }
-
-  private createPlayerLogWatcher(): PlayerLogWatcher {
-    const savePath = expandPath(this.config.savePath);
-    const path = playerLogPathFromSave(savePath);
-    return new PlayerLogWatcher({
-      path,
-      pollMs: PLAYER_LOG_POLL_MS,
-      onDrop: (itemKey) => {
-        this.onChestLogDrop(itemKey);
-        this.playerLog?.onDrop(itemKey);
-      },
-      onAvailability: (available) => {
-        this.playerLogAvailable = available;
-        this.playerLog?.onAvailability(path, available);
-        this.pushStats();
-      },
     });
   }
 }

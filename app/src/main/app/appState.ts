@@ -85,12 +85,6 @@ const tracking = new TrackingService(
   },
   (stageKey) => boxTimers.setCurrentStageKey(stageKey),
   sessionState,
-  {
-    onDrop: (itemKey) => {
-      boxTimers.tryMarkDroppedFromLog(itemKey);
-    },
-    onAvailability: (path, available) => boxTimers.setPlayerLogStatus(path, available),
-  },
   (events) => notifications.showHeroLevelUp(events),
 );
 
