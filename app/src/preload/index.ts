@@ -8,6 +8,8 @@ import type {
   ChestState,
   ClearAppDataResult,
   ClearDiagnosticLogResult,
+  LiveMemorySnapshot,
+  LiveMemoryStatus,
   LookupItem,
   LookupPriceSnapshot,
   LookupSources,
@@ -201,6 +203,19 @@ const api: TbhApi = {
     const listener = (_e: unknown, snapshot: LookupPriceSnapshot | null): void => cb(snapshot);
     ipcRenderer.on(IPC.LOOKUP_PRICES, listener);
     return () => ipcRenderer.removeListener(IPC.LOOKUP_PRICES, listener);
+  },
+  getLiveMemory(): Promise<LiveMemorySnapshot | null> {
+    return ipcRenderer.invoke(IPC.GET_LIVE_MEMORY);
+  },
+  onLiveMemory(cb: (snapshot: LiveMemorySnapshot) => void): () => void {
+    const listener = (_e: unknown, snapshot: LiveMemorySnapshot): void => cb(snapshot);
+    ipcRenderer.on(IPC.LIVE_MEMORY, listener);
+    return () => ipcRenderer.removeListener(IPC.LIVE_MEMORY, listener);
+  },
+  onLiveMemoryStatus(cb: (status: LiveMemoryStatus) => void): () => void {
+    const listener = (_e: unknown, status: LiveMemoryStatus): void => cb(status);
+    ipcRenderer.on(IPC.LIVE_MEMORY_STATUS, listener);
+    return () => ipcRenderer.removeListener(IPC.LIVE_MEMORY_STATUS, listener);
   },
 };
 

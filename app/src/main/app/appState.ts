@@ -16,6 +16,7 @@ import { BoxTimerService } from "../services/BoxTimerService";
 import { SessionStateService } from "../services/SessionStateService";
 import { LookupService } from "../services/LookupService";
 import { LookupPriceService } from "../services/LookupPriceService";
+import { LiveMemoryService } from "../services/LiveMemoryService";
 import { applyConfigPatch } from "../ipc/configPatch";
 import { clearDiagnosticLogs, createLogger, logRendererError } from "../log";
 import { clearAppDataFiles, getAppDataPaths } from "../services/appData";
@@ -44,6 +45,7 @@ const pets = new PetService();
 const boxTimers = new BoxTimerService();
 const lookup = new LookupService();
 const lookupPrices = new LookupPriceService();
+const liveMemory = new LiveMemoryService();
 
 function focusMainWindow(): void {
   if (mainWindow && !mainWindow.isDestroyed()) {
@@ -340,6 +342,7 @@ export function getAppServices() {
     getLookupSynthesisModel: () => lookup.getSynthesisModel(),
     getOfferings: () => lookup.getOfferings(),
     getLookupPrices: () => lookupPrices.getSnapshot(),
+    getLiveMemory: () => liveMemory.getSnapshot(),
   };
 }
 

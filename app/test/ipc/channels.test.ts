@@ -41,6 +41,9 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.GET_OFFERINGS");
     expect(preload).toContain("IPC.GET_LOOKUP_PRICES");
     expect(preload).toContain("IPC.LOOKUP_PRICES");
+    expect(preload).toContain("IPC.GET_LIVE_MEMORY");
+    expect(preload).toContain("IPC.LIVE_MEMORY");
+    expect(preload).toContain("IPC.LIVE_MEMORY_STATUS");
   });
 
   it("IPC handlers wire invoke and send channels", () => {
@@ -72,6 +75,8 @@ describe("IPC channel registry", () => {
     expect(lookupHandler).toContain("IPC.GET_LOOKUP_SYNTHESIS_MODEL");
     expect(lookupHandler).toContain("IPC.GET_OFFERINGS");
     expect(lookupHandler).toContain("IPC.GET_LOOKUP_PRICES");
+    const liveMemoryHandler = readHandler("liveMemory");
+    expect(liveMemoryHandler).toContain("IPC.GET_LIVE_MEMORY");
   });
 
   it("services broadcast on IPC push constants", () => {
