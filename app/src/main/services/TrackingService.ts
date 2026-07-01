@@ -141,7 +141,11 @@ export class TrackingService {
    */
   ingestLiveFrame(snap: LiveMemorySnapshot): void {
     if (!snap.connected) return;
-    this.tracker.updateLive({ gold: snap.gold, heroes: snap.heroes }, snap.at / 1000);
+    // XP stays on the save-layer path: the runtime HeroRuntime exp (ObscuredFloat)
+    // is a different, far larger quantity than the save-layer HeroExp the XP total
+    // and XP/hr are built on, so feeding it inflates the numbers. Live memory drives
+    // gold (same quantity, just fresher); live heroes still surface in diagnostics.
+    this.tracker.updateLive({ gold: snap.gold, heroes: null }, snap.at / 1000);
 
     if (snap.boxCount != null && snap.stageKey != null) {
       if (this.prevBoxCount != null && snap.boxCount > this.prevBoxCount) {
