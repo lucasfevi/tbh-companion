@@ -2,9 +2,11 @@
 
 ## Verdict: PASS (with noted gaps)
 
-All LMR-10..15 core behaviours are tested and no acceptance criterion is completely untested.
-Two medium-severity gaps exist (see below). Neither constitutes a correctness regression against
-the spec's stated acceptance criteria; both are coverage holes that a mutation could survive.
+All LMR-10..15 **code paths** are tested where implemented. LMR-12 **runtime chest detection is not
+complete** — Phase 2 delivered Player.log removal + plumbing only; **live per-type chest tracking
+(common / stage boss / act boss) is explicitly Phase 3** (see ROADMAP, D31).
+Two medium-severity test gaps remain (see below). Neither constitutes a correctness regression against
+the spec's stated Phase 2 acceptance scope.
 
 ---
 
@@ -31,7 +33,8 @@ the spec's stated acceptance criteria; both are coverage holes that a mutation c
 | LMR-12 boxCount null singleton | `readRuntimeBoxCount > returns null when StageManager singleton is absent` | null | null | ✅ |
 | LMR-12 boxCount negative guard | **NO TEST for negative box count → null** | — | spec: "returns null for negative values (plausibility)" | ❌ GAP |
 | LMR-12 Player.log removed | `playerLog.test.ts` deleted; no references in src/ | — | legacy path removed | ✅ |
-| LMR-12 recordLiveBoxDrop | `chestDropTracker.test.ts > recordLiveBoxDrop increments commonTotal...` | `commonTotal` incremented; returns true | box-count delta → chest record | ✅ |
+| LMR-12 recordLiveBoxDrop | `chestDropTracker.test.ts > recordLiveBoxDrop increments...` | `commonTotal` incremented | stub wired; always records as **common** only | ⚠️ STUB — Phase 3 replaces with per-type live drops |
+| LMR-12 live runtime AC | **No end-to-end test with non-zero `boxCount` offset** | — | chest drops from memory at runtime | ❌ **Phase 3** (offset + common / stage boss / act boss) |
 | LMR-12 readerRequired always true | `buildStats > includes chest drop session stats` | `readerRequired === true` | `readerRequired: true` always | ✅ |
 | LMR-13 inventory read | `readRuntimeInventory > reads items from the inventory dict` | 2 items with exact fields | correct item list | ✅ |
 | LMR-13 inventory null offset | `readRuntimeInventory > returns null when localInventoryManager RVA is 0` | null | offset=0 → null | ✅ |
@@ -102,8 +105,8 @@ Commits in scope:
 
 ## Post-verifier updates (same branch, after initial PASS)
 
-Follow-up work on `feat/live-memory-core-stats` after manual testing — not a verifier re-run, but
-documented here for the PR / handoff.
+Follow-up work on `feat/live-memory-core-stats` after manual testing and PR review — not a full
+verifier re-run, but documented here for the PR / handoff.
 
 | Change | Why |
 | ------ | --- |
@@ -114,6 +117,8 @@ documented here for the PR / handoff.
 | Session reset + confirm on live-memory toggle | Save `HeroExp` vs runtime exp baselines must not carry over |
 | `liveMemoryEnabled` on persisted session + implausible-total guard | Prevent restoring corrupted Session XP after baseline mix |
 | Diagnostics: current gold, per-hero exp, session/rolling rates | Debug read path vs tracker math |
+| **LMR-12 scope split (2026-07-01)** | Live chest **detection** + **per-type** tracking (common / stage boss / act boss) deferred to **Phase 3**; Phase 2 = Player.log removal + plumbing stub only |
+| **PR review polish** | Stale Player.log copy removed; chest inactive `HintBanner`; `LiveMemoryService` logs callback errors; `types.ts` JSDoc fix; main-layer box-count + session-restore tests |
 
 **Tests added:** `LiveSessionMeter` behaviour, party-total gain, per-tick rate refresh, session
 toggle reset, `buildStats` live-hero blend, `onLiveMemoryToggled` integration (`548` tests total at

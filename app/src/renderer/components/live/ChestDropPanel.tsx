@@ -1,5 +1,6 @@
 import type { ChestDropBreakdownRow, ChestDropStats } from "../../../../shared/types";
 import { DataListRow } from "../../design-system/primitives/DataList/DataList";
+import { HintBanner } from "../../design-system/primitives/HintBanner/HintBanner";
 import { PanelSection } from "../../design-system/primitives/PanelSection/PanelSection";
 import { fmtClock } from "../../lib/format";
 import { cn } from "../../lib/cn";
@@ -32,13 +33,21 @@ function ChestCategoryRows({
   );
 }
 
-export function ChestDropPanel({ chestDrops }: { chestDrops: ChestDropStats }) {
+export function ChestDropPanel({
+  chestDrops,
+  inactiveMessage,
+}: {
+  chestDrops: ChestDropStats;
+  /** When set, chest session tracking is inactive — explain why zeros are not live drops. */
+  inactiveMessage?: string | null;
+}) {
   const { breakdown, history } = chestDrops;
   const common = breakdown.filter((row) => row.category === "common");
   const rare = breakdown.filter((row) => row.category === "rare");
 
   return (
     <>
+      {inactiveMessage ? <HintBanner>{inactiveMessage}</HintBanner> : null}
       <LiveMatchedPair
         left={
           <>
@@ -55,7 +64,11 @@ export function ChestDropPanel({ chestDrops }: { chestDrops: ChestDropStats }) {
             title="Chest history"
             empty={
               history.length === 0 ? (
-                <p className="m-0">No drops logged yet this session.</p>
+                <p className="m-0">
+                  {inactiveMessage
+                    ? "No drops tracked this session."
+                    : "No drops logged yet this session."}
+                </p>
               ) : undefined
             }
           >

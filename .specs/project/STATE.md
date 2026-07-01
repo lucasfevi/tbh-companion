@@ -22,18 +22,19 @@ Persistent decisions, blockers, lessons, and deferred ideas across sessions.
     (ObscuredLong / GoldPinState / stale-pin retry), live heroes (`StageManager.HeroList` →
     `Unit.cache` → `HeroRuntime` ObscuredFloat exp), unified `LiveSessionMeter` for live XP+gold
     rates at ~25 Hz (party total exp delta, stats push every frame), session reset on live-memory
-    toggle, `ChestDropTracker.recordLiveBoxDrop()` box-count-delta drops, removal of `Player.log` /
-    `playerLog.ts`, inventory + pet live reads (offset-gated — real offsets derived in Phase 3),
-    expanded diagnostics (current gold, per-hero exp, tracker rates). Design/tasks/validation:
+    toggle, chest-drop **plumbing stub** (live per-type tracking deferred to Phase 3), removal of
+    `Player.log` / `playerLog.ts`, inventory + pet live reads (offset-gated — real offsets derived in
+    Phase 3), expanded diagnostics (current gold, per-hero exp, tracker rates). Design/tasks/validation:
     `.specs/features/live-memory-reader/phase-2-core-stats/`. `pnpm qa` green (548 tests).
     Verifier PASS on initial ship; post-PR polish documented in `validation.md` § Post-verifier.
+    **LMR-12 partial:** Player.log removed + integration wired; **common / stage boss / act boss live
+    session rates = Phase 3.**
     **Placeholder offsets still 0 (gated → null):** `boxCount`, `localInventoryManager` TypeInfo RVA,
     `player.petSaveDatas`, `petSaveData.*`, `inventoryItem.*` — Phase 3 derives real values.
   - **Locked offset schema (Phase 3 consumes this — must not drift):** `LiveOffsets` in
     `app/src/core/liveMemory/offsets.ts`. The runtime extractor (Phase 3) must emit exactly this shape.
-  - **Next:** Phase 3 `feat/live-memory-extractor` (LMR-16..19) runtime self-healing offset extractor,
-    OR Phase 4 sub-PRs. Both depend only on Phase 1's offset schema + plumbing (independently
-    sequenceable). See ROADMAP.md for phase entry-reading lists.
+  - **Next:** Phase 3 `feat/live-memory-extractor` — LMR-12 complete (live chest drops by type) +
+    LMR-16..19 runtime self-healing offset extractor. See ROADMAP.md for phase entry-reading lists.
 - **primitive-adoption** — **Planned** (`.specs/features/primitive-adoption/{spec,tasks}.md`).
   Review outcome: design system is broadly well-adopted (zero raw select/table/details/anchor).
   5 workstreams: T1 Accordion chevron affordance, T2+T3 new `Slider` primitive + Settings
@@ -110,8 +111,8 @@ Persistent decisions, blockers, lessons, and deferred ideas across sessions.
   schema (must not drift). [D18]
 - 2026-06-30 — Live data feeds the **existing panels** in place (no player-facing "Live (RAM)" tab);
   a **dev-only diagnostics tab** exists for debugging. [D19]
-- 2026-06-30 — Chest drops come from **memory only** (`StageManager.OnGetBox`/box-count delta); the
-  broken `Player.log` chest path is **removed** (Phase 2). [D20]
+- 2026-06-30 — Chest drops: **remove `Player.log` in Phase 2**; **live session tracking (common /
+  stage boss / act boss separately) ships in Phase 3** with derived offsets. No log fallback. [D20]
 - 2026-06-30 — XP/hr & gold/hr **recomputed from live samples** (rolling window) when reader on; save-
   snapshot rate math kept for reader-off fallback. [D21]
 - 2026-06-30 — Live reader is **rebuilt clean from research** (`_research/live-memory/*`); the
@@ -142,6 +143,9 @@ Persistent decisions, blockers, lessons, and deferred ideas across sessions.
   restore. [D29]
 - 2026-07-01 — Dev diagnostics tab shows **current gold**, **per-hero live exp**, and tracker
   session/rolling rates for debugging read vs rate math. [D30]
+- 2026-07-01 — **Live chest drops = Phase 3.** Phase 2 only removes `Player.log` and wires the delta
+  hook; `boxCount` offset stays 0 until derivation. Phase 3 must track **common**, **stage boss**, and
+  **act boss** chests in **separate** session buckets (not a single undifferentiated counter). [D31]
 
 ## Deferred ideas
 

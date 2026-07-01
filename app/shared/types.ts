@@ -72,8 +72,8 @@ export interface ChestDropStats {
   breakdown: ChestDropBreakdownRow[];
   history: ChestDropHistoryEntry[];
   /**
-   * True when chest drop data requires the live reader (Player.log path removed in Phase 2).
-   * Renderer shows a contextual note when the reader is off.
+   * True when chest drop data requires the live reader (Player.log removed).
+   * Renderer shows inactive/unavailable when the reader is off or detection is not wired yet.
    */
   readerRequired: boolean;
 }
@@ -861,8 +861,7 @@ export interface OfferingSource {
 
 // --- Live memory reader ---
 
-/**
-// --- Live memory stat types (Phase 2) ---
+// --- Live memory stat types (Phase 2+) ---
 
 /** A single hero's live data read from StageManager.HeroList. */
 export interface LiveHeroData {

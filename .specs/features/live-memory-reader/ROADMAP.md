@@ -31,7 +31,7 @@
 | 0 | Planning (this session) | `main` (docs) | — | — | ✅ Done |
 | 1 | Foundation & opt-in vertical slice | `feat/live-memory-foundation` | LMR-01..09, 15(seed) | 0 | ✅ Done (Verifier PASS) |
 | 2 | Core live stats into existing panels | `feat/live-memory-core-stats` | LMR-10..14, 15(expand) | 1 | ✅ Done (Verifier PASS) |
-| 3 | Runtime self-healing offset extractor | `feat/live-memory-extractor` | LMR-16..19 | 1 (schema) | ⬜ Not started |
+| 3 | Runtime self-healing offset extractor + live chest drops | `feat/live-memory-extractor` | LMR-12 (complete), LMR-16..19 | 1 (schema), 2 (chest plumbing) | ⬜ Not started |
 | 4 | Follow-up live stats (split into sub-PRs) | `feat/live-memory-<stat>` | LMR-20..24 | 1, 3 | ⬜ Not started |
 
 Sequencing note: Phase 2 and Phase 3 both depend only on Phase 1's offset schema + reader plumbing.
@@ -117,8 +117,7 @@ table); reference POC `il2cpp*` readers on `feat/live-memory-poc` under `poc/mem
 - Live gold + current gold; gold/hr recomputed from live samples (rolling window) — extend `tracker.ts`
   behind the reader-on path, keep save-path math for fallback.
 - Live XP/level for all party heroes (`StageManager.HeroList` → `Unit.cache` → `HeroRuntime` ObscuredFloat exp) + XP/hr live via `LiveSessionMeter`.
-- Chest drops from memory (`StageManager.OnGetBox` / box-count delta); **remove `Player.log` tail**
-  (`core/playerLog.ts` + wiring) and update `Live.tsx` chest copy/tooltips.
+- **Remove `Player.log` chest path** and add chest-drop **plumbing only** (snapshot field, delta hook, `recordLiveBoxDrop` stub). **Working live chest detection and per-type session rates ship in Phase 3** — see ROADMAP Phase 3.
 - Inventory/stash live listing (`LocalInventoryManager` bag dicts) blended into inventory panels.
 - Pet info + unlock kill counts live.
 - Expand diagnostics tab with per-stat read health.
@@ -129,30 +128,38 @@ Verifier writes `validation.md`.
 **✅ Completed 2026-07-01** on `feat/live-memory-core-stats` (PR #105; `pnpm qa` green, 548 tests).
 Delivered live gold (ObscuredLong / GoldPinState), live heroes (`HeroList` → `Unit.cache` →
 `HeroRuntime`), unified `LiveSessionMeter` live XP+gold rates (~25 Hz, stats push every frame),
-session reset on live-memory toggle, `ChestDropTracker.recordLiveBoxDrop()` box-count-delta drops,
-removal of `Player.log` / `playerLog.ts`, inventory + pet live reads (offset-gated), and expanded
-diagnostics (current gold, per-hero exp, tracker rates). See `phase-2-core-stats/validation.md` for
-verifier report + post-PR polish notes.
-- **Placeholder offsets still 0 (wire is in, offsets derived in Phase 3):** `boxCount`, `localInventoryManager`
-  TypeInfo RVA, `player.petSaveDatas`, `petSaveData.*`, `inventoryItem.*` — all gated to return `null`.
-- **Next:** Phase 3 `feat/live-memory-extractor` (LMR-16..19) runtime self-healing offset extractor, OR
-  Phase 4 sub-PRs (Phase 2 and Phase 3 are independently sequenceable from Phase 1).
+session reset on live-memory toggle, **Player.log removal** + chest-drop **plumbing stub**
+(`readRuntimeBoxCount` gated null, `recordLiveBoxDrop` placeholder — no live drops yet),
+inventory + pet live reads (offset-gated), and expanded diagnostics. See
+`phase-2-core-stats/validation.md` for verifier report + post-PR polish notes.
+- **LMR-12 partial:** legacy log path removed and integration wired; **live chest session tracking
+  (common / stage boss / act boss) is explicitly Phase 3** — not player-visible until offsets +
+  per-type detection land.
+- **Placeholder offsets still 0 (wire is in, values derived in Phase 3):** `boxCount` (and any
+  per-type drop fields), `localInventoryManager` TypeInfo RVA, `player.petSaveDatas`,
+  `petSaveData.*`, `inventoryItem.*` — all gated to return `null`.
+- **Next:** Phase 3 `feat/live-memory-extractor` (LMR-12 complete + LMR-16..19).
 
 ---
 
-## Phase 3 — Runtime self-healing offset extractor
+## Phase 3 — Runtime self-healing offset extractor + live chest drops
 
 **Goal:** in-app anchor-based offset derivation so unknown game versions self-heal without an app
-release. Riskiest phase; sequenced after the offset schema is locked and stats prove the targets.
+release, **and** complete live chest-drop session tracking that Phase 2 only plumbed. Riskiest phase;
+sequenced after the offset schema is locked and core stats prove the read paths.
 
-**Requirements:** LMR-16..19.
+**Requirements:** LMR-12 (complete live chest drops), LMR-16..19.
 
 **Entry reading:** `_research/live-memory/00-findings.md` (anchors + structural signatures),
 `10-offset-derivation.md` ("Re-derive on next patch" recipe); `tbh-data` repo:
 `docs/EXTRACTION.md`, `docs/DECOMPILATION.md`, `docs/TYPE_MAP.md`, `scripts/extract.mjs`,
 `scripts/diff-il2cpp.mjs`, `scripts/dump-method-names.mjs` (offline pipeline to port the metadata-parse step from).
+Phase 2 handoff: `phase-2-core-stats/design.md` (T04 box count, T08 chest tracker), `core/chestDropTracker.ts`,
+`TrackingService.ingestLiveFrame` box-count delta hook.
 
 **Scope outline:**
+
+### Offset extractor (LMR-16..19)
 - Parse `global-metadata.dat` (from the game install) + `GameAssembly.dll` registration
   (Il2CppCodeRegistration / MetadataRegistration) at runtime to map type names → TypeInfo/RVA → field
   offsets. Read-only.
@@ -164,11 +171,32 @@ release. Riskiest phase; sequenced after the offset schema is locked and stats p
 - Emit an offset table matching the **Phase 1 shared schema**; cache to disk keyed by game version.
 - Resolution order wiring: exact-version bundled → runtime self-heal → degraded banner; degrade (never
   mis-read) when anchors changed.
+- Populate bundled placeholders from Phase 2 (`boxCount`, inventory, pets) via derivation + ship updated
+  v1.00.21 table.
 - Add a "game-update playbook" doc + release-checklist step (see below).
+
+### Live chest drops (LMR-12 complete)
+- **Derive the live drop signal** from `StageManager` (candidate paths from research: cumulative box-count
+  field(s), `OnGetBox` `Action<int>` delegate firing with **item key**, and/or separate per-grade counters).
+  Phase 3 design session picks the most reliable read-only source; must distinguish chest **grade**, not
+  only "a box dropped".
+- **Per-type session tracking** — separate buckets for:
+  - **Common** chests (monster-kill drops),
+  - **Stage boss** chests,
+  - **Act boss** chests.
+  Session totals, per-hour rates, and breakdown rows must attribute each drop to the correct type (reuse
+  `resolveStageBoxDrop` / `stage_boxes.json` catalog where an item key is available).
+- **Replace the Phase 2 stub** `recordLiveBoxDrop(stageKey)` (always recorded as common) with typed
+  recording (`recordLiveChestDrop` or equivalent) wired from the live frame.
+- **Renderer:** Live tab chest panels show all three rates when reader is on; remove remaining
+  `Player.log` copy (`Live.tsx` inventory-fill tooltip, `BoxTracker.tsx` auto-detect line).
+- **Diagnostics:** per-type drop health (which signal is live vs fallback).
 
 **Verification / done:** derive against the installed version and match the bundled table byte-for-byte
 (offsets equal); simulate an unknown version (rename/remove the bundled table) → self-heal reads
-correctly; corrupt an anchor → degrades. `pnpm qa` green; Verifier writes `validation.md`.
+correctly; corrupt an anchor → degrades. **Manual:** farm each chest type with reader on → matching
+session counter and /hr climb independently; toggle off → chest session stats inactive (no false drops).
+`pnpm qa` green; Verifier writes `validation.md`.
 
 ---
 

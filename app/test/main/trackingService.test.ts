@@ -171,4 +171,28 @@ describe("TrackingService.onLiveMemoryToggled", () => {
     expect(svc.getTracker().cumulativeGained).toBe(600);
     expect(svc.getTracker().rollingRate).toBeGreaterThan(0);
   });
+
+  it("records chest drops when live box count increases between frames", () => {
+    const svc = new TrackingService(vi.fn());
+    svc.start(baseConfig);
+    onSnapshot?.(snap(5, 1000, 0));
+
+    const frame: LiveMemorySnapshot = {
+      connected: true,
+      stageKey: 3205,
+      stageWave: 1,
+      gold: null,
+      heroes: null,
+      boxCount: 10,
+      inventoryItems: null,
+      petData: null,
+      source: "memory test",
+      readMs: 1,
+      at: 2000,
+    };
+    svc.ingestLiveFrame(frame);
+    svc.ingestLiveFrame({ ...frame, boxCount: 12, at: 3000 });
+
+    expect(svc.getStats().chestDrops.commonTotal).toBe(2);
+  });
 });

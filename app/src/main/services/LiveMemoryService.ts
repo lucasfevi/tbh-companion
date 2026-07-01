@@ -62,8 +62,8 @@ export class LiveMemoryService {
         if (this.snapshotCb) {
           try {
             this.snapshotCb(msg.snapshot);
-          } catch {
-            // never let a callback error bring down the broadcast path
+          } catch (err) {
+            log.warn(`Live-memory snapshot callback failed: ${String(err)}`);
           }
         }
       } else if (msg.type === "status") {

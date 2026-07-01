@@ -42,7 +42,7 @@ describe("ChestDropTracker", () => {
     expect(tracker.recordLogDrop(920151)).toBe(true);
     expect(tracker.recordLogDrop(930151)).toBe(false);
 
-    const stats = tracker.getStats(3600, true);
+    const stats = tracker.getStats(3600);
     expect(stats.commonTotal).toBe(1);
     expect(stats.rareTotal).toBe(1);
     expect(stats.combinedTotal).toBe(2);
@@ -58,7 +58,7 @@ describe("ChestDropTracker", () => {
     tracker.recordLogDrop(910651);
     tracker.recordLogDrop(910651);
 
-    const stats = tracker.getStats(3600, true);
+    const stats = tracker.getStats(3600);
     expect(stats.commonTotal).toBe(3);
     expect(stats.breakdown).toEqual([
       expect.objectContaining({ itemKey: 910651, name: "Normal Monster Box Lv65", count: 3 }),
@@ -70,7 +70,7 @@ describe("ChestDropTracker", () => {
     tracker.recordLogDrop(910151, 1000);
     tracker.recordLogDrop(920151, 1010);
 
-    const stats = tracker.getStats(3600, true);
+    const stats = tracker.getStats(3600);
     expect(stats.history).toHaveLength(2);
     expect(stats.history[0]?.itemKey).toBe(920151);
     expect(stats.history[1]?.itemKey).toBe(910151);
@@ -94,7 +94,7 @@ describe("ChestDropTracker", () => {
     const tracker = new ChestDropTracker();
     tracker.recordLogDrop(910151);
     tracker.reset();
-    const stats = tracker.getStats(3600, true);
+    const stats = tracker.getStats(3600);
     expect(stats.combinedTotal).toBe(0);
     expect(stats.history).toHaveLength(0);
   });

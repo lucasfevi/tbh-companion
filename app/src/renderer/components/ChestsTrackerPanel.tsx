@@ -58,8 +58,8 @@ export function ChestsTrackerPanel() {
             Stage boss chest tracker
           </h2>
           <p className="m-0 mt-1 max-w-prose text-xs leading-relaxed text-muted">
-            Track rare stage boss drops and cooldowns while farming. Timers start from the overlay
-            or automatically when Player.log records a drop.
+            Track rare stage boss drops and cooldowns while farming. Tap Dropped on the overlay when
+            a boss chest drops, or start timers manually from the list below.
           </p>
         </div>
         <Button
