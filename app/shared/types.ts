@@ -380,6 +380,14 @@ export interface ChestAutoOpenPrefs {
   stageBoss: boolean;
 }
 
+/** Opt-in live game-memory reader preferences (off by default). */
+export interface LiveMemoryPrefs {
+  /** Reader enabled — when false no reader process runs and the app is save-only. */
+  enabled: boolean;
+  /** The one-time read-only consent dialog has been accepted. Gates first enable. */
+  consentAccepted: boolean;
+}
+
 export interface AppConfig {
   savePath: string;
   es3Password: string;
@@ -394,6 +402,7 @@ export interface AppConfig {
   notificationPrefs: NotificationPrefs;
   inventoryAlmostFullThresholdPercent: number;
   chestAutoOpenEnabled: ChestAutoOpenPrefs;
+  liveMemory: LiveMemoryPrefs;
   windowLayout?: WindowLayoutPrefs;
   inventoryTable?: InventoryTablePrefs;
 }
