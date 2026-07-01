@@ -20,7 +20,7 @@ export function useLiveMemory(): {
     let active = true;
     window.tbh
       .getLiveMemory?.()
-      .then((s) => {
+      ?.then((s) => {
         if (active && s) setSnapshot(s);
       })
       .catch(() => {});
