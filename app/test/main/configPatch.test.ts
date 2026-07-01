@@ -73,6 +73,114 @@ describe("applyConfigPatch", () => {
     expect(tracker.onHistory).toBeNull();
   });
 
+  it("starts the reader when liveMemory is enabled with consent (no restart)", () => {
+    let cfg = baseConfig();
+    const setLiveMemoryEnabled = vi.fn();
+
+    applyConfigPatch(
+      {
+        getConfig: () => cfg,
+        setConfig: (c) => {
+          cfg = c;
+        },
+        saveConfig: vi.fn(),
+        getTracker: () => new XpTracker(300),
+        setTracker: vi.fn(),
+        getMarket: () => ({ setCurrency: vi.fn() }) as never,
+        restartWatcher: vi.fn(),
+        setAlwaysOnTop: vi.fn(),
+        pushStats: vi.fn(),
+        resolveAndPushInventory: vi.fn(),
+        ensureOwnedPrices: vi.fn(),
+        setLiveMemoryEnabled,
+      },
+      { liveMemory: { enabled: true, consentAccepted: true } },
+    );
+
+    expect(setLiveMemoryEnabled).toHaveBeenCalledWith(true);
+  });
+
+  it("stops the reader when liveMemory is disabled", () => {
+    let cfg = baseConfig();
+    const setLiveMemoryEnabled = vi.fn();
+
+    applyConfigPatch(
+      {
+        getConfig: () => cfg,
+        setConfig: (c) => {
+          cfg = c;
+        },
+        saveConfig: vi.fn(),
+        getTracker: () => new XpTracker(300),
+        setTracker: vi.fn(),
+        getMarket: () => ({ setCurrency: vi.fn() }) as never,
+        restartWatcher: vi.fn(),
+        setAlwaysOnTop: vi.fn(),
+        pushStats: vi.fn(),
+        resolveAndPushInventory: vi.fn(),
+        ensureOwnedPrices: vi.fn(),
+        setLiveMemoryEnabled,
+      },
+      { liveMemory: { enabled: false, consentAccepted: true } },
+    );
+
+    expect(setLiveMemoryEnabled).toHaveBeenCalledWith(false);
+  });
+
+  it("does not start the reader when enabled but consent was not accepted", () => {
+    let cfg = baseConfig();
+    const setLiveMemoryEnabled = vi.fn();
+
+    applyConfigPatch(
+      {
+        getConfig: () => cfg,
+        setConfig: (c) => {
+          cfg = c;
+        },
+        saveConfig: vi.fn(),
+        getTracker: () => new XpTracker(300),
+        setTracker: vi.fn(),
+        getMarket: () => ({ setCurrency: vi.fn() }) as never,
+        restartWatcher: vi.fn(),
+        setAlwaysOnTop: vi.fn(),
+        pushStats: vi.fn(),
+        resolveAndPushInventory: vi.fn(),
+        ensureOwnedPrices: vi.fn(),
+        setLiveMemoryEnabled,
+      },
+      { liveMemory: { enabled: true, consentAccepted: false } },
+    );
+
+    expect(setLiveMemoryEnabled).toHaveBeenCalledWith(false);
+  });
+
+  it("leaves the reader untouched when the patch does not include liveMemory", () => {
+    let cfg = baseConfig();
+    const setLiveMemoryEnabled = vi.fn();
+
+    applyConfigPatch(
+      {
+        getConfig: () => cfg,
+        setConfig: (c) => {
+          cfg = c;
+        },
+        saveConfig: vi.fn(),
+        getTracker: () => new XpTracker(300),
+        setTracker: vi.fn(),
+        getMarket: () => ({ setCurrency: vi.fn() }) as never,
+        restartWatcher: vi.fn(),
+        setAlwaysOnTop: vi.fn(),
+        pushStats: vi.fn(),
+        resolveAndPushInventory: vi.fn(),
+        ensureOwnedPrices: vi.fn(),
+        setLiveMemoryEnabled,
+      },
+      { currency: "EUR" },
+    );
+
+    expect(setLiveMemoryEnabled).not.toHaveBeenCalled();
+  });
+
   it("fills notificationVolume when patching legacy config missing the field", () => {
     let cfg = baseConfig();
 

@@ -380,6 +380,14 @@ export interface ChestAutoOpenPrefs {
   stageBoss: boolean;
 }
 
+/** Opt-in live game-memory reader preferences (off by default). */
+export interface LiveMemoryPrefs {
+  /** Reader enabled — when false no reader process runs and the app is save-only. */
+  enabled: boolean;
+  /** The one-time read-only consent dialog has been accepted. Gates first enable. */
+  consentAccepted: boolean;
+}
+
 export interface AppConfig {
   savePath: string;
   es3Password: string;
@@ -394,6 +402,7 @@ export interface AppConfig {
   notificationPrefs: NotificationPrefs;
   inventoryAlmostFullThresholdPercent: number;
   chestAutoOpenEnabled: ChestAutoOpenPrefs;
+  liveMemory: LiveMemoryPrefs;
   windowLayout?: WindowLayoutPrefs;
   inventoryTable?: InventoryTablePrefs;
 }
@@ -846,6 +855,43 @@ export interface OfferingSource {
   poolPct: number;
 }
 
+// --- Live memory reader ---
+
+/**
+ * A live read from game process memory (read-only). Per-stat: a `null` field
+ * means "no live value this tick" — the renderer falls back to the save value.
+ * Phase 1 emits stage only; more stats join in later phases.
+ */
+export interface LiveMemorySnapshot {
+  /** The reader produced a live read this tick. */
+  connected: boolean;
+  /** Live current stage key (null ⇒ fall back to the save value). */
+  stageKey: number | null;
+  /** Live current wave within the stage. */
+  stageWave: number | null;
+  /** Human-readable source, e.g. "memory v1.00.21". */
+  source: string;
+  /** Duration of the last snapshot read in ms (per-tick cost, diagnostics). */
+  readMs: number;
+  /** Epoch ms when the read was taken. */
+  at: number;
+}
+
+/** Reader lifecycle/attach state for the status indicator + diagnostics. */
+export interface LiveMemoryStatus {
+  /** The reader process is up. */
+  running: boolean;
+  /** Attached to the game process. */
+  attached: boolean;
+  pid: number | null;
+  /** Detected game version (from Version.txt). */
+  gameVersion: string | null;
+  /** Bundled offsets exist for the detected version. */
+  supported: boolean;
+  /** e.g. "live stats unavailable for game v1.00.99". */
+  note?: string;
+}
+
 // API surface exposed on `window.tbh` by the preload via contextBridge.
 export interface TbhApi {
   onStats(cb: (stats: Stats) => void): () => void;
@@ -900,4 +946,8 @@ export interface TbhApi {
   getOfferings(): Promise<OfferingsModel>;
   getLookupPrices(): Promise<LookupPriceSnapshot | null>;
   onLookupPrices(cb: (snapshot: LookupPriceSnapshot | null) => void): () => void;
+  getLiveMemory(): Promise<LiveMemorySnapshot | null>;
+  getLiveMemoryStatus(): Promise<LiveMemoryStatus | null>;
+  onLiveMemory(cb: (snapshot: LiveMemorySnapshot) => void): () => void;
+  onLiveMemoryStatus(cb: (status: LiveMemoryStatus) => void): () => void;
 }

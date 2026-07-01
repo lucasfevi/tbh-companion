@@ -1,6 +1,7 @@
 import { SiBuymeacoffee } from "react-icons/si";
 import { Button, ButtonLink } from "../design-system/primitives/Button/Button";
 import { BUYMEACOFFEE_URL } from "../lib/externalLinks";
+import { LiveReaderIndicator } from "./LiveReaderIndicator";
 
 function MiniOverlayIcon() {
   return (
@@ -48,6 +49,7 @@ function BoxTrackerIcon() {
 export function AppToolbar() {
   return (
     <div className="flex shrink-0 gap-1 pb-1.5" role="toolbar" aria-label="Overlays">
+      <LiveReaderIndicator />
       <Button
         variant="toolbar"
         title="Open mini stats overlay"

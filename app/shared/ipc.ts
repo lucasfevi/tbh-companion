@@ -11,6 +11,8 @@ export const IPC = {
   LOOKUP_PRICES: "lookup-prices-snapshot",
   UPDATE_STATUS: "update-status",
   PLAY_NOTIFICATION_SOUND: "play-notification-sound",
+  LIVE_MEMORY: "live-memory",
+  LIVE_MEMORY_STATUS: "live-memory-status",
 
   // Invoke (renderer → main)
   GET_STATS: "get-stats",
@@ -48,6 +50,8 @@ export const IPC = {
   GET_LOOKUP_SYNTHESIS_MODEL: "get-lookup-synthesis-model",
   GET_OFFERINGS: "get-offerings",
   GET_LOOKUP_PRICES: "get-lookup-prices",
+  GET_LIVE_MEMORY: "get-live-memory",
+  GET_LIVE_MEMORY_STATUS: "get-live-memory-status",
 
   // Send (renderer → main, no response)
   RESET: "reset",
@@ -98,6 +102,8 @@ export const IPC_INVOKE_CHANNELS = [
   IPC.GET_LOOKUP_SYNTHESIS_MODEL,
   IPC.GET_OFFERINGS,
   IPC.GET_LOOKUP_PRICES,
+  IPC.GET_LIVE_MEMORY,
+  IPC.GET_LIVE_MEMORY_STATUS,
 ] as const;
 
 export const IPC_SEND_CHANNELS = [
@@ -122,4 +128,6 @@ export const IPC_PUSH_CHANNELS = [
   IPC.LOOKUP_PRICES,
   IPC.UPDATE_STATUS,
   IPC.PLAY_NOTIFICATION_SOUND,
+  IPC.LIVE_MEMORY,
+  IPC.LIVE_MEMORY_STATUS,
 ] as const;

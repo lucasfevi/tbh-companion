@@ -42,6 +42,16 @@ if (!existsSync(mainBundle)) {
   process.exit(1);
 }
 
+// The live-memory reader ships as a second main entry, spawned as a utilityProcess.
+// If this is missing the packaged installer can't start the reader (LMR-09).
+const liveMemoryWorker = join(appRoot, "out/main/liveMemoryWorker.js");
+if (!existsSync(liveMemoryWorker)) {
+  console.error(
+    "FAIL: out/main/liveMemoryWorker.js missing after build (live-memory worker entry)",
+  );
+  process.exit(1);
+}
+
 const main = readFileSync(mainBundle, "utf8");
 const badPatterns = [
   { re: /\.\.\/\.\.\/preload/g, label: "../../preload (must be ../preload from out/main/)" },

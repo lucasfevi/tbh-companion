@@ -68,6 +68,31 @@ describe("normalizeConfigFromRaw", () => {
     ).toEqual({ common: true, stageBoss: false });
   });
 
+  it("defaults liveMemory to off (disabled, no consent)", () => {
+    expect(mod.normalizeConfigFromRaw({}).liveMemory).toEqual({
+      enabled: false,
+      consentAccepted: false,
+    });
+  });
+
+  it("sanitizes partial/malformed liveMemory to booleans", () => {
+    expect(
+      mod.normalizeConfigFromRaw({
+        liveMemory: { enabled: 1, consentAccepted: "yes" } as never,
+      }).liveMemory,
+    ).toEqual({ enabled: true, consentAccepted: true });
+    expect(
+      mod.normalizeConfigFromRaw({ liveMemory: { enabled: true } as never }).liveMemory,
+    ).toEqual({ enabled: true, consentAccepted: false });
+  });
+
+  it("preserves an accepted-consent enabled liveMemory block", () => {
+    expect(
+      mod.normalizeConfigFromRaw({ liveMemory: { enabled: true, consentAccepted: true } })
+        .liveMemory,
+    ).toEqual({ enabled: true, consentAccepted: true });
+  });
+
   it("clamps inventoryAlmostFullThresholdPercent to 50-100", () => {
     expect(
       mod.normalizeConfigFromRaw({ inventoryAlmostFullThresholdPercent: 10 })

@@ -1,29 +1,12 @@
 import { AppToolbar } from "./AppToolbar";
+import { getVisibleTabs, type TabId } from "./appTabs";
 import { Tabs } from "../design-system/primitives/Tabs/Tabs";
 import { TabsList, TabsTab } from "../design-system/primitives/Tabs/TabsParts";
 
-export type TabId =
-  | "live"
-  | "inventory"
-  | "chests"
-  | "pets"
-  | "lookup"
-  | "market"
-  | "settings"
-  | "about";
-
-const TABS: { id: TabId; label: string }[] = [
-  { id: "live", label: "Live" },
-  { id: "inventory", label: "Inventory" },
-  { id: "chests", label: "Chests" },
-  { id: "pets", label: "Pets" },
-  { id: "lookup", label: "Lookup" },
-  { id: "market", label: "Market" },
-  { id: "settings", label: "Settings" },
-  { id: "about", label: "About" },
-];
+export type { TabId };
 
 export function AppTabBar({ tab, onTabChange }: { tab: TabId; onTabChange: (tab: TabId) => void }) {
+  const tabs = getVisibleTabs(import.meta.env.DEV);
   return (
     <div className="flex items-end gap-2 border-b border-border bg-panel px-2 pt-1.5">
       <Tabs
@@ -36,7 +19,7 @@ export function AppTabBar({ tab, onTabChange }: { tab: TabId; onTabChange: (tab:
           indicatorClassName="transition-none"
           aria-label="Main tabs"
         >
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <TabsTab key={t.id} value={t.id} className="data-[selected]:font-medium">
               {t.label}
             </TabsTab>

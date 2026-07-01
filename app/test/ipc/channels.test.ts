@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it, expect } from "vitest";
-import { IPC_INVOKE_CHANNELS, IPC_PUSH_CHANNELS, IPC_SEND_CHANNELS } from "../../shared/ipc";
+import { IPC, IPC_INVOKE_CHANNELS, IPC_PUSH_CHANNELS, IPC_SEND_CHANNELS } from "../../shared/ipc";
 
 function readHandler(name: string): string {
   return readFileSync(join(__dirname, `../../src/main/ipc/handlers/${name}.ts`), "utf-8");
@@ -41,6 +41,10 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.GET_OFFERINGS");
     expect(preload).toContain("IPC.GET_LOOKUP_PRICES");
     expect(preload).toContain("IPC.LOOKUP_PRICES");
+    expect(preload).toContain("IPC.GET_LIVE_MEMORY");
+    expect(preload).toContain("IPC.GET_LIVE_MEMORY_STATUS");
+    expect(preload).toContain("IPC.LIVE_MEMORY");
+    expect(preload).toContain("IPC.LIVE_MEMORY_STATUS");
   });
 
   it("IPC handlers wire invoke and send channels", () => {
@@ -72,6 +76,9 @@ describe("IPC channel registry", () => {
     expect(lookupHandler).toContain("IPC.GET_LOOKUP_SYNTHESIS_MODEL");
     expect(lookupHandler).toContain("IPC.GET_OFFERINGS");
     expect(lookupHandler).toContain("IPC.GET_LOOKUP_PRICES");
+    const liveMemoryHandler = readHandler("liveMemory");
+    expect(liveMemoryHandler).toContain("IPC.GET_LIVE_MEMORY");
+    expect(liveMemoryHandler).toContain("IPC.GET_LIVE_MEMORY_STATUS");
   });
 
   it("services broadcast on IPC push constants", () => {
@@ -119,6 +126,12 @@ describe("IPC channel registry", () => {
       "utf-8",
     );
     expect(lookupPrices).toContain("IPC.LOOKUP_PRICES");
+    const liveMemory = readFileSync(
+      join(__dirname, "../../src/main/services/LiveMemoryService.ts"),
+      "utf-8",
+    );
+    expect(liveMemory).toContain("IPC.LIVE_MEMORY");
+    expect(liveMemory).toContain("IPC.LIVE_MEMORY_STATUS");
   });
 
   it("preload uses send channels via IPC constants", () => {
@@ -133,5 +146,12 @@ describe("IPC channel registry", () => {
   it("push channel strings are unique", () => {
     const all = [...IPC_INVOKE_CHANNELS, ...IPC_SEND_CHANNELS, ...IPC_PUSH_CHANNELS];
     expect(new Set(all).size).toBe(all.length);
+  });
+
+  it("registers the live-memory channels in the correct registries", () => {
+    expect(IPC_PUSH_CHANNELS).toContain(IPC.LIVE_MEMORY);
+    expect(IPC_PUSH_CHANNELS).toContain(IPC.LIVE_MEMORY_STATUS);
+    expect(IPC_INVOKE_CHANNELS).toContain(IPC.GET_LIVE_MEMORY);
+    expect(IPC_INVOKE_CHANNELS).toContain(IPC.GET_LIVE_MEMORY_STATUS);
   });
 });

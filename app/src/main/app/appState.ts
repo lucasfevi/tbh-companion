@@ -16,6 +16,7 @@ import { BoxTimerService } from "../services/BoxTimerService";
 import { SessionStateService } from "../services/SessionStateService";
 import { LookupService } from "../services/LookupService";
 import { LookupPriceService } from "../services/LookupPriceService";
+import { LiveMemoryService } from "../services/LiveMemoryService";
 import { applyConfigPatch } from "../ipc/configPatch";
 import { clearDiagnosticLogs, createLogger, logRendererError } from "../log";
 import { clearAppDataFiles, getAppDataPaths } from "../services/appData";
@@ -44,6 +45,7 @@ const pets = new PetService();
 const boxTimers = new BoxTimerService();
 const lookup = new LookupService();
 const lookupPrices = new LookupPriceService();
+const liveMemory = new LiveMemoryService();
 
 function focusMainWindow(): void {
   if (mainWindow && !mainWindow.isDestroyed()) {
@@ -115,6 +117,8 @@ export function startTracking(): SessionUiSnapshot {
   inventory.initMarket(config.currency);
   inventory.loadGameData();
   lookupPrices.start();
+  // Restore the persisted opt-in reader state (off by default; only if consented).
+  if (config.liveMemory.enabled && config.liveMemory.consentAccepted) liveMemory.start();
   const ui = sessionState.load(config);
   tracking.start(config);
   return ui;
@@ -140,6 +144,7 @@ export function stopTracking(): void {
   tracking.stop();
   boxTimers.stopTick();
   lookupPrices.stop();
+  liveMemory.stop();
 }
 
 export function openMainWindow(): BrowserWindow {
@@ -260,6 +265,7 @@ export function getAppServices() {
           resolveAndPushInventory: () => inventory.resolveAndPushInventory(),
           ensureOwnedPrices: (force) => inventory.ensureOwnedPrices(force),
           onSavePathChange: () => tracking.onSavePathChanged(),
+          setLiveMemoryEnabled: (enabled) => (enabled ? liveMemory.start() : liveMemory.stop()),
         },
         patch,
       ),
@@ -340,6 +346,8 @@ export function getAppServices() {
     getLookupSynthesisModel: () => lookup.getSynthesisModel(),
     getOfferings: () => lookup.getOfferings(),
     getLookupPrices: () => lookupPrices.getSnapshot(),
+    getLiveMemory: () => liveMemory.getSnapshot(),
+    getLiveMemoryStatus: () => liveMemory.getStatus(),
   };
 }
 
