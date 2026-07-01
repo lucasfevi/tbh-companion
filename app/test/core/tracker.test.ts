@@ -112,3 +112,50 @@ describe("XpTracker", () => {
     expect(t.secondsSinceGain).toBeCloseTo(30, 0); // still anchored to last gain mtime
   });
 });
+
+describe("XpTracker.updateLive", () => {
+  it("is ignored before the first save update (not yet initialized)", () => {
+    const t = new XpTracker(300);
+    t.updateLive({ gold: 5000, heroes: [{ heroKey: 101, level: 1, exp: 200 }] }, 1000);
+    expect(t.currentGold).toBe(0);
+    expect(t.currentTotalXp).toBe(0);
+    expect(t.goldRollingRate).toBe(0);
+  });
+
+  it("updates gold rate from live wall-time samples", () => {
+    const t = new XpTracker(300);
+    t.update(snap(1000, 0, 0)); // init
+    t.updateLive({ gold: 3600, heroes: null }, 1000); // +3600 gold at t=1000
+    t.updateLive({ gold: 7200, heroes: null }, 1001); // +3600 gold at t=1001 (+1s)
+    // 3600 gold/s = 3_600 * 3600 hr = 12_960_000/hr  (only positive deltas count from first change)
+    expect(t.goldRollingRate).toBeGreaterThan(0);
+    expect(t.currentGold).toBe(7200);
+  });
+
+  it("accumulates XP gain and updates rates from live samples", () => {
+    const t = new XpTracker(300);
+    t.update(snap(1000, 0)); // init: hero 101 @ exp 0
+    // Two live ticks: +600 exp over 60s → 36000/hr
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 600 }] }, 1000);
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 600 }] }, 1060);
+    // No additional gain in second tick — cumulative should be 600
+    expect(t.cumulativeGained).toBe(600);
+    expect(t.currentTotalXp).toBe(600);
+  });
+
+  it("seeded XP gain via live ticks drives the rolling rate", () => {
+    const t = new XpTracker(300);
+    t.update(snap(1000, 0)); // init
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 3600 }] }, 1000);
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 7200 }] }, 1001);
+    // +7200 exp total, +3600 in 1s window → rate should be > 0
+    expect(t.rollingRate).toBeGreaterThan(0);
+  });
+
+  it("updates currentGold with live value", () => {
+    const t = new XpTracker(300);
+    t.update(snap(1000, 0, 100));
+    t.updateLive({ gold: 9999, heroes: null }, 1005);
+    expect(t.currentGold).toBe(9999);
+  });
+});

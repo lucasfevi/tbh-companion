@@ -213,6 +213,58 @@ export class XpTracker {
     return gain;
   }
 
+  /**
+   * Feed live memory data at ~25 Hz into the rate meters.
+   * Uses wall-time anchors instead of save-mtime. Ignored when not yet initialized
+   * (first `update(SaveSnapshot)` must run first to seed the hero/gold meters).
+   */
+  updateLive(
+    data: {
+      gold: number | null;
+      heroes: Array<{ heroKey: number; level: number; exp: number }> | null;
+    },
+    wallTimeSec: number,
+  ): void {
+    if (!this.initialized) return;
+
+    if (data.gold != null) {
+      this.currentGold = data.gold;
+      this.updateGold(data.gold, wallTimeSec);
+    }
+
+    if (data.heroes != null && data.heroes.length > 0) {
+      let gain = 0;
+      let totalXp = 0;
+
+      for (const h of data.heroes) {
+        const key = String(h.heroKey);
+        const heroGain = deltaGain(this.prevHero.get(key), h.exp);
+        gain += heroGain;
+        this.prevHero.set(key, h.exp);
+        totalXp += h.exp;
+
+        let meter = this.heroMeters.get(key);
+        if (meter === undefined) {
+          meter = new RateMeter(this.rollingWindow);
+          meter.init(wallTimeSec);
+          this.heroMeters.set(key, meter);
+        }
+        meter.add(heroGain, wallTimeSec);
+      }
+
+      this.currentTotalXp = totalXp;
+
+      if (gain > 0) {
+        this.cumulativeGained += gain;
+        this.lastGainMtime = wallTimeSec;
+        this.lastChangeMtime = wallTimeSec;
+        this.samples.push([wallTimeSec, this.cumulativeGained]);
+        this.prune(wallTimeSec);
+        this.recomputeRates();
+      }
+    }
+  }
+
   private updateGold(gold: number, mtime: number): void {
     // Gold is spent as well as earned; count only positive changes (earned).
     const gain = this.prevGold !== null ? gold - this.prevGold : 0;
