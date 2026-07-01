@@ -109,11 +109,7 @@ function readObscuredLong(reader: MemoryReader, structAddr: bigint): bigint | nu
 const BURST_ATTEMPTS = 4;
 
 /** Burst-read the ObscuredLong from a pinned currency entry (up to 4 attempts). */
-function readGoldFromEntry(
-  reader: MemoryReader,
-  entryPtr: bigint,
-  o: LiveOffsets,
-): number | null {
+function readGoldFromEntry(reader: MemoryReader, entryPtr: bigint, o: LiveOffsets): number | null {
   const structAddr = entryPtr + BigInt(o.runtime.currency.entryObscuredQty);
   for (let attempt = 0; attempt < BURST_ATTEMPTS; attempt++) {
     const raw = readObscuredLong(reader, structAddr);

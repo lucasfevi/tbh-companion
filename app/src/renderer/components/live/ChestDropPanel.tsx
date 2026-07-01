@@ -39,7 +39,6 @@ export function ChestDropPanel({ chestDrops }: { chestDrops: ChestDropStats }) {
 
   return (
     <>
-
       <LiveMatchedPair
         left={
           <>

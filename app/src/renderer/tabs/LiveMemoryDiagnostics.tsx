@@ -43,9 +43,7 @@ export function LiveMemoryDiagnostics() {
       />
       <div className="max-w-md space-y-4">
         <section>
-          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
-            Reader
-          </p>
+          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">Reader</p>
           <Row label="Reader state" value={state} />
           <Row label="Running" value={String(status?.running ?? false)} />
           <Row label="Attached" value={String(status?.attached ?? false)} />

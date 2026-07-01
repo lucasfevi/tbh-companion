@@ -138,8 +138,10 @@ function seedGoldChain(
     .writePtr(CURR_BLOCK + BigInt(O.runtime.currency.dict), DICT_OBJ);
 
   // Dict object: entries array ptr + count
-  m.writePtr(DICT_OBJ + BigInt(O.dict.entries), ENTRIES_ARR)
-    .writeI32(DICT_OBJ + BigInt(O.dict.count), 1);
+  m.writePtr(DICT_OBJ + BigInt(O.dict.entries), ENTRIES_ARR).writeI32(
+    DICT_OBJ + BigInt(O.dict.count),
+    1,
+  );
 
   // Entries array: one entry at arrayFirst — each field seeded at its read address
   const eBase = ENTRIES_ARR + BigInt(O.container.arrayFirst);
@@ -206,7 +208,12 @@ describe("readRuntimeGold", () => {
     // Overwrite the ObscuredLong fields so it decodes to -1
     const cryptoKey = 1n;
     const badVal = -1n; // BigInt signed: decodes to negative → rejected by plausibleGold
-    seedObscuredLong(m, CURR_ENTRY + BigInt(O.runtime.currency.entryObscuredQty), badVal, cryptoKey);
+    seedObscuredLong(
+      m,
+      CURR_ENTRY + BigInt(O.runtime.currency.entryObscuredQty),
+      badVal,
+      cryptoKey,
+    );
 
     const pin: GoldPinState = { entryPtr: null, lastKnown: 1234 };
     expect(readRuntimeGold(m, GA_BASE, GA_SIZE, O, pin)).toBe(1234);
@@ -221,7 +228,10 @@ const HERO1 = 0x820000n;
 const HERO2 = 0x830000n;
 
 /** Seed StageManager singleton → HeroList → items array → hero objects. */
-function seedHeroChain(m: FakeMemory, heroes: Array<{ heroKey: number; level: number; exp: number }>): FakeMemory {
+function seedHeroChain(
+  m: FakeMemory,
+  heroes: Array<{ heroKey: number; level: number; exp: number }>,
+): FakeMemory {
   // SM singleton via static-fields block (reuse SM_CLASS/SM_BLOCK/SM_SINGLETON from above)
   const slot = GA_BASE + O.typeInfoRva.stageManager;
   m.writePtr(slot, SM_CLASS)
@@ -232,8 +242,10 @@ function seedHeroChain(m: FakeMemory, heroes: Array<{ heroKey: number; level: nu
   m.writePtr(SM_SINGLETON + BigInt(O.runtime.heroList), HERO_LIST_OBJ);
 
   // List object: items array ptr + size
-  m.writePtr(HERO_LIST_OBJ + BigInt(O.container.listItems), HERO_ITEMS_ARR)
-    .writeI32(HERO_LIST_OBJ + BigInt(O.container.listSize), heroes.length);
+  m.writePtr(HERO_LIST_OBJ + BigInt(O.container.listItems), HERO_ITEMS_ARR).writeI32(
+    HERO_LIST_OBJ + BigInt(O.container.listSize),
+    heroes.length,
+  );
 
   // Seed each hero ptr in the items array, then seed hero fields
   const heroPtrs = [HERO1, HERO2];
@@ -352,8 +364,10 @@ function seedInventoryChain(
     .writePtr(INV_BLOCK, INV_DICT); // field offset 0 = first bag dict
 
   // Dict: entries array + count
-  m.writePtr(INV_DICT + BigInt(O.dict.entries), INV_ENTRIES)
-    .writeI32(INV_DICT + BigInt(O.dict.count), items.length);
+  m.writePtr(INV_DICT + BigInt(O.dict.entries), INV_ENTRIES).writeI32(
+    INV_DICT + BigInt(O.dict.count),
+    items.length,
+  );
 
   // Entries: one per item, each pointing to an INV_ITEM object
   const first = INV_ENTRIES + BigInt(O.container.arrayFirst);

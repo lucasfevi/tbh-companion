@@ -4,7 +4,12 @@ import { buildStats } from "../stats";
 import { makeHistoryLogger } from "../historyLog";
 import { XpTracker } from "../../core/tracker";
 import { ChestDropTracker } from "../../core/chestDropTracker";
-import type { AppConfig, InventorySnapshot, LiveMemorySnapshot, SaveSnapshot } from "../../../shared/types";
+import type {
+  AppConfig,
+  InventorySnapshot,
+  LiveMemorySnapshot,
+  SaveSnapshot,
+} from "../../../shared/types";
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
 import { detectHeroLevelUps, type HeroLevelUpEvent } from "../../core/heroes/detectLevelUps";
@@ -134,10 +139,7 @@ export class TrackingService {
    */
   ingestLiveFrame(snap: LiveMemorySnapshot): void {
     if (!snap.connected) return;
-    this.tracker.updateLive(
-      { gold: snap.gold, heroes: snap.heroes },
-      snap.at / 1000,
-    );
+    this.tracker.updateLive({ gold: snap.gold, heroes: snap.heroes }, snap.at / 1000);
   }
 
   private createWatcher(): SaveWatcher {
