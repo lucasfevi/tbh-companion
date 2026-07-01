@@ -302,6 +302,18 @@ describe("readRuntimeHeroes", () => {
     // count = 0 → guard rejects
     expect(readRuntimeHeroes(m, GA_BASE, GA_SIZE, O)).toBeNull();
   });
+
+  it("returns null when hero count exceeds MAX_HEROES (21)", () => {
+    const m = new FakeMemory();
+    const slot = GA_BASE + O.typeInfoRva.stageManager;
+    m.writePtr(slot, SM_CLASS)
+      .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
+      .writePtr(SM_BLOCK, SM_SINGLETON)
+      .writePtr(SM_SINGLETON + BigInt(O.runtime.heroList), HERO_LIST_OBJ)
+      .writePtr(HERO_LIST_OBJ + BigInt(O.container.listItems), HERO_ITEMS_ARR)
+      .writeI32(HERO_LIST_OBJ + BigInt(O.container.listSize), 21); // exceeds MAX_HEROES
+    expect(readRuntimeHeroes(m, GA_BASE, GA_SIZE, O)).toBeNull();
+  });
 });
 
 // ── readRuntimeBoxCount ───────────────────────────────────────────────────────
@@ -335,6 +347,21 @@ describe("readRuntimeBoxCount", () => {
       runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: 0x150 } },
     };
     expect(readRuntimeBoxCount(new FakeMemory(), GA_BASE, GA_SIZE, patchedO)).toBeNull();
+  });
+
+  it("returns null when box count is negative (plausibility guard)", () => {
+    const BOX_OFFSET = 0x150;
+    const patchedO = {
+      ...O,
+      runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: BOX_OFFSET } },
+    };
+    const m = new FakeMemory();
+    const slot = GA_BASE + O.typeInfoRva.stageManager;
+    m.writePtr(slot, SM_CLASS)
+      .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
+      .writePtr(SM_BLOCK, SM_SINGLETON)
+      .writeI32(SM_SINGLETON + BigInt(BOX_OFFSET), -1);
+    expect(readRuntimeBoxCount(m, GA_BASE, GA_SIZE, patchedO)).toBeNull();
   });
 });
 

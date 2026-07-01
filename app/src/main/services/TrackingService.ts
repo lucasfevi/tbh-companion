@@ -27,6 +27,7 @@ export class TrackingService {
   private lastError: string | null = null;
   private config!: AppConfig;
   private restoreApplied = false;
+  private prevBoxCount: number | null = null;
   private readonly onInventory: (snap: InventorySnapshot) => void;
   private readonly parseInventorySnapshot?: (text: string, mtime: number) => InventorySnapshot;
 
@@ -125,6 +126,7 @@ export class TrackingService {
   onSavePathChanged(): void {
     this.lastSnap = null;
     this.restoreApplied = false;
+    this.prevBoxCount = null;
     this.sessionState?.invalidatePending();
     this.tracker.reset();
     this.chestDropTracker.reset();
@@ -140,6 +142,16 @@ export class TrackingService {
   ingestLiveFrame(snap: LiveMemorySnapshot): void {
     if (!snap.connected) return;
     this.tracker.updateLive({ gold: snap.gold, heroes: snap.heroes }, snap.at / 1000);
+
+    if (snap.boxCount != null && snap.stageKey != null) {
+      if (this.prevBoxCount != null && snap.boxCount > this.prevBoxCount) {
+        const delta = snap.boxCount - this.prevBoxCount;
+        for (let i = 0; i < delta; i++) {
+          this.chestDropTracker.recordLiveBoxDrop(snap.stageKey, snap.at / 1000);
+        }
+      }
+      this.prevBoxCount = snap.boxCount;
+    }
   }
 
   private createWatcher(): SaveWatcher {

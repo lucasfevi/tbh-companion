@@ -65,6 +65,28 @@ export class ChestDropTracker {
     this.history = [];
   }
 
+  /**
+   * Record a chest drop detected from a live box-count delta.
+   * Records as a common chest for the given stageKey; returns false when
+   * stageKey is invalid.
+   */
+  recordLiveBoxDrop(stageKey: number, wallTime = nowSeconds()): boolean {
+    if (stageKey <= 0) return false;
+    const key = String(stageKey);
+    const name = `Common chest (stage ${stageKey})`;
+    const category: ChestDropCategory = "common";
+
+    this.countsByKey.set(key, (this.countsByKey.get(key) ?? 0) + 1);
+    this.namesByKey.set(key, name);
+    this.categoriesByKey.set(key, category);
+
+    this.history.push({ wallTime, itemKey: stageKey, name, category });
+    if (this.history.length > HISTORY_LIMIT) {
+      this.history.splice(0, this.history.length - HISTORY_LIMIT);
+    }
+    return true;
+  }
+
   recordLogDrop(itemKey: number, wallTime = nowSeconds()): boolean {
     const resolved = resolveStageBoxDrop(itemKey);
     if (!resolved) return false;
