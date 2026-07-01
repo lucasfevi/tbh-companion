@@ -33,20 +33,21 @@ function ChestCategoryRows({
   );
 }
 
-export function ChestDropPanel({ chestDrops }: { chestDrops: ChestDropStats }) {
-  const { breakdown, history, playerLogAvailable } = chestDrops;
+export function ChestDropPanel({
+  chestDrops,
+  inactiveMessage,
+}: {
+  chestDrops: ChestDropStats;
+  /** When set, chest session tracking is inactive — explain why zeros are not live drops. */
+  inactiveMessage?: string | null;
+}) {
+  const { breakdown, history } = chestDrops;
   const common = breakdown.filter((row) => row.category === "common");
   const rare = breakdown.filter((row) => row.category === "rare");
 
   return (
     <>
-      {!playerLogAvailable ? (
-        <HintBanner className={cn("border-l-muted text-muted")}>
-          Player.log not found beside your save. Launch the game with the companion open to track
-          drops.
-        </HintBanner>
-      ) : null}
-
+      {inactiveMessage ? <HintBanner>{inactiveMessage}</HintBanner> : null}
       <LiveMatchedPair
         left={
           <>
@@ -63,7 +64,11 @@ export function ChestDropPanel({ chestDrops }: { chestDrops: ChestDropStats }) {
             title="Chest history"
             empty={
               history.length === 0 ? (
-                <p className="m-0">No drops logged yet this session.</p>
+                <p className="m-0">
+                  {inactiveMessage
+                    ? "No drops tracked this session."
+                    : "No drops logged yet this session."}
+                </p>
               ) : undefined
             }
           >

@@ -85,12 +85,6 @@ const tracking = new TrackingService(
   },
   (stageKey) => boxTimers.setCurrentStageKey(stageKey),
   sessionState,
-  {
-    onDrop: (itemKey) => {
-      boxTimers.tryMarkDroppedFromLog(itemKey);
-    },
-    onAvailability: (path, available) => boxTimers.setPlayerLogStatus(path, available),
-  },
   (events) => notifications.showHeroLevelUp(events),
 );
 
@@ -119,6 +113,7 @@ export function startTracking(): SessionUiSnapshot {
   lookupPrices.start();
   // Restore the persisted opt-in reader state (off by default; only if consented).
   if (config.liveMemory.enabled && config.liveMemory.consentAccepted) liveMemory.start();
+  liveMemory.setOnSnapshot((snap) => tracking.ingestLiveFrame(snap));
   const ui = sessionState.load(config);
   tracking.start(config);
   return ui;
@@ -266,6 +261,7 @@ export function getAppServices() {
           ensureOwnedPrices: (force) => inventory.ensureOwnedPrices(force),
           onSavePathChange: () => tracking.onSavePathChanged(),
           setLiveMemoryEnabled: (enabled) => (enabled ? liveMemory.start() : liveMemory.stop()),
+          onLiveMemoryToggled: () => tracking.onLiveMemoryToggled(),
         },
         patch,
       ),

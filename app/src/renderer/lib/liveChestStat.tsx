@@ -10,7 +10,7 @@ export function LiveChestStatValue({
   total: number;
   perHour: number;
   countClassName?: string;
-  /** Muted when Player.log is unavailable — totals are not live yet. */
+  /** Muted when live chest tracking is inactive (reader off or detection unavailable). */
   inactive?: boolean;
 }) {
   return (

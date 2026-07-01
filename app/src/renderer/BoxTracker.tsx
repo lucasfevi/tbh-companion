@@ -150,7 +150,7 @@ export function BoxTracker() {
       </div>
 
       <p className="no-drag m-0 break-words text-[10px] text-muted">
-        Tap Dropped when a boss chest drops, or rely on Player.log auto-detect.
+        Tap Dropped when a boss chest drops to start the cooldown timer.
       </p>
 
       {state.rows.length === 0 ? (

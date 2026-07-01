@@ -36,22 +36,33 @@ const IDLE_THRESHOLD = 120;
 
 const DEFAULT_AUTO_OPEN: ChestAutoOpenPrefs = { common: false, stageBoss: false };
 
-const RATE_TIP =
+const RATE_TIP_SAVE =
   "XP/hour updates only when the game writes new XP to the save (often up to " +
   "3 minutes apart, sometimes longer). It holds steady between writes instead of decaying.";
-const GOLD_TIP =
+const RATE_TIP_LIVE =
+  "XP/hour from live memory reads (~25 updates per second). Rates hold steady between " +
+  "gains instead of decaying. Switching between live and save-only resets the session.";
+const GOLD_TIP_SAVE =
   "Gold earned per hour. Counts gold gained only; spending (upgrades, Cube, " +
   "runes) is ignored, so it's accurate while farming.";
-const CHEST_RATE_TIP =
-  "Drop rates from Player.log lines this session. Only counts while the companion is running.";
+const GOLD_TIP_LIVE =
+  "Gold earned per hour from live memory reads. Counts gold gained only; spending is ignored.";
+const CHEST_TIP_NEED_READER =
+  "Chest drop rates require the live memory reader. Turn it on in Settings → Live memory (experimental) " +
+  "and keep the game running.";
+const CHEST_TIP_PENDING =
+  "Live chest drop tracking is not available for this game version yet — XP and gold still update from " +
+  "live memory. Per-type drop rates (common, stage boss, act boss) ship in a future update.";
+const CHEST_TIP_LIVE =
+  "Drop rates from live memory this session. Common, stage boss, and act boss chests are tracked " +
+  "separately while the companion is running.";
 const INVENTORY_PREDICTION_TIP =
   "Estimates when your unlocked inventory slots fill up. For each chest type you've marked " +
-  "auto-open below, we model a serial auto-open queue: held chests drain at their open speed " +
-  "(faster with reduction runes) while Player.log drops add more chests to the queue. Each " +
-  "opened chest uses one inventory slot. We can't detect the in-game auto-open toggle, so set " +
-  "it here — only common and stage boss chests count, since Player.log doesn't report act boss " +
-  "drops. Based on the save file, so it can take a few minutes to catch up after you change a " +
-  "toggle or open chests in-game.";
+  "auto-open below, we model a serial auto-open queue: held chests (from your save) drain at their open " +
+  "speed (faster with reduction runes). When live chest tracking is available, session drop rates can " +
+  "add more chests to the queue. Each opened chest uses one inventory slot. We can't detect the " +
+  "in-game auto-open toggle, so set it here — only common and stage boss chests are modeled. Held " +
+  "counts come from the save file and can lag a few minutes after in-game changes.";
 
 export function Live() {
   const stats = useStats();
@@ -100,11 +111,31 @@ export function Live() {
 
   const idle = stats.secondsSinceGain !== null && stats.secondsSinceGain > IDLE_THRESHOLD;
   const showStatus = stats.status !== "Tracking";
+  const liveActive = liveMemory?.connected === true;
+  const rateTip = liveActive ? RATE_TIP_LIVE : RATE_TIP_SAVE;
+  const goldTip = liveActive ? GOLD_TIP_LIVE : GOLD_TIP_SAVE;
+  const intro = liveActive
+    ? liveMemory?.boxCount != null
+      ? "Live memory is on — XP, gold, and chest stats update in real time from the running game."
+      : "Live memory is on — XP and gold update in real time. Chest drop rates are not available for this game version yet."
+    : "Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer.";
   // Per-stat blend: prefer the live memory stage, fall back to the save value.
   const stage = blendStage(liveMemory, { stageKey: stats.stageKey, stageWave: stats.stageWave });
-  const { commonTotal, rareTotal, commonPerHour, rarePerHour, playerLogAvailable } =
-    stats.chestDrops;
-  const chestStatsInactive = !playerLogAvailable;
+  const { commonTotal, rareTotal, commonPerHour, rarePerHour, readerRequired } = stats.chestDrops;
+  const chestReaderOff = readerRequired && !liveMemory?.connected;
+  const chestDetectionPending =
+    readerRequired && liveMemory?.connected && liveMemory.boxCount == null;
+  const chestStatsInactive = chestReaderOff || chestDetectionPending;
+  const chestRateTip = chestReaderOff
+    ? CHEST_TIP_NEED_READER
+    : chestDetectionPending
+      ? CHEST_TIP_PENDING
+      : CHEST_TIP_LIVE;
+  const chestInactiveMessage = chestReaderOff
+    ? CHEST_TIP_NEED_READER
+    : chestDetectionPending
+      ? CHEST_TIP_PENDING
+      : null;
 
   const fillSources: ChestFillSource[] = [];
   if (chests && autoOpenEnabled.common) {
@@ -153,10 +184,7 @@ export function Live() {
 
   return (
     <TabPage>
-      <TabHeader
-        title="Live stats"
-        intro="Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer."
-      />
+      <TabHeader title="Live stats" intro={intro} />
 
       <MetricHero
         primary={
@@ -172,7 +200,7 @@ export function Live() {
               </div>
             }
           >
-            {RATE_TIP}
+            {rateTip}
           </Tooltip>
         }
         center={
@@ -190,7 +218,7 @@ export function Live() {
                 </div>
               }
             >
-              {GOLD_TIP}
+              {goldTip}
             </Tooltip>
             <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-xs text-muted">
               <span>
@@ -235,7 +263,7 @@ export function Live() {
               inactive={chestStatsInactive}
             />
           }
-          title={CHEST_RATE_TIP}
+          title={chestRateTip}
         />
         <StatCard
           label="Stage boss chests"
@@ -247,11 +275,11 @@ export function Live() {
               inactive={chestStatsInactive}
             />
           }
-          title={CHEST_RATE_TIP}
+          title={chestRateTip}
         />
       </section>
 
-      <ChestDropPanel chestDrops={stats.chestDrops} />
+      <ChestDropPanel chestDrops={stats.chestDrops} inactiveMessage={chestInactiveMessage} />
 
       <PanelSection
         title={

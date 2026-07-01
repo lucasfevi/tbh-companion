@@ -71,7 +71,11 @@ export interface ChestDropStats {
   rarePerHour: number;
   breakdown: ChestDropBreakdownRow[];
   history: ChestDropHistoryEntry[];
-  playerLogAvailable: boolean;
+  /**
+   * True when chest drop data requires the live reader (Player.log removed).
+   * Renderer shows inactive/unavailable when the reader is off or detection is not wired yet.
+   */
+  readerRequired: boolean;
 }
 
 /** Serialized chest drop tracker for session_state.json restore. */
@@ -145,6 +149,8 @@ export interface PersistedSessionState {
   savePath: string;
   lastSaveMtime: number;
   rollingWindowMinutes: number;
+  /** Whether the live-memory reader was active when this session was saved. */
+  liveMemoryEnabled?: boolean;
   tracker: TrackerSnapshot;
   chestDropTracker?: ChestDropTrackerSnapshot;
   ui: SessionUiSnapshot;
@@ -608,8 +614,6 @@ export interface BoxTimerState {
   sortOrder: BoxTrackerSortOrder;
   currentStageKey: number;
   defaultCooldownSeconds: number;
-  playerLogPath: string;
-  playerLogAvailable: boolean;
 }
 
 export type UpdatePhase =
@@ -857,10 +861,33 @@ export interface OfferingSource {
 
 // --- Live memory reader ---
 
+// --- Live memory stat types (Phase 2+) ---
+
+/** A single hero's live data read from StageManager.HeroList. */
+export interface LiveHeroData {
+  heroKey: number;
+  level: number;
+  exp: number;
+}
+
+/** A single inventory item from LocalInventoryManager bag dicts. */
+export interface LiveInventoryItem {
+  itemKey: number;
+  isChaotic: boolean;
+  /** Raw bag-id field from the IL2CPP struct (0 = inventory, 1 = stash, etc.). */
+  location: number;
+}
+
+/** Pet unlock state read from save-layer heap (PetSaveData). */
+export interface LivePetData {
+  petKey: number;
+  unlocked: boolean;
+}
+
 /**
  * A live read from game process memory (read-only). Per-stat: a `null` field
  * means "no live value this tick" — the renderer falls back to the save value.
- * Phase 1 emits stage only; more stats join in later phases.
+ * Phase 1 emits stage only; Phase 2 expands with gold, heroes, chests, inventory, pets.
  */
 export interface LiveMemorySnapshot {
   /** The reader produced a live read this tick. */
@@ -869,6 +896,16 @@ export interface LiveMemorySnapshot {
   stageKey: number | null;
   /** Live current wave within the stage. */
   stageWave: number | null;
+  /** Live current gold (null ⇒ fall back to save value). */
+  gold: number | null;
+  /** Live hero XP/level for all party members (null ⇒ fall back to save). */
+  heroes: LiveHeroData[] | null;
+  /** Cumulative box-obtained counter from StageManager (null until derivation is complete). */
+  boxCount: number | null;
+  /** Live inventory items from LocalInventoryManager (null until T09 derivation). */
+  inventoryItems: LiveInventoryItem[] | null;
+  /** Live pet unlock state from save-layer heap (null until T10 derivation). */
+  petData: LivePetData[] | null;
   /** Human-readable source, e.g. "memory v1.00.21". */
   source: string;
   /** Duration of the last snapshot read in ms (per-tick cost, diagnostics). */

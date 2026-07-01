@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   isPersistedSessionState,
+  isLiveMemoryActive,
+  isPlausibleTrackerSnapshot,
   sessionMatchesConfig,
   snapshotContinuesSession,
 } from "../../src/core/sessionState";
@@ -21,19 +23,41 @@ const config: AppConfig = {
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
   inventoryAlmostFullThresholdPercent: 90,
   chestAutoOpenEnabled: { common: false, stageBoss: false },
+  liveMemory: { enabled: false, consentAccepted: false },
 };
 
 describe("sessionState", () => {
-  it("sessionMatchesConfig compares path and tracking settings", () => {
+  it("sessionMatchesConfig compares path, tracking settings, and live-memory mode", () => {
     const meta = {
       savePath: "C:/game/save.es3",
       rollingWindowMinutes: 5,
+      liveMemoryEnabled: false,
     };
     expect(sessionMatchesConfig(meta, "C:/game/save.es3", config)).toBe(true);
     expect(sessionMatchesConfig(meta, "C:/other/save.es3", config)).toBe(false);
     expect(
       sessionMatchesConfig({ ...meta, rollingWindowMinutes: 10 }, "C:/game/save.es3", config),
     ).toBe(false);
+    expect(
+      sessionMatchesConfig({ ...meta, liveMemoryEnabled: true }, "C:/game/save.es3", config),
+    ).toBe(false);
+    const liveConfig = {
+      ...config,
+      liveMemory: { enabled: true, consentAccepted: true },
+    };
+    expect(
+      sessionMatchesConfig({ ...meta, liveMemoryEnabled: true }, "C:/game/save.es3", liveConfig),
+    ).toBe(true);
+    expect(isLiveMemoryActive(liveConfig)).toBe(true);
+  });
+
+  it("isPlausibleTrackerSnapshot rejects inflated totals", () => {
+    expect(isPlausibleTrackerSnapshot({ cumulativeGained: 1000, sessionRateValue: 500 })).toBe(
+      true,
+    );
+    expect(isPlausibleTrackerSnapshot({ cumulativeGained: 8e28, sessionRateValue: 8e28 })).toBe(
+      false,
+    );
   });
 
   it("snapshotContinuesSession allows same or newer mtime only", () => {

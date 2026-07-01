@@ -1,12 +1,15 @@
 import { expandPath } from "../config";
 import { SaveWatcher } from "../saveWatcher";
-import { PlayerLogWatcher } from "../playerLogWatcher";
-import { playerLogPathFromSave } from "../../core/playerLog";
 import { buildStats } from "../stats";
 import { makeHistoryLogger } from "../historyLog";
 import { XpTracker } from "../../core/tracker";
 import { ChestDropTracker } from "../../core/chestDropTracker";
-import type { AppConfig, InventorySnapshot, SaveSnapshot } from "../../../shared/types";
+import type {
+  AppConfig,
+  InventorySnapshot,
+  LiveMemorySnapshot,
+  SaveSnapshot,
+} from "../../../shared/types";
 import { IPC } from "../../../shared/ipc";
 import { broadcast } from "./broadcast";
 import { detectHeroLevelUps, type HeroLevelUpEvent } from "../../core/heroes/detectLevelUps";
@@ -15,24 +18,17 @@ import type { SessionStateService } from "./SessionStateService";
 
 const log = createLogger("tracking");
 
-const PLAYER_LOG_POLL_MS = 1000;
-
-export interface PlayerLogHooks {
-  onDrop: (itemKey: number) => void;
-  onAvailability: (path: string, available: boolean) => void;
-}
-
 export class TrackingService {
   private tracker!: XpTracker;
   private chestDropTracker!: ChestDropTracker;
-  private playerLogAvailable = false;
   private watcher: SaveWatcher | null = null;
-  private playerLogWatcher: PlayerLogWatcher | null = null;
   private tickTimer: NodeJS.Timeout | null = null;
   private lastSnap: SaveSnapshot | null = null;
+  private lastLiveFrame: LiveMemorySnapshot | null = null;
   private lastError: string | null = null;
   private config!: AppConfig;
   private restoreApplied = false;
+  private prevBoxCount: number | null = null;
   private readonly onInventory: (snap: InventorySnapshot) => void;
   private readonly parseInventorySnapshot?: (text: string, mtime: number) => InventorySnapshot;
 
@@ -41,7 +37,6 @@ export class TrackingService {
     parseInventorySnapshot?: (text: string, mtime: number) => InventorySnapshot,
     private readonly onStageKey?: (stageKey: number) => void,
     private readonly sessionState?: SessionStateService,
-    private readonly playerLog?: PlayerLogHooks,
     private readonly onHeroLevelUp?: (events: HeroLevelUpEvent[]) => void,
   ) {
     this.onInventory = onInventory;
@@ -58,8 +53,6 @@ export class TrackingService {
     this.restoreApplied = false;
     this.watcher = this.createWatcher();
     this.watcher.start();
-    this.playerLogWatcher = this.createPlayerLogWatcher();
-    this.playerLogWatcher.start();
     this.tickTimer = setInterval(() => this.pushStats(), 1000);
     this.sessionState?.startAutosave(() => ({
       tracker: this.tracker,
@@ -75,8 +68,6 @@ export class TrackingService {
     this.tickTimer = null;
     this.watcher?.stop();
     this.watcher = null;
-    this.playerLogWatcher?.stop();
-    this.playerLogWatcher = null;
   }
 
   pushStats(): void {
@@ -87,10 +78,10 @@ export class TrackingService {
     return buildStats(
       this.tracker,
       this.chestDropTracker,
-      this.playerLogAvailable,
       this.lastSnap,
       this.lastError,
       this.sessionState?.getStatusOverride() ?? null,
+      this.lastLiveFrame,
     );
   }
 
@@ -128,7 +119,6 @@ export class TrackingService {
     this.watcher?.stop();
     this.watcher = this.createWatcher();
     this.watcher.start();
-    this.restartPlayerLogWatcher();
   }
 
   onSessionFileDeleted(): void {
@@ -138,25 +128,63 @@ export class TrackingService {
   onSavePathChanged(): void {
     this.lastSnap = null;
     this.restoreApplied = false;
+    this.prevBoxCount = null;
     this.sessionState?.invalidatePending();
     this.tracker.reset();
     this.chestDropTracker.reset();
     this.sessionState?.notifyNewSession();
     this.sessionState?.onTrackerReset(this.tracker, this.chestDropTracker, this.config, null);
     this.pushStats();
-    this.restartPlayerLogWatcher();
   }
 
-  onChestLogDrop(itemKey: number): void {
-    if (this.chestDropTracker.recordLogDrop(itemKey)) {
-      this.pushStats();
+  /**
+   * Reset session stats when switching between live-memory and save-only tracking.
+   * Save-layer and runtime values use different baselines, so totals must not carry over.
+   */
+  onLiveMemoryToggled(): void {
+    this.prevBoxCount = null;
+    this.lastLiveFrame = null;
+    this.tracker.reset();
+    this.chestDropTracker.reset();
+    if (this.lastSnap) {
+      this.tracker.update(this.lastSnap);
     }
+    this.sessionState?.notifyNewSession();
+    this.sessionState?.onTrackerReset(
+      this.tracker,
+      this.chestDropTracker,
+      this.config,
+      this.lastSnap,
+    );
+    this.pushStats();
   }
 
-  private restartPlayerLogWatcher(): void {
-    this.playerLogWatcher?.stop();
-    this.playerLogWatcher = this.createPlayerLogWatcher();
-    this.playerLogWatcher.start();
+  /**
+   * Ingest a live-memory snapshot frame into the tracker.
+   * Called at ~25 Hz from LiveMemoryService; pushes stats each tick while live.
+   */
+  ingestLiveFrame(snap: LiveMemorySnapshot): void {
+    if (!snap.connected) return;
+    this.lastLiveFrame = snap;
+
+    const stage =
+      snap.stageKey != null
+        ? { stageKey: snap.stageKey, stageWave: snap.stageWave ?? 0 }
+        : undefined;
+
+    this.tracker.updateLive({ gold: snap.gold, heroes: snap.heroes }, snap.at / 1000, stage);
+
+    this.pushStats();
+
+    if (snap.boxCount != null && snap.stageKey != null) {
+      if (this.prevBoxCount != null && snap.boxCount > this.prevBoxCount) {
+        const delta = snap.boxCount - this.prevBoxCount;
+        for (let i = 0; i < delta; i++) {
+          this.chestDropTracker.recordLiveBoxDrop(snap.stageKey, snap.at / 1000);
+        }
+      }
+      this.prevBoxCount = snap.boxCount;
+    }
   }
 
   private createWatcher(): SaveWatcher {
@@ -190,24 +218,6 @@ export class TrackingService {
       },
       onInventory: this.onInventory,
       parseInventorySnapshot: this.parseInventorySnapshot,
-    });
-  }
-
-  private createPlayerLogWatcher(): PlayerLogWatcher {
-    const savePath = expandPath(this.config.savePath);
-    const path = playerLogPathFromSave(savePath);
-    return new PlayerLogWatcher({
-      path,
-      pollMs: PLAYER_LOG_POLL_MS,
-      onDrop: (itemKey) => {
-        this.onChestLogDrop(itemKey);
-        this.playerLog?.onDrop(itemKey);
-      },
-      onAvailability: (available) => {
-        this.playerLogAvailable = available;
-        this.playerLog?.onAvailability(path, available);
-        this.pushStats();
-      },
     });
   }
 }

@@ -22,8 +22,10 @@ export interface LiveOffsets {
     stageCacheManager: bigint;
     /** `np<StageManager>` — battle singleton for the live wave counter. */
     stageManager: bigint;
+    /** LocalInventoryManager — real-named class; derive TypeInfo RVA per game version. */
+    localInventoryManager: bigint;
   };
-  player: { commonSaveData: number; currency: number; heroSaveDatas: number };
+  player: { commonSaveData: number; currency: number; heroSaveDatas: number; petSaveDatas: number };
   common: {
     playTime: number;
     arrangedHeroKey: number;
@@ -31,9 +33,29 @@ export interface LiveOffsets {
     currentStageKey: number;
     currentStageWave: number;
   };
+  /** Save-layer HeroSaveData struct offsets (ES3 heap path) — NOT the runtime Hero object. */
   hero: { heroKey: number; level: number; unlock: number; exp: number; equipped: number };
+  /** Runtime Hero (a `Unit`) reached from `StageManager.HeroList`. */
+  unit: { cache: number };
+  /**
+   * Runtime hero progression wrapper (`Unit.cache` → HeroRuntime). Level/exp are
+   * ACTk Obscured values stored as (hiddenValue, currentCryptoKey) pairs.
+   */
+  heroRuntime: {
+    info: number;
+    levelHidden: number;
+    levelKey: number;
+    expHidden: number;
+    expKey: number;
+  };
+  /** Runtime hero identity block (`HeroRuntime.info` → HeroInfoData). */
+  heroInfoData: { heroKey: number };
   /** Save-layer CurrencySaveData — lags the UI; not used for live gold display. */
   currency: { key: number; quantity: number };
+  /** PetSaveData struct field offsets (save-layer heap path via CommonSaveData). */
+  petSaveData: { petKey: number; isUnlock: number };
+  /** InventoryItem struct field offsets (live bag dicts via LocalInventoryManager). */
+  inventoryItem: { itemKey: number; isChaotic: number; location: number };
   /** Runtime IL2CPP field offsets (live tick paths). */
   runtime: {
     currency: {
@@ -48,8 +70,12 @@ export interface LiveOffsets {
       stageKey: number;
       waveAmount: number;
       runtimeWave: number;
+      /** Cumulative boxes-obtained counter in StageManager. Derive per game version. */
+      boxCount: number;
     };
     currencyInfoKey: number;
+    /** StageManager.HeroList field offset (real field name; stable across patches). */
+    heroList: number;
   };
   /** Standard IL2CPP container / dictionary layout. */
   container: { objectHeader: number; listItems: number; listSize: number; arrayFirst: number };
@@ -74,8 +100,10 @@ const RUNTIME_V1_00_21 = {
     stageKey: 0x30,
     waveAmount: 0x54,
     runtimeWave: 0x138,
+    boxCount: 0, // TODO: derive for v1.00.21 (StageManager cumulative-box-count field)
   },
   currencyInfoKey: 0x30,
+  heroList: 0x30, // StageManager.HeroList — real field name, stable across patches
 } as const;
 
 const CONTAINER = { objectHeader: 0x10, listItems: 0x10, listSize: 0x18, arrayFirst: 0x20 };
@@ -96,8 +124,14 @@ const V1_00_21: LiveOffsets = {
     currencyManager: 0x5dc8db8n,
     stageCacheManager: 0x5dc9958n,
     stageManager: 0x5e3ff98n,
+    localInventoryManager: 0n, // TODO: derive for v1.00.21
   },
-  player: { commonSaveData: 0x10, currency: 0x48, heroSaveDatas: 0x50 },
+  player: {
+    commonSaveData: 0x10,
+    currency: 0x48,
+    heroSaveDatas: 0x50,
+    petSaveDatas: 0, // TODO: derive for v1.00.21 (PlayerSaveData.PetSaveData array offset)
+  },
   common: {
     playTime: 0x20,
     arrangedHeroKey: 0x48,
@@ -106,7 +140,25 @@ const V1_00_21: LiveOffsets = {
     currentStageWave: 0x5c,
   },
   hero: { heroKey: 0x10, level: 0x14, unlock: 0x18, exp: 0x1c, equipped: 0x28 },
+  unit: { cache: 0x3a8 }, // Unit.cache → HeroRuntime (stable real field)
+  heroRuntime: {
+    info: 0x30, // → HeroInfoData
+    levelHidden: 0xd0, // ObscuredInt level: hiddenValue
+    levelKey: 0xd4, //    currentCryptoKey
+    expHidden: 0x110, // ObscuredFloat xp: hiddenValue
+    expKey: 0x114, //    currentCryptoKey
+  },
+  heroInfoData: { heroKey: 0x30 },
   currency: { key: 0x10, quantity: 0x18 },
+  petSaveData: {
+    petKey: 0, // TODO: derive for v1.00.21 (PetSaveData.PetKey)
+    isUnlock: 0, // TODO: derive for v1.00.21 (PetSaveData.IsUnlock)
+  },
+  inventoryItem: {
+    itemKey: 0, // TODO: derive for v1.00.21 (InventoryItem.ItemKey)
+    isChaotic: 0, // TODO: derive for v1.00.21 (InventoryItem.IsChaotic)
+    location: 0, // TODO: derive for v1.00.21 (bag id / location field)
+  },
   runtime: RUNTIME_V1_00_21,
   container: CONTAINER,
   dict: DICT,
