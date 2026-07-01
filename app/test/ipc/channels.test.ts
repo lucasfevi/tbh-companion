@@ -119,6 +119,12 @@ describe("IPC channel registry", () => {
       "utf-8",
     );
     expect(lookupPrices).toContain("IPC.LOOKUP_PRICES");
+    const liveMemory = readFileSync(
+      join(__dirname, "../../src/main/services/LiveMemoryService.ts"),
+      "utf-8",
+    );
+    expect(liveMemory).toContain("IPC.LIVE_MEMORY");
+    expect(liveMemory).toContain("IPC.LIVE_MEMORY_STATUS");
   });
 
   it("preload uses send channels via IPC constants", () => {
