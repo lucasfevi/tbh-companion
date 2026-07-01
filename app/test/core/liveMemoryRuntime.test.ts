@@ -3,6 +3,7 @@ import {
   readRuntimeStage,
   readRuntimeGold,
   readRuntimeHeroes,
+  readRuntimeBoxCount,
   makeGoldPinState,
   type GoldPinState,
 } from "../../src/core/liveMemory/runtime";
@@ -286,5 +287,39 @@ describe("readRuntimeHeroes", () => {
     const m = seedHeroChain(new FakeMemory(), []);
     // count = 0 → guard rejects
     expect(readRuntimeHeroes(m, GA_BASE, GA_SIZE, O)).toBeNull();
+  });
+});
+
+// ── readRuntimeBoxCount ───────────────────────────────────────────────────────
+
+describe("readRuntimeBoxCount", () => {
+  it("returns null when boxCount offset is 0 (not yet derived for this version)", () => {
+    // V1_00_21 has boxCount: 0 — offset not derived yet
+    expect(readRuntimeBoxCount(new FakeMemory(), GA_BASE, GA_SIZE, O)).toBeNull();
+  });
+
+  it("reads the box count from StageManager when offset is non-zero", () => {
+    // Build a patched offsets table with a real boxCount offset
+    const BOX_OFFSET = 0x150;
+    const patchedO = {
+      ...O,
+      runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: BOX_OFFSET } },
+    };
+    const m = new FakeMemory();
+    const slot = GA_BASE + O.typeInfoRva.stageManager;
+    m.writePtr(slot, SM_CLASS)
+      .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
+      .writePtr(SM_BLOCK, SM_SINGLETON)
+      .writeI32(SM_SINGLETON + BigInt(BOX_OFFSET), 42);
+
+    expect(readRuntimeBoxCount(m, GA_BASE, GA_SIZE, patchedO)).toBe(42);
+  });
+
+  it("returns null when StageManager singleton is absent", () => {
+    const patchedO = {
+      ...O,
+      runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: 0x150 } },
+    };
+    expect(readRuntimeBoxCount(new FakeMemory(), GA_BASE, GA_SIZE, patchedO)).toBeNull();
   });
 });

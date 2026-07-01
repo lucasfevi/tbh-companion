@@ -229,3 +229,33 @@ export function readRuntimeHeroes(
 
   return heroes.length > 0 ? heroes : null;
 }
+
+// ── Box count (StageManager cumulative-boxes-obtained counter) ────────────────
+
+/**
+ * Cumulative box count from StageManager.
+ * Returns null when the singleton is unavailable or when the field offset
+ * has not been derived for this game version (offset === 0, placeholder).
+ */
+export function readRuntimeBoxCount(
+  reader: MemoryReader,
+  gaBase: bigint,
+  gaSize: number,
+  o: LiveOffsets,
+): number | null {
+  if (o.runtime.stage.boxCount === 0) return null; // offset not yet derived
+
+  const candidates = o.il2cppClass.staticFieldsOffsets;
+  const smSingleton = readStaticFieldPtr(
+    reader,
+    gaBase,
+    gaSize,
+    o.typeInfoRva.stageManager,
+    0,
+    candidates,
+  );
+  if (smSingleton == null) return null;
+
+  const count = readI32(reader, smSingleton + BigInt(o.runtime.stage.boxCount));
+  return count != null && count >= 0 ? count : null;
+}
