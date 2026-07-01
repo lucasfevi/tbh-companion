@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   readRuntimeStage,
   readRuntimeGold,
+  readRuntimeHeroes,
   makeGoldPinState,
   type GoldPinState,
 } from "../../src/core/liveMemory/runtime";
@@ -206,5 +207,84 @@ describe("readRuntimeGold", () => {
 
     const pin: GoldPinState = { entryPtr: null, lastKnown: 1234 };
     expect(readRuntimeGold(m, GA_BASE, GA_SIZE, O, pin)).toBe(1234);
+  });
+});
+
+// ── readRuntimeHeroes ─────────────────────────────────────────────────────────
+
+const HERO_LIST_OBJ = 0x800000n;
+const HERO_ITEMS_ARR = 0x810000n;
+const HERO1 = 0x820000n;
+const HERO2 = 0x830000n;
+
+/** Seed StageManager singleton → HeroList → items array → hero objects. */
+function seedHeroChain(m: FakeMemory, heroes: Array<{ heroKey: number; level: number; exp: number }>): FakeMemory {
+  // SM singleton via static-fields block (reuse SM_CLASS/SM_BLOCK/SM_SINGLETON from above)
+  const slot = GA_BASE + O.typeInfoRva.stageManager;
+  m.writePtr(slot, SM_CLASS)
+    .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
+    .writePtr(SM_BLOCK, SM_SINGLETON);
+
+  // HeroList pointer at SM_SINGLETON + heroList offset
+  m.writePtr(SM_SINGLETON + BigInt(O.runtime.heroList), HERO_LIST_OBJ);
+
+  // List object: items array ptr + size
+  m.writePtr(HERO_LIST_OBJ + BigInt(O.container.listItems), HERO_ITEMS_ARR)
+    .writeI32(HERO_LIST_OBJ + BigInt(O.container.listSize), heroes.length);
+
+  // Seed each hero ptr in the items array, then seed hero fields
+  const heroPtrs = [HERO1, HERO2];
+  const first = HERO_ITEMS_ARR + BigInt(O.container.arrayFirst);
+  for (let i = 0; i < heroes.length; i++) {
+    const heroAddr = heroPtrs[i];
+    m.writePtr(first + BigInt(i * 8), heroAddr);
+    m.writeI32(heroAddr + BigInt(O.hero.heroKey), heroes[i].heroKey);
+    m.writeI32(heroAddr + BigInt(O.hero.level), heroes[i].level);
+    m.writeI32(heroAddr + BigInt(O.hero.exp), heroes[i].exp);
+  }
+
+  return m;
+}
+
+describe("readRuntimeHeroes", () => {
+  it("reads hero list with correct heroKey, level, and exp", () => {
+    const m = seedHeroChain(new FakeMemory(), [
+      { heroKey: 1001, level: 50, exp: 12345 },
+      { heroKey: 1002, level: 30, exp: 6789 },
+    ]);
+    const result = readRuntimeHeroes(m, GA_BASE, GA_SIZE, O);
+    expect(result).toHaveLength(2);
+    expect(result![0]).toEqual({ heroKey: 1001, level: 50, exp: 12345 });
+    expect(result![1]).toEqual({ heroKey: 1002, level: 30, exp: 6789 });
+  });
+
+  it("returns null when StageManager singleton is absent", () => {
+    expect(readRuntimeHeroes(new FakeMemory(), GA_BASE, GA_SIZE, O)).toBeNull();
+  });
+
+  it("returns null when HeroList pointer is missing", () => {
+    const slot = GA_BASE + O.typeInfoRva.stageManager;
+    const m = new FakeMemory()
+      .writePtr(slot, SM_CLASS)
+      .writePtr(SM_CLASS + BigInt(CAND), SM_BLOCK)
+      .writePtr(SM_BLOCK, SM_SINGLETON);
+    // SM_SINGLETON + heroList → not seeded → null
+    expect(readRuntimeHeroes(m, GA_BASE, GA_SIZE, O)).toBeNull();
+  });
+
+  it("skips hero slots with zero heroKey", () => {
+    const m = seedHeroChain(new FakeMemory(), [
+      { heroKey: 0, level: 1, exp: 0 }, // invalid — heroKey 0 skipped
+      { heroKey: 1003, level: 10, exp: 500 },
+    ]);
+    const result = readRuntimeHeroes(m, GA_BASE, GA_SIZE, O);
+    expect(result).toHaveLength(1);
+    expect(result![0].heroKey).toBe(1003);
+  });
+
+  it("returns null when list is empty", () => {
+    const m = seedHeroChain(new FakeMemory(), []);
+    // count = 0 → guard rejects
+    expect(readRuntimeHeroes(m, GA_BASE, GA_SIZE, O)).toBeNull();
   });
 });

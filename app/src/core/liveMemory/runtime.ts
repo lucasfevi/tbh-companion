@@ -5,6 +5,7 @@
 import { readI32, readI64, readPtr, type MemoryReader } from "./memory";
 import { plausibleGold, plausibleStage, plausibleWave, type LiveOffsets } from "./offsets";
 import { readStaticFieldPtr } from "./statics";
+import type { LiveHeroData } from "../../../shared/types";
 
 export interface RuntimeStage {
   stageKey: number | null;
@@ -170,4 +171,61 @@ export function readRuntimeGold(
 
   // All paths failed — return last known rather than null to reduce UI flicker.
   return pin.lastKnown;
+}
+
+// ── Heroes (StageManager.HeroList → List<Hero> → per-hero key/level/exp) ─────
+
+const MAX_HEROES = 20; // sanity cap: game has far fewer party slots
+
+/**
+ * Live hero data from `StageManager.HeroList` (real field name at +heroList).
+ * Returns null when the singleton or list can't be walked.
+ */
+export function readRuntimeHeroes(
+  reader: MemoryReader,
+  gaBase: bigint,
+  gaSize: number,
+  o: LiveOffsets,
+): LiveHeroData[] | null {
+  const candidates = o.il2cppClass.staticFieldsOffsets;
+
+  const smSingleton = readStaticFieldPtr(
+    reader,
+    gaBase,
+    gaSize,
+    o.typeInfoRva.stageManager,
+    0,
+    candidates,
+  );
+  if (smSingleton == null) return null;
+
+  const heroListPtr = readPtr(reader, smSingleton + BigInt(o.runtime.heroList));
+  if (heroListPtr == null) return null;
+
+  const itemsArrPtr = readPtr(reader, heroListPtr + BigInt(o.container.listItems));
+  if (itemsArrPtr == null) return null;
+
+  const count = readI32(reader, heroListPtr + BigInt(o.container.listSize));
+  if (count == null || count <= 0 || count > MAX_HEROES) return null;
+
+  const heroes: LiveHeroData[] = [];
+  const first = itemsArrPtr + BigInt(o.container.arrayFirst);
+
+  for (let i = 0; i < count; i++) {
+    const heroPtr = readPtr(reader, first + BigInt(i * 8));
+    if (heroPtr == null) continue;
+
+    const heroKey = readI32(reader, heroPtr + BigInt(o.hero.heroKey));
+    const level = readI32(reader, heroPtr + BigInt(o.hero.level));
+    const exp = readI32(reader, heroPtr + BigInt(o.hero.exp));
+
+    if (heroKey == null || heroKey <= 0) continue;
+    heroes.push({
+      heroKey,
+      level: level ?? 1,
+      exp: exp ?? 0,
+    });
+  }
+
+  return heroes.length > 0 ? heroes : null;
 }
