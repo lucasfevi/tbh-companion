@@ -51,6 +51,7 @@ export const IPC = {
   GET_OFFERINGS: "get-offerings",
   GET_LOOKUP_PRICES: "get-lookup-prices",
   GET_LIVE_MEMORY: "get-live-memory",
+  GET_LIVE_MEMORY_STATUS: "get-live-memory-status",
 
   // Send (renderer → main, no response)
   RESET: "reset",
@@ -102,6 +103,7 @@ export const IPC_INVOKE_CHANNELS = [
   IPC.GET_OFFERINGS,
   IPC.GET_LOOKUP_PRICES,
   IPC.GET_LIVE_MEMORY,
+  IPC.GET_LIVE_MEMORY_STATUS,
 ] as const;
 
 export const IPC_SEND_CHANNELS = [

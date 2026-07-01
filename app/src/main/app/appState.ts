@@ -347,6 +347,7 @@ export function getAppServices() {
     getOfferings: () => lookup.getOfferings(),
     getLookupPrices: () => lookupPrices.getSnapshot(),
     getLiveMemory: () => liveMemory.getSnapshot(),
+    getLiveMemoryStatus: () => liveMemory.getStatus(),
   };
 }
 

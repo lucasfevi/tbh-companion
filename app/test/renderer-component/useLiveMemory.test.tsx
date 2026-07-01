@@ -33,6 +33,7 @@ describe("useLiveMemory", () => {
     let pushStatus: ((s: LiveMemoryStatus) => void) | undefined;
     window.tbh = {
       getLiveMemory: vi.fn().mockResolvedValue(snapshot(1200)),
+      getLiveMemoryStatus: vi.fn().mockResolvedValue(null),
       onLiveMemory: vi.fn().mockReturnValue(() => {}),
       onLiveMemoryStatus: vi.fn().mockImplementation((cb) => {
         pushStatus = cb;
@@ -49,10 +50,26 @@ describe("useLiveMemory", () => {
     await waitFor(() => expect(result.current.status?.attached).toBe(true));
   });
 
+  it("hydrates status from getLiveMemoryStatus on mount", async () => {
+    const initialStatus = status({ attached: true, running: true });
+    window.tbh = {
+      getLiveMemory: vi.fn().mockResolvedValue(null),
+      getLiveMemoryStatus: vi.fn().mockResolvedValue(initialStatus),
+      onLiveMemory: vi.fn().mockReturnValue(() => {}),
+      onLiveMemoryStatus: vi.fn().mockReturnValue(() => {}),
+    } as unknown as typeof window.tbh;
+
+    const { useLiveMemory } = await import("../../src/renderer/lib/useLiveMemory");
+    const { result } = renderHook(() => useLiveMemory());
+
+    await waitFor(() => expect(result.current.status?.running).toBe(true));
+  });
+
   it("updates the snapshot from pushed frames", async () => {
     let pushSnap: ((s: LiveMemorySnapshot) => void) | undefined;
     window.tbh = {
       getLiveMemory: vi.fn().mockResolvedValue(null),
+      getLiveMemoryStatus: vi.fn().mockResolvedValue(null),
       onLiveMemory: vi.fn().mockImplementation((cb) => {
         pushSnap = cb;
         return () => {};
@@ -72,6 +89,7 @@ describe("useLiveMemory", () => {
     let pushStatus: ((s: LiveMemoryStatus) => void) | undefined;
     window.tbh = {
       getLiveMemory: vi.fn().mockResolvedValue(null),
+      getLiveMemoryStatus: vi.fn().mockResolvedValue(null),
       onLiveMemory: vi.fn().mockImplementation((cb) => {
         pushSnap = cb;
         return () => {};
@@ -97,6 +115,7 @@ describe("useLiveMemory", () => {
     const offStatus = vi.fn();
     window.tbh = {
       getLiveMemory: vi.fn().mockResolvedValue(null),
+      getLiveMemoryStatus: vi.fn().mockResolvedValue(null),
       onLiveMemory: vi.fn().mockReturnValue(offSnap),
       onLiveMemoryStatus: vi.fn().mockReturnValue(offStatus),
     } as unknown as typeof window.tbh;

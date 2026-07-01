@@ -4,4 +4,5 @@ import type { AppServices } from "../../app/appState";
 
 export function registerLiveMemoryHandlers(ipc: IpcMain, services: AppServices): void {
   ipc.handle(IPC.GET_LIVE_MEMORY, () => services.getLiveMemory());
+  ipc.handle(IPC.GET_LIVE_MEMORY_STATUS, () => services.getLiveMemoryStatus());
 }

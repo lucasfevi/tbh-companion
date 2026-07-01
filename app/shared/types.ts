@@ -947,6 +947,7 @@ export interface TbhApi {
   getLookupPrices(): Promise<LookupPriceSnapshot | null>;
   onLookupPrices(cb: (snapshot: LookupPriceSnapshot | null) => void): () => void;
   getLiveMemory(): Promise<LiveMemorySnapshot | null>;
+  getLiveMemoryStatus(): Promise<LiveMemoryStatus | null>;
   onLiveMemory(cb: (snapshot: LiveMemorySnapshot) => void): () => void;
   onLiveMemoryStatus(cb: (status: LiveMemoryStatus) => void): () => void;
 }

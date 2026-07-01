@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { LiveMemorySnapshot, LiveMemoryStatus } from "../../../shared/types";
+import { reportIpcError } from "./reportError";
 
 /**
  * Standalone live-memory subscription. Intentionally NOT part of TbhProvider:
@@ -23,7 +24,13 @@ export function useLiveMemory(): {
       ?.then((s) => {
         if (active && s) setSnapshot(s);
       })
-      .catch(() => {});
+      .catch((err: unknown) => reportIpcError(err, "useLiveMemory:getSnapshot"));
+    window.tbh
+      .getLiveMemoryStatus?.()
+      ?.then((s) => {
+        if (active && s) setStatus(s);
+      })
+      .catch((err: unknown) => reportIpcError(err, "useLiveMemory:getStatus"));
     const offSnap = window.tbh.onLiveMemory?.((s) => setSnapshot(s));
     const offStatus = window.tbh.onLiveMemoryStatus?.((s) => {
       setStatus(s);

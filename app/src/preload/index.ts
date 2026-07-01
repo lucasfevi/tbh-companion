@@ -207,6 +207,9 @@ const api: TbhApi = {
   getLiveMemory(): Promise<LiveMemorySnapshot | null> {
     return ipcRenderer.invoke(IPC.GET_LIVE_MEMORY);
   },
+  getLiveMemoryStatus(): Promise<LiveMemoryStatus | null> {
+    return ipcRenderer.invoke(IPC.GET_LIVE_MEMORY_STATUS);
+  },
   onLiveMemory(cb: (snapshot: LiveMemorySnapshot) => void): () => void {
     const listener = (_e: unknown, snapshot: LiveMemorySnapshot): void => cb(snapshot);
     ipcRenderer.on(IPC.LIVE_MEMORY, listener);
