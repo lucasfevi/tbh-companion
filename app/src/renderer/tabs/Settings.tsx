@@ -361,7 +361,7 @@ export function Settings() {
           </div>
         </Section>
 
-        <Section title="Live stats">
+        <Section title="Save file polling">
           <div className="flex flex-col gap-3">
             <Field label="Poll interval (seconds)">
               <NumberInput

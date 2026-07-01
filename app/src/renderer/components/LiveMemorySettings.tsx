@@ -39,9 +39,9 @@ export function LiveMemorySettings({
   return (
     <Section title="Live memory (experimental)">
       <p className="m-0 text-xs text-muted">
-        Reads the game&apos;s memory (read-only) so supported stats update instantly instead of
-        waiting for the save file. It never modifies the game or your save, and may stop working
-        after a game update.
+        Reads the game&apos;s memory (read-only) so stats update live. Currently shows your current
+        stage and wave live; more stats in later updates. It never modifies the game or your save,
+        and may stop working after a game update.
       </p>
       <Checkbox
         label="Enable live memory reader"

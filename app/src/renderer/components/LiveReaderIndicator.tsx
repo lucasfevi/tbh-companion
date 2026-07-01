@@ -1,21 +1,18 @@
 import { useLiveMemory } from "../lib/useLiveMemory";
-import { liveReaderState } from "../../core/liveMemory/status";
 import { Badge } from "../design-system/primitives/Badge/Badge";
 
 /**
  * Small, unobtrusive live-reader status chip for the app toolbar. Hidden when
- * the reader is off (default) so there is no visual noise; shows connecting /
- * attached / degraded once the reader is running.
+ * the reader is off (default) so there is no visual noise; shows the reader
+ * state once the worker is running.
  */
 export function LiveReaderIndicator() {
   const { status } = useLiveMemory();
-  // The reader process only runs when enabled + consented, so `running` is the
-  // faithful "reader is on" signal for the indicator.
-  const state = liveReaderState(status, Boolean(status?.running));
 
-  if (state === "off") return null;
+  // Show nothing while the reader isn't running (off, stopped, not yet started).
+  if (!status?.running) return null;
 
-  if (state === "attached") {
+  if (status.attached && status.supported) {
     return (
       <Badge variant="success" className="self-center">
         Live
@@ -23,18 +20,21 @@ export function LiveReaderIndicator() {
     );
   }
 
-  if (state === "connecting") {
+  if (status.attached && !status.supported) {
     return (
-      <Badge variant="muted" className="self-center">
-        Live: connecting
-      </Badge>
+      <span
+        className="self-center"
+        title={status.note ?? "Live stats unavailable for this version"}
+      >
+        <Badge variant="info">Live: unsupported</Badge>
+      </span>
     );
   }
 
-  // degraded — attached to an unsupported game version.
+  // Running but game process not found yet — retry loop is active.
   return (
-    <span className="self-center" title={status?.note ?? "Live stats unavailable for this version"}>
-      <Badge variant="info">Live: unsupported</Badge>
-    </span>
+    <Badge variant="muted" className="self-center">
+      Live: waiting for game
+    </Badge>
   );
 }

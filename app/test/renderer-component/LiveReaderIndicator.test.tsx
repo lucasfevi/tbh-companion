@@ -40,10 +40,10 @@ describe("LiveReaderIndicator", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("shows connecting while running but not yet attached", async () => {
+  it("shows 'waiting for game' while running but not yet attached", async () => {
     state.status = status({ attached: false });
     await renderIndicator();
-    expect(screen.getByText("Live: connecting")).toBeInTheDocument();
+    expect(screen.getByText("Live: waiting for game")).toBeInTheDocument();
   });
 
   it("shows attached when attached to a supported version", async () => {
