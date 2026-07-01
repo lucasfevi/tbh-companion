@@ -35,6 +35,16 @@ export class LiveMemoryService {
       });
     } catch (err) {
       log.error(`Failed to fork live-memory worker: ${String(err)}`);
+      const failed: LiveMemoryStatus = {
+        running: false,
+        attached: false,
+        pid: null,
+        gameVersion: null,
+        supported: false,
+        note: "failed to start live reader",
+      };
+      this.lastStatus = failed;
+      broadcast(IPC.LIVE_MEMORY_STATUS, failed);
       return;
     }
 
@@ -51,6 +61,17 @@ export class LiveMemoryService {
 
     this.child.on("exit", (code) => {
       log.warn(`Live-memory worker exited (code ${code}).`);
+      const crashed: LiveMemoryStatus = {
+        running: false,
+        attached: false,
+        pid: null,
+        gameVersion: this.lastStatus?.gameVersion ?? null,
+        supported: false,
+        note: "live reader stopped unexpectedly",
+      };
+      this.lastStatus = crashed;
+      this.lastSnapshot = null;
+      broadcast(IPC.LIVE_MEMORY_STATUS, crashed);
       this.child = null;
     });
 
