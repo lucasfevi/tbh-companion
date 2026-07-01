@@ -30,6 +30,9 @@ Thumbs.db
 # Specs / planning artifacts — local only
 .specs/
 
+# Research working notes — local only
+_research/
+
 # Draft docs — intentionally untracked until reviewed
 docs/reviews/
 docs/business/
