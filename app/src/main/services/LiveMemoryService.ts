@@ -6,8 +6,10 @@ import { utilityProcess, type UtilityProcess } from "electron";
 import { join } from "node:path";
 import { IPC } from "../../../shared/ipc";
 import type { LiveMemorySnapshot, LiveMemoryStatus } from "../../../shared/types";
+import { LIVE_MEMORY_USER_DATA_ENV } from "../liveMemory/liveMemoryCacheDir";
 import { broadcast } from "./broadcast";
 import { createLogger } from "../log";
+import { resolveUserDataDir } from "./appData";
 
 const log = createLogger("liveMemory");
 
@@ -39,6 +41,7 @@ export class LiveMemoryService {
       this.child = utilityProcess.fork(workerPath, [], {
         serviceName: "tbh-live-memory",
         stdio: "ignore",
+        env: { ...process.env, [LIVE_MEMORY_USER_DATA_ENV]: resolveUserDataDir() },
       });
     } catch (err) {
       log.error(`Failed to fork live-memory worker: ${String(err)}`);

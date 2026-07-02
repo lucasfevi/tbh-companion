@@ -88,10 +88,9 @@ afterEach(() => {
 // ── offsetCachePath ───────────────────────────────────────────────────────────
 
 describe("offsetCachePath", () => {
-  it("returns the correct path for a given dir and version", () => {
-    const result = offsetCachePath("/game", "1.99.00");
-    expect(result).toMatch(/tbh-companion-offsets-v1\.99\.00\.json$/);
-    expect(result).toContain("game");
+  it("returns the cache file name under the given cache directory", () => {
+    const result = offsetCachePath(TEST_DIR, "1.99.00");
+    expect(result).toBe(join(TEST_DIR, "tbh-companion-offsets-v1.99.00.json"));
   });
 });
 

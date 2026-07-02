@@ -15,6 +15,10 @@ import { extractOffsets } from "./offsetExtractor";
 import { loadCachedOffsets, saveCachedOffsets } from "./offsetCache";
 import { extractionAttempts, mayAttemptExtraction, recordExtractionAttempt } from "./offsetHealing";
 import {
+  resolveLiveMemoryOffsetCacheDir,
+  resolveLiveMemoryUserDataDir,
+} from "./liveMemoryCacheDir";
+import {
   makeChestLogPinState,
   makeGoldPinState,
   makeSmPinState,
@@ -80,9 +84,19 @@ export class LiveMemoryReader {
   private smPin: SmPinState = makeSmPinState();
   private chestPin: ChestLogPinState = makeChestLogPinState();
   private gameInstallDir: string | null = null;
+  private readonly userDataDir: string;
   private log: LiveMemoryLogFn = () => undefined;
   gameVersion: string | null = null;
   supported = false;
+
+  constructor(userDataDir: string = resolveLiveMemoryUserDataDir()) {
+    this.userDataDir = userDataDir;
+  }
+
+  private offsetCacheDir(): string | null {
+    if (!this.gameInstallDir) return null;
+    return resolveLiveMemoryOffsetCacheDir(this.userDataDir, this.gameInstallDir);
+  }
 
   /** Wire a logger (utilityProcess posts these to the main process). */
   setLogger(fn: LiveMemoryLogFn): void {
@@ -162,9 +176,10 @@ export class LiveMemoryReader {
       const missing = this.offsets
         ? missingOffsetFields(this.offsets, "critical").join(", ")
         : "no table";
+      const cacheDir = this.offsetCacheDir();
       const attempts =
-        this.gameInstallDir && this.gameVersion
-          ? extractionAttempts(this.gameInstallDir, this.gameVersion, appBuild)
+        cacheDir && this.gameVersion
+          ? extractionAttempts(cacheDir, this.gameVersion, appBuild)
           : 0;
       this.log(
         `offsets: unsupported for v${this.gameVersion ?? "?"} (source=${resolved.source}, critical missing: ${missing}, extract attempts=${attempts})`,
@@ -186,7 +201,7 @@ export class LiveMemoryReader {
   ): { table: LiveOffsets | null; source: OffsetResolutionSource } {
     const ga = this.ga;
     const version = this.gameVersion;
-    const dir = this.gameInstallDir;
+    const cacheDir = this.offsetCacheDir();
 
     let base: LiveOffsets | null = null;
     let source: OffsetResolutionSource = "none";
@@ -196,8 +211,8 @@ export class LiveMemoryReader {
       base = bundled;
       source = "bundled";
       this.log(`resolve: bundled table for v${version}`);
-    } else if (dir && version) {
-      const cached = loadCachedOffsets(dir, version);
+    } else if (cacheDir && version) {
+      const cached = loadCachedOffsets(cacheDir, version);
       if (cached) {
         base = cached;
         source = "cache";
@@ -214,23 +229,23 @@ export class LiveMemoryReader {
     const missing = base ? missingOffsetFields(base).join(", ") : "entire table";
     this.log(`resolve: incomplete — missing ${missing}`);
 
-    if (ga && version && dir && mayAttemptExtraction(dir, version, appBuild)) {
-      recordExtractionAttempt(dir, version, appBuild);
+    if (ga && version && cacheDir && mayAttemptExtraction(cacheDir, version, appBuild)) {
+      recordExtractionAttempt(cacheDir, version, appBuild);
       this.log(
-        `resolve: running extractor (attempt ${extractionAttempts(dir, version, appBuild)}/${3})`,
+        `resolve: running extractor (attempt ${extractionAttempts(cacheDir, version, appBuild)}/${3})`,
       );
       const derived = extractOffsets(proc, ga, version, (msg) => this.log(msg));
       if (derived) {
         const merged = base ? mergeOffsets(base, derived) : derived;
-        saveCachedOffsets(dir, merged);
+        saveCachedOffsets(cacheDir, merged);
         const mergedSource: OffsetResolutionSource = base ? "merged" : "extracted";
         this.log(`resolve: extractor ok → ${mergedSource}, persisted cache`);
         return { table: merged, source: mergedSource };
       }
       this.log("resolve: extractor returned null (critical anchor failed)");
-    } else if (ga && version && dir) {
+    } else if (ga && version && cacheDir) {
       this.log(
-        `resolve: extractor skipped (budget exhausted: ${extractionAttempts(dir, version, appBuild)} attempts)`,
+        `resolve: extractor skipped (budget exhausted: ${extractionAttempts(cacheDir, version, appBuild)} attempts)`,
       );
     } else {
       this.log("resolve: extractor skipped (missing ga, version, or install dir)");
@@ -282,9 +297,10 @@ export class LiveMemoryReader {
   }
 
   status(appBuild: string = resolveAppBuild()): LiveMemoryStatus {
+    const cacheDir = this.offsetCacheDir();
     const attempts =
-      this.gameInstallDir && this.gameVersion
-        ? extractionAttempts(this.gameInstallDir, this.gameVersion, appBuild)
+      cacheDir && this.gameVersion
+        ? extractionAttempts(cacheDir, this.gameVersion, appBuild)
         : undefined;
     return {
       running: true,

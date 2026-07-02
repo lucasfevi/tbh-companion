@@ -4,8 +4,8 @@
 // launch forever when a field is genuinely underivable. A new app build (which
 // may ship an improved extractor) or a new game version resets the count.
 
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { EXTRACTOR_REVISION } from "./offsetExtractor";
 
 /** Max extractions per (game version, app build) before we stop retrying. */
@@ -63,7 +63,9 @@ export function recordExtractionAttempt(dir: string, version: string, appBuild: 
       attempts: prior + 1,
       extractorRevision: EXTRACTOR_REVISION,
     };
-    writeFileSync(attemptMarkerPath(dir, version), JSON.stringify(marker), "utf-8");
+    const path = attemptMarkerPath(dir, version);
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, JSON.stringify(marker), "utf-8");
   } catch {
     // Non-fatal — worst case we retry more than the cap.
   }

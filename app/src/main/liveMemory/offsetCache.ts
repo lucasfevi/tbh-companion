@@ -1,8 +1,8 @@
-// Per-version LiveOffsets disk cache — stored next to the game exe.
+// Per-version LiveOffsets disk cache — stored under app userData (not the game folder).
 // JSON round-trips the full LiveOffsets shape; bigint fields are serialized as decimal strings.
 
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import type { LiveOffsets } from "../../core/liveMemory/offsets";
 
 // ── Serialization: bigint ↔ string ───────────────────────────────────────────
@@ -18,20 +18,24 @@ function reviver(_k: string, v: unknown): unknown {
   return v;
 }
 
+function ensureParentDir(filePath: string): void {
+  mkdirSync(dirname(filePath), { recursive: true });
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
-/** Path for the per-version cache file co-located with the game install dir. */
-export function offsetCachePath(gameInstallDir: string, version: string): string {
-  return join(gameInstallDir, `tbh-companion-offsets-v${version}.json`);
+/** Path for the per-version cache file under a resolved offset-cache directory. */
+export function offsetCachePath(cacheDir: string, version: string): string {
+  return join(cacheDir, `tbh-companion-offsets-v${version}.json`);
 }
 
 /**
- * Load cached offsets for `version` from `gameInstallDir`.
+ * Load cached offsets for `version` from `cacheDir`.
  * Returns null when the file is missing, corrupt, or version-mismatched.
  */
-export function loadCachedOffsets(gameInstallDir: string, version: string): LiveOffsets | null {
+export function loadCachedOffsets(cacheDir: string, version: string): LiveOffsets | null {
   try {
-    const path = offsetCachePath(gameInstallDir, version);
+    const path = offsetCachePath(cacheDir, version);
     const raw = readFileSync(path, "utf-8");
     const parsed = JSON.parse(raw, reviver) as LiveOffsets;
     if (parsed?.gameVersion !== version) return null;
@@ -42,12 +46,12 @@ export function loadCachedOffsets(gameInstallDir: string, version: string): Live
 }
 
 /**
- * Save `offsets` to `{gameInstallDir}/tbh-companion-offsets-v{version}.json`.
- * No-throw: silently swallows FS errors.
+ * Save `offsets` under userData. No-throw: silently swallows FS errors.
  */
-export function saveCachedOffsets(gameInstallDir: string, offsets: LiveOffsets): void {
+export function saveCachedOffsets(cacheDir: string, offsets: LiveOffsets): void {
   try {
-    const path = offsetCachePath(gameInstallDir, offsets.gameVersion);
+    const path = offsetCachePath(cacheDir, offsets.gameVersion);
+    ensureParentDir(path);
     writeFileSync(path, JSON.stringify(offsets, replacer), "utf-8");
   } catch {
     // Cache write failure is non-fatal.
