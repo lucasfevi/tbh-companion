@@ -5,6 +5,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { offsetsForVersion, type LiveOffsets } from "../../core/liveMemory/offsets";
+import { extractOffsets } from "./offsetExtractor";
+import { loadCachedOffsets, saveCachedOffsets } from "./offsetCache";
 import {
   makeGoldPinState,
   makeSmPinState,
@@ -28,15 +30,17 @@ function gameAssembly(p: WinProcess): { base: bigint; size: number } | null {
   return m ? { base: m.baseAddress, size: m.size } : null;
 }
 
-/** Read Version.txt next to the running exe (e.g. "1.00.21"). */
-function detectGameVersion(p: WinProcess): string | null {
+/** Read Version.txt next to the running exe (e.g. "1.00.21"). Returns version + install dir. */
+function detectGameVersion(p: WinProcess): { version: string; installDir: string } | null {
   try {
     const exe = p.listModules().find((m) => /taskbarhero\.exe$/i.test(m.name))?.path;
     if (!exe) return null;
-    const versionFile = join(dirname(exe), "Version.txt");
+    const installDir = dirname(exe);
+    const versionFile = join(installDir, "Version.txt");
     if (!existsSync(versionFile)) return null;
     const v = readFileSync(versionFile, "utf-8").trim();
-    return /^\d+\.\d+\.\d+$/.test(v) ? v : null;
+    if (!/^\d+\.\d+\.\d+$/.test(v)) return null;
+    return { version: v, installDir };
   } catch {
     return null;
   }
@@ -48,6 +52,7 @@ export class LiveMemoryReader {
   private offsets: LiveOffsets | null = null;
   private goldPin: GoldPinState = makeGoldPinState();
   private smPin: SmPinState = makeSmPinState();
+  private gameInstallDir: string | null = null;
   gameVersion: string | null = null;
   supported = false;
 
@@ -67,8 +72,25 @@ export class LiveMemoryReader {
     if (!proc) return false;
     this.proc = proc;
     this.ga = gameAssembly(proc);
-    this.gameVersion = detectGameVersion(proc);
-    this.offsets = offsetsForVersion(this.gameVersion);
+    const versionInfo = detectGameVersion(proc);
+    this.gameVersion = versionInfo?.version ?? null;
+    this.gameInstallDir = versionInfo?.installDir ?? null;
+
+    // Resolution order: bundled → disk cache → runtime extractor → null (degraded).
+    const ga = this.ga;
+    const version = this.gameVersion;
+    this.offsets = offsetsForVersion(version);
+    if (!this.offsets && ga && version && this.gameInstallDir) {
+      this.offsets = loadCachedOffsets(this.gameInstallDir, version);
+    }
+    if (!this.offsets && ga && version && this.gameInstallDir) {
+      const derived = extractOffsets(proc, ga, version);
+      if (derived) {
+        saveCachedOffsets(this.gameInstallDir, derived);
+        this.offsets = derived;
+      }
+    }
+
     this.supported = this.offsets != null && this.ga != null;
     return true;
   }
@@ -79,6 +101,7 @@ export class LiveMemoryReader {
     this.ga = null;
     this.offsets = null;
     this.supported = false;
+    this.gameInstallDir = null;
     this.goldPin = makeGoldPinState(); // reset pins on detach — new attach needs fresh walks
     this.smPin = makeSmPinState();
   }
