@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  attemptMarkerPath,
   extractionAttempts,
   mayAttemptExtraction,
   recordExtractionAttempt,
@@ -36,6 +37,20 @@ describe("extractionAttempts", () => {
     recordExtractionAttempt(DIR, VERSION, BUILD);
     recordExtractionAttempt(DIR, VERSION, BUILD);
     expect(extractionAttempts(DIR, VERSION, "9.9.9")).toBe(0);
+  });
+
+  it("resets to 0 when the extractor revision bumps", () => {
+    recordExtractionAttempt(DIR, VERSION, BUILD);
+    recordExtractionAttempt(DIR, VERSION, BUILD);
+    expect(extractionAttempts(DIR, VERSION, BUILD)).toBe(2);
+    // Simulate an older marker written before EXTRACTOR_REVISION was recorded.
+    writeFileSync(
+      attemptMarkerPath(DIR, VERSION),
+      JSON.stringify({ appBuild: BUILD, attempts: 3, extractorRevision: 0 }),
+      "utf-8",
+    );
+    expect(extractionAttempts(DIR, VERSION, BUILD)).toBe(0);
+    expect(mayAttemptExtraction(DIR, VERSION, BUILD)).toBe(true);
   });
 
   it("is keyed per game version", () => {

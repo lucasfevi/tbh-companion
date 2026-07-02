@@ -17,7 +17,6 @@ interface FieldCheck {
  * These are never legitimately zero when correctly derived.
  */
 const CRITICAL_FIELDS: readonly FieldCheck[] = [
-  { path: "typeInfoRva.commonSaveData", get: (o) => o.typeInfoRva.commonSaveData },
   { path: "typeInfoRva.currencyManager", get: (o) => o.typeInfoRva.currencyManager },
   { path: "typeInfoRva.stageCacheManager", get: (o) => o.typeInfoRva.stageCacheManager },
   { path: "typeInfoRva.stageManager", get: (o) => o.typeInfoRva.stageManager },
@@ -28,8 +27,12 @@ const CRITICAL_FIELDS: readonly FieldCheck[] = [
  * Enrichment fields — live chest drops, pets, inventory. A zero here disables
  * that one feature (the reader still works), but we still want them all mapped,
  * so their absence triggers the extractor. None are legitimately zero.
+ * `commonSaveData` lives here (not critical): it only anchors the pets and
+ * inventory save-snapshot walks, and no static root for it was reachable on
+ * v1.00.23 — core stats must not be held hostage to it.
  */
 const ENRICHMENT_FIELDS: readonly FieldCheck[] = [
+  { path: "typeInfoRva.commonSaveData", get: (o) => o.typeInfoRva.commonSaveData },
   { path: "typeInfoRva.logManager", get: (o) => o.typeInfoRva.logManager },
   { path: "player.petSaveDatas", get: (o) => o.player.petSaveDatas },
   { path: "player.itemSaveDatas", get: (o) => o.player.itemSaveDatas },

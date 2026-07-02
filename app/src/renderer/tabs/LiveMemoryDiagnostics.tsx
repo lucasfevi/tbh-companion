@@ -147,9 +147,14 @@ export function LiveMemoryDiagnostics() {
           <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
             Offset extractor (self-healing)
           </p>
+          <Row label="Offset source" value={status?.offsetHealth?.source ?? "—"} />
           <Row
-            label="Offset source"
-            value={snapshot?.source?.startsWith("memory") ? snapshot.source : "—"}
+            label="Extract attempts"
+            value={
+              status?.offsetHealth?.extractionAttempts != null
+                ? String(status.offsetHealth.extractionAttempts)
+                : "—"
+            }
           />
           <Row
             label="Status"

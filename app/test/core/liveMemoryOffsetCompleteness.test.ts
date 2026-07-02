@@ -30,7 +30,7 @@ describe("missingOffsetFields", () => {
   it("reports every wanted enrichment gap when they are all zero", () => {
     const stripped: LiveOffsets = {
       ...BASE,
-      typeInfoRva: { ...BASE.typeInfoRva, logManager: 0n },
+      typeInfoRva: { ...BASE.typeInfoRva, logManager: 0n, commonSaveData: 0n },
       player: { ...BASE.player, petSaveDatas: 0, itemSaveDatas: 0 },
       petSaveData: { petKey: 0, isUnlock: 0 },
       inventoryItem: { itemKey: 0, isChaotic: 0 },
@@ -43,9 +43,16 @@ describe("missingOffsetFields", () => {
         "petSaveData.petKey",
         "player.itemSaveDatas",
         "player.petSaveDatas",
+        "typeInfoRva.commonSaveData",
         "typeInfoRva.logManager",
       ].sort(),
     );
+  });
+
+  it("treats commonSaveData as enrichment, not critical (pets/inventory anchor only)", () => {
+    const noCsd = { ...BASE, typeInfoRva: { ...BASE.typeInfoRva, commonSaveData: 0n } };
+    expect(missingOffsetFields(noCsd, "critical")).toEqual([]);
+    expect(missingOffsetFields(noCsd, "full")).toContain("typeInfoRva.commonSaveData");
   });
 });
 

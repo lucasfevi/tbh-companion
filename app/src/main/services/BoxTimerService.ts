@@ -6,6 +6,7 @@ import {
   loadStageBoxCatalogFile,
   loadStageBoxTrackerRoutes,
   resolveTrackedDropBoxId,
+  resolveTrackedDropBoxIdForStage,
   trackerRoutesById,
   type StageBoxTrackerRoute,
 } from "../../core/stageBoxTracker";
@@ -113,6 +114,23 @@ export class BoxTimerService {
 
     log.info(
       `Stage boss drop detected from Player.log (ItemKey ${itemKey} -> Lv${this.boxById.get(boxId)?.level ?? "?"})`,
+    );
+    this.markDropped(boxId);
+    return true;
+  }
+
+  /** Start cooldown when live memory reports a stage boss chest at `stageKey`. */
+  tryMarkDroppedFromLiveStage(stageKey: number): boolean {
+    const boxId = resolveTrackedDropBoxIdForStage(
+      stageKey,
+      this.enabledBoxIds,
+      this.routes,
+      this.idealStageKeyByBoxId,
+    );
+    if (boxId == null) return false;
+
+    log.info(
+      `Stage boss drop detected from live memory (stage ${stageKey} -> Lv${this.boxById.get(boxId)?.level ?? "?"})`,
     );
     this.markDropped(boxId);
     return true;

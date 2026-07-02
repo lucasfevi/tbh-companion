@@ -84,7 +84,8 @@ Two `BrowserWindow`s load the same Vite bundle on different routes:
 - **`notifyOnUpdateAvailable`** — when enabled, `UpdateService` triggers a Windows OS
   notification (Electron `Notification`) for a new GitHub release; click focuses the main window.
 - **`notificationPrefs`** — per-kind sound settings (see `shared/notificationCatalog.ts`):
-  - **`chestDrop`** — when a tracked stage boss drops a chest (Player.log or **Dropped** button).
+  - **`chestDrop`** — when a **tracked** stage boss box drops (manual **Dropped** button or live-memory
+    GetBox log for an enabled route). Common chests do not trigger this sound.
   - **`chestReady`** — when a tracked route's cooldown finishes and **Notify when ready** is on
     for that box (`BoxTimerService` → `showChestReady`).
   - **`heroLevelUp`** — when a hero's level increases between save reads (`TrackingService` →
@@ -113,6 +114,18 @@ prompts for confirmation in the renderer because it resets live session stats vi
    only, rates keyed on mtime, held constant between changes) and appends to
    history on change.
 5. `TrackingService` pushes `Stats` over IPC; the renderer updates via `TbhProvider`.
+
+When **live memory** is enabled (`config.liveMemory.enabled` + consent), a parallel path runs:
+
+1. `LiveMemoryService` forks a `utilityProcess` worker that attaches read-only to `TaskBarHero.exe`.
+2. The worker resolves offsets (bundled table → disk cache → runtime extractor → degraded) and polls
+   ~25 Hz, posting `LiveMemorySnapshot` frames to main.
+3. `TrackingService.ingestLiveFrame` feeds `XpTracker.updateLive` (XP/gold rates from wall-time
+   samples; per-hero exp deltas with plausibility guards) and `ChestDropTracker.recordLiveChestDrop`
+   (GetBox log categories). Stage-boss drops call `BoxTimerService.tryMarkDroppedFromLiveStage` when
+   the drop stage maps to an **enabled** tracker route.
+4. `buildStats` blends live-preferred / save-fallback per stat; session snapshots persist every 15s with
+   implausible totals discarded on restore.
 
 ## Data flow (inventory)
 

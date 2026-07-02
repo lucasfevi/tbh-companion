@@ -15,8 +15,18 @@ import type {
   TrackerRateMeterSnapshot,
   TrackerSnapshot,
 } from "../../shared/types";
+import {
+  isPlausibleCumulativeXp,
+  isPlausibleXpRate,
+  MAX_PLAUSIBLE_CUMULATIVE_XP,
+} from "./trackerLimits";
 
 const HISTORY_LIMIT = 500;
+
+/** Reject decoded runtime exp above this (corrupted memory / bad Obscured decode). */
+const MAX_HERO_RUNTIME_EXP = 1e12;
+/** Reject a single live tick whose summed hero gains exceed this. */
+const MAX_LIVE_XP_GAIN_PER_TICK = 1e7;
 
 // While live-memory frames keep arriving (~25 Hz), the live path owns XP/gold and
 // the save path must not also process them — save `HeroExp` and runtime `HeroRuntime`
@@ -44,7 +54,7 @@ class RateMeter {
   }
 
   add(gain: number, mtime: number): void {
-    if (gain <= 0) return;
+    if (gain <= 0 || gain > MAX_LIVE_XP_GAIN_PER_TICK) return;
     this.gained += gain;
     this.samples.push([mtime, this.gained]);
     this.refreshRolling(mtime);
@@ -59,6 +69,10 @@ class RateMeter {
     const [t0, g0] = this.samples[0];
     const dt = refMtime - t0;
     if (dt > 0) this.rolling = ((this.gained - g0) / dt) * 3600;
+    if (!isPlausibleXpRate(this.rolling) || this.gained >= MAX_PLAUSIBLE_CUMULATIVE_XP) {
+      this.samples = [[refMtime, this.gained]];
+      this.rolling = 0;
+    }
   }
 
   toSnapshot(): TrackerRateMeterSnapshot {
@@ -85,6 +99,14 @@ function deltaGain(prev: number | undefined, current: number): number {
   if (d >= 0) return d;
   // Value dropped -> treat as a reset (e.g. level-up). Count what's accrued.
   return Math.max(current, 0);
+}
+
+function plausibleHeroRuntimeExp(exp: number): boolean {
+  return Number.isFinite(exp) && exp >= 0 && exp <= MAX_HERO_RUNTIME_EXP;
+}
+
+function plausibleLiveHeroGain(gain: number): boolean {
+  return Number.isFinite(gain) && gain >= 0 && gain <= MAX_LIVE_XP_GAIN_PER_TICK;
 }
 
 /** Rolling + session rates for one live metric (XP or gold), refreshed every tick. */
@@ -119,6 +141,8 @@ class LiveSessionMeter {
       const span = wallTimeSec - this.firstAnchor;
       if (span > 0) this.sessionRate = (this.sessionTotal / span) * 3600;
     }
+    if (!isPlausibleXpRate(this.rolling)) this.rolling = 0;
+    if (!isPlausibleXpRate(this.sessionRate)) this.sessionRate = this.rolling;
   }
 
   restore(
@@ -171,7 +195,6 @@ export class XpTracker {
   private heroMeters!: Map<string, RateMeter>;
   private samples!: Array<[number, number]>;
   private initialized!: boolean;
-  private prevLiveTotalXp: number | null = null;
 
   private readonly liveXp = new LiveSessionMeter();
   private readonly liveGold = new LiveSessionMeter();
@@ -228,8 +251,6 @@ export class XpTracker {
     this.goldLastChangeMtime = null;
     this.goldRollingRateValue = 0;
     this.goldSessionRateValue = 0;
-    this.prevLiveTotalXp = null;
-    this.liveXp.restore(0, [], null, 0, 0);
     this.liveGold.restore(0, [], null, 0, 0);
   }
 
@@ -398,15 +419,13 @@ export class XpTracker {
     let gain = 0;
 
     if (takingOver) {
-      this.liveXp.restore(
-        this.cumulativeGained,
-        [[wallTimeSec, this.cumulativeGained]],
-        wallTimeSec,
-        0,
-        0,
-      );
+      const elapsed = wallTimeSec - this.sessionStart;
+      const seedTotal = isPlausibleCumulativeXp(this.cumulativeGained, elapsed)
+        ? this.cumulativeGained
+        : 0;
+      this.liveXp.restore(seedTotal, [[wallTimeSec, seedTotal]], wallTimeSec, 0, 0);
+      this.cumulativeGained = seedTotal;
       this.prevHero.clear();
-      this.prevLiveTotalXp = totalXp;
       for (const h of heroes) {
         const key = String(h.heroKey);
         this.prevHero.set(key, h.exp);
@@ -419,13 +438,16 @@ export class XpTracker {
         meter.refreshRolling(wallTimeSec);
       }
     } else {
-      gain = deltaGain(this.prevLiveTotalXp ?? undefined, totalXp);
-      this.prevLiveTotalXp = totalXp;
-
+      // Session gain is the sum of per-hero deltas — never the party total delta.
+      // A hero dropping out of a bad read or leveling up would otherwise spike totals.
+      let gainSum = 0;
       for (const h of heroes) {
         const key = String(h.heroKey);
+        if (!plausibleHeroRuntimeExp(h.exp)) {
+          continue;
+        }
+
         const heroGain = deltaGain(this.prevHero.get(key), h.exp);
-        this.prevHero.set(key, h.exp);
 
         let meter = this.heroMeters.get(key);
         if (meter === undefined) {
@@ -433,12 +455,23 @@ export class XpTracker {
           meter.init(wallTimeSec);
           this.heroMeters.set(key, meter);
         }
+
+        if (!plausibleLiveHeroGain(heroGain)) {
+          this.prevHero.set(key, h.exp);
+          meter.refreshRolling(wallTimeSec);
+          continue;
+        }
+
+        this.prevHero.set(key, h.exp);
+        gainSum += heroGain;
         if (heroGain > 0) meter.add(heroGain, wallTimeSec);
         else meter.refreshRolling(wallTimeSec);
       }
 
-      this.liveXp.applyGain(wallTimeSec, gain);
+      gain = plausibleLiveHeroGain(gainSum) ? gainSum : 0;
+
       if (gain > 0) {
+        this.liveXp.applyGain(wallTimeSec, gain);
         this.lastGainMtime = wallTimeSec;
         this.lastChangeMtime = wallTimeSec;
       }
@@ -477,6 +510,46 @@ export class XpTracker {
     this.firstMtime = this.liveXp.firstAnchor;
     for (const meter of this.heroMeters.values()) {
       meter.refreshRolling(wallTimeSec);
+    }
+    this.healInflatedXpTotals(wallTimeSec);
+  }
+
+  /** Reset session totals / hero meters when corruption slips through or a bad snapshot restores. */
+  private healInflatedXpTotals(wallTimeSec: number): void {
+    const elapsed = Math.max(wallTimeSec - this.sessionStart, 0);
+    const totalsOk =
+      isPlausibleCumulativeXp(this.cumulativeGained, elapsed) &&
+      isPlausibleXpRate(this.sessionRateValue) &&
+      isPlausibleXpRate(this.rollingRateValue);
+    const heroesOk = [...this.heroMeters.values()].every(
+      (meter) => meter.gained < MAX_PLAUSIBLE_CUMULATIVE_XP && isPlausibleXpRate(meter.rolling),
+    );
+    if (totalsOk && heroesOk) return;
+
+    const healedTotal =
+      isPlausibleXpRate(this.rollingRateValue) && this.rollingRateValue > 0
+        ? Math.min((this.rollingRateValue * elapsed) / 3600, MAX_PLAUSIBLE_CUMULATIVE_XP)
+        : 0;
+    const anchor = this.liveXp.firstAnchor ?? wallTimeSec;
+    this.liveXp.restore(
+      healedTotal,
+      [[anchor, healedTotal]],
+      anchor,
+      isPlausibleXpRate(this.rollingRateValue) ? this.rollingRateValue : 0,
+      isPlausibleXpRate(this.rollingRateValue) ? this.rollingRateValue : 0,
+    );
+    this.cumulativeGained = healedTotal;
+    this.rollingRateValue = this.liveXp.rolling;
+    this.sessionRateValue = this.liveXp.sessionRate;
+    this.samples = this.liveXp.samples;
+    this.firstMtime = this.liveXp.firstAnchor;
+
+    for (const [key, meter] of this.heroMeters) {
+      if (meter.gained >= MAX_PLAUSIBLE_CUMULATIVE_XP || !isPlausibleXpRate(meter.rolling)) {
+        const fresh = new RateMeter(this.rollingWindow);
+        fresh.init(wallTimeSec);
+        this.heroMeters.set(key, fresh);
+      }
     }
   }
 
@@ -641,11 +714,11 @@ export class XpTracker {
       snapshot.goldRollingRateValue,
       snapshot.goldSessionRateValue,
     );
-    this.prevLiveTotalXp = snapshot.currentTotalXp;
     // Restored sessions always start on the save path; live ownership is runtime-only.
     this.xpLiveOwning = false;
     this.goldLiveOwning = false;
     this.lastLiveXpSec = null;
     this.lastLiveGoldSec = null;
+    this.healInflatedXpTotals(nowSeconds());
   }
 }

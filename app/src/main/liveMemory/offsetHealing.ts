@@ -6,6 +6,7 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { EXTRACTOR_REVISION } from "./offsetExtractor";
 
 /** Max extractions per (game version, app build) before we stop retrying. */
 export const MAX_EXTRACTION_ATTEMPTS = 3;
@@ -13,6 +14,8 @@ export const MAX_EXTRACTION_ATTEMPTS = 3;
 interface AttemptMarker {
   appBuild: string;
   attempts: number;
+  /** Last extractor revision that recorded attempts — bump resets the budget. */
+  extractorRevision?: number;
 }
 
 export function attemptMarkerPath(dir: string, version: string): string {
@@ -31,13 +34,14 @@ function readMarker(dir: string, version: string): AttemptMarker | null {
 }
 
 /**
- * Attempts recorded for this game version UNDER the current app build.
- * Returns 0 when no marker exists or the marker is from a different app build
- * (a build change resets the budget — we may have shipped a better extractor).
+ * Attempts recorded for this game version UNDER the current app build and
+ * extractor revision. Returns 0 when no marker exists, the marker is from a
+ * different app build, or a newer extractor shipped (revision bump).
  */
 export function extractionAttempts(dir: string, version: string, appBuild: string): number {
   const marker = readMarker(dir, version);
   if (!marker || marker.appBuild !== appBuild) return 0;
+  if ((marker.extractorRevision ?? 0) < EXTRACTOR_REVISION) return 0;
   return marker.attempts;
 }
 
@@ -47,13 +51,18 @@ export function mayAttemptExtraction(dir: string, version: string, appBuild: str
 }
 
 /**
- * Record one extraction attempt. Resets the counter to 1 when the app build has
- * changed since the last marker. No-throw: silently swallows FS errors.
+ * Record one extraction attempt. Resets the counter to 1 when the app build or
+ * extractor revision has changed since the last marker. No-throw: silently
+ * swallows FS errors.
  */
 export function recordExtractionAttempt(dir: string, version: string, appBuild: string): void {
   try {
     const prior = extractionAttempts(dir, version, appBuild);
-    const marker: AttemptMarker = { appBuild, attempts: prior + 1 };
+    const marker: AttemptMarker = {
+      appBuild,
+      attempts: prior + 1,
+      extractorRevision: EXTRACTOR_REVISION,
+    };
     writeFileSync(attemptMarkerPath(dir, version), JSON.stringify(marker), "utf-8");
   } catch {
     // Non-fatal — worst case we retry more than the cap.

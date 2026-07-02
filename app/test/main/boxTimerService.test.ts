@@ -147,6 +147,19 @@ describe("BoxTimerService", () => {
     expect(svc.getState().rows.find((r) => r.boxId === 920003)?.status).toBe("cooldown");
   });
 
+  it("marks dropped from live memory stage key for enabled tracked routes", async () => {
+    const svc = await loadService();
+    svc.setEnabledBoxIds([920801]);
+    expect(svc.tryMarkDroppedFromLiveStage(4103)).toBe(true);
+    expect(svc.getState().rows.find((r) => r.boxId === 920801)?.status).toBe("cooldown");
+  });
+
+  it("ignores live memory stage key when that box level is not tracked", async () => {
+    const svc = await loadService();
+    svc.setEnabledBoxIds([920151]);
+    expect(svc.tryMarkDroppedFromLiveStage(4103)).toBe(false);
+  });
+
   it("defaults notifyWhenReady to true and persists opt-out", async () => {
     const svc = await loadService();
     svc.setEnabledBoxIds([920151]);

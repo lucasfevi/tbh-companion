@@ -936,6 +936,10 @@ export interface LiveMemoryStatus {
     complete: boolean;
     /** Dotted paths of wanted offset fields still awaiting derivation. */
     missing: string[];
+    /** Where the active offset table came from (bundled table, disk cache, extractor, …). */
+    source?: "bundled" | "cache" | "extracted" | "merged" | "none";
+    /** Extraction attempts used for this game version under the current app build. */
+    extractionAttempts?: number;
   };
 }
 

@@ -54,7 +54,7 @@ const CHEST_TIP_PENDING =
   "Live chest drop tracking is not available for this game version yet — XP and gold still update from " +
   "live memory. Per-type drop rates (common, stage boss, act boss) ship in a future update.";
 const CHEST_TIP_LIVE =
-  "Drop rates from live memory this session. Common, stage boss, and act boss chests are tracked " +
+  "Drop rates from live memory this session. Common and stage boss chests are tracked " +
   "separately while the companion is running.";
 const INVENTORY_PREDICTION_TIP =
   "Estimates when your unlocked inventory slots fill up. For each chest type you've marked " +
@@ -121,15 +121,7 @@ export function Live() {
     : "Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer.";
   // Per-stat blend: prefer the live memory stage, fall back to the save value.
   const stage = blendStage(liveMemory, { stageKey: stats.stageKey, stageWave: stats.stageWave });
-  const {
-    commonTotal,
-    rareTotal,
-    actBossTotal,
-    commonPerHour,
-    rarePerHour,
-    actBossPerHour,
-    readerRequired,
-  } = stats.chestDrops;
+  const { commonTotal, rareTotal, commonPerHour, rarePerHour, readerRequired } = stats.chestDrops;
   const chestReaderOff = readerRequired && !liveMemory?.connected;
   const chestDetectionPending =
     readerRequired && liveMemory?.connected && liveMemory.chestDrops == null;
@@ -230,23 +222,24 @@ export function Live() {
             </Tooltip>
             <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-xs text-muted">
               <span>
-                Map{" "}
-                <b className="font-semibold text-fg">
-                  {stageName(stage.stageKey, stage.stageWave)}
-                </b>
+                Map <b className="font-semibold text-fg">{stageName(stage.stageKey)}</b>
               </span>
-              <Tooltip
-                underline
-                trigger={
-                  <span tabIndex={0}>
-                    <b className="font-semibold text-fg">{fmtXpUpdated(stats.secondsSinceGain)}</b>
-                  </span>
-                }
-              >
-                {stats.secondsSinceGain === null
-                  ? "Connected and reading your save. Rates update when the game writes progress."
-                  : "When XP last changed in your save"}
-              </Tooltip>
+              {!liveActive ? (
+                <Tooltip
+                  underline
+                  trigger={
+                    <span tabIndex={0}>
+                      <b className="font-semibold text-fg">
+                        {fmtXpUpdated(stats.secondsSinceGain)}
+                      </b>
+                    </span>
+                  }
+                >
+                  {stats.secondsSinceGain === null
+                    ? "Connected and reading your save. Rates update when the game writes progress."
+                    : "When XP last changed in your save"}
+                </Tooltip>
+              ) : null}
             </div>
           </>
         }
@@ -282,22 +275,6 @@ export function Live() {
               countClassName="text-status-info"
               inactive={chestStatsInactive}
             />
-          }
-          title={chestRateTip}
-        />
-        <StatCard
-          label="Act boss chests"
-          value={
-            actBossTotal === 0 && !chestStatsInactive ? (
-              <span className="text-muted">—</span>
-            ) : (
-              <LiveChestStatValue
-                total={actBossTotal}
-                perHour={actBossPerHour}
-                countClassName="text-status-warning"
-                inactive={chestStatsInactive}
-              />
-            )
           }
           title={chestRateTip}
         />
@@ -408,7 +385,7 @@ export function Live() {
                 <span className="shrink-0 tabular-nums text-muted">{fmtClock(e.wallTime)}</span>
                 <span className="text-accent">+{fmtCompact(e.delta)}</span>
                 <span>{fmtCompact(e.rate)}/hr</span>
-                <span className="text-right text-muted">{stageName(e.stageKey, e.stageWave)}</span>
+                <span className="text-right text-muted">{stageName(e.stageKey)}</span>
               </DataListRow>
             ))}
           </LiveHistoryPanel>

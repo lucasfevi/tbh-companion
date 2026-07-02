@@ -199,4 +199,38 @@ describe("TrackingService.onLiveMemoryToggled", () => {
     expect(stats.actBossTotal).toBe(1);
     expect(stats.combinedTotal).toBe(3);
   });
+
+  it("fires onLiveStageBossDrop only for rare live chest drops with a stage key", () => {
+    const onLiveStageBossDrop = vi.fn();
+    const svc = new TrackingService(
+      vi.fn(),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      onLiveStageBossDrop,
+    );
+    svc.start(baseConfig);
+    onSnapshot?.(snap(5, 1000, 0));
+
+    const frame: LiveMemorySnapshot = {
+      connected: true,
+      stageKey: 4103,
+      stageWave: 1,
+      gold: null,
+      heroes: null,
+      chestDrops: ["common", "rare"],
+      inventoryItems: null,
+      petData: null,
+      source: "memory test",
+      readMs: 1,
+      at: 2000,
+    };
+    svc.ingestLiveFrame(frame);
+    svc.ingestLiveFrame({ ...frame, chestDrops: ["actBoss"], at: 3000 });
+
+    expect(onLiveStageBossDrop).toHaveBeenCalledTimes(1);
+    expect(onLiveStageBossDrop).toHaveBeenCalledWith(4103);
+    svc.stop();
+  });
 });

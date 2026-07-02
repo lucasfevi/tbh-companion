@@ -314,10 +314,11 @@ export class WinProcess implements MemoryReader {
     }
   }
 
-  *readableRegions(maxRegions = 5000): Generator<MemoryRegion> {
+  /** Walk committed readable regions from `start` (default: whole address space). */
+  *readableRegions(maxRegions = 5000, start = 0n): Generator<MemoryRegion> {
     const mbiSize = koffi.sizeof(MEMORY_BASIC_INFORMATION);
     const mbi = koffi.alloc(MEMORY_BASIC_INFORMATION, 1);
-    let address = 0n;
+    let address = start;
     let count = 0;
 
     while (count < maxRegions) {

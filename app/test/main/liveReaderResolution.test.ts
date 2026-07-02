@@ -52,6 +52,7 @@ vi.mock("../../src/main/liveMemory/offsetHealing", () => ({
   recordExtractionAttempt: () => {
     stubs.recordCalls += 1;
   },
+  extractionAttempts: () => (stubs.mayAttempt ? 0 : 3),
 }));
 
 vi.mock("node:fs", () => ({

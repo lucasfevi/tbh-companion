@@ -7,7 +7,7 @@ import {
   snapshotContinuesSession,
 } from "../../src/core/sessionState";
 import { DEFAULT_NOTIFICATION_PREFS } from "../../shared/notificationCatalog";
-import type { AppConfig, PersistedSessionState } from "../../shared/types";
+import type { AppConfig, PersistedSessionState, TrackerSnapshot } from "../../shared/types";
 
 const config: AppConfig = {
   savePath: "%USERPROFILE%/save.es3",
@@ -25,6 +25,35 @@ const config: AppConfig = {
   chestAutoOpenEnabled: { common: false, stageBoss: false },
   liveMemory: { enabled: false, consentAccepted: false },
 };
+
+function trackerSnapshot(overrides: Partial<TrackerSnapshot> = {}): TrackerSnapshot {
+  const now = Date.now() / 1000;
+  return {
+    sessionStart: now - 1500,
+    cumulativeGained: 0,
+    currentTotalXp: 0,
+    currentGold: 0,
+    goldGained: 0,
+    heroes: [],
+    history: [],
+    lastGainMtime: null,
+    prevHero: {},
+    heroMeters: {},
+    samples: [],
+    initialized: true,
+    firstMtime: null,
+    lastChangeMtime: null,
+    rollingRateValue: 0,
+    sessionRateValue: 0,
+    prevGold: null,
+    goldSamples: [],
+    goldFirstMtime: null,
+    goldLastChangeMtime: null,
+    goldRollingRateValue: 0,
+    goldSessionRateValue: 0,
+    ...overrides,
+  };
+}
 
 describe("sessionState", () => {
   it("sessionMatchesConfig compares path, tracking settings, and live-memory mode", () => {
@@ -52,12 +81,42 @@ describe("sessionState", () => {
   });
 
   it("isPlausibleTrackerSnapshot rejects inflated totals", () => {
-    expect(isPlausibleTrackerSnapshot({ cumulativeGained: 1000, sessionRateValue: 500 })).toBe(
-      true,
-    );
-    expect(isPlausibleTrackerSnapshot({ cumulativeGained: 8e28, sessionRateValue: 8e28 })).toBe(
-      false,
-    );
+    expect(
+      isPlausibleTrackerSnapshot(
+        trackerSnapshot({ cumulativeGained: 1000, sessionRateValue: 500 }),
+      ),
+    ).toBe(true);
+    expect(
+      isPlausibleTrackerSnapshot(
+        trackerSnapshot({ cumulativeGained: 8e28, sessionRateValue: 8e28 }),
+      ),
+    ).toBe(false);
+    expect(
+      isPlausibleTrackerSnapshot(
+        trackerSnapshot({
+          cumulativeGained: 97.93e9,
+          sessionRateValue: 4.7649e13,
+          rollingRateValue: 83.7e6,
+        }),
+      ),
+    ).toBe(false);
+    expect(
+      isPlausibleTrackerSnapshot(
+        trackerSnapshot({
+          heroMeters: {
+            "101": {
+              window: 300,
+              gained: 1e12,
+              rolling: 1.177e12,
+              samples: [
+                [1000, 0],
+                [1060, 1e12],
+              ],
+            },
+          },
+        }),
+      ),
+    ).toBe(false);
   });
 
   it("snapshotContinuesSession allows same or newer mtime only", () => {

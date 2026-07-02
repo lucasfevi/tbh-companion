@@ -196,6 +196,8 @@ function decodeObscuredFloat(hidden: number | null, key: number | null): number 
 // ── Heroes (StageManager.HeroList → Hero[] → Unit.cache → HeroRuntime) ────────
 
 const MAX_HEROES = 20; // sanity cap: game has far fewer party slots
+/** Reject decoded runtime exp above this (corrupted memory / bad Obscured decode). */
+const MAX_HERO_RUNTIME_EXP = 1e12;
 
 /**
  * Read the live party off a resolved StageManager instance.
@@ -240,7 +242,7 @@ function readParty(reader: MemoryReader, smPtr: bigint, o: LiveOffsets): LiveHer
     heroes.push({
       heroKey,
       level: level != null && level > 0 && level <= 200 ? level : 1,
-      exp: exp != null && exp >= 0 && Number.isFinite(exp) ? exp : 0,
+      exp: exp != null && exp >= 0 && Number.isFinite(exp) && exp <= MAX_HERO_RUNTIME_EXP ? exp : 0,
     });
   }
 

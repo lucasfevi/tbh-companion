@@ -4,6 +4,11 @@ import type {
   SaveSnapshot,
   TrackerSnapshot,
 } from "../../shared/types";
+import {
+  isPlausibleCumulativeXp,
+  isPlausibleXpRate,
+  MAX_PLAUSIBLE_CUMULATIVE_XP,
+} from "./trackerLimits";
 
 /** Effective live-memory reader state (opt-in + consent). */
 export function isLiveMemoryActive(config: AppConfig): boolean {
@@ -27,19 +32,19 @@ export function sessionMatchesConfig(
 }
 
 /** Reject restored tracker totals that could only come from live/save baseline mixing. */
-const MAX_PLAUSIBLE_SESSION_XP = 1e15;
+export function isPlausibleTrackerSnapshot(tracker: TrackerSnapshot): boolean {
+  const elapsed = Math.max(Date.now() / 1000 - tracker.sessionStart, 0);
 
-export function isPlausibleTrackerSnapshot(
-  tracker: Pick<TrackerSnapshot, "cumulativeGained" | "sessionRateValue">,
-): boolean {
-  return (
-    Number.isFinite(tracker.cumulativeGained) &&
-    tracker.cumulativeGained >= 0 &&
-    tracker.cumulativeGained < MAX_PLAUSIBLE_SESSION_XP &&
-    Number.isFinite(tracker.sessionRateValue) &&
-    tracker.sessionRateValue >= 0 &&
-    tracker.sessionRateValue < MAX_PLAUSIBLE_SESSION_XP
-  );
+  if (!isPlausibleCumulativeXp(tracker.cumulativeGained, elapsed)) return false;
+  if (!isPlausibleXpRate(tracker.sessionRateValue)) return false;
+  if (!isPlausibleXpRate(tracker.rollingRateValue)) return false;
+
+  for (const meter of Object.values(tracker.heroMeters)) {
+    if (meter.gained >= MAX_PLAUSIBLE_CUMULATIVE_XP) return false;
+    if (!isPlausibleXpRate(meter.rolling)) return false;
+  }
+
+  return true;
 }
 
 /**

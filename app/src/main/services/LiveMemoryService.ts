@@ -13,7 +13,8 @@ const log = createLogger("liveMemory");
 
 type WorkerMessage =
   | { type: "snapshot"; snapshot: LiveMemorySnapshot }
-  | { type: "status"; status: LiveMemoryStatus };
+  | { type: "status"; status: LiveMemoryStatus }
+  | { type: "log"; message: string };
 
 export class LiveMemoryService {
   private child: UtilityProcess | null = null;
@@ -69,6 +70,8 @@ export class LiveMemoryService {
       } else if (msg.type === "status") {
         this.lastStatus = msg.status;
         broadcast(IPC.LIVE_MEMORY_STATUS, msg.status);
+      } else if (msg.type === "log") {
+        log.info(`[worker] ${msg.message}`);
       }
     });
 

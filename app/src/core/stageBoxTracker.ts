@@ -90,3 +90,31 @@ export function resolveTrackedDropBoxId(
   if (boxId == null || !isTrackedRoute(boxId) || !enabledBoxIds.has(boxId)) return null;
   return boxId;
 }
+
+/**
+ * Resolve a tracked stage-boss box from the current map when the live GetBox log
+ * only reports category `rare` (no item key). Returns null when no enabled route
+ * drops at `stageKey`.
+ */
+export function resolveTrackedDropBoxIdForStage(
+  stageKey: number,
+  enabledBoxIds: ReadonlySet<number>,
+  routes: readonly StageBoxTrackerRoute[],
+  farmStageKeyByBoxId?: ReadonlyMap<number, number>,
+): number | null {
+  if (!Number.isFinite(stageKey) || stageKey <= 0) return null;
+
+  const candidates = routes.filter(
+    (route) => enabledBoxIds.has(route.boxId) && route.dropStageKeys.includes(stageKey),
+  );
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0].boxId;
+
+  const farmMatches = candidates.filter((route) => {
+    const farmKey = farmStageKeyByBoxId?.get(route.boxId) ?? route.idealStageKey;
+    return farmKey === stageKey;
+  });
+  const pool = farmMatches.length > 0 ? farmMatches : candidates;
+  pool.sort((a, b) => b.level - a.level || b.boxId - a.boxId);
+  return pool[0]?.boxId ?? null;
+}

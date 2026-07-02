@@ -13,7 +13,7 @@ import {
 } from "../../core/liveMemory/offsetCompleteness";
 import { extractOffsets } from "./offsetExtractor";
 import { loadCachedOffsets, saveCachedOffsets } from "./offsetCache";
-import { mayAttemptExtraction, recordExtractionAttempt } from "./offsetHealing";
+import { extractionAttempts, mayAttemptExtraction, recordExtractionAttempt } from "./offsetHealing";
 import {
   makeChestLogPinState,
   makeGoldPinState,
@@ -33,6 +33,9 @@ import type { LiveMemorySnapshot, LiveMemoryStatus } from "../../../shared/types
 import { WinProcess } from "./winProcess";
 
 const PROCESS_NAMES = ["TaskBarHero.exe", "TaskbarHero.exe"];
+
+export type LiveMemoryLogFn = (message: string) => void;
+export type OffsetResolutionSource = "bundled" | "cache" | "extracted" | "merged" | "none";
 
 /** Companion build id used to reset the extraction attempt budget on upgrade. */
 function resolveAppBuild(): string {
@@ -72,12 +75,19 @@ export class LiveMemoryReader {
   private proc: WinProcess | null = null;
   private ga: { base: bigint; size: number } | null = null;
   private offsets: LiveOffsets | null = null;
+  private offsetSource: OffsetResolutionSource = "none";
   private goldPin: GoldPinState = makeGoldPinState();
   private smPin: SmPinState = makeSmPinState();
   private chestPin: ChestLogPinState = makeChestLogPinState();
   private gameInstallDir: string | null = null;
+  private log: LiveMemoryLogFn = () => undefined;
   gameVersion: string | null = null;
   supported = false;
+
+  /** Wire a logger (utilityProcess posts these to the main process). */
+  setLogger(fn: LiveMemoryLogFn): void {
+    this.log = fn;
+  }
 
   get attached(): boolean {
     return this.proc != null && this.proc.isAlive();
@@ -89,19 +99,77 @@ export class LiveMemoryReader {
 
   /** Attach to the game and resolve version + offsets. Idempotent. */
   attach(appBuild: string = resolveAppBuild()): boolean {
-    if (this.attached) return true;
+    if (this.attached) {
+      this.healOffsets(appBuild);
+      return true;
+    }
     this.detach();
     const proc = WinProcess.findByNames(PROCESS_NAMES);
-    if (!proc) return false;
+    if (!proc) {
+      this.log("attach: game process not found");
+      return false;
+    }
     this.proc = proc;
-    this.ga = gameAssembly(proc);
-    const versionInfo = detectGameVersion(proc);
-    this.gameVersion = versionInfo?.version ?? null;
-    this.gameInstallDir = versionInfo?.installDir ?? null;
-
-    this.offsets = this.resolveOffsets(proc, appBuild);
-    this.supported = this.offsets != null && this.ga != null && hasCriticalOffsets(this.offsets);
+    this.refreshGameContext();
+    this.log(
+      `attach: pid=${proc.pid} version=${this.gameVersion ?? "?"} ga=${this.ga ? "ok" : "missing"}`,
+    );
+    this.applyResolvedOffsets(this.resolveOffsets(proc, appBuild), appBuild);
     return true;
+  }
+
+  /**
+   * Re-run offset resolution while already attached — used when the first attempt
+   * happened too early (menu / singletons not up) or the extractor shipped an
+   * improvement and the attempt budget reopened.
+   */
+  healOffsets(appBuild: string = resolveAppBuild()): void {
+    const proc = this.proc;
+    if (!proc?.isAlive()) return;
+
+    const wasSupported = this.supported;
+    this.refreshGameContext();
+    const resolved = this.resolveOffsets(proc, appBuild);
+    this.applyResolvedOffsets(resolved, appBuild);
+
+    if (!wasSupported && this.supported) {
+      this.log(`heal: offsets now supported (source=${this.offsetSource})`);
+    } else if (!this.supported) {
+      const missing = this.offsets
+        ? missingOffsetFields(this.offsets, "critical").join(", ")
+        : "no table";
+      this.log(`heal: still unsupported — source=${this.offsetSource} critical=${missing}`);
+    }
+  }
+
+  private refreshGameContext(): void {
+    const proc = this.proc;
+    if (!proc) return;
+    const versionInfo = detectGameVersion(proc);
+    this.gameVersion = versionInfo?.version ?? this.gameVersion;
+    this.gameInstallDir = versionInfo?.installDir ?? this.gameInstallDir;
+    this.ga = gameAssembly(proc);
+  }
+
+  private applyResolvedOffsets(
+    resolved: { table: LiveOffsets | null; source: OffsetResolutionSource },
+    appBuild: string,
+  ): void {
+    this.offsets = resolved.table;
+    this.offsetSource = resolved.source;
+    this.supported = this.offsets != null && this.ga != null && hasCriticalOffsets(this.offsets);
+    if (!this.supported && this.attached) {
+      const missing = this.offsets
+        ? missingOffsetFields(this.offsets, "critical").join(", ")
+        : "no table";
+      const attempts =
+        this.gameInstallDir && this.gameVersion
+          ? extractionAttempts(this.gameInstallDir, this.gameVersion, appBuild)
+          : 0;
+      this.log(
+        `offsets: unsupported for v${this.gameVersion ?? "?"} (source=${resolved.source}, critical missing: ${missing}, extract attempts=${attempts})`,
+      );
+    }
   }
 
   /**
@@ -111,33 +179,64 @@ export class LiveMemoryReader {
    *      per-version+build attempt budget is not exhausted, run the runtime
    *      extractor and MERGE its findings into the seed (filling only the gaps);
    *   3. persist the improved table so a future launch loads a complete cache.
-   * The extractor is skipped only when the table is already complete — so a
-   * game update (new version → empty cache) or a cached-but-partial table both
-   * trigger derivation. The attempt cap stops us re-scanning forever when a
-   * field is genuinely underivable with the current build.
    */
-  private resolveOffsets(proc: WinProcess, appBuild: string): LiveOffsets | null {
+  private resolveOffsets(
+    proc: WinProcess,
+    appBuild: string,
+  ): { table: LiveOffsets | null; source: OffsetResolutionSource } {
     const ga = this.ga;
     const version = this.gameVersion;
     const dir = this.gameInstallDir;
 
-    let base = offsetsForVersion(version);
-    if (!base && dir && version) base = loadCachedOffsets(dir, version);
+    let base: LiveOffsets | null = null;
+    let source: OffsetResolutionSource = "none";
+
+    const bundled = offsetsForVersion(version);
+    if (bundled) {
+      base = bundled;
+      source = "bundled";
+      this.log(`resolve: bundled table for v${version}`);
+    } else if (dir && version) {
+      const cached = loadCachedOffsets(dir, version);
+      if (cached) {
+        base = cached;
+        source = "cache";
+        this.log(`resolve: loaded disk cache for v${version}`);
+      }
+    }
 
     const complete = base != null && isOffsetTableComplete(base);
-    if (complete) return base;
+    if (complete) {
+      this.log(`resolve: table complete (source=${source})`);
+      return { table: base, source };
+    }
 
-    // Incomplete (or nothing) → attempt runtime derivation, budget permitting.
+    const missing = base ? missingOffsetFields(base).join(", ") : "entire table";
+    this.log(`resolve: incomplete — missing ${missing}`);
+
     if (ga && version && dir && mayAttemptExtraction(dir, version, appBuild)) {
       recordExtractionAttempt(dir, version, appBuild);
-      const derived = extractOffsets(proc, ga, version);
+      this.log(
+        `resolve: running extractor (attempt ${extractionAttempts(dir, version, appBuild)}/${3})`,
+      );
+      const derived = extractOffsets(proc, ga, version, (msg) => this.log(msg));
       if (derived) {
         const merged = base ? mergeOffsets(base, derived) : derived;
         saveCachedOffsets(dir, merged);
-        return merged;
+        const mergedSource: OffsetResolutionSource = base ? "merged" : "extracted";
+        this.log(`resolve: extractor ok → ${mergedSource}, persisted cache`);
+        return { table: merged, source: mergedSource };
       }
+      this.log("resolve: extractor returned null (critical anchor failed)");
+    } else if (ga && version && dir) {
+      this.log(
+        `resolve: extractor skipped (budget exhausted: ${extractionAttempts(dir, version, appBuild)} attempts)`,
+      );
+    } else {
+      this.log("resolve: extractor skipped (missing ga, version, or install dir)");
     }
-    return base; // extraction unavailable/failed — use the seed (may be null)
+
+    return { table: base, source };
   }
 
   detach(): void {
@@ -145,9 +244,10 @@ export class LiveMemoryReader {
     this.proc = null;
     this.ga = null;
     this.offsets = null;
+    this.offsetSource = "none";
     this.supported = false;
     this.gameInstallDir = null;
-    this.goldPin = makeGoldPinState(); // reset pins on detach — new attach needs fresh walks
+    this.goldPin = makeGoldPinState();
     this.smPin = makeSmPinState();
     this.chestPin = makeChestLogPinState();
   }
@@ -163,8 +263,6 @@ export class LiveMemoryReader {
       return null;
     }
     const t0 = Date.now();
-    // Resolve the StageManager instance once per tick; heroes, wave, and box
-    // count all read off it. Cached in smPin, re-scanned only when stale.
     const smPtr = resolveStageManager(p, ga.base, ga.size, o, this.smPin);
     const stage = readRuntimeStage(p, ga.base, ga.size, o, smPtr);
     if (!stage) return null;
@@ -183,7 +281,11 @@ export class LiveMemoryReader {
     };
   }
 
-  status(): LiveMemoryStatus {
+  status(appBuild: string = resolveAppBuild()): LiveMemoryStatus {
+    const attempts =
+      this.gameInstallDir && this.gameVersion
+        ? extractionAttempts(this.gameInstallDir, this.gameVersion, appBuild)
+        : undefined;
     return {
       running: true,
       attached: this.attached,
@@ -198,8 +300,17 @@ export class LiveMemoryReader {
         ? {
             complete: isOffsetTableComplete(this.offsets),
             missing: missingOffsetFields(this.offsets),
+            source: this.offsetSource,
+            extractionAttempts: attempts,
           }
-        : undefined,
+        : this.attached
+          ? {
+              complete: false,
+              missing: [],
+              source: this.offsetSource,
+              extractionAttempts: attempts,
+            }
+          : undefined,
     };
   }
 }

@@ -199,7 +199,7 @@ describe("XpTracker.updateLive", () => {
     expect(t.currentGold).toBe(9999);
   });
 
-  it("uses party total XP delta for session gain when heroes join", () => {
+  it("does not count a joining hero's existing exp as session gain", () => {
     const t = new XpTracker(300);
     t.update(snap(1000, 0));
     t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 100 }] }, 1000);
@@ -213,7 +213,68 @@ describe("XpTracker.updateLive", () => {
       },
       1001,
     );
-    expect(t.cumulativeGained).toBe(400);
+    expect(t.cumulativeGained).toBe(100);
+  });
+
+  it("does not spike session XP when a hero drops out of a bad read", () => {
+    const t = new XpTracker(300);
+    t.update(snap(1000, 0));
+    t.updateLive(
+      {
+        gold: null,
+        heroes: [
+          { heroKey: 101, level: 1, exp: 50_000_000 },
+          { heroKey: 201, level: 1, exp: 50_000_000 },
+          { heroKey: 301, level: 1, exp: 50_000_000 },
+        ],
+      },
+      1000,
+    );
+    t.updateLive(
+      {
+        gold: null,
+        heroes: [
+          { heroKey: 101, level: 1, exp: 50_000_100 },
+          { heroKey: 201, level: 1, exp: 50_000_100 },
+        ],
+      },
+      1001,
+    );
+    expect(t.cumulativeGained).toBe(200);
+  });
+
+  it("does not spike session XP on a single hero level-up", () => {
+    const t = new XpTracker(300);
+    t.update(snap(1000, 0));
+    t.updateLive(
+      {
+        gold: null,
+        heroes: [
+          { heroKey: 101, level: 100, exp: 50_000_000 },
+          { heroKey: 201, level: 100, exp: 50_000_000 },
+        ],
+      },
+      1000,
+    );
+    t.updateLive(
+      {
+        gold: null,
+        heroes: [
+          { heroKey: 101, level: 101, exp: 120 },
+          { heroKey: 201, level: 100, exp: 50_000_200 },
+        ],
+      },
+      1001,
+    );
+    expect(t.cumulativeGained).toBe(320);
+  });
+
+  it("ignores implausible decoded hero exp without counting a gain", () => {
+    const t = new XpTracker(300);
+    t.update(snap(1000, 0));
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 1000 }] }, 1000);
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 1, exp: 1e20 }] }, 1001);
+    expect(t.cumulativeGained).toBe(0);
   });
 
   it("refreshes rolling rate on every live tick even without new XP gain", () => {
@@ -242,6 +303,35 @@ describe("XpTracker.updateLive", () => {
     expect(t.history[0].delta).toBe(600);
     expect(t.history[0].stageKey).toBe(3205);
     expect(t.history[0].stageWave).toBe(2);
+  });
+
+  it("heals inflated session totals when live memory takes over", () => {
+    const t = new XpTracker(300);
+    const now = Date.now() / 1000;
+    t.update(snap(now - 100, 0));
+    const base = t.captureSnapshot();
+    t.applySnapshot({
+      ...base,
+      sessionStart: now - 1544,
+      cumulativeGained: 97.93e9,
+      sessionRateValue: 4.7649e13,
+      rollingRateValue: 83.7e6,
+      heroMeters: {
+        "101": {
+          window: 300,
+          gained: 1e12,
+          rolling: 1.177e12,
+          samples: [
+            [now - 1500, 0],
+            [now - 60, 1e12],
+          ],
+        },
+      },
+    });
+    t.updateLive({ gold: null, heroes: [{ heroKey: 101, level: 101, exp: 100 }] }, now);
+    expect(t.cumulativeGained).toBeLessThan(1e10);
+    expect(t.sessionRateValue).toBeLessThan(5e10);
+    expect(t.heroRate("101")).toBeLessThan(5e10);
   });
 
   it("applySnapshot clears live ownership flags", () => {

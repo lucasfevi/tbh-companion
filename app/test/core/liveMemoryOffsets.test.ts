@@ -19,6 +19,18 @@ describe("offsetsForVersion", () => {
     expect(o?.typeInfoRva.stageCacheManager).toBe(0x5dc9958n);
   });
 
+  it("returns the bundled table for v1.00.23", () => {
+    const o = offsetsForVersion("1.00.23");
+    expect(o).not.toBeNull();
+    expect(o?.gameVersion).toBe("1.00.23");
+    expect(o?.typeInfoRva.currencyManager).toBe(0x5db9758n);
+    expect(o?.typeInfoRva.stageCacheManager).toBe(0x5dba2f8n);
+    expect(o?.typeInfoRva.stageManager).toBe(0x5e30318n);
+    expect(o?.typeInfoRva.logManager).toBe(0x5e2fb58n);
+    expect(o?.player.petSaveDatas).toBe(0x70);
+    expect(o?.player.itemSaveDatas).toBe(0xa8);
+  });
+
   it("returns null for an unknown/absent version (degraded mode — LMR-07)", () => {
     expect(offsetsForVersion("1.00.99")).toBeNull();
     expect(offsetsForVersion(null)).toBeNull();
@@ -28,6 +40,7 @@ describe("offsetsForVersion", () => {
 
   it("lists the supported versions", () => {
     expect(supportedVersions()).toContain("1.00.21");
+    expect(supportedVersions()).toContain("1.00.23");
   });
 
   it("exposes the complete shared schema shape (locked for Phase 3)", () => {

@@ -37,6 +37,7 @@ export class TrackingService {
     private readonly onStageKey?: (stageKey: number) => void,
     private readonly sessionState?: SessionStateService,
     private readonly onHeroLevelUp?: (events: HeroLevelUpEvent[]) => void,
+    private readonly onLiveStageBossDrop?: (stageKey: number) => void,
   ) {
     this.onInventory = onInventory;
     this.parseInventorySnapshot = parseInventorySnapshot;
@@ -175,7 +176,11 @@ export class TrackingService {
 
     if (snap.chestDrops && snap.chestDrops.length > 0) {
       for (const category of snap.chestDrops) {
-        this.chestDropTracker.recordLiveChestDrop(category, snap.at / 1000);
+        if (this.chestDropTracker.recordLiveChestDrop(category, snap.at / 1000)) {
+          if (category === "rare" && snap.stageKey != null && snap.stageKey > 0) {
+            this.onLiveStageBossDrop?.(snap.stageKey);
+          }
+        }
       }
     }
   }

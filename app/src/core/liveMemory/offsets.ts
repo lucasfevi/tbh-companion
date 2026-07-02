@@ -147,13 +147,58 @@ const DICT = {
 };
 const IL2CPP_CLASS = { staticFieldsOffsets: [0xb0, 0xb8, 0xa8] as const };
 
+const V1_00_23: LiveOffsets = {
+  gameVersion: "1.00.23",
+  typeInfoRva: {
+    // Il2CppDumper script.json — vb.tp / vb.uu replaced uz.tm / uz.us; singletons use nq<T>.
+    commonSaveData: 0x5de0d08n,
+    currencyManager: 0x5db9758n, // vb.tp static List<vb.tq> + Dictionary<int, vb.tq>
+    stageCacheManager: 0x5dba2f8n, // vb.uu static StageCache at +0x88
+    stageManager: 0x5e30318n, // nq<StageManager>
+    localInventoryManager: 0n,
+    logManager: 0x5e2fb58n, // nq<LogManager>
+  },
+  player: {
+    commonSaveData: 0x10,
+    currency: 0x48,
+    heroSaveDatas: 0x50,
+    petSaveDatas: 0x70, // PlayerSaveData.PetSaveData (was 0x68 in v1.00.21)
+    itemSaveDatas: 0xa8, // PlayerSaveData.itemSaveDatas (was 0xa0 in v1.00.21)
+  },
+  common: {
+    playTime: 0x20,
+    arrangedHeroKey: 0x48,
+    maxCompletedStage: 0x54,
+    currentStageKey: 0x58,
+    currentStageWave: 0x5c,
+  },
+  hero: { heroKey: 0x10, level: 0x14, unlock: 0x18, exp: 0x1c, equipped: 0x28 },
+  unit: { cache: 0x3a8 },
+  heroRuntime: {
+    info: 0x30,
+    levelHidden: 0xd0,
+    levelKey: 0xd4,
+    expHidden: 0x110,
+    expKey: 0x114,
+  },
+  heroInfoData: { heroKey: 0x30 },
+  currency: { key: 0x10, quantity: 0x18 },
+  petSaveData: { petKey: 0x10, isUnlock: 0x14 },
+  inventoryItem: { itemKey: 0x10, isChaotic: 0x20 },
+  runtime: RUNTIME_V1_00_21,
+  container: CONTAINER,
+  dict: DICT,
+  il2cppClass: IL2CPP_CLASS,
+  goldKey: 100001,
+};
+
 const V1_00_21: LiveOffsets = {
   gameVersion: "1.00.21",
   typeInfoRva: {
     commonSaveData: 0x5df05f8n,
-    currencyManager: 0x5dc8db8n,
-    stageCacheManager: 0x5dc9958n,
-    stageManager: 0x5e3ff98n,
+    currencyManager: 0x5dc8db8n, // uz.tm
+    stageCacheManager: 0x5dc9958n, // uz.us
+    stageManager: 0x5e3ff98n, // np<StageManager>
     localInventoryManager: 0n, // unused since inventory reads via PlayerSaveData.itemSaveDatas
     logManager: 0n, // SPEC_DEVIATION: TypeInfo RVA derived at runtime by the extractor
   },
@@ -199,6 +244,7 @@ const V1_00_21: LiveOffsets = {
 
 const TABLE: Record<string, LiveOffsets> = {
   "1.00.21": V1_00_21,
+  "1.00.23": V1_00_23,
 };
 
 /** Returns the offset table for a detected game version, or null (degraded mode). */

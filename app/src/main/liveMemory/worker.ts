@@ -19,19 +19,23 @@ const parentPort = (
 
 const POLL_ATTACHED_MS = 40; // ~25 Hz while attached (read costs ~0.2 ms)
 const POLL_DETACHED_MS = 1500; // retry attach while the game is closed
+const HEAL_UNSUPPORTED_MS = 10_000; // re-try offset resolution while degraded
 
 let reader: LiveMemoryReader | null = null;
 let loadError: string | null = null;
+let healDueAt = 0;
 
 try {
   reader = new LiveMemoryReader();
+  reader.setLogger((message) => post({ type: "log", message }));
 } catch (err) {
   loadError = err instanceof Error ? err.message : String(err);
 }
 
 type WorkerMessage =
   | { type: "snapshot"; snapshot: LiveMemorySnapshot }
-  | { type: "status"; status: LiveMemoryStatus };
+  | { type: "status"; status: LiveMemoryStatus }
+  | { type: "log"; message: string };
 
 function post(msg: WorkerMessage): void {
   parentPort?.postMessage(msg);
@@ -62,6 +66,20 @@ function schedule(ms: number): void {
   timer = setTimeout(loop, ms);
 }
 
+function maybeHealUnsupported(): void {
+  if (!reader?.attached || reader.supported) {
+    healDueAt = 0;
+    return;
+  }
+  const now = Date.now();
+  if (healDueAt === 0) healDueAt = now + HEAL_UNSUPPORTED_MS;
+  if (now >= healDueAt) {
+    reader.healOffsets();
+    postStatusIfChanged();
+    healDueAt = now + HEAL_UNSUPPORTED_MS;
+  }
+}
+
 function loop(): void {
   if (!reader) {
     postStatusIfChanged();
@@ -71,6 +89,8 @@ function loop(): void {
   if (!reader.attached) {
     reader.attach();
     postStatusIfChanged();
+  } else {
+    maybeHealUnsupported();
   }
   if (reader.attached && reader.supported) {
     const snap = reader.read();

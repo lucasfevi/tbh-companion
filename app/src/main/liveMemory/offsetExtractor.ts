@@ -1,196 +1,168 @@
 // Runtime IL2CPP offset derivation for unknown game versions.
 // Runs in the utilityProcess worker only. Impure: uses WinProcess for memory reads.
 // On failure at any critical anchor, returns null (degraded mode — never wrong reads).
+//
+// The heavy lifting is pure and lives in core/liveMemory/il2cppScanner: bulk
+// chunked region scan → class index → structural anchor detectors (validated
+// live on v1.00.23, where per-build obfuscation had renamed StageManager,
+// StageCacheManager, PlayerSaveData and every singleton wrapper).
 
 import {
-  readCString,
-  readClassFields,
-  resolveStructuralCurrencyManager,
+  collectClassEntries,
+  findCurrencyManager,
+  findCurrencyManagerStatic,
+  findLogManager,
+  findPlayerSaveData,
+  findStageCacheManager,
+  findStageCacheManagerStatic,
+  findStageManager,
+  ScanContext,
+  STATIC_FIELDS_CANDIDATES,
+  STRUCT_CONTAINER,
+  STRUCT_DICT,
+  type ScanRegion,
 } from "../../core/liveMemory/il2cppScanner";
-import { readPtr } from "../../core/liveMemory/memory";
 import type { LiveOffsets } from "../../core/liveMemory/offsets";
 import type { WinProcess } from "./winProcess";
 
-// ── Constants ────────────────────────────────────────────────────────────────
-
-const IL2CPP_CLASS_NAME_OFFSET = 0x10n;
-const STATIC_FIELDS_CANDIDATES = [0xb0, 0xb8, 0xa8] as const;
-
-// Anchor classes with real (serialization-stable) names. Their TypeInfo slots and
-// public field names survive per-build obfuscation, so name-based scanning works.
-const ANCHOR_NAMES = [
-  "StageManager",
-  "CommonSaveData",
-  "StageCacheManager",
-  "LogManager",
-  "PlayerSaveData",
-  "PetSaveData",
-  "ItemSaveData",
-] as const;
+/**
+ * Bump when the derivation strategy improves. Reopens the per-(game version,
+ * app build) extraction-attempt budget so machines that exhausted it under an
+ * older, weaker extractor try again without waiting for an app version bump.
+ * Rev 3: static-class anchors (vb.tp / vb.uu) + full readable GA scan; v1.00.23
+ * renamed uz.tm/uz.us and uses vb.StageCache — singleton-only scan failed live.
+ */
+export const EXTRACTOR_REVISION = 3;
 
 // Structural offsets whose field names ARE obfuscated but whose byte offsets are
-// stable across patches (log dict, GetBoxLog type, runtime wave). Emitted as
-// constants rather than derived by name.
+// stable across patches. Emitted as constants rather than derived by name.
 const STRUCT_LOG_BY_TYPE = 0x28;
 const STRUCT_GETBOX_TYPE = 0x50;
 const STRUCT_GETBOX_KEY = 3; // ELogType.GetBox
 const STRUCT_RUNTIME_WAVE = 0x138;
 
-// ── Internal: DLL region scan ─────────────────────────────────────────────────
+const GOLD_KEY = 100001;
 
-interface ClassCandidate {
-  slotRva: bigint;
-  classPtr: bigint;
-}
+/** Memory protection constants for readable GameAssembly pages (TypeInfo slots). */
+const GA_READABLE_PROTECT = new Set([
+  0x02, // PAGE_READONLY — .rdata holds many Il2Cpp metadata pointers
+  0x04, // PAGE_READWRITE
+  0x08, // PAGE_WRITECOPY
+  0x20, // PAGE_EXECUTE_READ
+  0x40, // PAGE_EXECUTE_READWRITE
+  0x80, // PAGE_EXECUTE_WRITECOPY
+]);
 
-/**
- * Single-pass scan of all DLL-range readable regions.
- * Collects named-target matches + ALL valid class candidates (for structural detection).
- * Early-exits named scan when all target names found, but continues collecting candidates.
- */
-function scanDll(
-  proc: WinProcess,
-  gaBase: bigint,
-  gaSize: number,
-  targetNames: ReadonlySet<string>,
-): {
-  named: Map<string, ClassCandidate>;
-  allCandidates: ClassCandidate[];
-} {
-  const named = new Map<string, ClassCandidate>();
-  const allCandidates: ClassCandidate[] = [];
+export type ExtractorLog = (msg: string) => void;
 
-  const gaEnd = gaBase + BigInt(gaSize);
+const noopLog: ExtractorLog = () => undefined;
 
-  for (const region of proc.readableRegions()) {
-    if (region.baseAddress < gaBase || region.baseAddress >= gaEnd) continue;
-    if (region.size < 8) continue;
-
-    const regionEnd = region.baseAddress + BigInt(region.size);
-    for (let slot = region.baseAddress; slot + 8n <= regionEnd; slot += 8n) {
-      const classPtr = readPtr(proc, slot);
-      if (classPtr == null || classPtr <= 0x10000n || classPtr > 0x7ff0_0000_0000n) continue;
-
-      // Read the class name pointer at classPtr+0x10.
-      const namePtr = readPtr(proc, classPtr + IL2CPP_CLASS_NAME_OFFSET);
-      if (namePtr == null || namePtr <= 0x10000n) continue;
-
-      const candidate: ClassCandidate = { slotRva: slot - gaBase, classPtr };
-      allCandidates.push(candidate);
-
-      // Check if it's a named target we haven't found yet.
-      if (named.size < targetNames.size) {
-        const name = readCString(proc, namePtr);
-        if (name && targetNames.has(name) && !named.has(name)) {
-          named.set(name, candidate);
-        }
-      }
-    }
+/** Readable regions inside the GameAssembly range — Il2Cpp TypeInfo slot arrays. */
+function gaScanRegions(proc: WinProcess, ga: { base: bigint; size: number }): ScanRegion[] {
+  const gaEnd = ga.base + BigInt(ga.size);
+  const out: ScanRegion[] = [];
+  for (const region of proc.readableRegions(5000, ga.base)) {
+    if (region.baseAddress >= gaEnd) break;
+    if (region.baseAddress < ga.base || region.size < 8) continue;
+    if (!GA_READABLE_PROTECT.has(region.protect)) continue;
+    out.push({ base: region.baseAddress, size: region.size });
   }
-
-  return { named, allCandidates };
+  return out;
 }
-
-// ── Field lookup helpers ──────────────────────────────────────────────────────
-
-function pickField(fields: Map<string, number> | null, candidates: string[]): number {
-  if (!fields) return 0;
-  for (const c of candidates) {
-    const v = fields.get(c);
-    if (v != null && v > 0) return v;
-  }
-  return 0;
-}
-
-// ── Public API ────────────────────────────────────────────────────────────────
 
 /**
  * Attempt runtime offset derivation from GameAssembly.dll memory.
- * Returns a complete `LiveOffsets` table or null on any critical-anchor failure.
+ * Returns a `LiveOffsets` table (possibly with unresolved enrichment fields
+ * left 0) or null when any critical anchor fails.
  *
- * Critical anchors (must all be found): `np<StageManager>`, `CommonSaveData`, currency-manager.
- * Non-critical anchors (zero-value fallback): `LocalInventoryManager`, `StageCacheManager`.
+ * Critical anchors: stage manager (+ HeroList offset), stage-cache manager,
+ * currency manager. Enrichment: log manager (chest drops), player save data
+ * (pets/inventory).
  */
 export function extractOffsets(
   proc: WinProcess,
   ga: { base: bigint; size: number },
   version: string,
+  log: ExtractorLog = noopLog,
 ): LiveOffsets | null {
-  const { named, allCandidates } = scanDll(proc, ga.base, ga.size, new Set(ANCHOR_NAMES));
-
-  // ── Critical anchors ───────────────────────────────────────────────────────
-  const smEntry = named.get("StageManager");
-  const csdEntry = named.get("CommonSaveData");
-  if (!smEntry || !csdEntry) return null;
-
-  // Currency manager: structural identification among all candidates.
-  const cmRva = resolveStructuralCurrencyManager(
-    proc,
-    ga.base,
-    allCandidates,
-    STATIC_FIELDS_CANDIDATES,
+  const t0 = Date.now();
+  const regions = gaScanRegions(proc, ga);
+  const totalBytes = regions.reduce((sum, r) => sum + r.size, 0);
+  log(
+    `extract: scanning ${regions.length} readable GA regions (${Math.round(totalBytes / 1024)} KiB)`,
   );
-  if (!cmRva) return null;
 
-  // ── Non-critical anchors ───────────────────────────────────────────────────
-  const scmEntry = named.get("StageCacheManager");
-  const logEntry = named.get("LogManager");
-  const psdEntry = named.get("PlayerSaveData");
-  const petEntry = named.get("PetSaveData");
-  const itemEntry = named.get("ItemSaveData");
+  const ctx = new ScanContext(proc);
+  const { entries, stats } = collectClassEntries(ctx, ga.base, regions);
+  log(
+    `extract: indexed ${stats.namedClasses} named classes ` +
+      `(${stats.slotsScanned} slots, ${stats.pointerTargets} pointer targets, ${Date.now() - t0} ms)`,
+  );
 
-  // ── Field maps (real names on serializable classes) ────────────────────────
-  const heroListOffset = pickField(readClassFields(proc, smEntry.classPtr), ["HeroList"]);
-  // Plausibility: HeroList MUST be found (it's a real field name — stable).
-  if (heroListOffset === 0) return null;
+  // ── Critical anchors (structural) ──────────────────────────────────────────
+  const sm = findStageManager(ctx, entries);
+  if (!sm) {
+    log(`extract: FAILED — no StageManager singleton (static slot with HeroList field)`);
+    return null;
+  }
+  log(
+    `extract: stageManager rva=0x${sm.slotRva.toString(16)} heroList=0x${sm.heroList.toString(16)}`,
+  );
 
-  const psdFields = psdEntry ? readClassFields(proc, psdEntry.classPtr) : null;
-  const petSaveDatasOffset = pickField(psdFields, ["PetSaveData"]);
-  const itemSaveDatasOffset = pickField(psdFields, ["itemSaveDatas"]);
+  const scm = findStageCacheManagerStatic(ctx, entries) ?? findStageCacheManager(ctx, entries);
+  if (!scm) {
+    log(`extract: FAILED — no stage-cache static store (vb.uu / StageCache at +0x88)`);
+    return null;
+  }
+  log(
+    `extract: stageCacheManager rva=0x${scm.slotRva.toString(16)} currentCache=0x${scm.currentCache.toString(16)}`,
+  );
 
-  const petFields = petEntry ? readClassFields(proc, petEntry.classPtr) : null;
-  const petKeyOffset = pickField(petFields, ["PetKey"]);
-  const petUnlockOffset = pickField(petFields, ["IsUnlock"]);
+  const cm =
+    findCurrencyManagerStatic(ctx, entries, GOLD_KEY) ??
+    findCurrencyManager(ctx, entries, GOLD_KEY);
+  if (!cm) {
+    log(`extract: FAILED — no currency manager passed the gold probe (key ${GOLD_KEY})`);
+    return null;
+  }
+  log(`extract: currencyManager rva=0x${cm.slotRva.toString(16)}`);
 
-  const itemFields = itemEntry ? readClassFields(proc, itemEntry.classPtr) : null;
-  const itemKeyOffset = pickField(itemFields, ["ItemKey"]);
-  const itemChaoticOffset = pickField(itemFields, ["IsChaotic"]);
+  // ── Enrichment anchors (zero-value fallback, retried while incomplete) ─────
+  const lm = findLogManager(ctx, entries);
+  log(
+    lm
+      ? `extract: logManager rva=0x${lm.slotRva.toString(16)}`
+      : `extract: logManager not derived (no validated GetBoxLog list — chest drops degrade)`,
+  );
 
-  // ── Build LiveOffsets ──────────────────────────────────────────────────────
-  // Structural constants (IL2CPP standard layout — do not change per version).
-  const CONTAINER = {
-    objectHeader: 0x10,
-    listItems: 0x10,
-    listSize: 0x18,
-    arrayFirst: 0x20,
-  } as const;
-  const DICT = {
-    entries: 0x18,
-    count: 0x20,
-    entrySize: 24,
-    entryHash: 0,
-    entryKey: 8,
-    entryValue: 16,
-  } as const;
+  const player = findPlayerSaveData(ctx, entries);
+  log(
+    player
+      ? `extract: player anchor rva=0x${player.commonSaveData.toString(16)} ` +
+          `static+0x${player.playerStaticOff.toString(16)} pets=0x${player.petSaveDatas.toString(16)} items=0x${player.itemSaveDatas.toString(16)}`
+      : `extract: player save-data anchor not derived (pets/inventory degrade to save file)`,
+  );
 
-  const offsets: LiveOffsets = {
+  log(`extract: done in ${Date.now() - t0} ms`);
+
+  return {
     gameVersion: version,
 
     typeInfoRva: {
-      commonSaveData: csdEntry.slotRva,
-      currencyManager: cmRva,
-      stageCacheManager: scmEntry?.slotRva ?? 0n,
-      stageManager: smEntry.slotRva,
-      localInventoryManager: 0n, // unused; inventory reads via PlayerSaveData.itemSaveDatas
-      logManager: logEntry?.slotRva ?? 0n,
+      commonSaveData: player?.commonSaveData ?? 0n,
+      currencyManager: cm.slotRva,
+      stageCacheManager: scm.slotRva,
+      stageManager: sm.slotRva,
+      localInventoryManager: 0n, // unused; inventory reads via the player save snapshot
+      logManager: lm?.slotRva ?? 0n,
     },
 
     player: {
-      commonSaveData: 0x10,
+      commonSaveData: player?.playerStaticOff ?? 0x10,
       currency: 0x48,
       heroSaveDatas: 0x50,
-      petSaveDatas: petSaveDatasOffset,
-      itemSaveDatas: itemSaveDatasOffset,
+      petSaveDatas: player?.petSaveDatas ?? 0,
+      itemSaveDatas: player?.itemSaveDatas ?? 0,
     },
 
     common: {
@@ -217,39 +189,28 @@ export function extractOffsets(
 
     currency: { key: 0x10, quantity: 0x18 },
 
-    petSaveData: { petKey: petKeyOffset, isUnlock: petUnlockOffset },
+    petSaveData: { petKey: player?.petKey ?? 0, isUnlock: player?.petIsUnlock ?? 0 },
 
-    inventoryItem: { itemKey: itemKeyOffset, isChaotic: itemChaoticOffset },
+    inventoryItem: { itemKey: player?.itemKey ?? 0, isChaotic: player?.itemIsChaotic ?? 0 },
 
     runtime: {
       currency: { list: 0x0, dict: 0x8, entryInfoData: 0x10, entryObscuredQty: 0x28 },
       stage: {
-        currentCache: 0x88,
+        currentCache: scm.currentCache,
         cacheInfoData: 0x10,
         stageKey: 0x30,
         waveAmount: 0x54,
         runtimeWave: STRUCT_RUNTIME_WAVE,
       },
       currencyInfoKey: 0x30,
-      heroList: heroListOffset,
+      heroList: sm.heroList,
       log: { logByType: STRUCT_LOG_BY_TYPE, getBoxTypeKey: STRUCT_GETBOX_KEY },
       getBoxLog: { monsterType: STRUCT_GETBOX_TYPE },
     },
 
-    container: CONTAINER,
-    dict: DICT,
+    container: STRUCT_CONTAINER,
+    dict: STRUCT_DICT,
     il2cppClass: { staticFieldsOffsets: STATIC_FIELDS_CANDIDATES },
-    goldKey: 100001,
+    goldKey: GOLD_KEY,
   };
-
-  // Final plausibility: all critical typeInfoRva slots must be non-zero.
-  if (
-    offsets.typeInfoRva.commonSaveData === 0n ||
-    offsets.typeInfoRva.currencyManager === 0n ||
-    offsets.typeInfoRva.stageManager === 0n
-  ) {
-    return null;
-  }
-
-  return offsets;
 }
