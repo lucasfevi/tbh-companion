@@ -117,7 +117,7 @@ export function readClassFields(
  */
 export function resolveStructuralCurrencyManager(
   reader: MemoryReader,
-  gaBase: bigint,
+  _gaBase: bigint,
   candidates: ReadonlyArray<{ slotRva: bigint; classPtr: bigint }>,
   staticFieldsCandidates: readonly number[],
 ): bigint | null {
