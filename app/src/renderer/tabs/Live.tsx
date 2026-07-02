@@ -121,7 +121,7 @@ export function Live() {
     : "Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer.";
   // Per-stat blend: prefer the live memory stage, fall back to the save value.
   const stage = blendStage(liveMemory, { stageKey: stats.stageKey, stageWave: stats.stageWave });
-  const { commonTotal, rareTotal, commonPerHour, rarePerHour, readerRequired } = stats.chestDrops;
+  const { commonTotal, rareTotal, actBossTotal, commonPerHour, rarePerHour, actBossPerHour, readerRequired } = stats.chestDrops;
   const chestReaderOff = readerRequired && !liveMemory?.connected;
   const chestDetectionPending =
     readerRequired && liveMemory?.connected && liveMemory.boxCount == null;
@@ -274,6 +274,22 @@ export function Live() {
               countClassName="text-status-info"
               inactive={chestStatsInactive}
             />
+          }
+          title={chestRateTip}
+        />
+        <StatCard
+          label="Act boss chests"
+          value={
+            actBossTotal === 0 && !chestStatsInactive ? (
+              <span className="text-muted">—</span>
+            ) : (
+              <LiveChestStatValue
+                total={actBossTotal}
+                perHour={actBossPerHour}
+                countClassName="text-status-warning"
+                inactive={chestStatsInactive}
+              />
+            )
           }
           title={chestRateTip}
         />

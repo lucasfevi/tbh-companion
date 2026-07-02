@@ -180,7 +180,7 @@ export class TrackingService {
       if (this.prevBoxCount != null && snap.boxCount > this.prevBoxCount) {
         const delta = snap.boxCount - this.prevBoxCount;
         for (let i = 0; i < delta; i++) {
-          this.chestDropTracker.recordLiveBoxDrop(snap.stageKey, snap.at / 1000);
+          this.chestDropTracker.recordLiveChestDrop(snap.stageKey, snap.at / 1000);
         }
       }
       this.prevBoxCount = snap.boxCount;
