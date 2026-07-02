@@ -138,7 +138,6 @@ export function LiveMemoryDiagnostics() {
             </p>
             <Row label="Common" value={String(stats.chestDrops.commonTotal)} />
             <Row label="Stage boss" value={String(stats.chestDrops.rareTotal)} />
-            <Row label="Act boss" value={String(stats.chestDrops.actBossTotal)} />
             <Row label="Combined" value={String(stats.chestDrops.combinedTotal)} />
           </section>
         ) : null}

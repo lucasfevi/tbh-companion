@@ -112,7 +112,6 @@ describe("ChestDropTracker.recordLiveChestDrop", () => {
     const stats = tracker.getStats(3600);
     expect(stats.rareTotal).toBe(1);
     expect(stats.commonTotal).toBe(0);
-    expect(stats.actBossTotal).toBe(0);
     expect(stats.combinedTotal).toBe(1);
   });
 
@@ -122,18 +121,6 @@ describe("ChestDropTracker.recordLiveChestDrop", () => {
     const stats = tracker.getStats(3600);
     expect(stats.commonTotal).toBe(1);
     expect(stats.rareTotal).toBe(0);
-  });
-
-  it("records an act boss drop into the actBoss bucket (per-category counters)", () => {
-    const tracker = new ChestDropTracker();
-    tracker.recordLiveChestDrop("actBoss", 1000);
-    tracker.recordLiveChestDrop("actBoss", 1001);
-    const stats = tracker.getStats(3600);
-    expect(stats.actBossTotal).toBe(2);
-    expect(stats.actBossPerHour).toBeCloseTo(2);
-    expect(stats.commonTotal).toBe(0);
-    expect(stats.rareTotal).toBe(0);
-    expect(stats.combinedTotal).toBe(2);
   });
 
   it("aggregates repeated same-category drops under one breakdown row", () => {

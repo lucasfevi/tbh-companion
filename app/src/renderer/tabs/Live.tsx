@@ -52,7 +52,7 @@ const CHEST_TIP_NEED_READER =
   "and keep the game running.";
 const CHEST_TIP_PENDING =
   "Live chest drop tracking is not available for this game version yet — XP and gold still update from " +
-  "live memory. Per-type drop rates (common, stage boss, act boss) ship in a future update.";
+  "live memory.";
 const CHEST_TIP_LIVE =
   "Drop rates from live memory this session. Common and stage boss chests are tracked " +
   "separately while the companion is running.";

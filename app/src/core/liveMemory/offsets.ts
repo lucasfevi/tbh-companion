@@ -86,8 +86,8 @@ export interface LiveOffsets {
     /**
      * Live chest-drop log path. LogManager keeps a `Dictionary<ELogType, List<LogData>>`;
      * the GetBox bucket holds `GetBoxLog` entries whose EMonsterLogType field classifies
-     * the drop (0 common, 1 stage boss, 2 act boss). Field names are obfuscated but the
-     * struct offsets are stable across patches.
+     * the drop (0 common, 1 stage boss; 2 act boss is ignored by the companion). Field
+     * names are obfuscated but the struct offsets are stable across patches.
      */
     log: {
       /** LogManager.<logByType> — Dictionary<ELogType, List<LogData>>. */
@@ -97,7 +97,7 @@ export interface LiveOffsets {
     };
     /** GetBoxLog struct offsets (obfuscated field names, stable offsets). */
     getBoxLog: {
-      /** EMonsterLogType: 0 = common, 1 = stage boss, 2 = act boss. */
+      /** EMonsterLogType: 0 = common, 1 = stage boss (2 = act boss, not tracked). */
       monsterType: number;
     };
   };
@@ -132,7 +132,7 @@ const RUNTIME_V1_00_21 = {
     getBoxTypeKey: 3, // ELogType.GetBox
   },
   getBoxLog: {
-    monsterType: 0x50, // GetBoxLog EMonsterLogType (0 common, 1 stage boss, 2 act boss)
+    monsterType: 0x50, // GetBoxLog EMonsterLogType (0 common, 1 stage boss; 2 act boss ignored)
   },
 } as const;
 

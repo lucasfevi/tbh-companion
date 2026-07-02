@@ -52,7 +52,7 @@ export interface HeroRate {
 export interface ChestDropBreakdownRow {
   itemKey: number;
   name: string;
-  category: "common" | "rare" | "actBoss";
+  category: "common" | "rare";
   count: number;
 }
 
@@ -60,17 +60,15 @@ export interface ChestDropHistoryEntry {
   wallTime: number;
   itemKey: number;
   name: string;
-  category: "common" | "rare" | "actBoss";
+  category: "common" | "rare";
 }
 
 export interface ChestDropStats {
   commonTotal: number;
   rareTotal: number;
-  actBossTotal: number;
   combinedTotal: number;
   commonPerHour: number;
   rarePerHour: number;
-  actBossPerHour: number;
   breakdown: ChestDropBreakdownRow[];
   history: ChestDropHistoryEntry[];
   /**
@@ -84,7 +82,7 @@ export interface ChestDropStats {
 export interface ChestDropTrackerSnapshot {
   countsByKey: Record<string, number>;
   namesByKey: Record<string, string>;
-  categoriesByKey: Record<string, "common" | "rare" | "actBoss">;
+  categoriesByKey: Record<string, "common" | "rare">;
   history: ChestDropHistoryEntry[];
 }
 
@@ -902,10 +900,10 @@ export interface LiveMemorySnapshot {
   heroes: LiveHeroData[] | null;
   /**
    * Chest drops observed since the previous tick, classified from the GetBox
-   * battle log (common / rare = stage boss / actBoss). `[]` = reader active, no
+   * battle log (common / rare = stage boss). `[]` = reader active, no
    * new drops; `null` = chest log unavailable (offset not derived / no battle).
    */
-  chestDrops: ("common" | "rare" | "actBoss")[] | null;
+  chestDrops: ("common" | "rare")[] | null;
   /** Live inventory items from PlayerSaveData.itemSaveDatas snapshot (null ⇒ unavailable). */
   inventoryItems: LiveInventoryItem[] | null;
   /** Live pet unlock state from save-layer heap (null ⇒ unavailable). */

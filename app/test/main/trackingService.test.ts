@@ -191,12 +191,11 @@ describe("TrackingService.onLiveMemoryToggled", () => {
       at: 2000,
     };
     svc.ingestLiveFrame(frame);
-    svc.ingestLiveFrame({ ...frame, chestDrops: ["actBoss"], at: 3000 });
+    svc.ingestLiveFrame({ ...frame, chestDrops: ["common"], at: 3000 });
 
     const stats = svc.getStats().chestDrops;
-    expect(stats.commonTotal).toBe(1);
+    expect(stats.commonTotal).toBe(2);
     expect(stats.rareTotal).toBe(1);
-    expect(stats.actBossTotal).toBe(1);
     expect(stats.combinedTotal).toBe(3);
   });
 
@@ -227,7 +226,7 @@ describe("TrackingService.onLiveMemoryToggled", () => {
       at: 2000,
     };
     svc.ingestLiveFrame(frame);
-    svc.ingestLiveFrame({ ...frame, chestDrops: ["actBoss"], at: 3000 });
+    svc.ingestLiveFrame({ ...frame, chestDrops: ["common"], at: 3000 });
 
     expect(onLiveStageBossDrop).toHaveBeenCalledTimes(1);
     expect(onLiveStageBossDrop).toHaveBeenCalledWith(4103);

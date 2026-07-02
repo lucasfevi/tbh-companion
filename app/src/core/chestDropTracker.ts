@@ -6,7 +6,7 @@ import type {
 } from "../../shared/types";
 import { canonicalTrackerBoxId, loadStageBoxCatalogFile } from "./stageBoxTracker";
 
-export type ChestDropCategory = "common" | "rare" | "actBoss";
+export type ChestDropCategory = "common" | "rare";
 
 /**
  * Live chest drops from the GetBox battle log carry no item key, only a
@@ -15,12 +15,10 @@ export type ChestDropCategory = "common" | "rare" | "actBoss";
 const LIVE_CHEST_KEY: Record<ChestDropCategory, number> = {
   common: 900910,
   rare: 900920,
-  actBoss: 900930,
 };
 const LIVE_CHEST_NAME: Record<ChestDropCategory, string> = {
   common: "Common chest",
   rare: "Stage boss chest",
-  actBoss: "Act boss chest",
 };
 
 export interface ResolvedStageBoxDrop {
@@ -82,7 +80,7 @@ export class ChestDropTracker {
 
   /**
    * Record a live chest drop with an explicit category read from the GetBox
-   * battle log (`common` / `rare` = stage boss / `actBoss`). Aggregated per
+   * battle log (`common` / `rare` = stage boss). Aggregated per
    * category since the drop's item key is not carried in the log.
    */
   recordLiveChestDrop(category: ChestDropCategory, wallTime = nowSeconds()): boolean {
@@ -126,7 +124,6 @@ export class ChestDropTracker {
   getStats(elapsedSeconds: number): ChestDropStats {
     let commonTotal = 0;
     let rareTotal = 0;
-    let actBossTotal = 0;
     const breakdown: ChestDropBreakdownRow[] = [];
 
     for (const [key, count] of this.countsByKey) {
@@ -136,8 +133,7 @@ export class ChestDropTracker {
       if (!category || !name) continue;
 
       if (category === "common") commonTotal += count;
-      else if (category === "rare") rareTotal += count;
-      else actBossTotal += count;
+      else rareTotal += count;
 
       breakdown.push({
         itemKey: Number.parseInt(key, 10),
@@ -149,20 +145,17 @@ export class ChestDropTracker {
 
     breakdown.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 
-    const combinedTotal = commonTotal + rareTotal + actBossTotal;
+    const combinedTotal = commonTotal + rareTotal;
     const hours = elapsedSeconds > 0 ? elapsedSeconds / 3600 : 0;
     const commonPerHour = hours > 0 ? commonTotal / hours : 0;
     const rarePerHour = hours > 0 ? rareTotal / hours : 0;
-    const actBossPerHour = hours > 0 ? actBossTotal / hours : 0;
 
     return {
       commonTotal,
       rareTotal,
-      actBossTotal,
       combinedTotal,
       commonPerHour,
       rarePerHour,
-      actBossPerHour,
       breakdown,
       history: this.history.slice(-HISTORY_VISIBLE).reverse(),
       readerRequired: true,
@@ -179,9 +172,14 @@ export class ChestDropTracker {
   }
 
   applySnapshot(data: ChestDropTrackerSnapshot): void {
+    const isTracked = (category: string): category is ChestDropCategory =>
+      category === "common" || category === "rare";
+
     this.countsByKey = new Map(Object.entries(data.countsByKey));
     this.namesByKey = new Map(Object.entries(data.namesByKey));
-    this.categoriesByKey = new Map(Object.entries(data.categoriesByKey));
-    this.history = data.history ?? [];
+    this.categoriesByKey = new Map(
+      Object.entries(data.categoriesByKey).filter(([, category]) => isTracked(category)),
+    );
+    this.history = (data.history ?? []).filter((entry) => isTracked(entry.category));
   }
 }

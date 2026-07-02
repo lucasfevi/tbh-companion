@@ -326,7 +326,7 @@ export function resolveStageManager(
 // ── Live chest drops (LogManager → Dictionary<ELogType, List<GetBoxLog>>) ─────
 
 /** Chest drop category derived from GetBoxLog's EMonsterLogType field. */
-export type LiveChestCategory = "common" | "rare" | "actBoss";
+export type LiveChestCategory = "common" | "rare";
 
 /**
  * Per-reader pin for the LogManager instance pointer and the GetBox-log tail
@@ -345,11 +345,10 @@ export function makeChestLogPinState(): ChestLogPinState {
 const MAX_CHEST_LOG = 5_000;
 const LM_STATIC_SCAN_MAX = 0x100;
 
-/** EMonsterLogType → chest category (0 common, 1 stage boss, 2 act boss). */
+/** EMonsterLogType → chest category (0 common, 1 stage boss; act boss ignored). */
 function chestCategoryFromMonsterType(t: number): LiveChestCategory | null {
   if (t === 0) return "common";
   if (t === 1) return "rare";
-  if (t === 2) return "actBoss";
   return null;
 }
 

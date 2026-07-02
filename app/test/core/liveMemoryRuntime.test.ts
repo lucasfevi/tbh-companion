@@ -436,24 +436,20 @@ describe("readRuntimeChestLog", () => {
     expect(pin.lastCount).toBe(2);
   });
 
-  it("classifies new drops by EMonsterLogType (0 common, 1 rare, 2 actBoss)", () => {
+  it("classifies new drops by EMonsterLogType (0 common, 1 rare; act boss ignored)", () => {
     const pin = makeChestLogPinState();
     pin.primed = true; // skip priming so all entries are treated as new
     pin.lastCount = 0;
     const m = seedLogChain(new FakeMemory(), [0, 1, 2]);
-    expect(readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual([
-      "common",
-      "rare",
-      "actBoss",
-    ]);
+    expect(readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual(["common", "rare"]);
   });
 
   it("returns only drops appended since the last read", () => {
     const pin = makeChestLogPinState();
     const m = seedLogChain(new FakeMemory(), [0]);
     readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin); // prime at length 1
-    seedLogChain(m, [0, 1, 2]); // two new drops appended
-    expect(readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual(["rare", "actBoss"]);
+    seedLogChain(m, [0, 1, 2]); // two new drops appended (act boss entry ignored)
+    expect(readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual(["rare"]);
   });
 
   it("restarts the tail from 0 when the log shrinks (new run cleared it)", () => {
