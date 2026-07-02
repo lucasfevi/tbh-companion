@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ChestDropTracker, resolveStageBoxDrop } from "../../src/core/chestDropTracker";
+import { ChestDropTracker, resolveStageBoxDrop, inferChestCategory } from "../../src/core/chestDropTracker";
 
 describe("resolveStageBoxDrop", () => {
   it("resolves common and rare stage boxes from catalog", () => {
@@ -119,5 +119,52 @@ describe("ChestDropTracker", () => {
     expect(tracker.recordLiveBoxDrop(0)).toBe(false);
     expect(tracker.recordLiveBoxDrop(-1)).toBe(false);
     expect(tracker.getStats(3600).combinedTotal).toBe(0);
+  });
+});
+
+describe("inferChestCategory", () => {
+  it("returns 'rare' when stageKey is in a stage boss drop stage key list", () => {
+    // Stage 1101 drops RARE stage boss boxes per the catalog.
+    expect(inferChestCategory(1101)).toBe("rare");
+  });
+
+  it("returns 'common' for a regular stage key not in any RARE route", () => {
+    // Stage 1001 is a regular farming stage.
+    expect(inferChestCategory(1001)).toBe("common");
+  });
+});
+
+describe("ChestDropTracker.recordLiveChestDrop", () => {
+  it("classifies a stage boss drop as rare and increments rareTotal", () => {
+    const tracker = new ChestDropTracker();
+    tracker.recordLiveChestDrop(1101, 1000);
+    const stats = tracker.getStats(3600);
+    expect(stats.rareTotal).toBe(1);
+    expect(stats.commonTotal).toBe(0);
+    expect(stats.actBossTotal).toBe(0);
+    expect(stats.combinedTotal).toBe(1);
+  });
+
+  it("classifies a common stage drop and increments commonTotal", () => {
+    const tracker = new ChestDropTracker();
+    tracker.recordLiveChestDrop(1001, 1000);
+    const stats = tracker.getStats(3600);
+    expect(stats.commonTotal).toBe(1);
+    expect(stats.rareTotal).toBe(0);
+  });
+
+  it("returns false for stageKey <= 0", () => {
+    const tracker = new ChestDropTracker();
+    expect(tracker.recordLiveChestDrop(0)).toBe(false);
+    expect(tracker.recordLiveChestDrop(-5)).toBe(false);
+  });
+
+  it("getStats populates actBossTotal (0 in Phase 3 since no actBoss classification yet)", () => {
+    const tracker = new ChestDropTracker();
+    tracker.recordLiveChestDrop(1001, 1000);
+    tracker.recordLiveChestDrop(1101, 1001);
+    const stats = tracker.getStats(3600);
+    expect(stats.actBossTotal).toBe(0);
+    expect(stats.actBossPerHour).toBe(0);
   });
 });

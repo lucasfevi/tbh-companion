@@ -52,7 +52,7 @@ export interface HeroRate {
 export interface ChestDropBreakdownRow {
   itemKey: number;
   name: string;
-  category: "common" | "rare";
+  category: "common" | "rare" | "actBoss";
   count: number;
 }
 
@@ -60,15 +60,17 @@ export interface ChestDropHistoryEntry {
   wallTime: number;
   itemKey: number;
   name: string;
-  category: "common" | "rare";
+  category: "common" | "rare" | "actBoss";
 }
 
 export interface ChestDropStats {
   commonTotal: number;
   rareTotal: number;
+  actBossTotal: number;
   combinedTotal: number;
   commonPerHour: number;
   rarePerHour: number;
+  actBossPerHour: number;
   breakdown: ChestDropBreakdownRow[];
   history: ChestDropHistoryEntry[];
   /**
@@ -82,7 +84,7 @@ export interface ChestDropStats {
 export interface ChestDropTrackerSnapshot {
   countsByKey: Record<string, number>;
   namesByKey: Record<string, string>;
-  categoriesByKey: Record<string, "common" | "rare">;
+  categoriesByKey: Record<string, "common" | "rare" | "actBoss">;
   history: ChestDropHistoryEntry[];
 }
 

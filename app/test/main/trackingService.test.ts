@@ -193,6 +193,6 @@ describe("TrackingService.onLiveMemoryToggled", () => {
     svc.ingestLiveFrame(frame);
     svc.ingestLiveFrame({ ...frame, boxCount: 12, at: 3000 });
 
-    expect(svc.getStats().chestDrops.commonTotal).toBe(2);
+    expect(svc.getStats().chestDrops.combinedTotal).toBe(2);
   });
 });

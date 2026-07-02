@@ -4,9 +4,9 @@ import type {
   ChestDropStats,
   ChestDropTrackerSnapshot,
 } from "../../shared/types";
-import { canonicalTrackerBoxId, loadStageBoxCatalogFile } from "./stageBoxTracker";
+import { canonicalTrackerBoxId, loadStageBoxCatalogFile, loadStageBoxTrackerRoutes } from "./stageBoxTracker";
 
-export type ChestDropCategory = "common" | "rare";
+export type ChestDropCategory = "common" | "rare" | "actBoss";
 
 export interface ResolvedStageBoxDrop {
   itemKey: number;
@@ -52,6 +52,25 @@ export function resolveStageBoxDrop(itemKey: number): ResolvedStageBoxDrop | nul
   };
 }
 
+/** Lazy-initialized Set of all RARE stage boss drop stage keys from the catalog. */
+let rareStagekeysCache: Set<number> | null = null;
+function getRareStageKeys(): Set<number> {
+  if (!rareStagekeysCache) {
+    const routes = loadStageBoxTrackerRoutes();
+    rareStagekeysCache = new Set(routes.flatMap((r) => r.dropStageKeys));
+  }
+  return rareStagekeysCache;
+}
+
+/**
+ * Classify a live chest drop by stage key.
+ * Returns "rare" if the stage drops a RARE stage-boss box per the catalog.
+ * actBoss classification deferred to Phase 4 (catalog data TBD); defaults to "common".
+ */
+export function inferChestCategory(stageKey: number): ChestDropCategory {
+  return getRareStageKeys().has(stageKey) ? "rare" : "common";
+}
+
 export class ChestDropTracker {
   private countsByKey = new Map<string, number>();
   private namesByKey = new Map<string, string>();
@@ -66,15 +85,18 @@ export class ChestDropTracker {
   }
 
   /**
-   * Record a chest drop detected from a live box-count delta.
-   * Records as a common chest for the given stageKey; returns false when
-   * stageKey is invalid.
+   * Record a live chest drop classified by stage key.
+   * Uses `inferChestCategory` to determine common / rare / actBoss bucket.
+   * Returns false when stageKey is invalid (≤ 0).
    */
-  recordLiveBoxDrop(stageKey: number, wallTime = nowSeconds()): boolean {
+  recordLiveChestDrop(stageKey: number, wallTime = nowSeconds()): boolean {
     if (stageKey <= 0) return false;
+    const category = inferChestCategory(stageKey);
     const key = String(stageKey);
-    const name = `Common chest (stage ${stageKey})`;
-    const category: ChestDropCategory = "common";
+    const name =
+      category === "rare"
+        ? `Stage boss chest (stage ${stageKey})`
+        : `Common chest (stage ${stageKey})`;
 
     this.countsByKey.set(key, (this.countsByKey.get(key) ?? 0) + 1);
     this.namesByKey.set(key, name);
@@ -85,6 +107,11 @@ export class ChestDropTracker {
       this.history.splice(0, this.history.length - HISTORY_LIMIT);
     }
     return true;
+  }
+
+  /** @deprecated Use recordLiveChestDrop. Kept for call-site compatibility. */
+  recordLiveBoxDrop(stageKey: number, wallTime = nowSeconds()): boolean {
+    return this.recordLiveChestDrop(stageKey, wallTime);
   }
 
   recordLogDrop(itemKey: number, wallTime = nowSeconds()): boolean {
@@ -112,6 +139,7 @@ export class ChestDropTracker {
   getStats(elapsedSeconds: number): ChestDropStats {
     let commonTotal = 0;
     let rareTotal = 0;
+    let actBossTotal = 0;
     const breakdown: ChestDropBreakdownRow[] = [];
 
     for (const [key, count] of this.countsByKey) {
@@ -121,7 +149,8 @@ export class ChestDropTracker {
       if (!category || !name) continue;
 
       if (category === "common") commonTotal += count;
-      else rareTotal += count;
+      else if (category === "rare") rareTotal += count;
+      else actBossTotal += count;
 
       breakdown.push({
         itemKey: Number.parseInt(key, 10),
@@ -133,17 +162,20 @@ export class ChestDropTracker {
 
     breakdown.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 
-    const combinedTotal = commonTotal + rareTotal;
+    const combinedTotal = commonTotal + rareTotal + actBossTotal;
     const hours = elapsedSeconds > 0 ? elapsedSeconds / 3600 : 0;
     const commonPerHour = hours > 0 ? commonTotal / hours : 0;
     const rarePerHour = hours > 0 ? rareTotal / hours : 0;
+    const actBossPerHour = hours > 0 ? actBossTotal / hours : 0;
 
     return {
       commonTotal,
       rareTotal,
+      actBossTotal,
       combinedTotal,
       commonPerHour,
       rarePerHour,
+      actBossPerHour,
       breakdown,
       history: this.history.slice(-HISTORY_VISIBLE).reverse(),
       readerRequired: true,
