@@ -33,6 +33,7 @@ const baseStats = {
 vi.mock("../../src/renderer/lib/useStats", () => ({ useStats: () => baseStats }));
 vi.mock("../../src/renderer/lib/useInventory", () => ({ useInventory: () => null }));
 vi.mock("../../src/renderer/lib/useChests", () => ({ useChests: () => null }));
+vi.mock("../../src/renderer/lib/useStageRuns", () => ({ useStageRuns: () => null }));
 vi.mock("../../src/renderer/lib/useLiveMemory", () => ({
   useLiveMemory: () => ({ snapshot: state.live, status: null }),
 }));

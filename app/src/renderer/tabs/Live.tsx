@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useStats } from "../lib/useStats";
 import { useInventory } from "../lib/useInventory";
 import { useChests } from "../lib/useChests";
+import { useStageRuns } from "../lib/useStageRuns";
 import { useLiveMemory } from "../lib/useLiveMemory";
 import { blendStage } from "../../core/liveMemory/blend";
 import {
@@ -25,6 +26,7 @@ import { TabHeader } from "../design-system/primitives/TabHeader/TabHeader";
 import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 import { Tooltip } from "../design-system/primitives/Tooltip/Tooltip";
 import { ChestDropPanel } from "../components/live/ChestDropPanel";
+import { StageRunPanel } from "../components/live/StageRunPanel";
 import { LiveHistoryPanel } from "../components/live/LiveHistoryPanel";
 import { LiveMatchedPair } from "../components/live/LiveMatchedPair";
 import { LivePanelList } from "../components/live/LivePanelList";
@@ -56,6 +58,9 @@ const CHEST_TIP_PENDING =
 const CHEST_TIP_LIVE =
   "Drop rates from live memory this session. Common and stage boss chests are tracked " +
   "separately while the companion is running.";
+const STAGE_RUN_TIP_NEED_READER =
+  "Stage clear times require the live memory reader. Turn it on in Settings → Live memory " +
+  "(experimental) and keep the game running.";
 const INVENTORY_PREDICTION_TIP =
   "Estimates when your unlocked inventory slots fill up. For each chest type you've marked " +
   "auto-open below, we model a serial auto-open queue: held chests (from your save) drain at their open " +
@@ -68,6 +73,7 @@ export function Live() {
   const stats = useStats();
   const inventory = useInventory();
   const chests = useChests();
+  const stageRuns = useStageRuns();
   const { snapshot: liveMemory } = useLiveMemory();
   const [autoOpenEnabled, setAutoOpenEnabled] = useState<ChestAutoOpenPrefs>(DEFAULT_AUTO_OPEN);
 
@@ -281,6 +287,13 @@ export function Live() {
       </section>
 
       <ChestDropPanel chestDrops={stats.chestDrops} inactiveMessage={chestInactiveMessage} />
+
+      {stageRuns ? (
+        <StageRunPanel
+          stageRuns={stageRuns}
+          inactiveMessage={!liveActive ? STAGE_RUN_TIP_NEED_READER : null}
+        />
+      ) : null}
 
       <PanelSection
         title={
