@@ -175,11 +175,14 @@ export class ChestDropTracker {
     const isTracked = (category: string): category is ChestDropCategory =>
       category === "common" || category === "rare";
 
-    this.countsByKey = new Map(Object.entries(data.countsByKey));
-    this.namesByKey = new Map(Object.entries(data.namesByKey));
-    this.categoriesByKey = new Map(
+    const categoriesByKey = new Map(
       Object.entries(data.categoriesByKey).filter(([, category]) => isTracked(category)),
     );
+    const keepKey = (key: string): boolean => categoriesByKey.has(key);
+
+    this.categoriesByKey = categoriesByKey;
+    this.countsByKey = new Map(Object.entries(data.countsByKey).filter(([key]) => keepKey(key)));
+    this.namesByKey = new Map(Object.entries(data.namesByKey).filter(([key]) => keepKey(key)));
     this.history = (data.history ?? []).filter((entry) => isTracked(entry.category));
   }
 }

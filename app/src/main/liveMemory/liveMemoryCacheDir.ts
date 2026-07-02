@@ -26,5 +26,15 @@ export function resolveLiveMemoryOffsetCacheDir(userDataDir: string, installDir:
 
 /** userData root for the live-memory worker (main process sets TBH_USER_DATA on fork). */
 export function resolveLiveMemoryUserDataDir(): string {
-  return process.env[LIVE_MEMORY_USER_DATA_ENV] ?? process.cwd();
+  const configured = process.env[LIVE_MEMORY_USER_DATA_ENV];
+  if (configured) return configured;
+  if (process.env["VITEST"]) {
+    return join(
+      process.env["TEMP"] ?? process.env["TMP"] ?? "/tmp",
+      "tbh-live-memory-test-userdata",
+    );
+  }
+  throw new Error(
+    `${LIVE_MEMORY_USER_DATA_ENV} must be set before starting the live-memory worker`,
+  );
 }

@@ -178,9 +178,7 @@ export class LiveMemoryReader {
         : "no table";
       const cacheDir = this.offsetCacheDir();
       const attempts =
-        cacheDir && this.gameVersion
-          ? extractionAttempts(cacheDir, this.gameVersion, appBuild)
-          : 0;
+        cacheDir && this.gameVersion ? extractionAttempts(cacheDir, this.gameVersion, appBuild) : 0;
       this.log(
         `offsets: unsupported for v${this.gameVersion ?? "?"} (source=${resolved.source}, critical missing: ${missing}, extract attempts=${attempts})`,
       );

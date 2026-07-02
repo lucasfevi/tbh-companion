@@ -172,8 +172,6 @@ export class TrackingService {
 
     this.tracker.updateLive({ gold: snap.gold, heroes: snap.heroes }, snap.at / 1000, stage);
 
-    this.pushStats();
-
     if (snap.chestDrops && snap.chestDrops.length > 0) {
       for (const category of snap.chestDrops) {
         if (this.chestDropTracker.recordLiveChestDrop(category, snap.at / 1000)) {
@@ -183,6 +181,8 @@ export class TrackingService {
         }
       }
     }
+
+    this.pushStats();
   }
 
   private createWatcher(): SaveWatcher {

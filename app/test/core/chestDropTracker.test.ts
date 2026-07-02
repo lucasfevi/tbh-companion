@@ -135,4 +135,28 @@ describe("ChestDropTracker.recordLiveChestDrop", () => {
     expect(stats.breakdown).toHaveLength(2);
     expect(stats.history).toHaveLength(3);
   });
+
+  it("drops legacy act-boss rows when restoring an older snapshot", () => {
+    const tracker = new ChestDropTracker();
+    tracker.applySnapshot({
+      countsByKey: { "900910": 1, "900930": 2 },
+      namesByKey: { "900910": "Common chest", "900930": "Act boss chest" },
+      categoriesByKey: { "900910": "common", "900930": "actBoss" as "common" },
+      history: [
+        { wallTime: 1000, itemKey: 900910, name: "Common chest", category: "common" },
+        {
+          wallTime: 1001,
+          itemKey: 900930,
+          name: "Act boss chest",
+          category: "actBoss" as "common",
+        },
+      ],
+    });
+
+    const stats = tracker.getStats(3600);
+    expect(stats.commonTotal).toBe(1);
+    expect(stats.combinedTotal).toBe(1);
+    expect(stats.history).toHaveLength(1);
+    expect(tracker.captureSnapshot().countsByKey).toEqual({ "900910": 1 });
+  });
 });
