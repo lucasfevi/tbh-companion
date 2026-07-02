@@ -18,12 +18,17 @@ export const DIAGNOSTIC_LOG_ARCHIVE = "app.old.log";
 /** electron-log default before we override resolvePathFn — cleared with diagnostic logs. */
 export const LEGACY_LOG_FILE = "main.log";
 export const LEGACY_LOG_ARCHIVE = "main.old.log";
+/** Renderer crash/hang events only — kept separate so a crash loop doesn't bury app.log. */
+export const CRASH_LOG_FILE = "crash.log";
+export const CRASH_LOG_ARCHIVE = "crash.old.log";
 
 const DIAGNOSTIC_LOG_FILENAMES = new Set([
   DIAGNOSTIC_LOG_FILE,
   DIAGNOSTIC_LOG_ARCHIVE,
   LEGACY_LOG_FILE,
   LEGACY_LOG_ARCHIVE,
+  CRASH_LOG_FILE,
+  CRASH_LOG_ARCHIVE,
 ]);
 
 export const THROTTLE_MS = 5 * 60 * 1000;
@@ -49,6 +54,10 @@ export function resolveDiagnosticLogDir(userDataDir = resolveUserDataDir()): str
 
 export function getDiagnosticLogPath(userDataDir = resolveUserDataDir()): string {
   return join(resolveDiagnosticLogDir(userDataDir), DIAGNOSTIC_LOG_FILE);
+}
+
+export function getCrashLogPath(userDataDir = resolveUserDataDir()): string {
+  return join(resolveDiagnosticLogDir(userDataDir), CRASH_LOG_FILE);
 }
 
 /** Redact password-like fields before writing to disk. */
@@ -171,4 +180,33 @@ export function logRendererError(payload: RendererLogPayload): void {
   const parts = [`[${payload.source}] ${payload.message}`];
   if (payload.stack) parts.push(payload.stack.slice(0, 2000));
   getRendererLog().error(parts.join("\n"));
+}
+
+let crashLogger: ReturnType<typeof log.create> | null = null;
+
+/** Separate file so a renderer crash loop can't push save/tracking history out of app.log. */
+function getCrashLogger(): ReturnType<typeof log.create> {
+  if (!crashLogger) {
+    crashLogger = log.create({ logId: "crash" });
+    crashLogger.transports.file.fileName = CRASH_LOG_FILE;
+    crashLogger.transports.file.resolvePathFn = () => getCrashLogPath();
+    crashLogger.transports.file.maxSize = 1024 * 1024;
+    crashLogger.transports.file.sync = false;
+    crashLogger.transports.console.level = false;
+  }
+  return crashLogger;
+}
+
+/** Renderer process died (crash/OOM/kill) — logged to crash.log and summarized in app.log. */
+export function logWindowCrash(windowLabel: string, reason: string, exitCode: number): void {
+  const message = `[${windowLabel}] renderer process gone (reason=${reason}, exitCode=${exitCode})`;
+  getCrashLogger().error(message);
+  createLogger("window").error(message);
+}
+
+/** Renderer stopped responding to the event loop (not necessarily fatal). */
+export function logWindowUnresponsive(windowLabel: string): void {
+  const message = `[${windowLabel}] renderer unresponsive`;
+  getCrashLogger().warn(message);
+  createLogger("window").warn(message);
 }

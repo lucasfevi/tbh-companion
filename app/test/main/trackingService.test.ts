@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { LiveMemorySnapshot, SaveSnapshot } from "../../shared/types";
 import { DEFAULT_NOTIFICATION_PREFS } from "../../shared/notificationCatalog";
 
@@ -30,6 +30,7 @@ vi.mock("../../src/main/historyLog", () => ({
 }));
 
 import { TrackingService } from "../../src/main/services/TrackingService";
+import { broadcast } from "../../src/main/services/broadcast";
 
 const baseConfig = {
   savePath: "C:/game/save.es3",
@@ -230,6 +231,66 @@ describe("TrackingService.onLiveMemoryToggled", () => {
 
     expect(onLiveStageBossDrop).toHaveBeenCalledTimes(1);
     expect(onLiveStageBossDrop).toHaveBeenCalledWith(4103);
+    svc.stop();
+  });
+});
+
+describe("TrackingService live-frame broadcast throttling", () => {
+  beforeEach(() => {
+    onSnapshot = undefined;
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  function liveFrame(at: number): LiveMemorySnapshot {
+    return {
+      connected: true,
+      stageKey: 3205,
+      stageWave: 1,
+      gold: 1000,
+      heroes: [{ heroKey: 101, level: 5, exp: 500 }],
+      chestDrops: null,
+      inventoryItems: null,
+      petData: null,
+      source: "memory test",
+      readMs: 1,
+      at,
+    };
+  }
+
+  it("drops broadcasts that arrive faster than the throttle interval", () => {
+    const svc = new TrackingService(vi.fn());
+    svc.start(baseConfig);
+    vi.clearAllMocks(); // svc.start()/onSnapshot side effects already broadcast once
+
+    svc.ingestLiveFrame(liveFrame(1000));
+    expect(broadcast).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(40); // ~25 Hz tick, well under the 200ms throttle
+    svc.ingestLiveFrame(liveFrame(1040));
+    vi.advanceTimersByTime(40);
+    svc.ingestLiveFrame(liveFrame(1080));
+
+    expect(broadcast).toHaveBeenCalledTimes(1);
+    svc.stop();
+  });
+
+  it("broadcasts again once the throttle interval elapses", () => {
+    const svc = new TrackingService(vi.fn());
+    svc.start(baseConfig);
+    vi.clearAllMocks();
+
+    svc.ingestLiveFrame(liveFrame(1000));
+    expect(broadcast).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(200);
+    svc.ingestLiveFrame(liveFrame(1200));
+
+    expect(broadcast).toHaveBeenCalledTimes(2);
     svc.stop();
   });
 });

@@ -3,6 +3,7 @@ import type { WindowLayoutEntry, WindowLayoutPrefs } from "../../../shared/types
 import { PRELOAD_SCRIPT } from "../paths";
 import { applyWindowTopmost } from "./alwaysOnTop";
 import { loadRenderer } from "./loadRenderer";
+import { attachCrashRecovery } from "./crashRecovery";
 import {
   applyWindowLayout,
   attachWindowLayoutPersistence,
@@ -67,6 +68,7 @@ export function createOverlayWindow(
   });
 
   loadRenderer(win, "overlay");
+  attachCrashRecovery(win, "overlay");
   setWindow(win);
   return win;
 }
