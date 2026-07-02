@@ -4,10 +4,17 @@ const logWindowCrash = vi.fn();
 const logWindowUnresponsive = vi.fn();
 const loadRenderer = vi.fn();
 const isAppQuitting = vi.hoisted(() => ({ value: false }));
+const windowLog = vi.hoisted(() => ({
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
+}));
 
 vi.mock("../../src/main/log", () => ({
   logWindowCrash: (...args: unknown[]) => logWindowCrash(...args),
   logWindowUnresponsive: (...args: unknown[]) => logWindowUnresponsive(...args),
+  createLogger: () => windowLog,
 }));
 
 vi.mock("../../src/main/tray/trayService", () => ({
@@ -26,6 +33,7 @@ function makeWindow(destroyed = false) {
   const handlers = new Map<string, Handler>();
   return {
     isDestroyed: () => destroyed,
+    loadURL: vi.fn(),
     webContents: {
       on: (event: string, handler: Handler) => {
         handlers.set(event, handler);
@@ -83,6 +91,21 @@ describe("attachCrashRecovery", () => {
 
     expect(logWindowCrash).toHaveBeenCalledTimes(5);
     expect(loadRenderer).toHaveBeenCalledTimes(3);
+  });
+
+  it("shows a restart-the-app fallback page and logs the give-up once", () => {
+    const win = makeWindow();
+    attachCrashRecovery(win as never, "main");
+
+    for (let i = 0; i < 5; i++) {
+      win.fire("render-process-gone", {}, { reason: "crashed", exitCode: 1 });
+    }
+
+    expect(win.loadURL).toHaveBeenCalledTimes(1);
+    expect(win.loadURL.mock.calls[0][0]).toContain("data:text/html");
+    expect(win.loadURL.mock.calls[0][0]).toContain("restart");
+    expect(windowLog.error).toHaveBeenCalledTimes(1);
+    expect(windowLog.error.mock.calls[0][0]).toMatch(/auto-reload suppressed/);
   });
 
   it("logs unresponsive renderers without reloading", () => {

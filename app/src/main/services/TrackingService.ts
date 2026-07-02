@@ -57,7 +57,12 @@ export class TrackingService {
     this.restoreApplied = false;
     this.watcher = this.createWatcher();
     this.watcher.start();
-    this.tickTimer = setInterval(() => this.pushStats(), 1000);
+    this.tickTimer = setInterval(() => {
+      // Skip the redundant push if a live-memory frame already broadcast recently —
+      // avoids the 1 Hz safety-net tick doubling up with the ~5 Hz live broadcast.
+      if (Date.now() - this.lastLiveBroadcastMs < LIVE_BROADCAST_INTERVAL_MS) return;
+      this.pushStats();
+    }, 1000);
     this.sessionState?.startAutosave(() => ({
       tracker: this.tracker,
       chestDropTracker: this.chestDropTracker,
