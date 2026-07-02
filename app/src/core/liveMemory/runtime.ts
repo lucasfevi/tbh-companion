@@ -328,12 +328,18 @@ export function resolveStageManager(
 /** Chest drop category derived from GetBoxLog's EMonsterLogType field. */
 export type LiveChestCategory = "common" | "rare";
 
-/**
- * Per-reader pin for the LogManager instance pointer and the GetBox-log tail
- * position. `primed` guards against counting the pre-attach log backlog.
- */
-export interface ChestLogPinState {
+/** Per-reader pin for a resolved LogManager instance pointer. */
+export interface LogManagerPinState {
   ptr: bigint | null;
+}
+
+/**
+ * Per-reader pin for the LogManager instance pointer and a log-list tail
+ * position. `primed` guards against counting the pre-attach log backlog.
+ * Shared shape for every `ELogType` bucket tailed this way (chest drops,
+ * stage clears, …).
+ */
+export interface ChestLogPinState extends LogManagerPinState {
   lastCount: number;
   primed: boolean;
 }
@@ -380,12 +386,18 @@ function isLiveLogManager(reader: MemoryReader, ptr: bigint, o: LiveOffsets): bo
  * each tick. Returns null when the TypeInfo RVA has not been derived yet
  * (`logManager === 0n`) — the offset extractor fills it at runtime.
  */
-function resolveLogManager(
+/**
+ * Resolve the live `LogManager` instance pointer. Shared by every log-tailing
+ * reader (chest drops, stage clears, …) — the resolution itself only depends
+ * on the class anchor + a walkable GetBox list as its liveness check, not on
+ * which `ELogType` bucket the caller ultimately tails.
+ */
+export function resolveLogManager(
   reader: MemoryReader,
   gaBase: bigint,
   gaSize: number,
   o: LiveOffsets,
-  pin: ChestLogPinState,
+  pin: LogManagerPinState,
 ): bigint | null {
   if (o.typeInfoRva.logManager === 0n) return null;
   if (pin.ptr != null && isLiveLogManager(reader, pin.ptr, o)) return pin.ptr;
@@ -450,6 +462,80 @@ export function readRuntimeChestLog(
   }
   pin.lastCount = count;
   return drops;
+}
+
+// ── Live stage clears (LogManager → Dictionary<ELogType, List<StageClearLog>>) ─
+
+/** Per-reader pin for the LogManager instance pointer and the StageClear-log tail position. */
+export type StageClearPinState = ChestLogPinState;
+
+export function makeStageClearPinState(): StageClearPinState {
+  return { ptr: null, lastCount: 0, primed: false };
+}
+
+const MAX_STAGE_CLEAR_LOG = 5_000;
+/** Reject implausible clear times (corrupted memory / mid-write read). */
+const MAX_CLEAR_TIME_SEC = 36_000;
+
+/** Resolve the StageClear `List<StageClearLog>` backing array + length from a LogManager instance. */
+function stageClearLogList(
+  reader: MemoryReader,
+  lmPtr: bigint,
+  o: LiveOffsets,
+): { arr: bigint; count: number } | null {
+  const dictPtr = readPtr(reader, lmPtr + BigInt(o.runtime.log.logByType));
+  if (dictPtr == null) return null;
+  const listPtr = dictLookupIntKey(reader, dictPtr, o.runtime.log.stageClearTypeKey, o);
+  if (listPtr == null) return null;
+  const arr = readPtr(reader, listPtr + BigInt(o.container.listItems));
+  if (arr == null) return null;
+  const count = readI32(reader, listPtr + BigInt(o.container.listSize));
+  if (count == null || count < 0 || count > MAX_STAGE_CLEAR_LOG) return null;
+  return { arr, count };
+}
+
+/**
+ * Clear times (whole seconds, as recorded by the game) added to the
+ * StageClear log since the last read. Tails the log by index the same way
+ * {@link readRuntimeChestLog} tails GetBox: primes to the current length on
+ * first read (backlog not counted) and returns `[]`; restarts the tail from 0
+ * if the log shrinks (new run cleared it). Returns null when the LogManager
+ * can't be resolved — distinct from `[]` (resolved, no new clears this tick).
+ * Stage attribution is the caller's job (the live/save stageKey at read time);
+ * the log entry's own act/stage ints don't carry difficulty.
+ */
+export function readRuntimeStageClears(
+  reader: MemoryReader,
+  gaBase: bigint,
+  gaSize: number,
+  o: LiveOffsets,
+  pin: StageClearPinState,
+): number[] | null {
+  const lmPtr = resolveLogManager(reader, gaBase, gaSize, o, pin);
+  if (lmPtr == null) return null;
+  const list = stageClearLogList(reader, lmPtr, o);
+  if (list == null) return null;
+
+  const { arr, count } = list;
+  if (!pin.primed) {
+    pin.lastCount = count;
+    pin.primed = true;
+    return [];
+  }
+
+  const start = count < pin.lastCount ? 0 : pin.lastCount;
+  const clears: number[] = [];
+  const first = arr + BigInt(o.container.arrayFirst);
+  for (let i = start; i < count; i++) {
+    const entryPtr = readPtr(reader, first + BigInt(i * 8));
+    if (entryPtr == null) continue;
+    const clearTimeSec = readI32(reader, entryPtr + BigInt(o.runtime.stageClearLog.clearTimeSec));
+    if (clearTimeSec != null && clearTimeSec > 0 && clearTimeSec < MAX_CLEAR_TIME_SEC) {
+      clears.push(clearTimeSec);
+    }
+  }
+  pin.lastCount = count;
+  return clears;
 }
 
 // ── Inventory (PlayerSaveData.itemSaveDatas → ItemSaveData entries) ───────────

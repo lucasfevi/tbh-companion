@@ -4,12 +4,14 @@ import {
   readRuntimeGold,
   readRuntimeHeroes,
   readRuntimeChestLog,
+  readRuntimeStageClears,
   readRuntimeInventory,
   readRuntimePets,
   resolveStageManager,
   makeGoldPinState,
   makeSmPinState,
   makeChestLogPinState,
+  makeStageClearPinState,
   type GoldPinState,
 } from "../../src/core/liveMemory/runtime";
 import { offsetsForVersion } from "../../src/core/liveMemory/offsets";
@@ -458,6 +460,91 @@ describe("readRuntimeChestLog", () => {
     pin.lastCount = 5; // pretend we had seen 5 entries
     const m = seedLogChain(new FakeMemory(), [1]); // log now shorter → reset
     expect(readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual(["rare"]);
+  });
+});
+
+// ── readRuntimeStageClears ─────────────────────────────────────────────────────
+
+const STAGE_CLEAR_LIST = 0xd70000n;
+const STAGE_CLEAR_ARR = 0xd80000n;
+
+/** Seed LogManager → logByType dict → StageClear List<StageClearLog> with the given clear times. */
+function seedStageClearChain(m: FakeMemory, clearTimesSec: number[]): FakeMemory {
+  m.writePtr(GA_BASE + LOG_O.typeInfoRva.logManager, LOG_CLASS)
+    .writePtr(LOG_CLASS + BigInt(CAND), LOG_BLOCK)
+    .writePtr(LOG_BLOCK, LM_INSTANCE);
+
+  m.writePtr(LM_INSTANCE + BigInt(O.runtime.log.logByType), LOG_DICT)
+    .writePtr(LOG_DICT + BigInt(O.dict.entries), LOG_DICT_ENTRIES)
+    .writeI32(LOG_DICT + BigInt(O.dict.count), 2);
+
+  const de0 = LOG_DICT_ENTRIES + BigInt(O.container.arrayFirst);
+  m.writeI32(de0 + BigInt(O.dict.entryHash), 1)
+    .writeI32(de0 + BigInt(O.dict.entryKey), O.runtime.log.getBoxTypeKey)
+    .writePtr(de0 + BigInt(O.dict.entryValue), GETBOX_LIST);
+
+  const de1 = LOG_DICT_ENTRIES + BigInt(1 * O.dict.entrySize) + BigInt(O.container.arrayFirst);
+  m.writeI32(de1 + BigInt(O.dict.entryHash), 1)
+    .writeI32(de1 + BigInt(O.dict.entryKey), O.runtime.log.stageClearTypeKey)
+    .writePtr(de1 + BigInt(O.dict.entryValue), STAGE_CLEAR_LIST);
+
+  // GetBox list must stay walkable — it's the LogManager liveness check.
+  m.writePtr(GETBOX_LIST + BigInt(O.container.listItems), GETBOX_ARR).writeI32(
+    GETBOX_LIST + BigInt(O.container.listSize),
+    0,
+  );
+
+  m.writePtr(STAGE_CLEAR_LIST + BigInt(O.container.listItems), STAGE_CLEAR_ARR).writeI32(
+    STAGE_CLEAR_LIST + BigInt(O.container.listSize),
+    clearTimesSec.length,
+  );
+  const first = STAGE_CLEAR_ARR + BigInt(O.container.arrayFirst);
+  for (let i = 0; i < clearTimesSec.length; i++) {
+    const entry = 0xe10000n + BigInt(i * 0x100);
+    m.writePtr(first + BigInt(i * 8), entry).writeI32(
+      entry + BigInt(O.runtime.stageClearLog.clearTimeSec),
+      clearTimesSec[i],
+    );
+  }
+  return m;
+}
+
+describe("readRuntimeStageClears", () => {
+  it("returns null when logManager RVA is 0 (not derived for this version)", () => {
+    expect(
+      readRuntimeStageClears(new FakeMemory(), GA_BASE, GA_SIZE, O, makeStageClearPinState()),
+    ).toBeNull();
+  });
+
+  it("primes to the current log length on first read (backlog not counted)", () => {
+    const pin = makeStageClearPinState();
+    const m = seedStageClearChain(new FakeMemory(), [42, 85]); // pre-existing backlog
+    expect(readRuntimeStageClears(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual([]);
+    expect(pin.lastCount).toBe(2);
+  });
+
+  it("returns clear-time seconds for entries appended since the last read", () => {
+    const pin = makeStageClearPinState();
+    const m = seedStageClearChain(new FakeMemory(), [85]);
+    readRuntimeStageClears(m, GA_BASE, GA_SIZE, LOG_O, pin); // prime at length 1
+    seedStageClearChain(m, [85, 63]); // one new clear appended
+    expect(readRuntimeStageClears(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual([63]);
+  });
+
+  it("rejects implausible clear times (corrupted / mid-write read)", () => {
+    const pin = makeStageClearPinState();
+    pin.primed = true;
+    pin.lastCount = 0;
+    const m = seedStageClearChain(new FakeMemory(), [0, -1, 999_999, 85]);
+    expect(readRuntimeStageClears(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual([85]);
+  });
+
+  it("restarts the tail from 0 when the log shrinks (new run cleared it)", () => {
+    const pin = makeStageClearPinState();
+    pin.primed = true;
+    pin.lastCount = 5;
+    const m = seedStageClearChain(new FakeMemory(), [12]);
+    expect(readRuntimeStageClears(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual([12]);
   });
 });
 
