@@ -27,8 +27,11 @@ vi.mock("../../src/renderer/lib/useStats", () => ({
     chestDrops: {
       commonTotal: 0,
       rareTotal: 0,
+      actBossTotal: 0,
+      combinedTotal: 0,
       commonPerHour: 0,
       rarePerHour: 0,
+      actBossPerHour: 0,
       readerRequired: true,
       breakdown: [],
       history: [],
@@ -73,6 +76,6 @@ describe("LiveMemoryDiagnostics", () => {
     expect(screen.getByText("1.00.21")).toBeInTheDocument();
     expect(screen.getByText("4242")).toBeInTheDocument();
     expect(screen.getByText("1200")).toBeInTheDocument();
-    expect(screen.getByText("memory v1.00.21")).toBeInTheDocument();
+    expect(screen.getAllByText("memory v1.00.21").length).toBeGreaterThan(0);
   });
 });

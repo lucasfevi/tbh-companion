@@ -100,7 +100,7 @@ const RUNTIME_V1_00_21 = {
     stageKey: 0x30,
     waveAmount: 0x54,
     runtimeWave: 0x138,
-    boxCount: 0, // TODO: derive for v1.00.21 (StageManager cumulative-box-count field)
+    boxCount: 0, // TODO Phase 3: run extractor to derive (SPEC_DEVIATION — requires game running)
   },
   currencyInfoKey: 0x30,
   heroList: 0x30, // StageManager.HeroList — real field name, stable across patches
@@ -124,13 +124,13 @@ const V1_00_21: LiveOffsets = {
     currencyManager: 0x5dc8db8n,
     stageCacheManager: 0x5dc9958n,
     stageManager: 0x5e3ff98n,
-    localInventoryManager: 0n, // TODO: derive for v1.00.21
+    localInventoryManager: 0n, // TODO Phase 3: run extractor to derive (SPEC_DEVIATION)
   },
   player: {
     commonSaveData: 0x10,
     currency: 0x48,
     heroSaveDatas: 0x50,
-    petSaveDatas: 0, // TODO: derive for v1.00.21 (PlayerSaveData.PetSaveData array offset)
+    petSaveDatas: 0, // TODO Phase 3: run extractor to derive (SPEC_DEVIATION)
   },
   common: {
     playTime: 0x20,
@@ -151,13 +151,13 @@ const V1_00_21: LiveOffsets = {
   heroInfoData: { heroKey: 0x30 },
   currency: { key: 0x10, quantity: 0x18 },
   petSaveData: {
-    petKey: 0, // TODO: derive for v1.00.21 (PetSaveData.PetKey)
-    isUnlock: 0, // TODO: derive for v1.00.21 (PetSaveData.IsUnlock)
+    petKey: 0, // TODO Phase 3: run extractor to derive (SPEC_DEVIATION)
+    isUnlock: 0, // TODO Phase 3: run extractor to derive (SPEC_DEVIATION)
   },
   inventoryItem: {
-    itemKey: 0, // TODO: derive for v1.00.21 (InventoryItem.ItemKey)
-    isChaotic: 0, // TODO: derive for v1.00.21 (InventoryItem.IsChaotic)
-    location: 0, // TODO: derive for v1.00.21 (bag id / location field)
+    itemKey: 0, // TODO Phase 3: run extractor to derive (SPEC_DEVIATION)
+    isChaotic: 0, // TODO Phase 3: run extractor to derive (SPEC_DEVIATION)
+    location: 0, // TODO Phase 3: run extractor to derive (SPEC_DEVIATION)
   },
   runtime: RUNTIME_V1_00_21,
   container: CONTAINER,

@@ -127,6 +127,32 @@ export function LiveMemoryDiagnostics() {
             value={snapshot?.petData != null ? String(snapshot.petData.length) : "—"}
           />
         </section>
+
+        {stats ? (
+          <section>
+            <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
+              Chest drops (per type)
+            </p>
+            <Row label="Common" value={String(stats.chestDrops.commonTotal)} />
+            <Row label="Stage boss" value={String(stats.chestDrops.rareTotal)} />
+            <Row label="Act boss" value={String(stats.chestDrops.actBossTotal)} />
+            <Row label="Combined" value={String(stats.chestDrops.combinedTotal)} />
+          </section>
+        ) : null}
+
+        <section>
+          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
+            Offset extractor
+          </p>
+          <Row
+            label="Offset source"
+            value={snapshot?.source?.startsWith("memory") ? snapshot.source : "—"}
+          />
+          <Row
+            label="Status"
+            value={status?.supported ? "active" : (status?.note ?? "unavailable")}
+          />
+        </section>
       </div>
     </TabPage>
   );

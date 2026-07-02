@@ -19,8 +19,11 @@ const baseStats = {
   chestDrops: {
     commonTotal: 0,
     rareTotal: 0,
+    actBossTotal: 0,
+    combinedTotal: 0,
     commonPerHour: 0,
     rarePerHour: 0,
+    actBossPerHour: 0,
     readerRequired: true,
     breakdown: [],
     history: [],
