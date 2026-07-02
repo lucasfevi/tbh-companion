@@ -906,6 +906,14 @@ export interface LiveMemorySnapshot {
   chestDrops: ("common" | "rare")[] | null;
   /** Live inventory items from PlayerSaveData.itemSaveDatas snapshot (null ⇒ unavailable). */
   inventoryItems: LiveInventoryItem[] | null;
+  /**
+   * Stage clear times (whole seconds, as recorded by the game) observed since
+   * the previous tick, read from the StageClear battle log. `[]` = reader
+   * active, no new clears; `null` = unavailable (offset not derived / no
+   * battle). Attribution to a stage key happens in `main/` using the current
+   * live/save stageKey — the log entry itself doesn't carry difficulty.
+   */
+  stageClears: number[] | null;
   /** Live pet unlock state from save-layer heap (null ⇒ unavailable). */
   petData: LivePetData[] | null;
   /** Human-readable source, e.g. "memory v1.00.21". */

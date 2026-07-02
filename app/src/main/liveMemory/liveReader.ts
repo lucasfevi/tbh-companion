@@ -22,16 +22,19 @@ import {
   makeChestLogPinState,
   makeGoldPinState,
   makeSmPinState,
+  makeStageClearPinState,
   readRuntimeChestLog,
   readRuntimeGold,
   readRuntimeHeroes,
   readRuntimeInventory,
   readRuntimePets,
   readRuntimeStage,
+  readRuntimeStageClears,
   resolveStageManager,
   type ChestLogPinState,
   type GoldPinState,
   type SmPinState,
+  type StageClearPinState,
 } from "../../core/liveMemory/runtime";
 import type { LiveMemorySnapshot, LiveMemoryStatus } from "../../../shared/types";
 import { WinProcess } from "./winProcess";
@@ -83,6 +86,7 @@ export class LiveMemoryReader {
   private goldPin: GoldPinState = makeGoldPinState();
   private smPin: SmPinState = makeSmPinState();
   private chestPin: ChestLogPinState = makeChestLogPinState();
+  private stageClearPin: StageClearPinState = makeStageClearPinState();
   private gameInstallDir: string | null = null;
   private readonly userDataDir: string;
   private log: LiveMemoryLogFn = () => undefined;
@@ -263,6 +267,7 @@ export class LiveMemoryReader {
     this.goldPin = makeGoldPinState();
     this.smPin = makeSmPinState();
     this.chestPin = makeChestLogPinState();
+    this.stageClearPin = makeStageClearPinState();
   }
 
   /** Live stage snapshot, or null when unattached/unsupported/unreadable. */
@@ -286,6 +291,7 @@ export class LiveMemoryReader {
       gold: readRuntimeGold(p, ga.base, ga.size, o, this.goldPin),
       heroes: readRuntimeHeroes(p, o, smPtr),
       chestDrops: readRuntimeChestLog(p, ga.base, ga.size, o, this.chestPin),
+      stageClears: readRuntimeStageClears(p, ga.base, ga.size, o, this.stageClearPin),
       inventoryItems: readRuntimeInventory(p, ga.base, ga.size, o),
       petData: readRuntimePets(p, ga.base, ga.size, o),
       source: `memory v${o.gameVersion}`,
