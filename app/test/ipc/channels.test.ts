@@ -45,6 +45,8 @@ describe("IPC channel registry", () => {
     expect(preload).toContain("IPC.GET_LIVE_MEMORY_STATUS");
     expect(preload).toContain("IPC.LIVE_MEMORY");
     expect(preload).toContain("IPC.LIVE_MEMORY_STATUS");
+    expect(preload).toContain("IPC.GET_STAGE_RUNS");
+    expect(preload).toContain("IPC.STAGE_RUNS");
   });
 
   it("IPC handlers wire invoke and send channels", () => {
@@ -79,6 +81,8 @@ describe("IPC channel registry", () => {
     const liveMemoryHandler = readHandler("liveMemory");
     expect(liveMemoryHandler).toContain("IPC.GET_LIVE_MEMORY");
     expect(liveMemoryHandler).toContain("IPC.GET_LIVE_MEMORY_STATUS");
+    const stageRunsHandler = readHandler("stageRuns");
+    expect(stageRunsHandler).toContain("IPC.GET_STAGE_RUNS");
   });
 
   it("services broadcast on IPC push constants", () => {
@@ -132,6 +136,11 @@ describe("IPC channel registry", () => {
     );
     expect(liveMemory).toContain("IPC.LIVE_MEMORY");
     expect(liveMemory).toContain("IPC.LIVE_MEMORY_STATUS");
+    const stageRuns = readFileSync(
+      join(__dirname, "../../src/main/services/StageRunService.ts"),
+      "utf-8",
+    );
+    expect(stageRuns).toContain("IPC.STAGE_RUNS");
   });
 
   it("preload uses send channels via IPC constants", () => {
@@ -153,5 +162,10 @@ describe("IPC channel registry", () => {
     expect(IPC_PUSH_CHANNELS).toContain(IPC.LIVE_MEMORY_STATUS);
     expect(IPC_INVOKE_CHANNELS).toContain(IPC.GET_LIVE_MEMORY);
     expect(IPC_INVOKE_CHANNELS).toContain(IPC.GET_LIVE_MEMORY_STATUS);
+  });
+
+  it("registers the stage-runs channels in the correct registries", () => {
+    expect(IPC_PUSH_CHANNELS).toContain(IPC.STAGE_RUNS);
+    expect(IPC_INVOKE_CHANNELS).toContain(IPC.GET_STAGE_RUNS);
   });
 });

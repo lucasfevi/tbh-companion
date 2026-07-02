@@ -22,6 +22,7 @@ import type {
   PriceStatus,
   RendererLogPayload,
   ResolvedInventory,
+  StageRunStats,
   Stats,
   TbhApi,
   UpdateStatus,
@@ -219,6 +220,14 @@ const api: TbhApi = {
     const listener = (_e: unknown, status: LiveMemoryStatus): void => cb(status);
     ipcRenderer.on(IPC.LIVE_MEMORY_STATUS, listener);
     return () => ipcRenderer.removeListener(IPC.LIVE_MEMORY_STATUS, listener);
+  },
+  getStageRuns(): Promise<StageRunStats> {
+    return ipcRenderer.invoke(IPC.GET_STAGE_RUNS);
+  },
+  onStageRuns(cb: (stats: StageRunStats) => void): () => void {
+    const listener = (_e: unknown, stats: StageRunStats): void => cb(stats);
+    ipcRenderer.on(IPC.STAGE_RUNS, listener);
+    return () => ipcRenderer.removeListener(IPC.STAGE_RUNS, listener);
   },
 };
 

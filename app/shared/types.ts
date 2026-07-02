@@ -418,6 +418,7 @@ export type AppDataClearTarget =
   | "prices"
   | "lookup-prices"
   | "box-timers"
+  | "stage-runs"
   | "session"
   | "all-except-config";
 
@@ -1038,4 +1039,6 @@ export interface TbhApi {
   getLiveMemoryStatus(): Promise<LiveMemoryStatus | null>;
   onLiveMemory(cb: (snapshot: LiveMemorySnapshot) => void): () => void;
   onLiveMemoryStatus(cb: (status: LiveMemoryStatus) => void): () => void;
+  getStageRuns(): Promise<StageRunStats>;
+  onStageRuns(cb: (stats: StageRunStats) => void): () => void;
 }

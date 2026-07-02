@@ -10,6 +10,7 @@ import type {
 import { DIAGNOSTIC_LOG_FILE, getDiagnosticLogPath, listDiagnosticLogFiles } from "../log";
 
 export const BOX_TIMERS_FILE = "box_timers.json";
+export const STAGE_RUN_FILE = "stage_run_best.json";
 export const SESSION_STATE_FILE = "session_state.json";
 export const CONFIG_FILE = "config.json";
 export const LOOKUP_PRICES_FILE = "lookup_prices.json";
@@ -59,6 +60,12 @@ export function getAppDataPaths(userDataDir = resolveUserDataDir()): AppDataPath
       exists: existsSync(join(userDataDir, BOX_TIMERS_FILE)),
     },
     {
+      id: "stage-runs",
+      label: "Best stage clear times",
+      files: [STAGE_RUN_FILE],
+      exists: existsSync(join(userDataDir, STAGE_RUN_FILE)),
+    },
+    {
       id: "session",
       label: "Session snapshot",
       files: [SESSION_STATE_FILE],
@@ -92,6 +99,8 @@ export function filesForClearTarget(
       return [LOOKUP_PRICES_FILE];
     case "box-timers":
       return [BOX_TIMERS_FILE];
+    case "stage-runs":
+      return [STAGE_RUN_FILE];
     case "session":
       return [SESSION_STATE_FILE];
     case "all-except-config":
@@ -99,6 +108,7 @@ export function filesForClearTarget(
         ...listPriceCacheFiles(userDataDir),
         LOOKUP_PRICES_FILE,
         BOX_TIMERS_FILE,
+        STAGE_RUN_FILE,
         SESSION_STATE_FILE,
       ];
     default:

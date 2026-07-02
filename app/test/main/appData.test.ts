@@ -7,6 +7,7 @@ import {
   CONFIG_FILE,
   LOOKUP_PRICES_FILE,
   SESSION_STATE_FILE,
+  STAGE_RUN_FILE,
   clearAppDataFiles,
   filesForClearTarget,
   getAppDataPaths,
@@ -98,6 +99,27 @@ describe("appData", () => {
     const result = clearAppDataFiles("all-except-config", userDataDir);
     expect(result.ok).toBe(true);
     expect(result.cleared).toContain(LOOKUP_PRICES_FILE);
+    expect(existsSync(join(userDataDir, CONFIG_FILE))).toBe(true);
+  });
+
+  it("reports a stage-runs path entry", () => {
+    touch(STAGE_RUN_FILE);
+
+    const paths = getAppDataPaths(userDataDir);
+    expect(paths.entries.find((e) => e.id === "stage-runs")?.exists).toBe(true);
+  });
+
+  it("scopes filesForClearTarget('stage-runs') to the best-times file only", () => {
+    expect(filesForClearTarget("stage-runs", userDataDir)).toEqual([STAGE_RUN_FILE]);
+  });
+
+  it("includes stage_run_best.json in the all-except-config clear", () => {
+    touch(STAGE_RUN_FILE);
+    touch(CONFIG_FILE);
+
+    const result = clearAppDataFiles("all-except-config", userDataDir);
+    expect(result.ok).toBe(true);
+    expect(result.cleared).toContain(STAGE_RUN_FILE);
     expect(existsSync(join(userDataDir, CONFIG_FILE))).toBe(true);
   });
 });

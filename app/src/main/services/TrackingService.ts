@@ -42,6 +42,7 @@ export class TrackingService {
     private readonly sessionState?: SessionStateService,
     private readonly onHeroLevelUp?: (events: HeroLevelUpEvent[]) => void,
     private readonly onLiveStageBossDrop?: (stageKey: number) => void,
+    private readonly onLiveStageClear?: (stageKey: number, clearTimeSec: number) => void,
   ) {
     this.onInventory = onInventory;
     this.parseInventorySnapshot = parseInventorySnapshot;
@@ -188,6 +189,15 @@ export class TrackingService {
           if (category === "rare" && snap.stageKey != null && snap.stageKey > 0) {
             this.onLiveStageBossDrop?.(snap.stageKey);
           }
+        }
+      }
+    }
+
+    if (snap.stageClears && snap.stageClears.length > 0) {
+      const stageKey = snap.stageKey ?? this.lastSnap?.stageKey ?? 0;
+      if (stageKey > 0) {
+        for (const clearTimeSec of snap.stageClears) {
+          this.onLiveStageClear?.(stageKey, clearTimeSec);
         }
       }
     }

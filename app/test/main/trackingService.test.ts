@@ -236,6 +236,75 @@ describe("TrackingService.onLiveMemoryToggled", () => {
     expect(onLiveStageBossDrop).toHaveBeenCalledWith(4103);
     svc.stop();
   });
+
+  it("fires onLiveStageClear once per new clear-time entry, attributed to the live stageKey", () => {
+    const onLiveStageClear = vi.fn();
+    const svc = new TrackingService(
+      vi.fn(),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      onLiveStageClear,
+    );
+    svc.start(baseConfig);
+    onSnapshot?.(snap(5, 1000, 0));
+
+    const frame: LiveMemorySnapshot = {
+      connected: true,
+      stageKey: 4103,
+      stageWave: 1,
+      gold: null,
+      heroes: null,
+      chestDrops: null,
+      inventoryItems: null,
+      stageClears: [85, 63],
+      petData: null,
+      source: "memory test",
+      readMs: 1,
+      at: 2000,
+    };
+    svc.ingestLiveFrame(frame);
+
+    expect(onLiveStageClear).toHaveBeenCalledTimes(2);
+    expect(onLiveStageClear).toHaveBeenNthCalledWith(1, 4103, 85);
+    expect(onLiveStageClear).toHaveBeenNthCalledWith(2, 4103, 63);
+    svc.stop();
+  });
+
+  it("does not fire onLiveStageClear when no stageKey is resolved", () => {
+    const onLiveStageClear = vi.fn();
+    const svc = new TrackingService(
+      vi.fn(),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      onLiveStageClear,
+    );
+    svc.start(baseConfig);
+
+    const frame: LiveMemorySnapshot = {
+      connected: true,
+      stageKey: null,
+      stageWave: null,
+      gold: null,
+      heroes: null,
+      chestDrops: null,
+      inventoryItems: null,
+      stageClears: [85],
+      petData: null,
+      source: "memory test",
+      readMs: 1,
+      at: 2000,
+    };
+    svc.ingestLiveFrame(frame);
+
+    expect(onLiveStageClear).not.toHaveBeenCalled();
+    svc.stop();
+  });
 });
 
 describe("TrackingService live-frame broadcast throttling", () => {
