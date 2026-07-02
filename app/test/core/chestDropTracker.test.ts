@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { ChestDropTracker, resolveStageBoxDrop, inferChestCategory } from "../../src/core/chestDropTracker";
+import {
+  ChestDropTracker,
+  resolveStageBoxDrop,
+  inferChestCategory,
+} from "../../src/core/chestDropTracker";
 
 describe("resolveStageBoxDrop", () => {
   it("resolves common and rare stage boxes from catalog", () => {
@@ -166,5 +170,24 @@ describe("ChestDropTracker.recordLiveChestDrop", () => {
     const stats = tracker.getStats(3600);
     expect(stats.actBossTotal).toBe(0);
     expect(stats.actBossPerHour).toBe(0);
+  });
+
+  it("actBossTotal accumulates from snapshot with actBoss category entries (discriminates Mutation G)", () => {
+    // Inject an actBoss-categorized entry via snapshot to prove getStats() accumulates it.
+    // inferChestCategory() never produces "actBoss" in Phase 3, so snapshot injection is the
+    // only way to reach this branch; this test ensures the branch is not dead code.
+    const tracker = new ChestDropTracker();
+    tracker.applySnapshot({
+      countsByKey: { "9999": 2 },
+      namesByKey: { "9999": "Act boss chest (stage 9999)" },
+      categoriesByKey: { "9999": "actBoss" },
+      history: [],
+    });
+    const stats = tracker.getStats(3600);
+    expect(stats.actBossTotal).toBe(2);
+    expect(stats.actBossPerHour).toBeGreaterThan(0);
+    expect(stats.commonTotal).toBe(0);
+    expect(stats.rareTotal).toBe(0);
+    expect(stats.combinedTotal).toBe(2);
   });
 });
