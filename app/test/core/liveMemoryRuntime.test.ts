@@ -424,7 +424,9 @@ function seedLogChain(m: FakeMemory, monsterTypes: number[]): FakeMemory {
 
 describe("readRuntimeChestLog", () => {
   it("returns null when logManager RVA is 0 (not derived for this version)", () => {
-    expect(readRuntimeChestLog(new FakeMemory(), GA_BASE, GA_SIZE, O, makeChestLogPinState())).toBeNull();
+    expect(
+      readRuntimeChestLog(new FakeMemory(), GA_BASE, GA_SIZE, O, makeChestLogPinState()),
+    ).toBeNull();
   });
 
   it("primes to the current log length on first read (backlog not counted)", () => {
@@ -498,7 +500,9 @@ function seedInventoryChain(
 describe("readRuntimeInventory", () => {
   it("returns null when itemSaveDatas offset is 0 (not derived)", () => {
     const patched = { ...O, player: { ...O.player, itemSaveDatas: 0 } };
-    expect(readRuntimeInventory(seedInventoryChain(new FakeMemory(), []), GA_BASE, GA_SIZE, patched)).toBeNull();
+    expect(
+      readRuntimeInventory(seedInventoryChain(new FakeMemory(), []), GA_BASE, GA_SIZE, patched),
+    ).toBeNull();
   });
 
   it("reads items from the itemSaveDatas list", () => {

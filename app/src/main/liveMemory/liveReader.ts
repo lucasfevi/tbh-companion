@@ -5,8 +5,15 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { offsetsForVersion, type LiveOffsets } from "../../core/liveMemory/offsets";
+import {
+  hasCriticalOffsets,
+  isOffsetTableComplete,
+  mergeOffsets,
+  missingOffsetFields,
+} from "../../core/liveMemory/offsetCompleteness";
 import { extractOffsets } from "./offsetExtractor";
 import { loadCachedOffsets, saveCachedOffsets } from "./offsetCache";
+import { mayAttemptExtraction, recordExtractionAttempt } from "./offsetHealing";
 import {
   makeChestLogPinState,
   makeGoldPinState,
@@ -26,6 +33,19 @@ import type { LiveMemorySnapshot, LiveMemoryStatus } from "../../../shared/types
 import { WinProcess } from "./winProcess";
 
 const PROCESS_NAMES = ["TaskBarHero.exe", "TaskbarHero.exe"];
+
+/** Companion build id used to reset the extraction attempt budget on upgrade. */
+function resolveAppBuild(): string {
+  for (const rel of ["../../package.json", "../../../package.json"]) {
+    try {
+      const pkg = JSON.parse(readFileSync(join(__dirname, rel), "utf-8")) as { version?: string };
+      if (pkg.version) return pkg.version;
+    } catch {
+      // try the next candidate
+    }
+  }
+  return "unknown";
+}
 
 function gameAssembly(p: WinProcess): { base: bigint; size: number } | null {
   const m = p.listModules().find((mod) => /^gameassembly\.dll$/i.test(mod.name));
@@ -68,7 +88,7 @@ export class LiveMemoryReader {
   }
 
   /** Attach to the game and resolve version + offsets. Idempotent. */
-  attach(): boolean {
+  attach(appBuild: string = resolveAppBuild()): boolean {
     if (this.attached) return true;
     this.detach();
     const proc = WinProcess.findByNames(PROCESS_NAMES);
@@ -79,23 +99,45 @@ export class LiveMemoryReader {
     this.gameVersion = versionInfo?.version ?? null;
     this.gameInstallDir = versionInfo?.installDir ?? null;
 
-    // Resolution order: bundled → disk cache → runtime extractor → null (degraded).
+    this.offsets = this.resolveOffsets(proc, appBuild);
+    this.supported = this.offsets != null && this.ga != null && hasCriticalOffsets(this.offsets);
+    return true;
+  }
+
+  /**
+   * Self-healing offset resolution:
+   *   1. seed from the bundled table, else the disk cache;
+   *   2. if the seed is missing OR incomplete (any wanted field still 0), and the
+   *      per-version+build attempt budget is not exhausted, run the runtime
+   *      extractor and MERGE its findings into the seed (filling only the gaps);
+   *   3. persist the improved table so a future launch loads a complete cache.
+   * The extractor is skipped only when the table is already complete — so a
+   * game update (new version → empty cache) or a cached-but-partial table both
+   * trigger derivation. The attempt cap stops us re-scanning forever when a
+   * field is genuinely underivable with the current build.
+   */
+  private resolveOffsets(proc: WinProcess, appBuild: string): LiveOffsets | null {
     const ga = this.ga;
     const version = this.gameVersion;
-    this.offsets = offsetsForVersion(version);
-    if (!this.offsets && ga && version && this.gameInstallDir) {
-      this.offsets = loadCachedOffsets(this.gameInstallDir, version);
-    }
-    if (!this.offsets && ga && version && this.gameInstallDir) {
+    const dir = this.gameInstallDir;
+
+    let base = offsetsForVersion(version);
+    if (!base && dir && version) base = loadCachedOffsets(dir, version);
+
+    const complete = base != null && isOffsetTableComplete(base);
+    if (complete) return base;
+
+    // Incomplete (or nothing) → attempt runtime derivation, budget permitting.
+    if (ga && version && dir && mayAttemptExtraction(dir, version, appBuild)) {
+      recordExtractionAttempt(dir, version, appBuild);
       const derived = extractOffsets(proc, ga, version);
       if (derived) {
-        saveCachedOffsets(this.gameInstallDir, derived);
-        this.offsets = derived;
+        const merged = base ? mergeOffsets(base, derived) : derived;
+        saveCachedOffsets(dir, merged);
+        return merged;
       }
     }
-
-    this.supported = this.offsets != null && this.ga != null;
-    return true;
+    return base; // extraction unavailable/failed — use the seed (may be null)
   }
 
   detach(): void {
@@ -152,6 +194,12 @@ export class LiveMemoryReader {
         this.attached && !this.supported
           ? `live stats unavailable for game v${this.gameVersion ?? "?"}`
           : undefined,
+      offsetHealth: this.offsets
+        ? {
+            complete: isOffsetTableComplete(this.offsets),
+            missing: missingOffsetFields(this.offsets),
+          }
+        : undefined,
     };
   }
 }

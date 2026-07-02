@@ -931,6 +931,12 @@ export interface LiveMemoryStatus {
   supported: boolean;
   /** e.g. "live stats unavailable for game v1.00.99". */
   note?: string;
+  /** Self-healing offset resolution health: whether every wanted field is mapped. */
+  offsetHealth?: {
+    complete: boolean;
+    /** Dotted paths of wanted offset fields still awaiting derivation. */
+    missing: string[];
+  };
 }
 
 // API surface exposed on `window.tbh` by the preload via contextBridge.

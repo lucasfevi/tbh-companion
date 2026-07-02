@@ -145,7 +145,7 @@ export function LiveMemoryDiagnostics() {
 
         <section>
           <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
-            Offset extractor
+            Offset extractor (self-healing)
           </p>
           <Row
             label="Offset source"
@@ -155,6 +155,19 @@ export function LiveMemoryDiagnostics() {
             label="Status"
             value={status?.supported ? "active" : (status?.note ?? "unavailable")}
           />
+          <Row
+            label="Offsets complete"
+            value={
+              status?.offsetHealth
+                ? status.offsetHealth.complete
+                  ? "✓ all mapped"
+                  : `${status.offsetHealth.missing.length} missing`
+                : "—"
+            }
+          />
+          {status?.offsetHealth && !status.offsetHealth.complete ? (
+            <Row label="Awaiting derivation" value={status.offsetHealth.missing.join(", ")} />
+          ) : null}
         </section>
       </div>
     </TabPage>

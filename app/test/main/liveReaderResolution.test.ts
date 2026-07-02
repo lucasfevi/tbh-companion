@@ -1,58 +1,62 @@
-// Tests for LiveMemoryReader.attach() resolution order:
-// bundled → disk cache → runtime extractor → degraded (never wrong reads).
-// Uses vi.mock to stub all three resolution paths independently.
+// Tests for the self-healing offset resolution in LiveMemoryReader.attach():
+//   seed (bundled/cache) → completeness check → attempt-capped extract + merge.
+// The completeness/merge helpers run for real; only the impure edges are mocked.
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { LiveOffsets } from "../../src/core/liveMemory/offsets";
+import { offsetsForVersion, type LiveOffsets } from "../../src/core/liveMemory/offsets";
 
-// ── Stubs ─────────────────────────────────────────────────────────────────────
+// A game version NOT in the bundled table, so offsetsForVersion() returns null
+// naturally and resolution falls to the cache/extractor mocks.
+const VERSION = "9.99.99";
 
-const FAKE_VERSION = "2.00.00"; // not in bundled table → forces cache / extractor path
-const FAKE_OFFSETS: Partial<LiveOffsets> = { gameVersion: FAKE_VERSION } as LiveOffsets;
+// Real v1.00.21 table, re-versioned. As-is it is complete-critical but missing
+// the enrichment `logManager` RVA (0n) → isOffsetTableComplete === false.
+const INCOMPLETE: LiveOffsets = { ...offsetsForVersion("1.00.21")!, gameVersion: VERSION };
+// Same table with the last gap filled → fully complete.
+const COMPLETE: LiveOffsets = {
+  ...INCOMPLETE,
+  typeInfoRva: { ...INCOMPLETE.typeInfoRva, logManager: 0x5e40000n },
+};
+// What the extractor "derives": only the missing enrichment RVA.
+const DERIVED: LiveOffsets = {
+  ...INCOMPLETE,
+  typeInfoRva: { ...INCOMPLETE.typeInfoRva, logManager: 0x5e40000n },
+};
 
-// Hoisted mutable state so we can control each stub per test.
 const stubs = vi.hoisted(() => ({
-  offsetsForVersion: null as LiveOffsets | null,
-  loadCachedOffsets: null as LiveOffsets | null,
-  saveCachedOffsetsCalled: false,
-  extractOffsets: null as LiveOffsets | null,
-  procAlive: true,
-  procModules: [
-    {
-      name: "GameAssembly.dll",
-      baseAddress: 0x140000000n,
-      size: 0x6000000,
-      path: "C:\\game\\GameAssembly.dll",
-    },
-    {
-      name: "TaskBarHero.exe",
-      baseAddress: 0x400000n,
-      size: 0x1000,
-      path: "C:\\game\\TaskBarHero.exe",
-    },
-  ],
-}));
-
-vi.mock("../../src/core/liveMemory/offsets", () => ({
-  offsetsForVersion: () => stubs.offsetsForVersion,
-  supportedVersions: () => [],
+  cached: null as LiveOffsets | null,
+  extracted: null as LiveOffsets | null,
+  mayAttempt: true,
+  saved: null as LiveOffsets | null,
+  extractCalls: 0,
+  recordCalls: 0,
 }));
 
 vi.mock("../../src/main/liveMemory/offsetCache", () => ({
-  loadCachedOffsets: () => stubs.loadCachedOffsets,
-  saveCachedOffsets: () => {
-    stubs.saveCachedOffsetsCalled = true;
+  loadCachedOffsets: () => stubs.cached,
+  saveCachedOffsets: (_dir: string, offsets: LiveOffsets) => {
+    stubs.saved = offsets;
   },
   offsetCachePath: () => "/fake/path",
 }));
 
 vi.mock("../../src/main/liveMemory/offsetExtractor", () => ({
-  extractOffsets: () => stubs.extractOffsets,
+  extractOffsets: () => {
+    stubs.extractCalls += 1;
+    return stubs.extracted;
+  },
+}));
+
+vi.mock("../../src/main/liveMemory/offsetHealing", () => ({
+  mayAttemptExtraction: () => stubs.mayAttempt,
+  recordExtractionAttempt: () => {
+    stubs.recordCalls += 1;
+  },
 }));
 
 vi.mock("node:fs", () => ({
   existsSync: () => true,
-  readFileSync: () => FAKE_VERSION,
+  readFileSync: () => VERSION,
 }));
 
 vi.mock("node:path", async () => {
@@ -64,74 +68,95 @@ vi.mock("../../src/main/liveMemory/winProcess", () => ({
   WinProcess: {
     findByNames: () => ({
       pid: 9999,
-      isAlive: () => stubs.procAlive,
+      isAlive: () => true,
       close: () => undefined,
-      listModules: () => stubs.procModules,
+      listModules: () => [
+        {
+          name: "GameAssembly.dll",
+          baseAddress: 0x140000000n,
+          size: 0x6000000,
+          path: "C:\\game\\GameAssembly.dll",
+        },
+        {
+          name: "TaskBarHero.exe",
+          baseAddress: 0x400000n,
+          size: 0x1000,
+          path: "C:\\game\\TaskBarHero.exe",
+        },
+      ],
       readBytes: () => null,
     }),
   },
 }));
 
-// ── Helper: fresh reader per test ─────────────────────────────────────────────
-
-async function freshReader() {
+async function attachFresh() {
   vi.resetModules();
   const { LiveMemoryReader } = await import("../../src/main/liveMemory/liveReader");
-  return new LiveMemoryReader();
+  const reader = new LiveMemoryReader();
+  reader.attach("test-build");
+  return reader;
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+beforeEach(() => {
+  stubs.cached = null;
+  stubs.extracted = null;
+  stubs.mayAttempt = true;
+  stubs.saved = null;
+  stubs.extractCalls = 0;
+  stubs.recordCalls = 0;
+});
 
-describe("LiveMemoryReader.attach() resolution order", () => {
-  beforeEach(() => {
-    stubs.offsetsForVersion = null;
-    stubs.loadCachedOffsets = null;
-    stubs.saveCachedOffsetsCalled = false;
-    stubs.extractOffsets = null;
-    stubs.procAlive = true;
-  });
-
-  it("uses bundled offsets when offsetsForVersion returns non-null", async () => {
-    stubs.offsetsForVersion = FAKE_OFFSETS as LiveOffsets;
-    const reader = await freshReader();
-    reader.attach();
-    expect(reader.supported).toBe(true);
-    expect(reader.gameVersion).toBe(FAKE_VERSION);
-  });
-
-  it("falls through to disk cache when bundled returns null, and uses cached offsets", async () => {
-    stubs.offsetsForVersion = null;
-    stubs.loadCachedOffsets = FAKE_OFFSETS as LiveOffsets;
-    const reader = await freshReader();
-    reader.attach();
+describe("LiveMemoryReader self-healing resolution", () => {
+  it("skips extraction when the cached table is already complete", async () => {
+    stubs.cached = COMPLETE;
+    const reader = await attachFresh();
+    expect(stubs.extractCalls).toBe(0);
     expect(reader.supported).toBe(true);
   });
 
-  it("calls extractor when bundled and cache both return null", async () => {
-    stubs.offsetsForVersion = null;
-    stubs.loadCachedOffsets = null;
-    stubs.extractOffsets = FAKE_OFFSETS as LiveOffsets;
-    const reader = await freshReader();
-    reader.attach();
+  it("runs the extractor and merges when the cached table is incomplete", async () => {
+    stubs.cached = INCOMPLETE; // logManager 0n
+    stubs.extracted = DERIVED;
+    const reader = await attachFresh();
+    expect(stubs.extractCalls).toBe(1);
+    // Merged table persisted with the derived gap filled.
+    expect(stubs.saved?.typeInfoRva.logManager).toBe(0x5e40000n);
     expect(reader.supported).toBe(true);
   });
 
-  it("saves to cache when extractor succeeds", async () => {
-    stubs.offsetsForVersion = null;
-    stubs.loadCachedOffsets = null;
-    stubs.extractOffsets = FAKE_OFFSETS as LiveOffsets;
-    const reader = await freshReader();
-    reader.attach();
-    expect(stubs.saveCachedOffsetsCalled).toBe(true);
+  it("records an attempt before extracting", async () => {
+    stubs.cached = INCOMPLETE;
+    stubs.extracted = DERIVED;
+    await attachFresh();
+    expect(stubs.recordCalls).toBe(1);
   });
 
-  it("enters degraded mode (supported=false) when all three return null", async () => {
-    stubs.offsetsForVersion = null;
-    stubs.loadCachedOffsets = null;
-    stubs.extractOffsets = null;
-    const reader = await freshReader();
-    reader.attach();
+  it("keeps a base value over the derived one when merging (fills only gaps)", async () => {
+    stubs.cached = INCOMPLETE;
+    // Extractor returns a DIFFERENT heroList — merge must keep the base's value.
+    stubs.extracted = {
+      ...DERIVED,
+      runtime: { ...DERIVED.runtime, heroList: 0x999 },
+    };
+    await attachFresh();
+    expect(stubs.saved?.runtime.heroList).toBe(INCOMPLETE.runtime.heroList);
+  });
+
+  it("skips extraction when the attempt budget is exhausted", async () => {
+    stubs.cached = INCOMPLETE;
+    stubs.mayAttempt = false;
+    const reader = await attachFresh();
+    expect(stubs.extractCalls).toBe(0);
+    expect(stubs.saved).toBeNull();
+    // Still supported: the critical fields are present even without enrichment.
+    expect(reader.supported).toBe(true);
+  });
+
+  it("degrades (supported=false) when nothing resolves and extraction fails", async () => {
+    stubs.cached = null;
+    stubs.extracted = null;
+    const reader = await attachFresh();
     expect(reader.supported).toBe(false);
-    expect(reader.attached).toBe(true); // attached but unsupported
+    expect(reader.attached).toBe(true);
   });
 });

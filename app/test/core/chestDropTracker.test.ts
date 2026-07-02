@@ -103,7 +103,6 @@ describe("ChestDropTracker", () => {
     const tracker = new ChestDropTracker();
     expect(tracker.getStats(3600).readerRequired).toBe(true);
   });
-
 });
 
 describe("ChestDropTracker.recordLiveChestDrop", () => {
