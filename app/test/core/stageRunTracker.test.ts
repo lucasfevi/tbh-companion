@@ -2,44 +2,44 @@ import { describe, it, expect } from "vitest";
 import { StageRunTracker } from "../../src/core/stageRunTracker";
 
 describe("StageRunTracker", () => {
-  it("records a clear and reports it as the stage's first best", () => {
+  it("records a clear and reports it as the stage's first fastest", () => {
     const tracker = new StageRunTracker();
     expect(tracker.recordClear(2305, 85, 1000)).toBe(true);
 
     const stats = tracker.getStats();
     expect(stats.rows).toEqual([
-      { stageKey: 2305, bestClearTimeSec: 85, lastClearTimeSec: 85, clearCount: 1 },
+      { stageKey: 2305, fastestClearTimeSec: 85, lastClearTimeSec: 85, clearCount: 1 },
     ]);
     expect(stats.history).toEqual([
-      { wallTime: 1000, stageKey: 2305, clearTimeSec: 85, isBest: true },
+      { wallTime: 1000, stageKey: 2305, clearTimeSec: 85, isFastest: true },
     ]);
     expect(stats.readerRequired).toBe(true);
   });
 
-  it("updates best only when a new clear is faster", () => {
+  it("updates the fastest time only when a new clear is faster", () => {
     const tracker = new StageRunTracker();
     tracker.recordClear(2305, 85, 1000);
 
-    expect(tracker.recordClear(2305, 90, 1001)).toBe(false); // slower — not a new best
+    expect(tracker.recordClear(2305, 90, 1001)).toBe(false); // slower — not a new fastest
     let stats = tracker.getStats();
     expect(stats.rows[0]).toEqual({
       stageKey: 2305,
-      bestClearTimeSec: 85,
+      fastestClearTimeSec: 85,
       lastClearTimeSec: 90,
       clearCount: 2,
     });
 
-    expect(tracker.recordClear(2305, 63, 1002)).toBe(true); // faster — new best
+    expect(tracker.recordClear(2305, 63, 1002)).toBe(true); // faster — new fastest
     stats = tracker.getStats();
     expect(stats.rows[0]).toEqual({
       stageKey: 2305,
-      bestClearTimeSec: 63,
+      fastestClearTimeSec: 63,
       lastClearTimeSec: 63,
       clearCount: 3,
     });
   });
 
-  it("tracks multiple stages independently, sorted fastest-best first", () => {
+  it("tracks multiple stages independently, sorted fastest first", () => {
     const tracker = new StageRunTracker();
     tracker.recordClear(2305, 85, 1000);
     tracker.recordClear(3102, 40, 1001);
@@ -80,7 +80,7 @@ describe("StageRunTracker", () => {
   it("applySnapshot tolerates a missing/empty snapshot", () => {
     const tracker = new StageRunTracker();
     tracker.applySnapshot({
-      bestByStageKey: {},
+      fastestByStageKey: {},
       lastByStageKey: {},
       countByStageKey: {},
       history: [],

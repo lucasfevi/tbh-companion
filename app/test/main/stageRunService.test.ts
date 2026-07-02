@@ -54,7 +54,7 @@ describe("StageRunService", () => {
 
     const stats = svc.getStats();
     expect(stats.rows).toEqual([
-      { stageKey: 2305, bestClearTimeSec: 85, lastClearTimeSec: 85, clearCount: 1 },
+      { stageKey: 2305, fastestClearTimeSec: 85, lastClearTimeSec: 85, clearCount: 1 },
     ]);
   });
 
@@ -64,13 +64,13 @@ describe("StageRunService", () => {
     first.recordClear(2305, 63);
 
     const raw = JSON.parse(readFileSync(join(userDataDir, "stage_run_best.json"), "utf-8"));
-    expect(raw.bestByStageKey["2305"]).toBe(63);
+    expect(raw.fastestByStageKey["2305"]).toBe(63);
 
     vi.resetModules();
     const second = await loadService();
     expect(second.getStats().rows[0]).toEqual({
       stageKey: 2305,
-      bestClearTimeSec: 63,
+      fastestClearTimeSec: 63,
       lastClearTimeSec: 63,
       clearCount: 2,
     });

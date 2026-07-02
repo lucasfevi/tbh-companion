@@ -7,7 +7,7 @@ import { stageName } from "../../../core/stages";
 import { LiveMatchedPair } from "./LiveMatchedPair";
 import { LivePanelList } from "./LivePanelList";
 
-const BEST_TIMES_VISIBLE = 8;
+const FASTEST_TIMES_VISIBLE = 8;
 
 export function StageRunPanel({
   stageRuns,
@@ -18,24 +18,24 @@ export function StageRunPanel({
   inactiveMessage?: string | null;
 }) {
   const { rows, history } = stageRuns;
-  const bestRows = rows.slice(0, BEST_TIMES_VISIBLE);
+  const fastestRows = rows.slice(0, FASTEST_TIMES_VISIBLE);
 
   return (
     <>
       {inactiveMessage ? <HintBanner>{inactiveMessage}</HintBanner> : null}
       <LiveMatchedPair
         left={
-          <PanelSection title="Best farm times" boxed>
+          <PanelSection title="Fastest clear times" boxed>
             <LivePanelList
               empty={
-                bestRows.length === 0
+                fastestRows.length === 0
                   ? inactiveMessage
                     ? "No clears tracked this session."
                     : "No clears logged yet this session."
                   : undefined
               }
             >
-              {bestRows.map((row, i) => (
+              {fastestRows.map((row, i) => (
                 <DataListRow
                   key={row.stageKey}
                   index={i}
@@ -43,7 +43,7 @@ export function StageRunPanel({
                 >
                   <span className="min-w-0 truncate">{stageName(row.stageKey)}</span>
                   <span className="tabular-nums font-semibold text-fg">
-                    {fmtDuration(row.bestClearTimeSec)}
+                    {fmtDuration(row.fastestClearTimeSec)}
                   </span>
                   <span className="tabular-nums text-muted">×{row.clearCount}</span>
                 </DataListRow>
@@ -66,13 +66,13 @@ export function StageRunPanel({
                   <span className="min-w-0 truncate">{stageName(entry.stageKey)}</span>
                   <span
                     className={
-                      entry.isBest
+                      entry.isFastest
                         ? "tabular-nums font-semibold text-status-info"
                         : "tabular-nums text-fg"
                     }
                   >
                     {fmtDuration(entry.clearTimeSec)}
-                    {entry.isBest ? " best" : ""}
+                    {entry.isFastest ? " fastest" : ""}
                   </span>
                 </DataListRow>
               ))}

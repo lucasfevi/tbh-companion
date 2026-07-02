@@ -13,45 +13,47 @@ function nowSeconds(): number {
 }
 
 /**
- * Durable best-farm clear-time tracker, deliberately independent of the
- * session XP/gold tracker: personal-best clear times are a record, not a
- * session statistic, so they are NOT reset by "Reset session stats" or the
- * live-memory-toggle session reset. Persisted via its own small file
- * (`main/services/StageRunService.ts`), not `session_state.json`.
+ * Durable fastest-clear-time tracker, deliberately independent of the
+ * session XP/gold tracker: a stage's fastest clear time is a personal
+ * record, not a session statistic, so it is NOT reset by "Reset session
+ * stats" or the live-memory-toggle session reset. Persisted via its own
+ * small file (`main/services/StageRunService.ts`), not `session_state.json`.
  */
 export class StageRunTracker {
-  private bestByStageKey = new Map<number, number>();
+  private fastestByStageKey = new Map<number, number>();
   private lastByStageKey = new Map<number, number>();
   private countByStageKey = new Map<number, number>();
   private history: StageRunHistoryEntry[] = [];
 
-  /** Record a live stage clear. Returns true when it beat the stage's prior best. */
+  /** Record a live stage clear. Returns true when it beat the stage's prior fastest. */
   recordClear(stageKey: number, clearTimeSec: number, wallTime = nowSeconds()): boolean {
     if (stageKey <= 0 || clearTimeSec <= 0) return false;
 
-    const prevBest = this.bestByStageKey.get(stageKey);
-    const isBest = prevBest === undefined || clearTimeSec < prevBest;
-    if (isBest) this.bestByStageKey.set(stageKey, clearTimeSec);
+    const prevFastest = this.fastestByStageKey.get(stageKey);
+    const isFastest = prevFastest === undefined || clearTimeSec < prevFastest;
+    if (isFastest) this.fastestByStageKey.set(stageKey, clearTimeSec);
 
     this.lastByStageKey.set(stageKey, clearTimeSec);
     this.countByStageKey.set(stageKey, (this.countByStageKey.get(stageKey) ?? 0) + 1);
 
-    this.history.push({ wallTime, stageKey, clearTimeSec, isBest });
+    this.history.push({ wallTime, stageKey, clearTimeSec, isFastest });
     if (this.history.length > HISTORY_LIMIT) {
       this.history.splice(0, this.history.length - HISTORY_LIMIT);
     }
 
-    return isBest;
+    return isFastest;
   }
 
   getStats(): StageRunStats {
-    const rows: StageRunRow[] = [...this.bestByStageKey.entries()].map(([stageKey, best]) => ({
-      stageKey,
-      bestClearTimeSec: best,
-      lastClearTimeSec: this.lastByStageKey.get(stageKey) ?? best,
-      clearCount: this.countByStageKey.get(stageKey) ?? 0,
-    }));
-    rows.sort((a, b) => a.bestClearTimeSec - b.bestClearTimeSec);
+    const rows: StageRunRow[] = [...this.fastestByStageKey.entries()].map(
+      ([stageKey, fastest]) => ({
+        stageKey,
+        fastestClearTimeSec: fastest,
+        lastClearTimeSec: this.lastByStageKey.get(stageKey) ?? fastest,
+        clearCount: this.countByStageKey.get(stageKey) ?? 0,
+      }),
+    );
+    rows.sort((a, b) => a.fastestClearTimeSec - b.fastestClearTimeSec);
 
     return {
       rows,
@@ -62,8 +64,8 @@ export class StageRunTracker {
 
   captureSnapshot(): StageRunTrackerSnapshot {
     return {
-      bestByStageKey: Object.fromEntries(
-        [...this.bestByStageKey.entries()].map(([k, v]) => [String(k), v]),
+      fastestByStageKey: Object.fromEntries(
+        [...this.fastestByStageKey.entries()].map(([k, v]) => [String(k), v]),
       ),
       lastByStageKey: Object.fromEntries(
         [...this.lastByStageKey.entries()].map(([k, v]) => [String(k), v]),
@@ -85,7 +87,7 @@ export class StageRunTracker {
       return m;
     };
 
-    this.bestByStageKey = toNumMap(data.bestByStageKey ?? {});
+    this.fastestByStageKey = toNumMap(data.fastestByStageKey ?? {});
     this.lastByStageKey = toNumMap(data.lastByStageKey ?? {});
     this.countByStageKey = toNumMap(data.countByStageKey ?? {});
     this.history = data.history ?? [];

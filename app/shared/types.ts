@@ -470,11 +470,11 @@ export interface ClearAppDataResult {
   error?: string;
 }
 
-// --- Stage runs (live stage clear times + best-farm tracking) ---
+// --- Stage runs (live stage clear times + fastest-clear tracking) ---
 
 export interface StageRunRow {
   stageKey: number;
-  bestClearTimeSec: number;
+  fastestClearTimeSec: number;
   lastClearTimeSec: number;
   clearCount: number;
 }
@@ -483,7 +483,7 @@ export interface StageRunHistoryEntry {
   wallTime: number;
   stageKey: number;
   clearTimeSec: number;
-  isBest: boolean;
+  isFastest: boolean;
 }
 
 export interface StageRunStats {
@@ -495,7 +495,7 @@ export interface StageRunStats {
 
 /** Serialized StageRunTracker internals for stage_run_best.json persistence. */
 export interface StageRunTrackerSnapshot {
-  bestByStageKey: Record<string, number>;
+  fastestByStageKey: Record<string, number>;
   lastByStageKey: Record<string, number>;
   countByStageKey: Record<string, number>;
   history: StageRunHistoryEntry[];

@@ -11,7 +11,7 @@ import { createLogger } from "../log";
 const log = createLogger("stageRuns");
 
 /**
- * Durable best-farm clear-time storage, independent of `session_state.json`
+ * Durable fastest-clear-time storage, independent of `session_state.json`
  * (see `core/stageRunTracker.ts` for why). Mirrors `BoxTimerService`'s simple
  * load-once / persist-on-change pattern — writes are rare (one per stage
  * clear), so synchronous `writeFileSync` on each change is fine.
@@ -23,22 +23,22 @@ export class StageRunService {
     this.load();
   }
 
-  /** Record a live stage clear. Returns true when it beat the stage's prior best. */
+  /** Record a live stage clear. Returns true when it beat the stage's prior fastest. */
   recordClear(stageKey: number, clearTimeSec: number): boolean {
-    const isBest = this.tracker.recordClear(stageKey, clearTimeSec);
+    const isFastest = this.tracker.recordClear(stageKey, clearTimeSec);
     this.persist();
     this.push();
-    return isBest;
+    return isFastest;
   }
 
   getStats(): StageRunStats {
     return this.tracker.getStats();
   }
 
-  /** Clear in-memory best times after stage_run_best.json was deleted from Settings. */
+  /** Clear in-memory fastest times after stage_run_best.json was deleted from Settings. */
   resetStorage(): void {
     this.tracker.applySnapshot({
-      bestByStageKey: {},
+      fastestByStageKey: {},
       lastByStageKey: {},
       countByStageKey: {},
       history: [],
