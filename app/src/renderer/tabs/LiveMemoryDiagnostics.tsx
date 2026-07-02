@@ -108,8 +108,11 @@ export function LiveMemoryDiagnostics() {
           </p>
           <Row label="Stage key" value={snapshot?.stageKey ?? "—"} />
           <Row label="Stage wave" value={snapshot?.stageWave ?? "—"} />
-          <StatHealth label="Box count" value={snapshot?.boxCount} />
-          <Row label="Box count (raw)" value={snapshot?.boxCount ?? "—"} />
+          <StatHealth label="Chest log" value={snapshot?.chestDrops} />
+          <Row
+            label="New chest drops (tick)"
+            value={snapshot?.chestDrops != null ? String(snapshot.chestDrops.length) : "—"}
+          />
           <StatHealth
             label="Inventory"
             value={snapshot?.inventoryItems?.length ? snapshot.inventoryItems.length : null}

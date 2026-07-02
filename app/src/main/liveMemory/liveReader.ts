@@ -8,15 +8,17 @@ import { offsetsForVersion, type LiveOffsets } from "../../core/liveMemory/offse
 import { extractOffsets } from "./offsetExtractor";
 import { loadCachedOffsets, saveCachedOffsets } from "./offsetCache";
 import {
+  makeChestLogPinState,
   makeGoldPinState,
   makeSmPinState,
-  readRuntimeBoxCount,
+  readRuntimeChestLog,
   readRuntimeGold,
   readRuntimeHeroes,
   readRuntimeInventory,
   readRuntimePets,
   readRuntimeStage,
   resolveStageManager,
+  type ChestLogPinState,
   type GoldPinState,
   type SmPinState,
 } from "../../core/liveMemory/runtime";
@@ -52,6 +54,7 @@ export class LiveMemoryReader {
   private offsets: LiveOffsets | null = null;
   private goldPin: GoldPinState = makeGoldPinState();
   private smPin: SmPinState = makeSmPinState();
+  private chestPin: ChestLogPinState = makeChestLogPinState();
   private gameInstallDir: string | null = null;
   gameVersion: string | null = null;
   supported = false;
@@ -104,6 +107,7 @@ export class LiveMemoryReader {
     this.gameInstallDir = null;
     this.goldPin = makeGoldPinState(); // reset pins on detach — new attach needs fresh walks
     this.smPin = makeSmPinState();
+    this.chestPin = makeChestLogPinState();
   }
 
   /** Live stage snapshot, or null when unattached/unsupported/unreadable. */
@@ -128,7 +132,7 @@ export class LiveMemoryReader {
       stageWave: stage.wave,
       gold: readRuntimeGold(p, ga.base, ga.size, o, this.goldPin),
       heroes: readRuntimeHeroes(p, o, smPtr),
-      boxCount: readRuntimeBoxCount(p, o, smPtr),
+      chestDrops: readRuntimeChestLog(p, ga.base, ga.size, o, this.chestPin),
       inventoryItems: readRuntimeInventory(p, ga.base, ga.size, o),
       petData: readRuntimePets(p, ga.base, ga.size, o),
       source: `memory v${o.gameVersion}`,

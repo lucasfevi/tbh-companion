@@ -4,9 +4,24 @@ import type {
   ChestDropStats,
   ChestDropTrackerSnapshot,
 } from "../../shared/types";
-import { canonicalTrackerBoxId, loadStageBoxCatalogFile, loadStageBoxTrackerRoutes } from "./stageBoxTracker";
+import { canonicalTrackerBoxId, loadStageBoxCatalogFile } from "./stageBoxTracker";
 
 export type ChestDropCategory = "common" | "rare" | "actBoss";
+
+/**
+ * Live chest drops from the GetBox battle log carry no item key, only a
+ * category. They are aggregated into these synthetic per-category buckets.
+ */
+const LIVE_CHEST_KEY: Record<ChestDropCategory, number> = {
+  common: 900910,
+  rare: 900920,
+  actBoss: 900930,
+};
+const LIVE_CHEST_NAME: Record<ChestDropCategory, string> = {
+  common: "Common chest",
+  rare: "Stage boss chest",
+  actBoss: "Act boss chest",
+};
 
 export interface ResolvedStageBoxDrop {
   itemKey: number;
@@ -52,25 +67,6 @@ export function resolveStageBoxDrop(itemKey: number): ResolvedStageBoxDrop | nul
   };
 }
 
-/** Lazy-initialized Set of all RARE stage boss drop stage keys from the catalog. */
-let rareStagekeysCache: Set<number> | null = null;
-function getRareStageKeys(): Set<number> {
-  if (!rareStagekeysCache) {
-    const routes = loadStageBoxTrackerRoutes();
-    rareStagekeysCache = new Set(routes.flatMap((r) => r.dropStageKeys));
-  }
-  return rareStagekeysCache;
-}
-
-/**
- * Classify a live chest drop by stage key.
- * Returns "rare" if the stage drops a RARE stage-boss box per the catalog.
- * actBoss classification deferred to Phase 4 (catalog data TBD); defaults to "common".
- */
-export function inferChestCategory(stageKey: number): ChestDropCategory {
-  return getRareStageKeys().has(stageKey) ? "rare" : "common";
-}
-
 export class ChestDropTracker {
   private countsByKey = new Map<string, number>();
   private namesByKey = new Map<string, string>();
@@ -85,33 +81,24 @@ export class ChestDropTracker {
   }
 
   /**
-   * Record a live chest drop classified by stage key.
-   * Uses `inferChestCategory` to determine common / rare / actBoss bucket.
-   * Returns false when stageKey is invalid (≤ 0).
+   * Record a live chest drop with an explicit category read from the GetBox
+   * battle log (`common` / `rare` = stage boss / `actBoss`). Aggregated per
+   * category since the drop's item key is not carried in the log.
    */
-  recordLiveChestDrop(stageKey: number, wallTime = nowSeconds()): boolean {
-    if (stageKey <= 0) return false;
-    const category = inferChestCategory(stageKey);
-    const key = String(stageKey);
-    const name =
-      category === "rare"
-        ? `Stage boss chest (stage ${stageKey})`
-        : `Common chest (stage ${stageKey})`;
+  recordLiveChestDrop(category: ChestDropCategory, wallTime = nowSeconds()): boolean {
+    const itemKey = LIVE_CHEST_KEY[category];
+    const key = String(itemKey);
+    const name = LIVE_CHEST_NAME[category];
 
     this.countsByKey.set(key, (this.countsByKey.get(key) ?? 0) + 1);
     this.namesByKey.set(key, name);
     this.categoriesByKey.set(key, category);
 
-    this.history.push({ wallTime, itemKey: stageKey, name, category });
+    this.history.push({ wallTime, itemKey, name, category });
     if (this.history.length > HISTORY_LIMIT) {
       this.history.splice(0, this.history.length - HISTORY_LIMIT);
     }
     return true;
-  }
-
-  /** @deprecated Use recordLiveChestDrop. Kept for call-site compatibility. */
-  recordLiveBoxDrop(stageKey: number, wallTime = nowSeconds()): boolean {
-    return this.recordLiveChestDrop(stageKey, wallTime);
   }
 
   recordLogDrop(itemKey: number, wallTime = nowSeconds()): boolean {

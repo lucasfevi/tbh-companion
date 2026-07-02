@@ -154,7 +154,7 @@ describe("TrackingService.onLiveMemoryToggled", () => {
       stageWave: 1,
       gold: 1000,
       heroes: [{ heroKey: 101, level: 5, exp: 500 }],
-      boxCount: null,
+      chestDrops: null,
       inventoryItems: null,
       petData: null,
       source: "memory test",
@@ -172,7 +172,7 @@ describe("TrackingService.onLiveMemoryToggled", () => {
     expect(svc.getTracker().rollingRate).toBeGreaterThan(0);
   });
 
-  it("records chest drops when live box count increases between frames", () => {
+  it("records chest drops from the live GetBox log by category", () => {
     const svc = new TrackingService(vi.fn());
     svc.start(baseConfig);
     onSnapshot?.(snap(5, 1000, 0));
@@ -183,7 +183,7 @@ describe("TrackingService.onLiveMemoryToggled", () => {
       stageWave: 1,
       gold: null,
       heroes: null,
-      boxCount: 10,
+      chestDrops: ["common", "rare"],
       inventoryItems: null,
       petData: null,
       source: "memory test",
@@ -191,8 +191,12 @@ describe("TrackingService.onLiveMemoryToggled", () => {
       at: 2000,
     };
     svc.ingestLiveFrame(frame);
-    svc.ingestLiveFrame({ ...frame, boxCount: 12, at: 3000 });
+    svc.ingestLiveFrame({ ...frame, chestDrops: ["actBoss"], at: 3000 });
 
-    expect(svc.getStats().chestDrops.combinedTotal).toBe(2);
+    const stats = svc.getStats().chestDrops;
+    expect(stats.commonTotal).toBe(1);
+    expect(stats.rareTotal).toBe(1);
+    expect(stats.actBossTotal).toBe(1);
+    expect(stats.combinedTotal).toBe(3);
   });
 });

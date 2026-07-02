@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  ChestDropTracker,
-  resolveStageBoxDrop,
-  inferChestCategory,
-} from "../../src/core/chestDropTracker";
+import { ChestDropTracker, resolveStageBoxDrop } from "../../src/core/chestDropTracker";
 
 describe("resolveStageBoxDrop", () => {
   it("resolves common and rare stage boxes from catalog", () => {
@@ -108,40 +104,12 @@ describe("ChestDropTracker", () => {
     expect(tracker.getStats(3600).readerRequired).toBe(true);
   });
 
-  it("recordLiveBoxDrop increments commonTotal and returns true for a valid stage", () => {
-    const tracker = new ChestDropTracker();
-    expect(tracker.recordLiveBoxDrop(1001, 1000)).toBe(true);
-    const stats = tracker.getStats(3600);
-    expect(stats.commonTotal).toBe(1);
-    expect(stats.combinedTotal).toBe(1);
-    expect(stats.history).toHaveLength(1);
-    expect(stats.history[0]?.itemKey).toBe(1001);
-  });
-
-  it("recordLiveBoxDrop returns false for stageKey <= 0", () => {
-    const tracker = new ChestDropTracker();
-    expect(tracker.recordLiveBoxDrop(0)).toBe(false);
-    expect(tracker.recordLiveBoxDrop(-1)).toBe(false);
-    expect(tracker.getStats(3600).combinedTotal).toBe(0);
-  });
-});
-
-describe("inferChestCategory", () => {
-  it("returns 'rare' when stageKey is in a stage boss drop stage key list", () => {
-    // Stage 1101 drops RARE stage boss boxes per the catalog.
-    expect(inferChestCategory(1101)).toBe("rare");
-  });
-
-  it("returns 'common' for a regular stage key not in any RARE route", () => {
-    // Stage 1001 is a regular farming stage.
-    expect(inferChestCategory(1001)).toBe("common");
-  });
 });
 
 describe("ChestDropTracker.recordLiveChestDrop", () => {
-  it("classifies a stage boss drop as rare and increments rareTotal", () => {
+  it("records a stage boss (rare) drop into the rare bucket", () => {
     const tracker = new ChestDropTracker();
-    tracker.recordLiveChestDrop(1101, 1000);
+    tracker.recordLiveChestDrop("rare", 1000);
     const stats = tracker.getStats(3600);
     expect(stats.rareTotal).toBe(1);
     expect(stats.commonTotal).toBe(0);
@@ -149,45 +117,36 @@ describe("ChestDropTracker.recordLiveChestDrop", () => {
     expect(stats.combinedTotal).toBe(1);
   });
 
-  it("classifies a common stage drop and increments commonTotal", () => {
+  it("records a common drop into the common bucket", () => {
     const tracker = new ChestDropTracker();
-    tracker.recordLiveChestDrop(1001, 1000);
+    tracker.recordLiveChestDrop("common", 1000);
     const stats = tracker.getStats(3600);
     expect(stats.commonTotal).toBe(1);
     expect(stats.rareTotal).toBe(0);
   });
 
-  it("returns false for stageKey <= 0", () => {
+  it("records an act boss drop into the actBoss bucket (per-category counters)", () => {
     const tracker = new ChestDropTracker();
-    expect(tracker.recordLiveChestDrop(0)).toBe(false);
-    expect(tracker.recordLiveChestDrop(-5)).toBe(false);
-  });
-
-  it("getStats populates actBossTotal (0 in Phase 3 since no actBoss classification yet)", () => {
-    const tracker = new ChestDropTracker();
-    tracker.recordLiveChestDrop(1001, 1000);
-    tracker.recordLiveChestDrop(1101, 1001);
-    const stats = tracker.getStats(3600);
-    expect(stats.actBossTotal).toBe(0);
-    expect(stats.actBossPerHour).toBe(0);
-  });
-
-  it("actBossTotal accumulates from snapshot with actBoss category entries (discriminates Mutation G)", () => {
-    // Inject an actBoss-categorized entry via snapshot to prove getStats() accumulates it.
-    // inferChestCategory() never produces "actBoss" in Phase 3, so snapshot injection is the
-    // only way to reach this branch; this test ensures the branch is not dead code.
-    const tracker = new ChestDropTracker();
-    tracker.applySnapshot({
-      countsByKey: { "9999": 2 },
-      namesByKey: { "9999": "Act boss chest (stage 9999)" },
-      categoriesByKey: { "9999": "actBoss" },
-      history: [],
-    });
+    tracker.recordLiveChestDrop("actBoss", 1000);
+    tracker.recordLiveChestDrop("actBoss", 1001);
     const stats = tracker.getStats(3600);
     expect(stats.actBossTotal).toBe(2);
-    expect(stats.actBossPerHour).toBeGreaterThan(0);
+    expect(stats.actBossPerHour).toBeCloseTo(2);
     expect(stats.commonTotal).toBe(0);
     expect(stats.rareTotal).toBe(0);
     expect(stats.combinedTotal).toBe(2);
+  });
+
+  it("aggregates repeated same-category drops under one breakdown row", () => {
+    const tracker = new ChestDropTracker();
+    tracker.recordLiveChestDrop("common", 1000);
+    tracker.recordLiveChestDrop("common", 1001);
+    tracker.recordLiveChestDrop("rare", 1002);
+    const stats = tracker.getStats(3600);
+    expect(stats.commonTotal).toBe(2);
+    expect(stats.rareTotal).toBe(1);
+    // Two categories → two breakdown rows.
+    expect(stats.breakdown).toHaveLength(2);
+    expect(stats.history).toHaveLength(3);
   });
 });

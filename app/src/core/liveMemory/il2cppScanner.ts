@@ -136,7 +136,12 @@ export function resolveStructuralCurrencyManager(
     // Structural check: two valid heap pointers at offsets 0 and 8 within static_fields.
     const listPtr = readPtr(reader, staticFieldsPtr);
     const dictPtr = readPtr(reader, staticFieldsPtr + 8n);
-    if (listPtr != null && isPlausibleHeapPtr(listPtr) && dictPtr != null && isPlausibleHeapPtr(dictPtr)) {
+    if (
+      listPtr != null &&
+      isPlausibleHeapPtr(listPtr) &&
+      dictPtr != null &&
+      isPlausibleHeapPtr(dictPtr)
+    ) {
       return slotRva;
     }
   }

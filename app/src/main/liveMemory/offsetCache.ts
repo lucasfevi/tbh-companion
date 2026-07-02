@@ -29,10 +29,7 @@ export function offsetCachePath(gameInstallDir: string, version: string): string
  * Load cached offsets for `version` from `gameInstallDir`.
  * Returns null when the file is missing, corrupt, or version-mismatched.
  */
-export function loadCachedOffsets(
-  gameInstallDir: string,
-  version: string,
-): LiveOffsets | null {
+export function loadCachedOffsets(gameInstallDir: string, version: string): LiveOffsets | null {
   try {
     const path = offsetCachePath(gameInstallDir, version);
     const raw = readFileSync(path, "utf-8");

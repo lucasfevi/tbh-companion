@@ -36,6 +36,7 @@ describe("offsetsForVersion", () => {
       "commonSaveData",
       "currencyManager",
       "localInventoryManager",
+      "logManager",
       "stageCacheManager",
       "stageManager",
     ]);
@@ -47,10 +48,14 @@ describe("offsetsForVersion", () => {
     expect(o.heroRuntime.info).toBe(0x30); // HeroRuntime.info → HeroInfoData
     expect(o.heroRuntime.expHidden).toBe(0x110); // ObscuredFloat xp hiddenValue
     expect(o.heroInfoData.heroKey).toBe(0x30);
-    expect("boxCount" in o.runtime.stage).toBe(true);
+    // Phase 3.1 chest-log schema (GetBoxLog via LogManager)
+    expect(o.runtime.log.logByType).toBe(0x28); // LogManager Dictionary<ELogType, List>
+    expect(o.runtime.log.getBoxTypeKey).toBe(3); // ELogType.GetBox
+    expect(o.runtime.getBoxLog.monsterType).toBe(0x50); // GetBoxLog EMonsterLogType
     expect("petSaveData" in o).toBe(true);
     expect("inventoryItem" in o).toBe(true);
     expect("petSaveDatas" in o.player).toBe(true);
+    expect("itemSaveDatas" in o.player).toBe(true);
   });
 });
 

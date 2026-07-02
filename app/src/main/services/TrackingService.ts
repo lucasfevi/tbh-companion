@@ -28,7 +28,6 @@ export class TrackingService {
   private lastError: string | null = null;
   private config!: AppConfig;
   private restoreApplied = false;
-  private prevBoxCount: number | null = null;
   private readonly onInventory: (snap: InventorySnapshot) => void;
   private readonly parseInventorySnapshot?: (text: string, mtime: number) => InventorySnapshot;
 
@@ -128,7 +127,6 @@ export class TrackingService {
   onSavePathChanged(): void {
     this.lastSnap = null;
     this.restoreApplied = false;
-    this.prevBoxCount = null;
     this.sessionState?.invalidatePending();
     this.tracker.reset();
     this.chestDropTracker.reset();
@@ -142,7 +140,6 @@ export class TrackingService {
    * Save-layer and runtime values use different baselines, so totals must not carry over.
    */
   onLiveMemoryToggled(): void {
-    this.prevBoxCount = null;
     this.lastLiveFrame = null;
     this.tracker.reset();
     this.chestDropTracker.reset();
@@ -176,14 +173,10 @@ export class TrackingService {
 
     this.pushStats();
 
-    if (snap.boxCount != null && snap.stageKey != null) {
-      if (this.prevBoxCount != null && snap.boxCount > this.prevBoxCount) {
-        const delta = snap.boxCount - this.prevBoxCount;
-        for (let i = 0; i < delta; i++) {
-          this.chestDropTracker.recordLiveChestDrop(snap.stageKey, snap.at / 1000);
-        }
+    if (snap.chestDrops && snap.chestDrops.length > 0) {
+      for (const category of snap.chestDrops) {
+        this.chestDropTracker.recordLiveChestDrop(category, snap.at / 1000);
       }
-      this.prevBoxCount = snap.boxCount;
     }
   }
 

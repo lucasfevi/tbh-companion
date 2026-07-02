@@ -179,11 +179,7 @@ describe("readClassFields", () => {
 const STATIC_CANDIDATES = [0xb0, 0xb8, 0xa8] as const;
 
 describe("resolveStructuralCurrencyManager", () => {
-  function seedCurrencyManagerCandidate(
-    m: FakeMemory,
-    slot: bigint,
-    classPtr: bigint,
-  ): void {
+  function seedCurrencyManagerCandidate(m: FakeMemory, slot: bigint, classPtr: bigint): void {
     m.writePtr(slot, classPtr);
     // static_fields at classPtr+0xb0 → block with list@+0 and dict@+8
     const staticBlock = 0x8010000n;
@@ -228,7 +224,12 @@ describe("resolveStructuralCurrencyManager", () => {
   });
 
   it("returns null for an empty candidate list", () => {
-    const result = resolveStructuralCurrencyManager(new FakeMemory(), GA_BASE, [], STATIC_CANDIDATES);
+    const result = resolveStructuralCurrencyManager(
+      new FakeMemory(),
+      GA_BASE,
+      [],
+      STATIC_CANDIDATES,
+    );
     expect(result).toBeNull();
   });
 

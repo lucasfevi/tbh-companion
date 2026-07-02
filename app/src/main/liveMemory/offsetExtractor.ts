@@ -16,9 +16,25 @@ import type { WinProcess } from "./winProcess";
 const IL2CPP_CLASS_NAME_OFFSET = 0x10n;
 const STATIC_FIELDS_CANDIDATES = [0xb0, 0xb8, 0xa8] as const;
 
-// Candidate field names for StageManager fields whose names may vary across builds.
-const BOXCOUNT_CANDIDATES = ["boxCount", "totalBoxCount", "getBoxCount"];
-const WAVE_CANDIDATES = ["runtimeWave", "currentWave", "nowWave"];
+// Anchor classes with real (serialization-stable) names. Their TypeInfo slots and
+// public field names survive per-build obfuscation, so name-based scanning works.
+const ANCHOR_NAMES = [
+  "StageManager",
+  "CommonSaveData",
+  "StageCacheManager",
+  "LogManager",
+  "PlayerSaveData",
+  "PetSaveData",
+  "ItemSaveData",
+] as const;
+
+// Structural offsets whose field names ARE obfuscated but whose byte offsets are
+// stable across patches (log dict, GetBoxLog type, runtime wave). Emitted as
+// constants rather than derived by name.
+const STRUCT_LOG_BY_TYPE = 0x28;
+const STRUCT_GETBOX_TYPE = 0x50;
+const STRUCT_GETBOX_KEY = 3; // ELogType.GetBox
+const STRUCT_RUNTIME_WAVE = 0x138;
 
 // ── Internal: DLL region scan ─────────────────────────────────────────────────
 
@@ -100,17 +116,10 @@ export function extractOffsets(
   ga: { base: bigint; size: number },
   version: string,
 ): LiveOffsets | null {
-  const TARGET_NAMES = new Set([
-    "np<StageManager>",
-    "CommonSaveData",
-    "LocalInventoryManager",
-    "StageCacheManager",
-  ]);
-
-  const { named, allCandidates } = scanDll(proc, ga.base, ga.size, TARGET_NAMES);
+  const { named, allCandidates } = scanDll(proc, ga.base, ga.size, new Set(ANCHOR_NAMES));
 
   // ── Critical anchors ───────────────────────────────────────────────────────
-  const smEntry = named.get("np<StageManager>");
+  const smEntry = named.get("StageManager");
   const csdEntry = named.get("CommonSaveData");
   if (!smEntry || !csdEntry) return null;
 
@@ -124,20 +133,28 @@ export function extractOffsets(
   if (!cmRva) return null;
 
   // ── Non-critical anchors ───────────────────────────────────────────────────
-  const limEntry = named.get("LocalInventoryManager");
   const scmEntry = named.get("StageCacheManager");
+  const logEntry = named.get("LogManager");
+  const psdEntry = named.get("PlayerSaveData");
+  const petEntry = named.get("PetSaveData");
+  const itemEntry = named.get("ItemSaveData");
 
-  // ── Field maps ────────────────────────────────────────────────────────────
-  const smFields = readClassFields(proc, smEntry.classPtr);
-  // CommonSaveData fields include player sub-object pointers; we rely on known offsets.
-
-  // Derive StageManager instance-field offsets from field scan.
-  const heroListOffset = pickField(smFields, ["HeroList"]);
-  const boxCountOffset = pickField(smFields, BOXCOUNT_CANDIDATES);
-  const runtimeWaveOffset = pickField(smFields, WAVE_CANDIDATES);
-
+  // ── Field maps (real names on serializable classes) ────────────────────────
+  const heroListOffset = pickField(readClassFields(proc, smEntry.classPtr), ["HeroList"]);
   // Plausibility: HeroList MUST be found (it's a real field name — stable).
   if (heroListOffset === 0) return null;
+
+  const psdFields = psdEntry ? readClassFields(proc, psdEntry.classPtr) : null;
+  const petSaveDatasOffset = pickField(psdFields, ["PetSaveData"]);
+  const itemSaveDatasOffset = pickField(psdFields, ["itemSaveDatas"]);
+
+  const petFields = petEntry ? readClassFields(proc, petEntry.classPtr) : null;
+  const petKeyOffset = pickField(petFields, ["PetKey"]);
+  const petUnlockOffset = pickField(petFields, ["IsUnlock"]);
+
+  const itemFields = itemEntry ? readClassFields(proc, itemEntry.classPtr) : null;
+  const itemKeyOffset = pickField(itemFields, ["ItemKey"]);
+  const itemChaoticOffset = pickField(itemFields, ["IsChaotic"]);
 
   // ── Build LiveOffsets ──────────────────────────────────────────────────────
   // Structural constants (IL2CPP standard layout — do not change per version).
@@ -164,16 +181,16 @@ export function extractOffsets(
       currencyManager: cmRva,
       stageCacheManager: scmEntry?.slotRva ?? 0n,
       stageManager: smEntry.slotRva,
-      localInventoryManager: limEntry?.slotRva ?? 0n,
+      localInventoryManager: 0n, // unused; inventory reads via PlayerSaveData.itemSaveDatas
+      logManager: logEntry?.slotRva ?? 0n,
     },
 
-    // Player field offsets in PlayerSaveData / CommonSaveData — these are stable
-    // structural offsets; use known-good values as the field names may be obfuscated.
     player: {
       commonSaveData: 0x10,
       currency: 0x48,
       heroSaveDatas: 0x50,
-      petSaveDatas: 0, // cannot derive without PetSaveData class scan; stays 0
+      petSaveDatas: petSaveDatasOffset,
+      itemSaveDatas: itemSaveDatasOffset,
     },
 
     common: {
@@ -200,9 +217,9 @@ export function extractOffsets(
 
     currency: { key: 0x10, quantity: 0x18 },
 
-    petSaveData: { petKey: 0, isUnlock: 0 },
+    petSaveData: { petKey: petKeyOffset, isUnlock: petUnlockOffset },
 
-    inventoryItem: { itemKey: 0, isChaotic: 0, location: 0 },
+    inventoryItem: { itemKey: itemKeyOffset, isChaotic: itemChaoticOffset },
 
     runtime: {
       currency: { list: 0x0, dict: 0x8, entryInfoData: 0x10, entryObscuredQty: 0x28 },
@@ -211,11 +228,12 @@ export function extractOffsets(
         cacheInfoData: 0x10,
         stageKey: 0x30,
         waveAmount: 0x54,
-        runtimeWave: runtimeWaveOffset > 0 ? runtimeWaveOffset : 0x138,
-        boxCount: boxCountOffset,
+        runtimeWave: STRUCT_RUNTIME_WAVE,
       },
       currencyInfoKey: 0x30,
       heroList: heroListOffset,
+      log: { logByType: STRUCT_LOG_BY_TYPE, getBoxTypeKey: STRUCT_GETBOX_KEY },
+      getBoxLog: { monsterType: STRUCT_GETBOX_TYPE },
     },
 
     container: CONTAINER,

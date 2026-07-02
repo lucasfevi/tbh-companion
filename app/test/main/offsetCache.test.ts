@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdirSync, rmSync, existsSync } from "node:fs";
+import { mkdirSync, rmSync, existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { offsetCachePath, loadCachedOffsets, saveCachedOffsets } from "../../src/main/liveMemory/offsetCache";
+import {
+  offsetCachePath,
+  loadCachedOffsets,
+  saveCachedOffsets,
+} from "../../src/main/liveMemory/offsetCache";
 import type { LiveOffsets } from "../../src/core/liveMemory/offsets";
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -23,21 +27,42 @@ function makeOffsets(version = VERSION): LiveOffsets {
       stageCacheManager: 0x5dc9958n,
       stageManager: 0x5e3ff98n,
       localInventoryManager: 0x1234000n,
+      logManager: 0x5e40000n,
     },
-    player: { commonSaveData: 0x10, currency: 0x48, heroSaveDatas: 0x50, petSaveDatas: 0 },
-    common: { playTime: 0x20, arrangedHeroKey: 0x48, maxCompletedStage: 0x54, currentStageKey: 0x58, currentStageWave: 0x5c },
+    player: {
+      commonSaveData: 0x10,
+      currency: 0x48,
+      heroSaveDatas: 0x50,
+      petSaveDatas: 0x68,
+      itemSaveDatas: 0xa0,
+    },
+    common: {
+      playTime: 0x20,
+      arrangedHeroKey: 0x48,
+      maxCompletedStage: 0x54,
+      currentStageKey: 0x58,
+      currentStageWave: 0x5c,
+    },
     hero: { heroKey: 0x10, level: 0x14, unlock: 0x18, exp: 0x1c, equipped: 0x28 },
     unit: { cache: 0x3a8 },
     heroRuntime: { info: 0x30, levelHidden: 0xd0, levelKey: 0xd4, expHidden: 0x110, expKey: 0x114 },
     heroInfoData: { heroKey: 0x30 },
     currency: { key: 0x10, quantity: 0x18 },
-    petSaveData: { petKey: 0, isUnlock: 0 },
-    inventoryItem: { itemKey: 0, isChaotic: 0, location: 0 },
+    petSaveData: { petKey: 0x10, isUnlock: 0x14 },
+    inventoryItem: { itemKey: 0x10, isChaotic: 0x20 },
     runtime: {
       currency: { list: 0x0, dict: 0x8, entryInfoData: 0x10, entryObscuredQty: 0x28 },
-      stage: { currentCache: 0x88, cacheInfoData: 0x10, stageKey: 0x30, waveAmount: 0x54, runtimeWave: 0x138, boxCount: 0 },
+      stage: {
+        currentCache: 0x88,
+        cacheInfoData: 0x10,
+        stageKey: 0x30,
+        waveAmount: 0x54,
+        runtimeWave: 0x138,
+      },
       currencyInfoKey: 0x30,
       heroList: 0x30,
+      log: { logByType: 0x28, getBoxTypeKey: 3 },
+      getBoxLog: { monsterType: 0x50 },
     },
     container: { objectHeader: 0x10, listItems: 0x10, listSize: 0x18, arrayFirst: 0x20 },
     dict: { entries: 0x18, count: 0x20, entrySize: 24, entryHash: 0, entryKey: 8, entryValue: 16 },
@@ -53,7 +78,11 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  try { rmSync(TEST_DIR, { recursive: true, force: true }); } catch { /* ignore */ }
+  try {
+    rmSync(TEST_DIR, { recursive: true, force: true });
+  } catch {
+    /* ignore */
+  }
 });
 
 // ── offsetCachePath ───────────────────────────────────────────────────────────
@@ -74,7 +103,6 @@ describe("loadCachedOffsets", () => {
   });
 
   it("returns null when the JSON is corrupt", () => {
-    const { writeFileSync } = require("node:fs") as typeof import("node:fs");
     writeFileSync(offsetCachePath(TEST_DIR, VERSION), "not-json");
     expect(loadCachedOffsets(TEST_DIR, VERSION)).toBeNull();
   });
@@ -111,7 +139,9 @@ describe("saveCachedOffsets", () => {
     saveCachedOffsets(TEST_DIR, offsets);
     const loaded = loadCachedOffsets(TEST_DIR, VERSION);
     expect(loaded!.typeInfoRva.stageManager).toBe(offsets.typeInfoRva.stageManager);
-    expect(loaded!.typeInfoRva.localInventoryManager).toBe(offsets.typeInfoRva.localInventoryManager);
+    expect(loaded!.typeInfoRva.localInventoryManager).toBe(
+      offsets.typeInfoRva.localInventoryManager,
+    );
   });
 
   it("does not throw when the directory is not writable (swallows error)", () => {

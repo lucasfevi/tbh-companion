@@ -321,33 +321,145 @@ export function resolveStageManager(
   return null;
 }
 
-// ── Box count (StageManager cumulative-boxes-obtained counter) ────────────────
+// ── Live chest drops (LogManager → Dictionary<ELogType, List<GetBoxLog>>) ─────
+
+/** Chest drop category derived from GetBoxLog's EMonsterLogType field. */
+export type LiveChestCategory = "common" | "rare" | "actBoss";
 
 /**
- * Cumulative box count from the resolved StageManager instance.
- * Returns null when the singleton is unresolved or when the field offset
- * has not been derived for this game version (offset === 0, placeholder).
+ * Per-reader pin for the LogManager instance pointer and the GetBox-log tail
+ * position. `primed` guards against counting the pre-attach log backlog.
  */
-export function readRuntimeBoxCount(
-  reader: MemoryReader,
-  o: LiveOffsets,
-  smPtr: bigint | null,
-): number | null {
-  if (o.runtime.stage.boxCount === 0) return null; // offset not yet derived
-  if (smPtr == null) return null;
-
-  const count = readI32(reader, smPtr + BigInt(o.runtime.stage.boxCount));
-  return count != null && count >= 0 ? count : null;
+export interface ChestLogPinState {
+  ptr: bigint | null;
+  lastCount: number;
+  primed: boolean;
 }
 
-// ── Inventory (LocalInventoryManager → bag dicts → InventoryItem entries) ────
+export function makeChestLogPinState(): ChestLogPinState {
+  return { ptr: null, lastCount: 0, primed: false };
+}
 
-const MAX_INVENTORY_ITEMS = 10_000;
+const MAX_CHEST_LOG = 5_000;
+const LM_STATIC_SCAN_MAX = 0x100;
+
+/** EMonsterLogType → chest category (0 common, 1 stage boss, 2 act boss). */
+function chestCategoryFromMonsterType(t: number): LiveChestCategory | null {
+  if (t === 0) return "common";
+  if (t === 1) return "rare";
+  if (t === 2) return "actBoss";
+  return null;
+}
+
+/** Resolve the GetBox `List<GetBoxLog>` backing array + length from a LogManager instance. */
+function getBoxLogList(
+  reader: MemoryReader,
+  lmPtr: bigint,
+  o: LiveOffsets,
+): { arr: bigint; count: number } | null {
+  const dictPtr = readPtr(reader, lmPtr + BigInt(o.runtime.log.logByType));
+  if (dictPtr == null) return null;
+  const listPtr = dictLookupIntKey(reader, dictPtr, o.runtime.log.getBoxTypeKey, o);
+  if (listPtr == null) return null;
+  const arr = readPtr(reader, listPtr + BigInt(o.container.listItems));
+  if (arr == null) return null;
+  const count = readI32(reader, listPtr + BigInt(o.container.listSize));
+  if (count == null || count < 0 || count > MAX_CHEST_LOG) return null;
+  return { arr, count };
+}
+
+/** A LogManager candidate is valid when its GetBox log list is walkable. */
+function isLiveLogManager(reader: MemoryReader, ptr: bigint, o: LiveOffsets): boolean {
+  return getBoxLogList(reader, ptr, o) != null;
+}
 
 /**
- * Live inventory listing from `LocalInventoryManager`.
- * Returns null when the TypeInfo RVA has not been derived for this version
- * (localInventoryManager === 0n, placeholder).
+ * Resolve the live `LogManager` instance pointer by scanning its class static
+ * block for the pointer whose GetBox log list is walkable. Pinned and revalidated
+ * each tick. Returns null when the TypeInfo RVA has not been derived yet
+ * (`logManager === 0n`) — the offset extractor fills it at runtime.
+ */
+function resolveLogManager(
+  reader: MemoryReader,
+  gaBase: bigint,
+  gaSize: number,
+  o: LiveOffsets,
+  pin: ChestLogPinState,
+): bigint | null {
+  if (o.typeInfoRva.logManager === 0n) return null;
+  if (pin.ptr != null && isLiveLogManager(reader, pin.ptr, o)) return pin.ptr;
+  pin.ptr = null;
+
+  const block = readStaticFieldsBlock(
+    reader,
+    gaBase,
+    gaSize,
+    o.typeInfoRva.logManager,
+    o.il2cppClass.staticFieldsOffsets,
+  );
+  if (block == null) return null;
+
+  for (let off = 0; off <= LM_STATIC_SCAN_MAX; off += 8) {
+    const cand = readPtr(reader, block + BigInt(off));
+    if (cand == null) continue;
+    if (isLiveLogManager(reader, cand, o)) {
+      pin.ptr = cand;
+      return cand;
+    }
+  }
+  return null;
+}
+
+/**
+ * Chest drops added to the GetBox log since the last read, classified by
+ * EMonsterLogType. Tails the log by index; on first read it primes to the
+ * current length (so the pre-attach backlog is not counted) and returns `[]`.
+ * When the log shrinks (a new run clears it) the tail restarts from 0.
+ * Returns null when the LogManager can't be resolved (offset not derived / no
+ * battle) — distinct from `[]` (resolved, no new drops).
+ */
+export function readRuntimeChestLog(
+  reader: MemoryReader,
+  gaBase: bigint,
+  gaSize: number,
+  o: LiveOffsets,
+  pin: ChestLogPinState,
+): LiveChestCategory[] | null {
+  const lmPtr = resolveLogManager(reader, gaBase, gaSize, o, pin);
+  if (lmPtr == null) return null;
+  const list = getBoxLogList(reader, lmPtr, o);
+  if (list == null) return null;
+
+  const { arr, count } = list;
+  if (!pin.primed) {
+    pin.lastCount = count;
+    pin.primed = true;
+    return [];
+  }
+
+  const start = count < pin.lastCount ? 0 : pin.lastCount;
+  const drops: LiveChestCategory[] = [];
+  const first = arr + BigInt(o.container.arrayFirst);
+  for (let i = start; i < count; i++) {
+    const entryPtr = readPtr(reader, first + BigInt(i * 8));
+    if (entryPtr == null) continue;
+    const mt = readI32(reader, entryPtr + BigInt(o.runtime.getBoxLog.monsterType));
+    const cat = mt == null ? null : chestCategoryFromMonsterType(mt);
+    if (cat) drops.push(cat);
+  }
+  pin.lastCount = count;
+  return drops;
+}
+
+// ── Inventory (PlayerSaveData.itemSaveDatas → ItemSaveData entries) ───────────
+
+const MAX_INVENTORY_ITEMS = 100_000;
+
+/**
+ * Live inventory listing from the `PlayerSaveData.itemSaveDatas` save snapshot
+ * reached via `CommonSaveData → player`. This is the same anchor the pet reader
+ * uses; it avoids depending on the LocalInventoryManager static instance.
+ * Returns null when the item-list offset has not been derived for this version.
  */
 export function readRuntimeInventory(
   reader: MemoryReader,
@@ -355,51 +467,43 @@ export function readRuntimeInventory(
   gaSize: number,
   o: LiveOffsets,
 ): LiveInventoryItem[] | null {
-  if (o.typeInfoRva.localInventoryManager === 0n) return null; // offset not yet derived
+  if (o.player.itemSaveDatas === 0) return null; // offset not yet derived
   if (o.inventoryItem.itemKey === 0) return null; // struct offsets not yet derived
 
   const candidates = o.il2cppClass.staticFieldsOffsets;
 
-  // LocalInventoryManager has two bag dicts (equipped + unequipped); walk both.
-  // For Phase 2 we expose a unified flat listing keyed by location field.
+  const playerPtr = readStaticFieldPtr(
+    reader,
+    gaBase,
+    gaSize,
+    o.typeInfoRva.commonSaveData,
+    o.player.commonSaveData,
+    candidates,
+  );
+  if (playerPtr == null) return null;
+
+  const listPtr = readPtr(reader, playerPtr + BigInt(o.player.itemSaveDatas));
+  if (listPtr == null) return null;
+
+  const itemsArrPtr = readPtr(reader, listPtr + BigInt(o.container.listItems));
+  if (itemsArrPtr == null) return null;
+
+  const count = readI32(reader, listPtr + BigInt(o.container.listSize));
+  if (count == null || count <= 0 || count > MAX_INVENTORY_ITEMS) return null;
+
   const results: LiveInventoryItem[] = [];
+  const first = itemsArrPtr + BigInt(o.container.arrayFirst);
 
-  for (const fieldOffset of [0, 8]) {
-    const dictPtr = readStaticFieldPtr(
-      reader,
-      gaBase,
-      gaSize,
-      o.typeInfoRva.localInventoryManager,
-      fieldOffset,
-      candidates,
-    );
-    if (dictPtr == null) continue;
+  for (let i = 0; i < count; i++) {
+    const entryPtr = readPtr(reader, first + BigInt(i * 8));
+    if (entryPtr == null) continue;
 
-    const entriesArrPtr = readPtr(reader, dictPtr + BigInt(o.dict.entries));
-    if (entriesArrPtr == null) continue;
-    const count = readI32(reader, dictPtr + BigInt(o.dict.count));
-    if (count == null || count <= 0 || count > MAX_INVENTORY_ITEMS) continue;
+    const itemKey = readI32(reader, entryPtr + BigInt(o.inventoryItem.itemKey));
+    if (itemKey == null || itemKey <= 0) continue;
 
-    const first = entriesArrPtr + BigInt(o.container.arrayFirst);
-    for (let i = 0; i < count; i++) {
-      const eBase = first + BigInt(i * o.dict.entrySize);
-      const hash = readI32(reader, eBase + BigInt(o.dict.entryHash));
-      if (hash == null || hash < 0) continue;
-      const entryPtr = readPtr(reader, eBase + BigInt(o.dict.entryValue));
-      if (entryPtr == null) continue;
+    const isChaoticRaw = readI32(reader, entryPtr + BigInt(o.inventoryItem.isChaotic));
 
-      const itemKey = readI32(reader, entryPtr + BigInt(o.inventoryItem.itemKey));
-      if (itemKey == null || itemKey <= 0) continue;
-
-      const isChaoticRaw = readI32(reader, entryPtr + BigInt(o.inventoryItem.isChaotic));
-      const location = readI32(reader, entryPtr + BigInt(o.inventoryItem.location));
-
-      results.push({
-        itemKey,
-        isChaotic: (isChaoticRaw ?? 0) !== 0,
-        location: location ?? 0,
-      });
-    }
+    results.push({ itemKey, isChaotic: (isChaoticRaw ?? 0) !== 0 });
   }
 
   return results.length > 0 ? results : null;

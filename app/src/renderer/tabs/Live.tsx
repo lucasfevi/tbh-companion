@@ -115,16 +115,24 @@ export function Live() {
   const rateTip = liveActive ? RATE_TIP_LIVE : RATE_TIP_SAVE;
   const goldTip = liveActive ? GOLD_TIP_LIVE : GOLD_TIP_SAVE;
   const intro = liveActive
-    ? liveMemory?.boxCount != null
+    ? liveMemory?.chestDrops != null
       ? "Live memory is on — XP, gold, and chest stats update in real time from the running game."
       : "Live memory is on — XP and gold update in real time. Chest drop rates are not available for this game version yet."
     : "Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer.";
   // Per-stat blend: prefer the live memory stage, fall back to the save value.
   const stage = blendStage(liveMemory, { stageKey: stats.stageKey, stageWave: stats.stageWave });
-  const { commonTotal, rareTotal, actBossTotal, commonPerHour, rarePerHour, actBossPerHour, readerRequired } = stats.chestDrops;
+  const {
+    commonTotal,
+    rareTotal,
+    actBossTotal,
+    commonPerHour,
+    rarePerHour,
+    actBossPerHour,
+    readerRequired,
+  } = stats.chestDrops;
   const chestReaderOff = readerRequired && !liveMemory?.connected;
   const chestDetectionPending =
-    readerRequired && liveMemory?.connected && liveMemory.boxCount == null;
+    readerRequired && liveMemory?.connected && liveMemory.chestDrops == null;
   const chestStatsInactive = chestReaderOff || chestDetectionPending;
   const chestRateTip = chestReaderOff
     ? CHEST_TIP_NEED_READER
