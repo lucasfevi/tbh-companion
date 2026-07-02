@@ -91,8 +91,8 @@ const tracking = new TrackingService(
   (stageKey) => {
     boxTimers.tryMarkDroppedFromLiveStage(stageKey);
   },
-  (stageKey, clearTimeSec) => {
-    stageRuns.recordClear(stageKey, clearTimeSec);
+  (stageKey, clearTimeSec, xpGained, goldGained) => {
+    stageRuns.recordClear(stageKey, clearTimeSec, xpGained, goldGained);
   },
 );
 

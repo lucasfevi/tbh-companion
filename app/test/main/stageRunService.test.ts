@@ -43,43 +43,43 @@ describe("StageRunService", () => {
     return new StageRunService();
   }
 
-  it("starts with no rows on first run", async () => {
+  it("starts with no history on first run", async () => {
     const svc = await loadService();
-    expect(svc.getStats().rows).toEqual([]);
+    expect(svc.getStats().history).toEqual([]);
   });
 
   it("records a clear and reports it via getStats", async () => {
     const svc = await loadService();
-    expect(svc.recordClear(2305, 85)).toBe(true);
+    svc.recordClear(2305, 85, 400, 12_000);
 
     const stats = svc.getStats();
-    expect(stats.rows).toEqual([
-      { stageKey: 2305, fastestClearTimeSec: 85, lastClearTimeSec: 85, clearCount: 1 },
-    ]);
-  });
-
-  it("persists best times to disk and reloads them on next construction", async () => {
-    const first = await loadService();
-    first.recordClear(2305, 85);
-    first.recordClear(2305, 63);
-
-    const raw = JSON.parse(readFileSync(join(userDataDir, "stage_run_best.json"), "utf-8"));
-    expect(raw.fastestByStageKey["2305"]).toBe(63);
-
-    vi.resetModules();
-    const second = await loadService();
-    expect(second.getStats().rows[0]).toEqual({
+    expect(stats.history).toHaveLength(1);
+    expect(stats.history[0]).toMatchObject({
       stageKey: 2305,
-      fastestClearTimeSec: 63,
-      lastClearTimeSec: 63,
-      clearCount: 2,
+      clearTimeSec: 85,
+      xpGained: 400,
+      goldGained: 12_000,
     });
   });
 
-  it("resetStorage clears in-memory best times", async () => {
+  it("persists history to disk and reloads it on next construction", async () => {
+    const first = await loadService();
+    first.recordClear(2305, 85, 400, 12_000);
+    first.recordClear(2305, 63, 500, 15_000);
+
+    const raw = JSON.parse(readFileSync(join(userDataDir, "stage_run_history.json"), "utf-8"));
+    expect(raw.history).toHaveLength(2);
+
+    vi.resetModules();
+    const second = await loadService();
+    expect(second.getStats().history).toHaveLength(2);
+    expect(second.getStats().history[0]).toMatchObject({ clearTimeSec: 63, xpGained: 500 });
+  });
+
+  it("resetStorage clears in-memory history", async () => {
     const svc = await loadService();
-    svc.recordClear(2305, 85);
+    svc.recordClear(2305, 85, 400, 12_000);
     svc.resetStorage();
-    expect(svc.getStats().rows).toEqual([]);
+    expect(svc.getStats().history).toEqual([]);
   });
 });

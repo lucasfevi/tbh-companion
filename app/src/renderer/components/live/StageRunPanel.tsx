@@ -1,85 +1,37 @@
 import type { StageRunStats } from "../../../../shared/types";
 import { DataListRow } from "../../design-system/primitives/DataList/DataList";
-import { HintBanner } from "../../design-system/primitives/HintBanner/HintBanner";
-import { PanelSection } from "../../design-system/primitives/PanelSection/PanelSection";
-import { fmtClock, fmtDuration } from "../../lib/format";
+import { fmtClock, fmtCompact, fmtDuration } from "../../lib/format";
 import { stageName } from "../../../core/stages";
-import { LiveMatchedPair } from "./LiveMatchedPair";
-import { LivePanelList } from "./LivePanelList";
+import { LiveHistoryPanel } from "./LiveHistoryPanel";
 
-const FASTEST_TIMES_VISIBLE = 8;
-
-export function StageRunPanel({
-  stageRuns,
-  inactiveMessage,
-}: {
-  stageRuns: StageRunStats;
-  /** When set, stage-clear tracking is inactive — explain why the panel is empty. */
-  inactiveMessage?: string | null;
-}) {
-  const { rows, history } = stageRuns;
-  const fastestRows = rows.slice(0, FASTEST_TIMES_VISIBLE);
+/**
+ * Per-run stage-clear log: duration + XP/gold gained since the previous
+ * recorded clear. Raw material for a future "which stage is best to farm"
+ * feature — this panel only lists runs, it doesn't rank or aggregate them.
+ */
+export function StageRunPanel({ stageRuns }: { stageRuns: StageRunStats }) {
+  const { history } = stageRuns;
 
   return (
-    <>
-      {inactiveMessage ? <HintBanner>{inactiveMessage}</HintBanner> : null}
-      <LiveMatchedPair
-        left={
-          <PanelSection title="Fastest clear times" boxed>
-            <LivePanelList
-              empty={
-                fastestRows.length === 0
-                  ? inactiveMessage
-                    ? "No clears tracked this session."
-                    : "No clears logged yet this session."
-                  : undefined
-              }
-            >
-              {fastestRows.map((row, i) => (
-                <DataListRow
-                  key={row.stageKey}
-                  index={i}
-                  className="grid grid-cols-[1fr_auto_auto] items-center gap-3"
-                >
-                  <span className="min-w-0 truncate">{stageName(row.stageKey)}</span>
-                  <span className="tabular-nums font-semibold text-fg">
-                    {fmtDuration(row.fastestClearTimeSec)}
-                  </span>
-                  <span className="tabular-nums text-muted">×{row.clearCount}</span>
-                </DataListRow>
-              ))}
-            </LivePanelList>
-          </PanelSection>
-        }
-        right={
-          <PanelSection title="Recent clears" boxed>
-            <LivePanelList empty={history.length === 0 ? "None yet" : undefined}>
-              {history.map((entry, i) => (
-                <DataListRow
-                  key={`${entry.wallTime}-${entry.stageKey}-${i}`}
-                  index={i}
-                  className="grid grid-cols-[auto_1fr_auto] items-center gap-3"
-                >
-                  <span className="shrink-0 tabular-nums text-muted">
-                    {fmtClock(entry.wallTime)}
-                  </span>
-                  <span className="min-w-0 truncate">{stageName(entry.stageKey)}</span>
-                  <span
-                    className={
-                      entry.isFastest
-                        ? "tabular-nums font-semibold text-status-info"
-                        : "tabular-nums text-fg"
-                    }
-                  >
-                    {fmtDuration(entry.clearTimeSec)}
-                    {entry.isFastest ? " fastest" : ""}
-                  </span>
-                </DataListRow>
-              ))}
-            </LivePanelList>
-          </PanelSection>
-        }
-      />
-    </>
+    <LiveHistoryPanel
+      title="Stage clear history"
+      empty={
+        history.length === 0 ? <p className="m-0">No clears logged yet this session.</p> : undefined
+      }
+    >
+      {history.map((entry, i) => (
+        <DataListRow
+          key={`${entry.wallTime}-${entry.stageKey}-${i}`}
+          index={i}
+          className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-3"
+        >
+          <span className="shrink-0 tabular-nums text-muted">{fmtClock(entry.wallTime)}</span>
+          <span className="min-w-0 truncate">{stageName(entry.stageKey)}</span>
+          <span className="tabular-nums text-muted">{fmtDuration(entry.clearTimeSec)}</span>
+          <span className="tabular-nums text-accent">+{fmtCompact(entry.xpGained)} xp</span>
+          <span className="tabular-nums text-gold">+{fmtCompact(entry.goldGained)}</span>
+        </DataListRow>
+      ))}
+    </LiveHistoryPanel>
   );
 }

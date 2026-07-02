@@ -2,63 +2,34 @@ import { describe, it, expect } from "vitest";
 import { StageRunTracker } from "../../src/core/stageRunTracker";
 
 describe("StageRunTracker", () => {
-  it("records a clear and reports it as the stage's first fastest", () => {
+  it("records a clear with its duration and XP/gold gained", () => {
     const tracker = new StageRunTracker();
-    expect(tracker.recordClear(2305, 85, 1000)).toBe(true);
+    tracker.recordClear(2305, 85, 400, 12_000, 1000);
 
     const stats = tracker.getStats();
-    expect(stats.rows).toEqual([
-      { stageKey: 2305, fastestClearTimeSec: 85, lastClearTimeSec: 85, clearCount: 1 },
-    ]);
     expect(stats.history).toEqual([
-      { wallTime: 1000, stageKey: 2305, clearTimeSec: 85, isFastest: true },
+      { wallTime: 1000, stageKey: 2305, clearTimeSec: 85, xpGained: 400, goldGained: 12_000 },
     ]);
     expect(stats.readerRequired).toBe(true);
   });
 
-  it("updates the fastest time only when a new clear is faster", () => {
-    const tracker = new StageRunTracker();
-    tracker.recordClear(2305, 85, 1000);
-
-    expect(tracker.recordClear(2305, 90, 1001)).toBe(false); // slower — not a new fastest
-    let stats = tracker.getStats();
-    expect(stats.rows[0]).toEqual({
-      stageKey: 2305,
-      fastestClearTimeSec: 85,
-      lastClearTimeSec: 90,
-      clearCount: 2,
-    });
-
-    expect(tracker.recordClear(2305, 63, 1002)).toBe(true); // faster — new fastest
-    stats = tracker.getStats();
-    expect(stats.rows[0]).toEqual({
-      stageKey: 2305,
-      fastestClearTimeSec: 63,
-      lastClearTimeSec: 63,
-      clearCount: 3,
-    });
-  });
-
-  it("tracks multiple stages independently, sorted fastest first", () => {
-    const tracker = new StageRunTracker();
-    tracker.recordClear(2305, 85, 1000);
-    tracker.recordClear(3102, 40, 1001);
-
-    const stats = tracker.getStats();
-    expect(stats.rows.map((r) => r.stageKey)).toEqual([3102, 2305]);
-  });
-
   it("ignores non-positive stage keys or clear times", () => {
     const tracker = new StageRunTracker();
-    expect(tracker.recordClear(0, 85)).toBe(false);
-    expect(tracker.recordClear(2305, 0)).toBe(false);
-    expect(tracker.recordClear(-1, 85)).toBe(false);
-    expect(tracker.getStats().rows).toEqual([]);
+    tracker.recordClear(0, 85, 10, 10);
+    tracker.recordClear(2305, 0, 10, 10);
+    tracker.recordClear(-1, 85, 10, 10);
+    expect(tracker.getStats().history).toEqual([]);
+  });
+
+  it("clamps negative xp/gold gained to zero (defensive against clock/read jitter)", () => {
+    const tracker = new StageRunTracker();
+    tracker.recordClear(2305, 85, -5, -10, 1000);
+    expect(tracker.getStats().history[0]).toMatchObject({ xpGained: 0, goldGained: 0 });
   });
 
   it("caps visible history and reverses it (most recent first)", () => {
     const tracker = new StageRunTracker();
-    for (let i = 0; i < 25; i++) tracker.recordClear(2305, 100 - i, 1000 + i);
+    for (let i = 0; i < 25; i++) tracker.recordClear(2305, 100 - i, i, i, 1000 + i);
 
     const stats = tracker.getStats();
     expect(stats.history).toHaveLength(20);
@@ -67,9 +38,8 @@ describe("StageRunTracker", () => {
 
   it("round-trips through captureSnapshot/applySnapshot", () => {
     const tracker = new StageRunTracker();
-    tracker.recordClear(2305, 85, 1000);
-    tracker.recordClear(2305, 63, 1002);
-    tracker.recordClear(3102, 40, 1001);
+    tracker.recordClear(2305, 85, 400, 12_000, 1000);
+    tracker.recordClear(3102, 40, 200, 6_000, 1001);
 
     const restored = new StageRunTracker();
     restored.applySnapshot(tracker.captureSnapshot());
@@ -79,12 +49,7 @@ describe("StageRunTracker", () => {
 
   it("applySnapshot tolerates a missing/empty snapshot", () => {
     const tracker = new StageRunTracker();
-    tracker.applySnapshot({
-      fastestByStageKey: {},
-      lastByStageKey: {},
-      countByStageKey: {},
-      history: [],
-    });
-    expect(tracker.getStats().rows).toEqual([]);
+    tracker.applySnapshot({ history: [] });
+    expect(tracker.getStats().history).toEqual([]);
   });
 });

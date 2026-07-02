@@ -12,7 +12,7 @@ export function LiveHistoryPanel({
   children: ReactNode;
 }) {
   return (
-    <PanelSection title={title} boxed fill className="min-h-0 flex-1">
+    <PanelSection title={title} boxed>
       <LiveScrollList empty={empty}>{children}</LiveScrollList>
     </PanelSection>
   );

@@ -29,6 +29,13 @@ export class TrackingService {
   private lastSnap: SaveSnapshot | null = null;
   private lastLiveFrame: LiveMemorySnapshot | null = null;
   private lastLiveBroadcastMs = 0;
+  /**
+   * XP/gold totals captured at the last recorded stage-clear event, used to
+   * compute this run's gained XP/gold as a delta. `null` means the next clear
+   * is the first since attach/reset — its true start is unknown, so it seeds
+   * the baseline without being recorded (mirrors filtering out a partial run).
+   */
+  private stageEventBaseline: { xp: number; gold: number } | null = null;
   private lastError: string | null = null;
   private config!: AppConfig;
   private restoreApplied = false;
@@ -42,7 +49,12 @@ export class TrackingService {
     private readonly sessionState?: SessionStateService,
     private readonly onHeroLevelUp?: (events: HeroLevelUpEvent[]) => void,
     private readonly onLiveStageBossDrop?: (stageKey: number) => void,
-    private readonly onLiveStageClear?: (stageKey: number, clearTimeSec: number) => void,
+    private readonly onLiveStageClear?: (
+      stageKey: number,
+      clearTimeSec: number,
+      xpGained: number,
+      goldGained: number,
+    ) => void,
   ) {
     this.onInventory = onInventory;
     this.parseInventorySnapshot = parseInventorySnapshot;
@@ -52,6 +64,7 @@ export class TrackingService {
     this.config = config;
     this.tracker = new XpTracker(config.rollingWindowMinutes * 60);
     this.chestDropTracker = new ChestDropTracker();
+    this.stageEventBaseline = null;
     if (config.logHistoryCsv) {
       this.tracker.onHistory = makeHistoryLogger();
     }
@@ -98,6 +111,7 @@ export class TrackingService {
   reset(): void {
     this.tracker.reset();
     this.chestDropTracker.reset();
+    this.stageEventBaseline = null;
     this.sessionState?.onTrackerReset(
       this.tracker,
       this.chestDropTracker,
@@ -141,6 +155,7 @@ export class TrackingService {
     this.sessionState?.invalidatePending();
     this.tracker.reset();
     this.chestDropTracker.reset();
+    this.stageEventBaseline = null;
     this.sessionState?.notifyNewSession();
     this.sessionState?.onTrackerReset(this.tracker, this.chestDropTracker, this.config, null);
     this.pushStats();
@@ -154,6 +169,7 @@ export class TrackingService {
     this.lastLiveFrame = null;
     this.tracker.reset();
     this.chestDropTracker.reset();
+    this.stageEventBaseline = null;
     if (this.lastSnap) {
       this.tracker.update(this.lastSnap);
     }
@@ -197,7 +213,14 @@ export class TrackingService {
       const stageKey = snap.stageKey ?? this.lastSnap?.stageKey ?? 0;
       if (stageKey > 0) {
         for (const clearTimeSec of snap.stageClears) {
-          this.onLiveStageClear?.(stageKey, clearTimeSec);
+          const xp = this.tracker.currentTotalXp;
+          const gold = this.tracker.currentGold;
+          if (this.stageEventBaseline) {
+            const xpGained = xp - this.stageEventBaseline.xp;
+            const goldGained = gold - this.stageEventBaseline.gold;
+            this.onLiveStageClear?.(stageKey, clearTimeSec, xpGained, goldGained);
+          }
+          this.stageEventBaseline = { xp, gold };
         }
       }
     }

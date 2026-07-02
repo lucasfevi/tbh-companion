@@ -58,9 +58,6 @@ const CHEST_TIP_PENDING =
 const CHEST_TIP_LIVE =
   "Drop rates from live memory this session. Common and stage boss chests are tracked " +
   "separately while the companion is running.";
-const STAGE_RUN_TIP_NEED_READER =
-  "Stage clear times require the live memory reader. Turn it on in Settings → Live memory " +
-  "(experimental) and keep the game running.";
 const INVENTORY_PREDICTION_TIP =
   "Estimates when your unlocked inventory slots fill up. For each chest type you've marked " +
   "auto-open below, we model a serial auto-open queue: held chests (from your save) drain at their open " +
@@ -288,13 +285,6 @@ export function Live() {
 
       <ChestDropPanel chestDrops={stats.chestDrops} inactiveMessage={chestInactiveMessage} />
 
-      {stageRuns ? (
-        <StageRunPanel
-          stageRuns={stageRuns}
-          inactiveMessage={!liveActive ? STAGE_RUN_TIP_NEED_READER : null}
-        />
-      ) : null}
-
       <PanelSection
         title={
           <span className="inline-flex items-center gap-1.5">
@@ -377,31 +367,36 @@ export function Live() {
           </PanelSection>
         }
         right={
-          <LiveHistoryPanel
-            title={
-              <>
-                History <span className="normal-case tracking-normal text-muted">- XP changes</span>
-              </>
-            }
-            empty={
-              stats.history.length === 0 ? (
-                <p className="m-0">No XP changes recorded yet.</p>
-              ) : undefined
-            }
-          >
-            {stats.history.map((e, i) => (
-              <DataListRow
-                key={`${e.wallTime}-${i}`}
-                index={i}
-                className="grid grid-cols-[auto_auto_auto_1fr] items-center gap-3 tabular-nums"
-              >
-                <span className="shrink-0 tabular-nums text-muted">{fmtClock(e.wallTime)}</span>
-                <span className="text-accent">+{fmtCompact(e.delta)}</span>
-                <span>{fmtCompact(e.rate)}/hr</span>
-                <span className="text-right text-muted">{stageName(e.stageKey)}</span>
-              </DataListRow>
-            ))}
-          </LiveHistoryPanel>
+          liveActive && stageRuns ? (
+            <StageRunPanel stageRuns={stageRuns} />
+          ) : (
+            <LiveHistoryPanel
+              title={
+                <>
+                  History{" "}
+                  <span className="normal-case tracking-normal text-muted">- XP changes</span>
+                </>
+              }
+              empty={
+                stats.history.length === 0 ? (
+                  <p className="m-0">No XP changes recorded yet.</p>
+                ) : undefined
+              }
+            >
+              {stats.history.map((e, i) => (
+                <DataListRow
+                  key={`${e.wallTime}-${i}`}
+                  index={i}
+                  className="grid grid-cols-[auto_auto_auto_1fr] items-center gap-3 tabular-nums"
+                >
+                  <span className="shrink-0 tabular-nums text-muted">{fmtClock(e.wallTime)}</span>
+                  <span className="text-accent">+{fmtCompact(e.delta)}</span>
+                  <span>{fmtCompact(e.rate)}/hr</span>
+                  <span className="text-right text-muted">{stageName(e.stageKey)}</span>
+                </DataListRow>
+              ))}
+            </LiveHistoryPanel>
+          )
         }
       />
 

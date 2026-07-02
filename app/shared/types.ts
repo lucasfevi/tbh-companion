@@ -470,24 +470,18 @@ export interface ClearAppDataResult {
   error?: string;
 }
 
-// --- Stage runs (live stage clear times + fastest-clear tracking) ---
-
-export interface StageRunRow {
-  stageKey: number;
-  fastestClearTimeSec: number;
-  lastClearTimeSec: number;
-  clearCount: number;
-}
+// --- Stage runs (live stage clear history: per-run duration + XP/gold) ---
 
 export interface StageRunHistoryEntry {
   wallTime: number;
   stageKey: number;
   clearTimeSec: number;
-  isFastest: boolean;
+  /** XP/gold gained since the previous recorded clear (this run's take). */
+  xpGained: number;
+  goldGained: number;
 }
 
 export interface StageRunStats {
-  rows: StageRunRow[];
   history: StageRunHistoryEntry[];
   /** True when this feature has no save-file fallback — requires the live reader. */
   readerRequired: boolean;
@@ -495,9 +489,6 @@ export interface StageRunStats {
 
 /** Serialized StageRunTracker internals for stage_run_best.json persistence. */
 export interface StageRunTrackerSnapshot {
-  fastestByStageKey: Record<string, number>;
-  lastByStageKey: Record<string, number>;
-  countByStageKey: Record<string, number>;
   history: StageRunHistoryEntry[];
 }
 

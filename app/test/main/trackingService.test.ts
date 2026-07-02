@@ -237,7 +237,7 @@ describe("TrackingService.onLiveMemoryToggled", () => {
     svc.stop();
   });
 
-  it("fires onLiveStageClear once per new clear-time entry, attributed to the live stageKey", () => {
+  it("seeds the baseline on the first clear (unknown true start) without firing onLiveStageClear", () => {
     const onLiveStageClear = vi.fn();
     const svc = new TrackingService(
       vi.fn(),
@@ -255,11 +255,11 @@ describe("TrackingService.onLiveMemoryToggled", () => {
       connected: true,
       stageKey: 4103,
       stageWave: 1,
-      gold: null,
-      heroes: null,
+      gold: 1000,
+      heroes: [{ heroKey: 101, level: 5, exp: 500 }],
       chestDrops: null,
       inventoryItems: null,
-      stageClears: [85, 63],
+      stageClears: [42],
       petData: null,
       source: "memory test",
       readMs: 1,
@@ -267,9 +267,59 @@ describe("TrackingService.onLiveMemoryToggled", () => {
     };
     svc.ingestLiveFrame(frame);
 
+    expect(onLiveStageClear).not.toHaveBeenCalled();
+    svc.stop();
+  });
+
+  it("fires onLiveStageClear from the second clear onward with XP/gold gained since the previous clear", () => {
+    const onLiveStageClear = vi.fn();
+    const svc = new TrackingService(
+      vi.fn(),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      onLiveStageClear,
+    );
+    svc.start(baseConfig);
+    onSnapshot?.(snap(5, 1000, 0));
+
+    svc.ingestLiveFrame({
+      connected: true,
+      stageKey: 4103,
+      stageWave: 1,
+      gold: 1000,
+      heroes: [{ heroKey: 101, level: 5, exp: 500 }],
+      chestDrops: null,
+      inventoryItems: null,
+      stageClears: [42],
+      petData: null,
+      source: "memory test",
+      readMs: 1,
+      at: 2000,
+    });
+
+    svc.ingestLiveFrame({
+      connected: true,
+      stageKey: 4103,
+      stageWave: 1,
+      gold: 1400,
+      heroes: [{ heroKey: 101, level: 5, exp: 900 }],
+      chestDrops: null,
+      inventoryItems: null,
+      stageClears: [85, 63],
+      petData: null,
+      source: "memory test",
+      readMs: 1,
+      at: 3000,
+    });
+
+    // Both clears in the second frame are attributed against the same pre-frame
+    // baseline (400 xp, 400 gold total gained) since the tick only samples once.
     expect(onLiveStageClear).toHaveBeenCalledTimes(2);
-    expect(onLiveStageClear).toHaveBeenNthCalledWith(1, 4103, 85);
-    expect(onLiveStageClear).toHaveBeenNthCalledWith(2, 4103, 63);
+    expect(onLiveStageClear).toHaveBeenNthCalledWith(1, 4103, 85, 400, 400);
+    expect(onLiveStageClear).toHaveBeenNthCalledWith(2, 4103, 63, 0, 0);
     svc.stop();
   });
 

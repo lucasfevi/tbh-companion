@@ -10,7 +10,7 @@ import type {
 import { DIAGNOSTIC_LOG_FILE, getDiagnosticLogPath, listDiagnosticLogFiles } from "../log";
 
 export const BOX_TIMERS_FILE = "box_timers.json";
-export const STAGE_RUN_FILE = "stage_run_best.json";
+export const STAGE_RUN_FILE = "stage_run_history.json";
 export const SESSION_STATE_FILE = "session_state.json";
 export const CONFIG_FILE = "config.json";
 export const LOOKUP_PRICES_FILE = "lookup_prices.json";
@@ -61,7 +61,7 @@ export function getAppDataPaths(userDataDir = resolveUserDataDir()): AppDataPath
     },
     {
       id: "stage-runs",
-      label: "Best stage clear times",
+      label: "Stage clear history",
       files: [STAGE_RUN_FILE],
       exists: existsSync(join(userDataDir, STAGE_RUN_FILE)),
     },
