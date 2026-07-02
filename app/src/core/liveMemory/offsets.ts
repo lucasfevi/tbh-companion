@@ -94,11 +94,23 @@ export interface LiveOffsets {
       logByType: number;
       /** ELogType.GetBox dictionary key. */
       getBoxTypeKey: number;
+      /** ELogType.StageClear dictionary key. */
+      stageClearTypeKey: number;
     };
     /** GetBoxLog struct offsets (obfuscated field names, stable offsets). */
     getBoxLog: {
       /** EMonsterLogType: 0 = common, 1 = stage boss (2 = act boss, not tracked). */
       monsterType: number;
+    };
+    /**
+     * StageClearLog struct offset (real class name, dump.cs-confirmed; obfuscated
+     * private field). Live-verified against a real clear on v1.00.23: a run's
+     * `+0x40 act, +0x44 stage, +0x48 clearTimeSec (int), +0x4c isBoss` layout — we
+     * only need clearTimeSec (stage attribution uses the already-live stageKey).
+     */
+    stageClearLog: {
+      /** Clear time in whole seconds, as recorded by the game itself. */
+      clearTimeSec: number;
     };
   };
   /** Standard IL2CPP container / dictionary layout. */
@@ -130,9 +142,13 @@ const RUNTIME_V1_00_21 = {
   log: {
     logByType: 0x28, // LogManager Dictionary<ELogType, List<LogData>>
     getBoxTypeKey: 3, // ELogType.GetBox
+    stageClearTypeKey: 1, // ELogType.StageClear
   },
   getBoxLog: {
     monsterType: 0x50, // GetBoxLog EMonsterLogType (0 common, 1 stage boss; 2 act boss ignored)
+  },
+  stageClearLog: {
+    clearTimeSec: 0x48, // StageClearLog — live-verified on v1.00.23 (see phase-4-stage-times/design.md)
   },
 } as const;
 

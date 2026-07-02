@@ -65,6 +65,9 @@ describe("offsetsForVersion", () => {
     expect(o.runtime.log.logByType).toBe(0x28); // LogManager Dictionary<ELogType, List>
     expect(o.runtime.log.getBoxTypeKey).toBe(3); // ELogType.GetBox
     expect(o.runtime.getBoxLog.monsterType).toBe(0x50); // GetBoxLog EMonsterLogType
+    // Phase 4 stage-clear schema (StageClearLog via LogManager)
+    expect(o.runtime.log.stageClearTypeKey).toBe(1); // ELogType.StageClear
+    expect(o.runtime.stageClearLog.clearTimeSec).toBe(0x48); // live-verified on v1.00.23
     expect("petSaveData" in o).toBe(true);
     expect("inventoryItem" in o).toBe(true);
     expect("petSaveDatas" in o.player).toBe(true);

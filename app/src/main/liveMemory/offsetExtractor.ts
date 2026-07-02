@@ -39,6 +39,8 @@ export const EXTRACTOR_REVISION = 3;
 const STRUCT_LOG_BY_TYPE = 0x28;
 const STRUCT_GETBOX_TYPE = 0x50;
 const STRUCT_GETBOX_KEY = 3; // ELogType.GetBox
+const STRUCT_STAGE_CLEAR_KEY = 1; // ELogType.StageClear
+const STRUCT_STAGE_CLEAR_TIME = 0x48;
 const STRUCT_RUNTIME_WAVE = 0x138;
 
 const GOLD_KEY = 100001;
@@ -204,8 +206,13 @@ export function extractOffsets(
       },
       currencyInfoKey: 0x30,
       heroList: sm.heroList,
-      log: { logByType: STRUCT_LOG_BY_TYPE, getBoxTypeKey: STRUCT_GETBOX_KEY },
+      log: {
+        logByType: STRUCT_LOG_BY_TYPE,
+        getBoxTypeKey: STRUCT_GETBOX_KEY,
+        stageClearTypeKey: STRUCT_STAGE_CLEAR_KEY,
+      },
       getBoxLog: { monsterType: STRUCT_GETBOX_TYPE },
+      stageClearLog: { clearTimeSec: STRUCT_STAGE_CLEAR_TIME },
     },
 
     container: STRUCT_CONTAINER,
