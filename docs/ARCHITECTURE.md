@@ -123,7 +123,10 @@ When **live memory** is enabled (`config.liveMemory.enabled` + consent), a paral
 3. `TrackingService.ingestLiveFrame` feeds `XpTracker.updateLive` (XP/gold rates from wall-time
    samples; per-hero exp deltas with plausibility guards) and `ChestDropTracker.recordLiveChestDrop`
    (GetBox log categories). Stage-boss drops call `BoxTimerService.tryMarkDroppedFromLiveStage` when
-   the drop stage maps to an **enabled** tracker route.
+   the drop stage maps to an **enabled** tracker route. `StageClearLog` events feed
+   `StageRunService.recordClear` with the run's duration and XP/gold gained (delta of
+   `XpTracker.currentTotalXp`/`currentGold` since the previous clear) — persisted independently of
+   session state, shown as the Live tab's "Stage clear history".
 4. `buildStats` blends live-preferred / save-fallback per stat; session snapshots persist every 15s with
    implausible totals discarded on restore.
 

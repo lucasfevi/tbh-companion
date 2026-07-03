@@ -33,6 +33,7 @@
 | Linear fill bar with label | `ProgressBar` |
 | Pill-shaped capacity/cooldown bar | `CapacityBar` |
 | Bordered list with zebra-striped rows | `DataList` / `DataListRow` |
+| Small fixed-height scrollable table with a column-labeled header (Live tab history logs) | `DataTable` / `DataTableRow` — real `<table>` so header/row columns are guaranteed to align; use this instead of a `DataList`/CSS-grid "header row" hack, which cannot guarantee alignment (each grid sizes its own `auto` columns independently) |
 | Compact labeled-value stat tile (`variant="highlight"` for a large accent-colored headline value) | `StatCard` |
 | Uppercase-label section (optionally boxed in a Card) | `PanelSection` |
 | Sentence-case heading + content group | `Section` |

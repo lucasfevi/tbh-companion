@@ -27,7 +27,11 @@ import { TabPage } from "../design-system/primitives/TabPage/TabPage";
 import { Tooltip } from "../design-system/primitives/Tooltip/Tooltip";
 import { ChestDropPanel } from "../components/live/ChestDropPanel";
 import { StageRunPanel } from "../components/live/StageRunPanel";
-import { LiveHistoryPanel } from "../components/live/LiveHistoryPanel";
+import {
+  LiveHistoryPanel,
+  LiveHistoryRow,
+  TIME_COLUMN_WIDTH,
+} from "../components/live/LiveHistoryPanel";
 import { LiveMatchedPair } from "../components/live/LiveMatchedPair";
 import { LivePanelList } from "../components/live/LivePanelList";
 import { LiveChestStatValue } from "../lib/liveChestStat";
@@ -65,6 +69,12 @@ const INVENTORY_PREDICTION_TIP =
   "add more chests to the queue. Each opened chest uses one inventory slot. We can't detect the " +
   "in-game auto-open toggle, so set it here — only common and stage boss chests are modeled. Held " +
   "counts come from the save file and can lag a few minutes after in-game changes.";
+const XP_HISTORY_COLUMNS = [
+  { label: "Time", width: TIME_COLUMN_WIDTH },
+  { label: "XP", align: "right" as const, width: "80px" },
+  { label: "Rate", align: "right" as const, width: "96px" },
+  { label: "Stage", align: "right" as const },
+];
 
 export function Live() {
   const stats = useStats();
@@ -185,6 +195,88 @@ export function Live() {
     return null;
   };
 
+  const inventoryFillPrediction = (): ReactNode => (
+    <PanelSection
+      title={
+        <span className="inline-flex items-center gap-1.5">
+          Inventory fill prediction
+          <Tooltip
+            trigger={
+              <span
+                className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-border text-[10px] normal-case leading-none tracking-normal text-muted"
+                tabIndex={0}
+              >
+                ?
+              </span>
+            }
+          >
+            {INVENTORY_PREDICTION_TIP}
+          </Tooltip>
+        </span>
+      }
+      boxed
+      contentClassName="flex flex-col gap-3 p-3"
+    >
+      <div className="flex flex-col gap-1.5 text-[13px] text-muted">
+        {inventory && inventory.inventoryCapacity > 0 ? (
+          <p className="m-0">
+            Inventory:{" "}
+            <span className="font-semibold text-fg">
+              {inventory.inventoryUsed}/{inventory.inventoryCapacity}
+            </span>{" "}
+            slots used.
+          </p>
+        ) : null}
+        {/* min-h reserves room for the longer "turn on a toggle" message so swapping
+            between states doesn't resize the card. */}
+        <p className="m-0 min-h-[2.6em]">{renderFillEstimate()}</p>
+        {/* Always mounted (invisible when empty) so toggling held chests in/out
+            doesn't change the card's height. */}
+        <p
+          className={cn(
+            "m-0",
+            (!fillPrediction || fillPrediction.heldChestItems <= 0) && "invisible",
+          )}
+        >
+          Includes{" "}
+          <span className="font-semibold text-fg">{fillPrediction?.heldChestItems ?? 0}</span> held
+          chest{fillPrediction?.heldChestItems === 1 ? "" : "s"} waiting to auto-open.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-border pt-3">
+        <Checkbox
+          label="Common chests auto-open"
+          checked={autoOpenEnabled.common}
+          onCheckedChange={(checked) => toggleAutoOpen("common", checked)}
+        />
+        <Checkbox
+          label="Stage boss chests auto-open"
+          checked={autoOpenEnabled.stageBoss}
+          onCheckedChange={(checked) => toggleAutoOpen("stageBoss", checked)}
+        />
+      </div>
+    </PanelSection>
+  );
+
+  const heroesPanel: ReactNode = (
+    <PanelSection title="Heroes" boxed>
+      <LivePanelList empty={stats.heroes.length === 0 ? "No active heroes yet." : undefined}>
+        {stats.heroes.map((h, i) => (
+          <DataListRow
+            key={h.key}
+            index={i}
+            className="grid grid-cols-[1fr_auto_auto] items-center gap-3"
+          >
+            <span className="font-semibold">{h.name}</span>
+            <span className="text-muted">Lv {h.level}</span>
+            <span className="tabular-nums text-accent">{fmtCompact(h.rate)}/hr</span>
+          </DataListRow>
+        ))}
+      </LivePanelList>
+    </PanelSection>
+  );
+
   return (
     <TabPage>
       <TabHeader title="Live stats" intro={intro} />
@@ -283,89 +375,15 @@ export function Live() {
         />
       </section>
 
-      <ChestDropPanel chestDrops={stats.chestDrops} inactiveMessage={chestInactiveMessage} />
-
-      <PanelSection
-        title={
-          <span className="inline-flex items-center gap-1.5">
-            Inventory fill prediction
-            <Tooltip
-              trigger={
-                <span
-                  className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-border text-[10px] normal-case leading-none tracking-normal text-muted"
-                  tabIndex={0}
-                >
-                  ?
-                </span>
-              }
-            >
-              {INVENTORY_PREDICTION_TIP}
-            </Tooltip>
-          </span>
+      <LiveMatchedPair
+        left={inventoryFillPrediction()}
+        right={
+          <ChestDropPanel chestDrops={stats.chestDrops} inactiveMessage={chestInactiveMessage} />
         }
-        boxed
-        className="max-w-lg"
-        contentClassName="flex flex-col gap-3 p-3"
-      >
-        <div className="flex flex-col gap-1.5 text-[13px] text-muted">
-          {inventory && inventory.inventoryCapacity > 0 ? (
-            <p className="m-0">
-              Inventory:{" "}
-              <span className="font-semibold text-fg">
-                {inventory.inventoryUsed}/{inventory.inventoryCapacity}
-              </span>{" "}
-              slots used.
-            </p>
-          ) : null}
-          {/* min-h reserves room for the longer "turn on a toggle" message so swapping
-              between states doesn't resize the card. */}
-          <p className="m-0 min-h-[2.6em]">{renderFillEstimate()}</p>
-          {/* Always mounted (invisible when empty) so toggling held chests in/out
-              doesn't change the card's height. */}
-          <p
-            className={cn(
-              "m-0",
-              (!fillPrediction || fillPrediction.heldChestItems <= 0) && "invisible",
-            )}
-          >
-            Includes{" "}
-            <span className="font-semibold text-fg">{fillPrediction?.heldChestItems ?? 0}</span>{" "}
-            held chest{fillPrediction?.heldChestItems === 1 ? "" : "s"} waiting to auto-open.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-border pt-3">
-          <Checkbox
-            label="Common chests auto-open"
-            checked={autoOpenEnabled.common}
-            onCheckedChange={(checked) => toggleAutoOpen("common", checked)}
-          />
-          <Checkbox
-            label="Stage boss chests auto-open"
-            checked={autoOpenEnabled.stageBoss}
-            onCheckedChange={(checked) => toggleAutoOpen("stageBoss", checked)}
-          />
-        </div>
-      </PanelSection>
+      />
 
       <LiveMatchedPair
-        left={
-          <PanelSection title="Heroes" boxed>
-            <LivePanelList empty={stats.heroes.length === 0 ? "No active heroes yet." : undefined}>
-              {stats.heroes.map((h, i) => (
-                <DataListRow
-                  key={h.key}
-                  index={i}
-                  className="grid grid-cols-[1fr_auto_auto] items-center gap-3"
-                >
-                  <span className="font-semibold">{h.name}</span>
-                  <span className="text-muted">Lv {h.level}</span>
-                  <span className="tabular-nums text-accent">{fmtCompact(h.rate)}/hr</span>
-                </DataListRow>
-              ))}
-            </LivePanelList>
-          </PanelSection>
-        }
+        left={heroesPanel}
         right={
           liveActive && stageRuns ? (
             <StageRunPanel stageRuns={stageRuns} />
@@ -377,6 +395,7 @@ export function Live() {
                   <span className="normal-case tracking-normal text-muted">- XP changes</span>
                 </>
               }
+              columns={XP_HISTORY_COLUMNS}
               empty={
                 stats.history.length === 0 ? (
                   <p className="m-0">No XP changes recorded yet.</p>
@@ -384,16 +403,31 @@ export function Live() {
               }
             >
               {stats.history.map((e, i) => (
-                <DataListRow
+                <LiveHistoryRow
                   key={`${e.wallTime}-${i}`}
                   index={i}
-                  className="grid grid-cols-[auto_auto_auto_1fr] items-center gap-3 tabular-nums"
-                >
-                  <span className="shrink-0 tabular-nums text-muted">{fmtClock(e.wallTime)}</span>
-                  <span className="text-accent">+{fmtCompact(e.delta)}</span>
-                  <span>{fmtCompact(e.rate)}/hr</span>
-                  <span className="text-right text-muted">{stageName(e.stageKey)}</span>
-                </DataListRow>
+                  cells={[
+                    {
+                      content: fmtClock(e.wallTime),
+                      className: "tabular-nums text-muted whitespace-nowrap",
+                    },
+                    {
+                      content: `+${fmtCompact(e.delta)}`,
+                      align: "right",
+                      className: "tabular-nums text-accent",
+                    },
+                    {
+                      content: `${fmtCompact(e.rate)}/hr`,
+                      align: "right",
+                      className: "tabular-nums",
+                    },
+                    {
+                      content: stageName(e.stageKey),
+                      align: "right",
+                      className: "min-w-0 truncate text-muted",
+                    },
+                  ]}
+                />
               ))}
             </LiveHistoryPanel>
           )

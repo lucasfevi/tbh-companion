@@ -19,6 +19,17 @@ export function fmtDuration(seconds: number): string {
   return h ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
 
+/** Compact duration for short spans (e.g. one stage run): "1m29s", "45s", "1h2m". */
+export function fmtShortDuration(seconds: number): string {
+  const total = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return `${h}h${m}m`;
+  if (m > 0) return `${m}m${s}s`;
+  return `${s}s`;
+}
+
 export function fmtAgo(seconds: number | null): string {
   if (seconds === null) return "never";
   return `${fmtDuration(seconds)} ago`;

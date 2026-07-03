@@ -1,38 +1,16 @@
-import type { ChestDropBreakdownRow, ChestDropStats } from "../../../../shared/types";
-import { DataListRow } from "../../design-system/primitives/DataList/DataList";
+import type { ChestDropStats } from "../../../../shared/types";
 import { HintBanner } from "../../design-system/primitives/HintBanner/HintBanner";
-import { PanelSection } from "../../design-system/primitives/PanelSection/PanelSection";
 import { fmtClock } from "../../lib/format";
 import { cn } from "../../lib/cn";
-import { LiveHistoryPanel } from "./LiveHistoryPanel";
-import { LiveMatchedPair } from "./LiveMatchedPair";
-import { LivePanelList } from "./LivePanelList";
+import { LiveHistoryPanel, LiveHistoryRow, TIME_COLUMN_WIDTH } from "./LiveHistoryPanel";
 
-function ChestCategoryRows({
-  rows,
-  countClassName,
-}: {
-  rows: ChestDropBreakdownRow[];
-  countClassName?: string;
-}) {
-  return (
-    <LivePanelList empty={rows.length === 0 ? "None yet" : undefined}>
-      {rows.map((row, i) => (
-        <DataListRow
-          key={row.itemKey}
-          index={i}
-          className="grid grid-cols-[1fr_auto] items-center gap-3"
-        >
-          <span className="min-w-0 truncate">{row.name}</span>
-          <span className={cn("tabular-nums font-semibold", countClassName ?? "text-fg")}>
-            ×{row.count.toLocaleString()}
-          </span>
-        </DataListRow>
-      ))}
-    </LivePanelList>
-  );
-}
+const COLUMNS = [{ label: "Dropped at", width: TIME_COLUMN_WIDTH }, { label: "Chest" }];
 
+/**
+ * Chest drop history log. Per-category totals/rates already show as stat
+ * cards above (Common chests, Stage boss chests) — this panel is just the
+ * chronological drop log, not a duplicate breakdown.
+ */
 export function ChestDropPanel({
   chestDrops,
   inactiveMessage,
@@ -41,57 +19,44 @@ export function ChestDropPanel({
   /** When set, chest session tracking is inactive — explain why zeros are not live drops. */
   inactiveMessage?: string | null;
 }) {
-  const { breakdown, history } = chestDrops;
-  const common = breakdown.filter((row) => row.category === "common");
-  const rare = breakdown.filter((row) => row.category === "rare");
+  const { history } = chestDrops;
 
   return (
     <>
       {inactiveMessage ? <HintBanner>{inactiveMessage}</HintBanner> : null}
-      <LiveMatchedPair
-        left={
-          <>
-            <PanelSection title="Common Chests" boxed>
-              <ChestCategoryRows rows={common} />
-            </PanelSection>
-            <PanelSection title="Stage Boss Chests" boxed>
-              <ChestCategoryRows rows={rare} countClassName="text-status-info" />
-            </PanelSection>
-          </>
+      <LiveHistoryPanel
+        title="Chest history"
+        columns={COLUMNS}
+        empty={
+          history.length === 0 ? (
+            <p className="m-0">
+              {inactiveMessage
+                ? "No drops tracked this session."
+                : "No drops logged yet this session."}
+            </p>
+          ) : undefined
         }
-        right={
-          <LiveHistoryPanel
-            title="Chest history"
-            empty={
-              history.length === 0 ? (
-                <p className="m-0">
-                  {inactiveMessage
-                    ? "No drops tracked this session."
-                    : "No drops logged yet this session."}
-                </p>
-              ) : undefined
-            }
-          >
-            {history.map((entry, i) => (
-              <DataListRow
-                key={`${entry.wallTime}-${entry.itemKey}-${i}`}
-                index={i}
-                className="grid grid-cols-[auto_1fr] items-center gap-3"
-              >
-                <span className="shrink-0 tabular-nums text-muted">{fmtClock(entry.wallTime)}</span>
-                <span
-                  className={cn(
-                    "min-w-0 truncate",
-                    entry.category === "rare" ? "text-status-info" : "text-fg",
-                  )}
-                >
-                  {entry.name}
-                </span>
-              </DataListRow>
-            ))}
-          </LiveHistoryPanel>
-        }
-      />
+      >
+        {history.map((entry, i) => (
+          <LiveHistoryRow
+            key={`${entry.wallTime}-${entry.itemKey}-${i}`}
+            index={i}
+            cells={[
+              {
+                content: fmtClock(entry.wallTime),
+                className: "tabular-nums text-muted whitespace-nowrap",
+              },
+              {
+                content: entry.name,
+                className: cn(
+                  "min-w-0 truncate",
+                  entry.category === "rare" ? "text-status-info" : "text-fg",
+                ),
+              },
+            ]}
+          />
+        ))}
+      </LiveHistoryPanel>
     </>
   );
 }

@@ -1,5 +1,30 @@
 import { describe, expect, it } from "vitest";
-import { fmtClock, fmtFillEta, fmtHoursUntilFull } from "../../src/renderer/lib/format";
+import {
+  fmtClock,
+  fmtFillEta,
+  fmtHoursUntilFull,
+  fmtShortDuration,
+} from "../../src/renderer/lib/format";
+
+describe("fmtShortDuration", () => {
+  it("shows only seconds under a minute", () => {
+    expect(fmtShortDuration(45)).toBe("45s");
+    expect(fmtShortDuration(0)).toBe("0s");
+  });
+
+  it("shows minutes and seconds under an hour", () => {
+    expect(fmtShortDuration(89)).toBe("1m29s");
+    expect(fmtShortDuration(60)).toBe("1m0s");
+  });
+
+  it("shows hours and minutes at or beyond an hour (drops seconds)", () => {
+    expect(fmtShortDuration(3722)).toBe("1h2m");
+  });
+
+  it("clamps negative input to zero", () => {
+    expect(fmtShortDuration(-5)).toBe("0s");
+  });
+});
 
 describe("fmtClock", () => {
   it("zero-pads single-digit hours for column alignment", () => {
