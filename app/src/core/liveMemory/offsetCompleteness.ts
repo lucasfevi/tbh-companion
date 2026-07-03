@@ -125,7 +125,10 @@ export function mergeOffsets(base: LiveOffsets, derived: LiveOffsets): LiveOffse
       },
       getBoxLog: {
         ...base.runtime.getBoxLog,
-        monsterType: pickN(base.runtime.getBoxLog.monsterType, derived.runtime.getBoxLog.monsterType),
+        monsterType: pickN(
+          base.runtime.getBoxLog.monsterType,
+          derived.runtime.getBoxLog.monsterType,
+        ),
       },
       stageClearLog: {
         ...base.runtime.stageClearLog,

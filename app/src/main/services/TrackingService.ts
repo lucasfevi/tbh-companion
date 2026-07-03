@@ -223,9 +223,7 @@ export class TrackingService {
           let goldAssigned = 0;
           for (let i = 0; i < n; i++) {
             const isLast = i === n - 1;
-            const xpGained = isLast
-              ? totalXpGained - xpAssigned
-              : Math.floor(totalXpGained / n);
+            const xpGained = isLast ? totalXpGained - xpAssigned : Math.floor(totalXpGained / n);
             const goldGained = isLast
               ? totalGoldGained - goldAssigned
               : Math.floor(totalGoldGained / n);

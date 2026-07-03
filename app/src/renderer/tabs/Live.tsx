@@ -386,9 +386,7 @@ export function Live() {
         left={heroesPanel}
         right={
           liveActive ? (
-            <StageRunPanel
-              stageRuns={stageRuns ?? { history: [], readerRequired: true }}
-            />
+            <StageRunPanel stageRuns={stageRuns ?? { history: [], readerRequired: true }} />
           ) : (
             <LiveHistoryPanel
               title={
