@@ -385,8 +385,10 @@ export function Live() {
       <LiveMatchedPair
         left={heroesPanel}
         right={
-          liveActive && stageRuns ? (
-            <StageRunPanel stageRuns={stageRuns} />
+          liveActive ? (
+            <StageRunPanel
+              stageRuns={stageRuns ?? { history: [], readerRequired: true }}
+            />
           ) : (
             <LiveHistoryPanel
               title={

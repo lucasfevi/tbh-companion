@@ -315,11 +315,10 @@ describe("TrackingService.onLiveMemoryToggled", () => {
       at: 3000,
     });
 
-    // Both clears in the second frame are attributed against the same pre-frame
-    // baseline (400 xp, 400 gold total gained) since the tick only samples once.
+    // Two clears in one frame split the frame's XP/gold delta evenly (one sample per tick).
     expect(onLiveStageClear).toHaveBeenCalledTimes(2);
-    expect(onLiveStageClear).toHaveBeenNthCalledWith(1, 4103, 85, 400, 400);
-    expect(onLiveStageClear).toHaveBeenNthCalledWith(2, 4103, 63, 0, 0);
+    expect(onLiveStageClear).toHaveBeenNthCalledWith(1, 4103, 85, 200, 200);
+    expect(onLiveStageClear).toHaveBeenNthCalledWith(2, 4103, 63, 200, 200);
     svc.stop();
   });
 

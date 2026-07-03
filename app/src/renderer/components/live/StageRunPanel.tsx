@@ -27,7 +27,7 @@ export function StageRunPanel({ stageRuns }: { stageRuns: StageRunStats }) {
       title="Stage clear history"
       columns={COLUMNS}
       empty={
-        history.length === 0 ? <p className="m-0">No clears logged yet this session.</p> : undefined
+        history.length === 0 ? <p className="m-0">No stage clears logged yet.</p> : undefined
       }
     >
       {history.map((entry, i) => (

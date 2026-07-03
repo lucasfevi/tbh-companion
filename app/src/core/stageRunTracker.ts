@@ -57,6 +57,28 @@ export class StageRunTracker {
   }
 
   applySnapshot(data: StageRunTrackerSnapshot): void {
-    this.history = data.history ?? [];
+    const raw = data.history;
+    if (!Array.isArray(raw)) {
+      this.history = [];
+      return;
+    }
+    this.history = raw.filter(isValidHistoryEntry).slice(-HISTORY_LIMIT);
   }
+}
+
+function isValidHistoryEntry(entry: unknown): entry is StageRunHistoryEntry {
+  if (typeof entry !== "object" || entry === null) return false;
+  const e = entry as StageRunHistoryEntry;
+  return (
+    typeof e.wallTime === "number" &&
+    Number.isFinite(e.wallTime) &&
+    typeof e.stageKey === "number" &&
+    e.stageKey > 0 &&
+    typeof e.clearTimeSec === "number" &&
+    e.clearTimeSec > 0 &&
+    typeof e.xpGained === "number" &&
+    Number.isFinite(e.xpGained) &&
+    typeof e.goldGained === "number" &&
+    Number.isFinite(e.goldGained)
+  );
 }

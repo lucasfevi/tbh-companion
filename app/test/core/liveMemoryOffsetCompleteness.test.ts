@@ -34,6 +34,11 @@ describe("missingOffsetFields", () => {
       player: { ...BASE.player, petSaveDatas: 0, itemSaveDatas: 0 },
       petSaveData: { petKey: 0, isUnlock: 0 },
       inventoryItem: { itemKey: 0, isChaotic: 0 },
+      runtime: {
+        ...BASE.runtime,
+        log: { ...BASE.runtime.log, stageClearTypeKey: 0 },
+        stageClearLog: { clearTimeSec: 0 },
+      },
     };
     expect(missingOffsetFields(stripped, "full").sort()).toEqual(
       [
@@ -43,6 +48,8 @@ describe("missingOffsetFields", () => {
         "petSaveData.petKey",
         "player.itemSaveDatas",
         "player.petSaveDatas",
+        "runtime.log.stageClearTypeKey",
+        "runtime.stageClearLog.clearTimeSec",
         "typeInfoRva.commonSaveData",
         "typeInfoRva.logManager",
       ].sort(),
@@ -104,5 +111,21 @@ describe("mergeOffsets", () => {
     expect(merged.petSaveData.petKey).toBe(BASE.petSaveData.petKey);
     expect(merged.inventoryItem.itemKey).toBe(BASE.inventoryItem.itemKey);
     expect(merged.player.itemSaveDatas).toBe(BASE.player.itemSaveDatas);
+  });
+
+  it("fills zeroed stage-clear log offsets from the derived table", () => {
+    const stripped: LiveOffsets = {
+      ...BASE,
+      runtime: {
+        ...BASE.runtime,
+        log: { ...BASE.runtime.log, stageClearTypeKey: 0 },
+        stageClearLog: { clearTimeSec: 0 },
+      },
+    };
+    const derived = withLogManager(BASE, 0x5e40000n);
+    const merged = mergeOffsets(stripped, derived);
+    expect(merged.runtime.log.stageClearTypeKey).toBe(BASE.runtime.log.stageClearTypeKey);
+    expect(merged.runtime.stageClearLog.clearTimeSec).toBe(BASE.runtime.stageClearLog.clearTimeSec);
+    expect(isOffsetTableComplete(merged)).toBe(true);
   });
 });

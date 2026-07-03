@@ -52,4 +52,40 @@ describe("StageRunTracker", () => {
     tracker.applySnapshot({ history: [] });
     expect(tracker.getStats().history).toEqual([]);
   });
+
+  it("applySnapshot rejects non-array history", () => {
+    const tracker = new StageRunTracker();
+    tracker.recordClear(2305, 85, 400, 12_000, 1000);
+    tracker.applySnapshot({ history: null as unknown as [] });
+    expect(tracker.getStats().history).toEqual([]);
+  });
+
+  it("applySnapshot filters invalid entries and caps to the most recent 200", () => {
+    const valid = {
+      wallTime: 1000,
+      stageKey: 2305,
+      clearTimeSec: 85,
+      xpGained: 400,
+      goldGained: 12_000,
+    };
+    const invalid = [
+      null,
+      { wallTime: 1, stageKey: 0, clearTimeSec: 10, xpGained: 1, goldGained: 1 },
+      { wallTime: "bad", stageKey: 2305, clearTimeSec: 85, xpGained: 1, goldGained: 1 },
+    ];
+    const overflow = Array.from({ length: 205 }, (_, i) => ({
+      ...valid,
+      wallTime: 1000 + i,
+      stageKey: 2300 + i,
+    }));
+
+    const tracker = new StageRunTracker();
+    tracker.applySnapshot({ history: [...invalid, ...overflow] as never[] });
+
+    expect(tracker.captureSnapshot().history).toHaveLength(200);
+    expect(tracker.captureSnapshot().history[0].wallTime).toBe(1005); // oldest kept
+    expect(tracker.captureSnapshot().history[199].wallTime).toBe(1204); // newest kept
+    expect(tracker.getStats().history).toHaveLength(20);
+    expect(tracker.getStats().history[0].wallTime).toBe(1204); // visible: most recent first
+  });
 });

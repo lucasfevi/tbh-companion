@@ -40,6 +40,8 @@ const ENRICHMENT_FIELDS: readonly FieldCheck[] = [
   { path: "petSaveData.isUnlock", get: (o) => o.petSaveData.isUnlock },
   { path: "inventoryItem.itemKey", get: (o) => o.inventoryItem.itemKey },
   { path: "inventoryItem.isChaotic", get: (o) => o.inventoryItem.isChaotic },
+  { path: "runtime.log.stageClearTypeKey", get: (o) => o.runtime.log.stageClearTypeKey },
+  { path: "runtime.stageClearLog.clearTimeSec", get: (o) => o.runtime.stageClearLog.clearTimeSec },
 ];
 
 const ALL_FIELDS: readonly FieldCheck[] = [...CRITICAL_FIELDS, ...ENRICHMENT_FIELDS];
@@ -112,6 +114,26 @@ export function mergeOffsets(base: LiveOffsets, derived: LiveOffsets): LiveOffse
     runtime: {
       ...base.runtime,
       heroList: pickN(base.runtime.heroList, derived.runtime.heroList),
+      log: {
+        ...base.runtime.log,
+        logByType: pickN(base.runtime.log.logByType, derived.runtime.log.logByType),
+        getBoxTypeKey: pickN(base.runtime.log.getBoxTypeKey, derived.runtime.log.getBoxTypeKey),
+        stageClearTypeKey: pickN(
+          base.runtime.log.stageClearTypeKey,
+          derived.runtime.log.stageClearTypeKey,
+        ),
+      },
+      getBoxLog: {
+        ...base.runtime.getBoxLog,
+        monsterType: pickN(base.runtime.getBoxLog.monsterType, derived.runtime.getBoxLog.monsterType),
+      },
+      stageClearLog: {
+        ...base.runtime.stageClearLog,
+        clearTimeSec: pickN(
+          base.runtime.stageClearLog.clearTimeSec,
+          derived.runtime.stageClearLog.clearTimeSec,
+        ),
+      },
     },
   };
 }

@@ -124,6 +124,14 @@ Deriving a durable drop log from save deltas is lossy (save rewrites ~every 2 mi
 chests can be opened before `BoxData` updates). **Time-series charts** (XP/hr,
 inventory value in SQLite) are also deferred — see `docs/ARCHITECTURE.md`.
 
+## 2026-07 - Stage clear history: per-run log, not fastest-clear aggregate (LMR-20)
+
+Live `StageClearLog` reads give per-clear duration from the game; XP/gold gained are companion deltas
+between clears. History lives in `stage_run_history.json` (not session state), capped at 200 rows with
+validated restore. A fastest-clear-per-stage leaderboard was dropped mid-PR — "which stage is best to
+farm" is a separate analytics feature. `EXTRACTOR_REVISION` 4 adds stage-clear offsets to completeness
+checks so pre-LMR-20 cached tables re-extract instead of silently returning `stageClears: null`.
+
 ## 2026-06 - All-TypeScript (Electron + React) over Python + web UI
 
 The hard part (ES3 decryption + save reverse-engineering) is solved and the

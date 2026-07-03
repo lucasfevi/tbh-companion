@@ -31,8 +31,9 @@ import type { WinProcess } from "./winProcess";
  * older, weaker extractor try again without waiting for an app version bump.
  * Rev 3: static-class anchors (vb.tp / vb.uu) + full readable GA scan; v1.00.23
  * renamed uz.tm/uz.us and uses vb.StageCache — singleton-only scan failed live.
+ * Rev 4: stage-clear log offsets (runtime.log.stageClearTypeKey, stageClearLog).
  */
-export const EXTRACTOR_REVISION = 3;
+export const EXTRACTOR_REVISION = 4;
 
 // Structural offsets whose field names ARE obfuscated but whose byte offsets are
 // stable across patches. Emitted as constants rather than derived by name.

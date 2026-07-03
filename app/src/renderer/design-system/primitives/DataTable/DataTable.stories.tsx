@@ -61,7 +61,7 @@ export const Default: Story = {
 export const Empty: Story = {
   render: () => (
     <div className="w-[420px] rounded-lg border border-border bg-card p-2.5 text-[13px] text-muted">
-      No clears logged yet this session.
+      No stage clears logged yet.
     </div>
   ),
   args: { columns: [], children: null },

@@ -212,16 +212,29 @@ export class TrackingService {
     if (snap.stageClears && snap.stageClears.length > 0) {
       const stageKey = snap.stageKey ?? this.lastSnap?.stageKey ?? 0;
       if (stageKey > 0) {
-        for (const clearTimeSec of snap.stageClears) {
-          const xp = this.tracker.currentTotalXp;
-          const gold = this.tracker.currentGold;
-          if (this.stageEventBaseline) {
-            const xpGained = xp - this.stageEventBaseline.xp;
-            const goldGained = gold - this.stageEventBaseline.gold;
-            this.onLiveStageClear?.(stageKey, clearTimeSec, xpGained, goldGained);
+        const xp = this.tracker.currentTotalXp;
+        const gold = this.tracker.currentGold;
+        const clears = snap.stageClears;
+        if (this.stageEventBaseline) {
+          const totalXpGained = xp - this.stageEventBaseline.xp;
+          const totalGoldGained = gold - this.stageEventBaseline.gold;
+          const n = clears.length;
+          let xpAssigned = 0;
+          let goldAssigned = 0;
+          for (let i = 0; i < n; i++) {
+            const isLast = i === n - 1;
+            const xpGained = isLast
+              ? totalXpGained - xpAssigned
+              : Math.floor(totalXpGained / n);
+            const goldGained = isLast
+              ? totalGoldGained - goldAssigned
+              : Math.floor(totalGoldGained / n);
+            xpAssigned += xpGained;
+            goldAssigned += goldGained;
+            this.onLiveStageClear?.(stageKey, clears[i], xpGained, goldGained);
           }
-          this.stageEventBaseline = { xp, gold };
         }
+        this.stageEventBaseline = { xp, gold };
       }
     }
 

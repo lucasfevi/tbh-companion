@@ -113,7 +113,7 @@ describe("appData", () => {
     expect(filesForClearTarget("stage-runs", userDataDir)).toEqual([STAGE_RUN_FILE]);
   });
 
-  it("includes stage_run_best.json in the all-except-config clear", () => {
+  it("includes stage_run_history.json in the all-except-config clear", () => {
     touch(STAGE_RUN_FILE);
     touch(CONFIG_FILE);
 

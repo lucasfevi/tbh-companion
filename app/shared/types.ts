@@ -487,7 +487,7 @@ export interface StageRunStats {
   readerRequired: boolean;
 }
 
-/** Serialized StageRunTracker internals for stage_run_best.json persistence. */
+/** Serialized StageRunTracker internals for stage_run_history.json persistence. */
 export interface StageRunTrackerSnapshot {
   history: StageRunHistoryEntry[];
 }
