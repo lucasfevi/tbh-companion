@@ -87,6 +87,24 @@ describe("parseInventory", () => {
     expect(unslotted?.inUse).toBe(false);
   });
 
+  it("parses items with fields between ItemKey/UniqueId/IsChaotic (real save layout)", () => {
+    // Real saves interleave scalar fields (e.g. PrevUniqueId, IsBlocked) between
+    // ItemKey/UniqueId/IsChaotic; requiring them contiguous matched zero items
+    // and blanked the Inventory tab. "UniqueId" must not be read from
+    // "PrevUniqueId" either.
+    const inner = `{
+      "itemSaveDatas":[
+        {"ItemKey":322111,"UniqueId":514119247889201000,"PrevUniqueId":514119247889200000,"IsBlocked":false,"IsChaotic":true},
+        {"ItemKey":303071,"UniqueId":514119247889201001,"PrevUniqueId":0,"IsChaotic":false}
+      ]
+    }`;
+    const snap = parseInventory(wrapPlayer(inner), 0);
+    expect(snap.items).toHaveLength(2);
+    const chaotic = snap.items.find((i) => i.itemKey === 322111);
+    expect(chaotic?.isChaotic).toBe(true);
+    expect(snap.items.map((i) => i.itemKey)).toEqual([322111, 303071]);
+  });
+
   it("leaves stage-box ItemKeys outside slots as unknown location", () => {
     const snap = parseInventory(wrapPlayer(playerInner), 0);
     const box = snap.items.find((i) => i.itemKey === 910151);

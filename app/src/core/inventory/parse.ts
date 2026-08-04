@@ -85,8 +85,16 @@ function parseSlotCapacity(arrText: string): { capacity: number; used: number } 
   return { capacity, used };
 }
 
+// Match ItemKey / UniqueId / IsChaotic tolerating other scalar fields between
+// them: real saves interleave fields like `PrevUniqueId` and `IsBlocked`
+// (e.g. `"UniqueId":14094,"PrevUniqueId":0,"IsChaotic":false`), and requiring
+// the three to be strictly contiguous makes zero items match — the whole
+// Inventory tab goes blank. `[^{}]*?` skips intervening scalar fields without
+// crossing an object boundary (the `}` between entries) or descending into a
+// nested object (e.g. `EnchantData`). `"UniqueId"` cannot match inside
+// `"PrevUniqueId"` because the leading quote isn't preceded by one.
 const ITEM_TRIPLE_RE =
-  /"ItemKey"\s*:\s*(\d+)\s*,\s*"UniqueId"\s*:\s*(\d+)\s*,\s*"IsChaotic"\s*:\s*(true|false)/g;
+  /"ItemKey"\s*:\s*(\d+)[^{}]*?"UniqueId"\s*:\s*(\d+)[^{}]*?"IsChaotic"\s*:\s*(true|false)/g;
 
 /** Returns catalog id for assignable rows; tracks pipeline vs playable ids in the sets. */
 function trackSaveItemKey(
