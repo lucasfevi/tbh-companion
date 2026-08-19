@@ -1,12 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { LiveMemorySnapshot, SaveSnapshot } from "../../shared/types";
+import type { SaveSnapshot } from "../../shared/types";
 import { DEFAULT_NOTIFICATION_PREFS } from "../../shared/notificationCatalog";
+
+let onSnapshot: ((snap: SaveSnapshot) => void) | undefined;
 
 vi.mock("../../src/main/saveWatcher", () => ({
   SaveWatcher: class {
     constructor(opts: { onSnapshot: (snap: SaveSnapshot) => void }) {
       onSnapshot = opts.onSnapshot;
     }
+    start = vi.fn();
+    stop = vi.fn();
+  },
+}));
+
+vi.mock("../../src/main/playerLogWatcher", () => ({
+  PlayerLogWatcher: class {
     start = vi.fn();
     stop = vi.fn();
   },
@@ -45,15 +54,12 @@ const baseConfig = {
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
   inventoryAlmostFullThresholdPercent: 90,
   chestAutoOpenEnabled: { common: false, stageBoss: false },
-  liveMemory: { enabled: false, consentAccepted: false },
 };
 
-let onSnapshot: ((snap: SaveSnapshot) => void) | undefined;
-
-function snap(level: number, mtime = 100, heroExp = 100): SaveSnapshot {
+function snap(level: number, mtime = 100): SaveSnapshot {
   return {
-    heroes: [{ key: "101", level, exp: heroExp, unlocked: true }],
-    totalHeroExp: heroExp,
+    heroes: [{ key: "101", level, exp: 100, unlocked: true }],
+    totalHeroExp: 100,
     playTime: 0,
     saveMtime: mtime,
     stageKey: 3205,
@@ -71,7 +77,14 @@ describe("TrackingService hero level-up callback", () => {
 
   it("does not fire on the first snapshot", () => {
     const onHeroLevelUp = vi.fn();
-    const svc = new TrackingService(vi.fn(), undefined, undefined, undefined, onHeroLevelUp);
+    const svc = new TrackingService(
+      vi.fn(),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      onHeroLevelUp,
+    );
     svc.start(baseConfig);
     onSnapshot?.(snap(5));
     expect(onHeroLevelUp).not.toHaveBeenCalled();
@@ -80,7 +93,14 @@ describe("TrackingService hero level-up callback", () => {
 
   it("fires when a hero level increases on a later snapshot", () => {
     const onHeroLevelUp = vi.fn();
-    const svc = new TrackingService(vi.fn(), undefined, undefined, undefined, onHeroLevelUp);
+    const svc = new TrackingService(
+      vi.fn(),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      onHeroLevelUp,
+    );
     svc.start(baseConfig);
     onSnapshot?.(snap(5, 100));
     onSnapshot?.(snap(6, 101));
@@ -91,7 +111,14 @@ describe("TrackingService hero level-up callback", () => {
 
   it("batches multiple hero level-ups from one snapshot into a single callback", () => {
     const onHeroLevelUp = vi.fn();
-    const svc = new TrackingService(vi.fn(), undefined, undefined, undefined, onHeroLevelUp);
+    const svc = new TrackingService(
+      vi.fn(),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      onHeroLevelUp,
+    );
     svc.start(baseConfig);
     onSnapshot?.({
       ...snap(5, 100),
@@ -113,86 +140,5 @@ describe("TrackingService hero level-up callback", () => {
       { key: "201", previousLevel: 2, newLevel: 3 },
     ]);
     svc.stop();
-  });
-});
-
-describe("TrackingService.onLiveMemoryToggled", () => {
-  beforeEach(() => {
-    onSnapshot = undefined;
-    vi.clearAllMocks();
-  });
-
-  it("clears inflated session stats and re-seeds from the last save snapshot", () => {
-    const svc = new TrackingService(vi.fn());
-    svc.start(baseConfig);
-    onSnapshot?.(snap(5, 1000, 0));
-    onSnapshot?.(snap(5, 1060, 600)); // +600 XP
-
-    // Simulate corrupted session totals from a prior live/save mix.
-    const tracker = svc.getTracker();
-    tracker.applySnapshot({
-      ...tracker.captureSnapshot(),
-      cumulativeGained: 8e28,
-      sessionRateValue: 8e28,
-    });
-
-    svc.onLiveMemoryToggled();
-
-    expect(svc.getTracker().cumulativeGained).toBe(0);
-    expect(svc.getTracker().rollingRate).toBe(0);
-    expect(svc.getStats().cumulativeGained).toBe(0);
-  });
-
-  it("feeds live heroes into the tracker for XP rate sampling", () => {
-    const svc = new TrackingService(vi.fn());
-    svc.start(baseConfig);
-    onSnapshot?.(snap(5, 1000, 0));
-
-    const frame: LiveMemorySnapshot = {
-      connected: true,
-      stageKey: 3205,
-      stageWave: 1,
-      gold: 1000,
-      heroes: [{ heroKey: 101, level: 5, exp: 500 }],
-      boxCount: null,
-      inventoryItems: null,
-      petData: null,
-      source: "memory test",
-      readMs: 1,
-      at: 2000,
-    };
-    svc.ingestLiveFrame(frame);
-    svc.ingestLiveFrame({
-      ...frame,
-      at: 3000,
-      heroes: [{ heroKey: 101, level: 5, exp: 1100 }],
-    });
-
-    expect(svc.getTracker().cumulativeGained).toBe(600);
-    expect(svc.getTracker().rollingRate).toBeGreaterThan(0);
-  });
-
-  it("records chest drops when live box count increases between frames", () => {
-    const svc = new TrackingService(vi.fn());
-    svc.start(baseConfig);
-    onSnapshot?.(snap(5, 1000, 0));
-
-    const frame: LiveMemorySnapshot = {
-      connected: true,
-      stageKey: 3205,
-      stageWave: 1,
-      gold: null,
-      heroes: null,
-      boxCount: 10,
-      inventoryItems: null,
-      petData: null,
-      source: "memory test",
-      readMs: 1,
-      at: 2000,
-    };
-    svc.ingestLiveFrame(frame);
-    svc.ingestLiveFrame({ ...frame, boxCount: 12, at: 3000 });
-
-    expect(svc.getStats().chestDrops.commonTotal).toBe(2);
   });
 });

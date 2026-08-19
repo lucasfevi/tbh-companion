@@ -3,8 +3,6 @@ import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "
 import { dirname, join } from "node:path";
 import {
   isPersistedSessionState,
-  isLiveMemoryActive,
-  isPlausibleTrackerSnapshot,
   sessionMatchesConfig,
   snapshotContinuesSession,
 } from "../../core/sessionState";
@@ -122,17 +120,6 @@ export class SessionStateService {
       return "discarded";
     }
 
-    if (!isPlausibleTrackerSnapshot(this.pendingTracker)) {
-      log.info("Session discarded (implausible tracker totals — likely live/save baseline mix)");
-      this.pendingTracker = null;
-      this.pendingChestDropTracker = null;
-      this.pendingLastSaveMtime = null;
-      this.lastSaveMtime = snap.saveMtime;
-      this.setStatusOverride("New session");
-      this.deleteFile();
-      return "discarded";
-    }
-
     tracker.applySnapshot(this.pendingTracker);
     if (this.pendingChestDropTracker) {
       chestDropTracker.applySnapshot(this.pendingChestDropTracker);
@@ -163,7 +150,6 @@ export class SessionStateService {
       savePath: this.savePath,
       lastSaveMtime: storedMtime,
       rollingWindowMinutes: config.rollingWindowMinutes,
-      liveMemoryEnabled: isLiveMemoryActive(config),
       tracker: tracker.captureSnapshot(),
       chestDropTracker: chestDropTracker.captureSnapshot(),
       ui: { ...this.ui },

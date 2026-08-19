@@ -21,7 +21,7 @@ const baseStats = {
     rareTotal: 0,
     commonPerHour: 0,
     rarePerHour: 0,
-    readerRequired: true,
+    playerLogAvailable: true,
     breakdown: [],
     history: [],
   },

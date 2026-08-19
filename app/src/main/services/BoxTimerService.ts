@@ -57,6 +57,8 @@ export class BoxTimerService {
   private tickTimer: NodeJS.Timeout | null = null;
   private subscribers = 0;
   private currentStageKey = 0;
+  private playerLogPath = "";
+  private playerLogAvailable = false;
 
   constructor() {
     this.routeBoxIds = [...this.routeById.keys()].sort(
@@ -116,6 +118,13 @@ export class BoxTimerService {
     );
     this.markDropped(boxId);
     return true;
+  }
+
+  setPlayerLogStatus(path: string, available: boolean): void {
+    if (this.playerLogPath === path && this.playerLogAvailable === available) return;
+    this.playerLogPath = path;
+    this.playerLogAvailable = available;
+    this.push();
   }
 
   clearTimer(boxId: number): BoxTimerState {
@@ -372,6 +381,8 @@ export class BoxTimerService {
       sortOrder: this.sortOrder,
       currentStageKey: this.currentStageKey,
       defaultCooldownSeconds: this.catalogFile.defaultCooldownSeconds ?? 720,
+      playerLogPath: this.playerLogPath,
+      playerLogAvailable: this.playerLogAvailable,
     };
   }
 
