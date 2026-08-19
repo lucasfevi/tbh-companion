@@ -2,7 +2,6 @@ import { BrowserWindow } from "electron";
 import { PRELOAD_SCRIPT } from "../paths";
 import { isAppQuitting } from "../tray/trayService";
 import { loadRenderer } from "./loadRenderer";
-import { attachCrashRecovery } from "./crashRecovery";
 import { appIconImage, setWindowIcon } from "../iconPaths";
 import { MAIN_WINDOW_HEIGHT, MAIN_WINDOW_MIN_HEIGHT, MAIN_WINDOW_WIDTH } from "./constants";
 import { applyWindowTopmost } from "./alwaysOnTop";
@@ -72,7 +71,6 @@ export function createMainWindow(
   win.on("closed", () => setWindow(null));
 
   loadRenderer(win, "main");
-  attachCrashRecovery(win, "main");
   setWindowIcon(win);
   setWindow(win);
   return win;

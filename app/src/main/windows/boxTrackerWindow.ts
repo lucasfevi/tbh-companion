@@ -2,7 +2,6 @@ import { BrowserWindow } from "electron";
 import { appIconImage, setWindowIcon } from "../iconPaths";
 import { PRELOAD_SCRIPT } from "../paths";
 import { loadRenderer } from "./loadRenderer";
-import { attachCrashRecovery } from "./crashRecovery";
 import { applyWindowTopmost } from "./alwaysOnTop";
 import {
   BOX_TRACKER_HEIGHT,
@@ -80,7 +79,6 @@ export function createBoxTrackerWindow(
   });
 
   loadRenderer(win, "box-tracker");
-  attachCrashRecovery(win, "box-tracker");
   setWindowIcon(win);
   setWindow(win);
   onOpen?.();
