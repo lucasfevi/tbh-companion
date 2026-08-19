@@ -16,6 +16,18 @@ export const WHATS_NEW_STORAGE_KEY = "tbh.whatsNew.lastSeenVersion";
 
 const WHATS_NEW_ENTRIES: WhatsNewEntry[] = [
   {
+    version: "1.18.1",
+    title: "What's new in v1.18.1",
+    bullets: [
+      "Inventory works again on current saves (blank tab from a newer save layout is fixed).",
+      "Windows recover automatically after a renderer crash instead of staying blank.",
+    ],
+    action: {
+      label: "Join Discord",
+      href: DISCORD_URL,
+    },
+  },
+  {
     version: "1.17.0",
     title: "What's new in v1.17.0",
     bullets: [

@@ -4,6 +4,16 @@ User-facing changes for TBH Companion releases. Update the **[Unreleased]** sect
 
 ## [Unreleased]
 
+## [1.18.1] - 2026-08-19
+
+### Inventory
+
+- **Inventory** again lists items on current game saves. Newer saves insert extra fields between item keys; parsing now tolerates that layout so the tab is no longer empty.
+
+### Fixed
+
+- Blank/frozen windows after a renderer crash now auto-reload (capped to avoid a crash loop), with a dedicated crash log for diagnosis.
+
 ## [1.18.0] - 2026-06-30
 
 ### Lookup

@@ -8,11 +8,21 @@ Support-oriented logs for debugging user issues. **Not** the same as XP history 
 |------|--------|
 | Path | `%APPDATA%/tbh-companion/logs/app.log` (Windows) |
 | Rotation | 1 MB max; previous file becomes `app.old.log` |
-| Clear | Settings → **Diagnostics** → **Clear diagnostic logs** (also removes legacy `main.log` / `main.old.log`) |
+| Clear | Settings → **Diagnostics** → **Clear diagnostic logs** (also removes legacy `main.log` / `main.old.log`, and `crash.log`) |
 
 Logging initializes at startup via `logInit.ts` (imported before other main modules) so
 `electron-log` does not write to its default `main.log`. Ask users to send `app.log`
-(and `app.old.log` if present) when investigating bugs.
+(and `app.old.log`, `crash.log` if present) when investigating bugs.
+
+### Crash log (`crash.log`)
+
+A separate `electron-log` instance (`log.create({ logId: "crash" })` in `log.ts`) writes
+renderer `render-process-gone` / `unresponsive` events to their own 1 MB-rotated file, so a
+renderer crash loop can't push tracking history out of `app.log`. Each event is also
+summarized once in `app.log` under the `window` scope. See `windows/crashRecovery.ts`,
+attached to every `BrowserWindow` right after `loadRenderer()` — it reloads the window
+automatically (capped at 3 reloads/minute) instead of leaving a blank, background-colored
+shell.
 
 ## Where to log
 
