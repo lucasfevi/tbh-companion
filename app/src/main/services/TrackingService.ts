@@ -28,6 +28,7 @@ export class TrackingService {
   private lastError: string | null = null;
   private config!: AppConfig;
   private restoreApplied = false;
+  private prevBoxCount: number | null = null;
   private readonly onInventory: (snap: InventorySnapshot) => void;
   private readonly parseInventorySnapshot?: (text: string, mtime: number) => InventorySnapshot;
 
@@ -37,7 +38,6 @@ export class TrackingService {
     private readonly onStageKey?: (stageKey: number) => void,
     private readonly sessionState?: SessionStateService,
     private readonly onHeroLevelUp?: (events: HeroLevelUpEvent[]) => void,
-    private readonly onLiveStageBossDrop?: (stageKey: number) => void,
   ) {
     this.onInventory = onInventory;
     this.parseInventorySnapshot = parseInventorySnapshot;
@@ -128,6 +128,7 @@ export class TrackingService {
   onSavePathChanged(): void {
     this.lastSnap = null;
     this.restoreApplied = false;
+    this.prevBoxCount = null;
     this.sessionState?.invalidatePending();
     this.tracker.reset();
     this.chestDropTracker.reset();
@@ -141,6 +142,7 @@ export class TrackingService {
    * Save-layer and runtime values use different baselines, so totals must not carry over.
    */
   onLiveMemoryToggled(): void {
+    this.prevBoxCount = null;
     this.lastLiveFrame = null;
     this.tracker.reset();
     this.chestDropTracker.reset();
@@ -172,17 +174,17 @@ export class TrackingService {
 
     this.tracker.updateLive({ gold: snap.gold, heroes: snap.heroes }, snap.at / 1000, stage);
 
-    if (snap.chestDrops && snap.chestDrops.length > 0) {
-      for (const category of snap.chestDrops) {
-        if (this.chestDropTracker.recordLiveChestDrop(category, snap.at / 1000)) {
-          if (category === "rare" && snap.stageKey != null && snap.stageKey > 0) {
-            this.onLiveStageBossDrop?.(snap.stageKey);
-          }
+    this.pushStats();
+
+    if (snap.boxCount != null && snap.stageKey != null) {
+      if (this.prevBoxCount != null && snap.boxCount > this.prevBoxCount) {
+        const delta = snap.boxCount - this.prevBoxCount;
+        for (let i = 0; i < delta; i++) {
+          this.chestDropTracker.recordLiveBoxDrop(snap.stageKey, snap.at / 1000);
         }
       }
+      this.prevBoxCount = snap.boxCount;
     }
-
-    this.pushStats();
   }
 
   private createWatcher(): SaveWatcher {

@@ -19,18 +19,6 @@ describe("offsetsForVersion", () => {
     expect(o?.typeInfoRva.stageCacheManager).toBe(0x5dc9958n);
   });
 
-  it("returns the bundled table for v1.00.23", () => {
-    const o = offsetsForVersion("1.00.23");
-    expect(o).not.toBeNull();
-    expect(o?.gameVersion).toBe("1.00.23");
-    expect(o?.typeInfoRva.currencyManager).toBe(0x5db9758n);
-    expect(o?.typeInfoRva.stageCacheManager).toBe(0x5dba2f8n);
-    expect(o?.typeInfoRva.stageManager).toBe(0x5e30318n);
-    expect(o?.typeInfoRva.logManager).toBe(0x5e2fb58n);
-    expect(o?.player.petSaveDatas).toBe(0x70);
-    expect(o?.player.itemSaveDatas).toBe(0xa8);
-  });
-
   it("returns null for an unknown/absent version (degraded mode — LMR-07)", () => {
     expect(offsetsForVersion("1.00.99")).toBeNull();
     expect(offsetsForVersion(null)).toBeNull();
@@ -40,7 +28,6 @@ describe("offsetsForVersion", () => {
 
   it("lists the supported versions", () => {
     expect(supportedVersions()).toContain("1.00.21");
-    expect(supportedVersions()).toContain("1.00.23");
   });
 
   it("exposes the complete shared schema shape (locked for Phase 3)", () => {
@@ -49,7 +36,6 @@ describe("offsetsForVersion", () => {
       "commonSaveData",
       "currencyManager",
       "localInventoryManager",
-      "logManager",
       "stageCacheManager",
       "stageManager",
     ]);
@@ -61,14 +47,10 @@ describe("offsetsForVersion", () => {
     expect(o.heroRuntime.info).toBe(0x30); // HeroRuntime.info → HeroInfoData
     expect(o.heroRuntime.expHidden).toBe(0x110); // ObscuredFloat xp hiddenValue
     expect(o.heroInfoData.heroKey).toBe(0x30);
-    // Phase 3.1 chest-log schema (GetBoxLog via LogManager)
-    expect(o.runtime.log.logByType).toBe(0x28); // LogManager Dictionary<ELogType, List>
-    expect(o.runtime.log.getBoxTypeKey).toBe(3); // ELogType.GetBox
-    expect(o.runtime.getBoxLog.monsterType).toBe(0x50); // GetBoxLog EMonsterLogType
+    expect("boxCount" in o.runtime.stage).toBe(true);
     expect("petSaveData" in o).toBe(true);
     expect("inventoryItem" in o).toBe(true);
     expect("petSaveDatas" in o.player).toBe(true);
-    expect("itemSaveDatas" in o.player).toBe(true);
   });
 });
 

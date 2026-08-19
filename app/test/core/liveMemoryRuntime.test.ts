@@ -3,13 +3,12 @@ import {
   readRuntimeStage,
   readRuntimeGold,
   readRuntimeHeroes,
-  readRuntimeChestLog,
+  readRuntimeBoxCount,
   readRuntimeInventory,
   readRuntimePets,
   resolveStageManager,
   makeGoldPinState,
   makeSmPinState,
-  makeChestLogPinState,
   type GoldPinState,
 } from "../../src/core/liveMemory/runtime";
 import { offsetsForVersion } from "../../src/core/liveMemory/offsets";
@@ -375,155 +374,123 @@ describe("resolveStageManager", () => {
   });
 });
 
-// ── readRuntimeChestLog ───────────────────────────────────────────────────────
+// ── readRuntimeBoxCount ───────────────────────────────────────────────────────
 
-// V1_00_21 leaves logManager RVA at 0n (derived at runtime); patch a fake one in.
-const LOG_O = { ...O, typeInfoRva: { ...O.typeInfoRva, logManager: 0x120000n } };
-
-const LOG_CLASS = 0xd00000n;
-const LOG_BLOCK = 0xd10000n;
-const LM_INSTANCE = 0xd20000n;
-const LOG_DICT = 0xd30000n;
-const LOG_DICT_ENTRIES = 0xd40000n;
-const GETBOX_LIST = 0xd50000n;
-const GETBOX_ARR = 0xd60000n;
-
-/** Seed LogManager → logByType dict → GetBox List<GetBoxLog> with the given types. */
-function seedLogChain(m: FakeMemory, monsterTypes: number[]): FakeMemory {
-  // LogManager TypeInfo → class → static block → instance (found by static-block scan)
-  m.writePtr(GA_BASE + LOG_O.typeInfoRva.logManager, LOG_CLASS)
-    .writePtr(LOG_CLASS + BigInt(CAND), LOG_BLOCK)
-    .writePtr(LOG_BLOCK, LM_INSTANCE); // instance at static block +0
-
-  // instance + logByType(0x28) → Dictionary<ELogType, List<LogData>>
-  m.writePtr(LM_INSTANCE + BigInt(O.runtime.log.logByType), LOG_DICT)
-    .writePtr(LOG_DICT + BigInt(O.dict.entries), LOG_DICT_ENTRIES)
-    .writeI32(LOG_DICT + BigInt(O.dict.count), 1);
-
-  // one dict entry: key = ELogType.GetBox → value = GetBox list
-  const de = LOG_DICT_ENTRIES + BigInt(O.container.arrayFirst);
-  m.writeI32(de + BigInt(O.dict.entryHash), 1)
-    .writeI32(de + BigInt(O.dict.entryKey), O.runtime.log.getBoxTypeKey)
-    .writePtr(de + BigInt(O.dict.entryValue), GETBOX_LIST);
-
-  // GetBox List<GetBoxLog>: backing array + size + entries
-  m.writePtr(GETBOX_LIST + BigInt(O.container.listItems), GETBOX_ARR).writeI32(
-    GETBOX_LIST + BigInt(O.container.listSize),
-    monsterTypes.length,
-  );
-  const first = GETBOX_ARR + BigInt(O.container.arrayFirst);
-  for (let i = 0; i < monsterTypes.length; i++) {
-    const entry = 0xe00000n + BigInt(i * 0x100);
-    m.writePtr(first + BigInt(i * 8), entry).writeI32(
-      entry + BigInt(O.runtime.getBoxLog.monsterType),
-      monsterTypes[i],
-    );
-  }
-  return m;
-}
-
-describe("readRuntimeChestLog", () => {
-  it("returns null when logManager RVA is 0 (not derived for this version)", () => {
-    expect(
-      readRuntimeChestLog(new FakeMemory(), GA_BASE, GA_SIZE, O, makeChestLogPinState()),
-    ).toBeNull();
+describe("readRuntimeBoxCount", () => {
+  it("returns null when boxCount offset is 0 (not yet derived for this version)", () => {
+    // V1_00_21 has boxCount: 0 — offset not derived yet
+    expect(readRuntimeBoxCount(new FakeMemory(), O, SM_SINGLETON)).toBeNull();
   });
 
-  it("primes to the current log length on first read (backlog not counted)", () => {
-    const pin = makeChestLogPinState();
-    const m = seedLogChain(new FakeMemory(), [0, 1]); // pre-existing backlog
-    expect(readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual([]);
-    expect(pin.lastCount).toBe(2);
+  it("reads the box count off the resolved StageManager when offset is non-zero", () => {
+    const BOX_OFFSET = 0x150;
+    const patchedO = {
+      ...O,
+      runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: BOX_OFFSET } },
+    };
+    const m = new FakeMemory().writeI32(SM_SINGLETON + BigInt(BOX_OFFSET), 42);
+    expect(readRuntimeBoxCount(m, patchedO, SM_SINGLETON)).toBe(42);
   });
 
-  it("classifies new drops by EMonsterLogType (0 common, 1 rare; act boss ignored)", () => {
-    const pin = makeChestLogPinState();
-    pin.primed = true; // skip priming so all entries are treated as new
-    pin.lastCount = 0;
-    const m = seedLogChain(new FakeMemory(), [0, 1, 2]);
-    expect(readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual(["common", "rare"]);
+  it("returns null when the StageManager instance is unresolved", () => {
+    const patchedO = {
+      ...O,
+      runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: 0x150 } },
+    };
+    expect(readRuntimeBoxCount(new FakeMemory(), patchedO, null)).toBeNull();
   });
 
-  it("returns only drops appended since the last read", () => {
-    const pin = makeChestLogPinState();
-    const m = seedLogChain(new FakeMemory(), [0]);
-    readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin); // prime at length 1
-    seedLogChain(m, [0, 1, 2]); // two new drops appended (act boss entry ignored)
-    expect(readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual(["rare"]);
-  });
-
-  it("restarts the tail from 0 when the log shrinks (new run cleared it)", () => {
-    const pin = makeChestLogPinState();
-    pin.primed = true;
-    pin.lastCount = 5; // pretend we had seen 5 entries
-    const m = seedLogChain(new FakeMemory(), [1]); // log now shorter → reset
-    expect(readRuntimeChestLog(m, GA_BASE, GA_SIZE, LOG_O, pin)).toEqual(["rare"]);
+  it("returns null when box count is negative (plausibility guard)", () => {
+    const BOX_OFFSET = 0x150;
+    const patchedO = {
+      ...O,
+      runtime: { ...O.runtime, stage: { ...O.runtime.stage, boxCount: BOX_OFFSET } },
+    };
+    const m = new FakeMemory().writeI32(SM_SINGLETON + BigInt(BOX_OFFSET), -1);
+    expect(readRuntimeBoxCount(m, patchedO, SM_SINGLETON)).toBeNull();
   });
 });
 
-// ── readRuntimeInventory (PlayerSaveData.itemSaveDatas snapshot) ──────────────
+// ── readRuntimeInventory ──────────────────────────────────────────────────────
 
-const INV_CS_CLASS = 0xf00000n;
-const INV_CS_BLOCK = 0xf10000n;
-const INV_PLAYER = 0xf20000n;
-const INV_LIST = 0xf30000n;
-const INV_ARR = 0xf40000n;
+// Patched offsets with derived inventory struct fields.
+const INV_RVA = 0x100000n; // fake TypeInfo RVA inside GA range
+const INV_CLASS = 0x900000n;
+const INV_BLOCK = 0xa00000n;
+const INV_DICT = 0xa10000n;
+const INV_ENTRIES = 0xa20000n;
+const INV_ITEM = 0xa30000n;
+
+const INV_O = {
+  ...O,
+  typeInfoRva: { ...O.typeInfoRva, localInventoryManager: INV_RVA },
+  inventoryItem: { itemKey: 0x10, isChaotic: 0x14, location: 0x18 },
+};
 
 function seedInventoryChain(
   m: FakeMemory,
-  items: Array<{ itemKey: number; isChaotic: boolean }>,
+  items: Array<{ itemKey: number; isChaotic: boolean; location: number }>,
 ): FakeMemory {
-  // CommonSaveData TypeInfo → class → static block → playerPtr at +commonSaveData(0x10)
-  m.writePtr(GA_BASE + O.typeInfoRva.commonSaveData, INV_CS_CLASS)
-    .writePtr(INV_CS_CLASS + BigInt(CAND), INV_CS_BLOCK)
-    .writePtr(INV_CS_BLOCK + BigInt(O.player.commonSaveData), INV_PLAYER);
+  // TypeInfo → class → static fields block → dict at field offset 0
+  m.writePtr(GA_BASE + INV_RVA, INV_CLASS)
+    .writePtr(INV_CLASS + BigInt(CAND), INV_BLOCK)
+    .writePtr(INV_BLOCK, INV_DICT); // field offset 0 = first bag dict
 
-  // player → itemSaveDatas List<ItemSaveData>
-  m.writePtr(INV_PLAYER + BigInt(O.player.itemSaveDatas), INV_LIST)
-    .writePtr(INV_LIST + BigInt(O.container.listItems), INV_ARR)
-    .writeI32(INV_LIST + BigInt(O.container.listSize), items.length);
+  // Dict: entries array + count
+  m.writePtr(INV_DICT + BigInt(O.dict.entries), INV_ENTRIES).writeI32(
+    INV_DICT + BigInt(O.dict.count),
+    items.length,
+  );
 
-  const first = INV_ARR + BigInt(O.container.arrayFirst);
+  // Entries: one per item, each pointing to an INV_ITEM object
+  const first = INV_ENTRIES + BigInt(O.container.arrayFirst);
   for (let i = 0; i < items.length; i++) {
-    const itemAddr = 0xf50000n + BigInt(i * 0x100);
-    m.writePtr(first + BigInt(i * 8), itemAddr)
-      .writeI32(itemAddr + BigInt(O.inventoryItem.itemKey), items[i].itemKey)
-      .writeI32(itemAddr + BigInt(O.inventoryItem.isChaotic), items[i].isChaotic ? 1 : 0);
+    const eBase = first + BigInt(i * O.dict.entrySize);
+    const itemAddr = INV_ITEM + BigInt(i * 0x100);
+    m.writeI32(eBase + BigInt(O.dict.entryHash), 1); // valid slot
+    m.writeI32(eBase + BigInt(O.dict.entryKey), items[i].itemKey);
+    m.writePtr(eBase + BigInt(O.dict.entryValue), itemAddr);
+    m.writeI32(itemAddr + BigInt(INV_O.inventoryItem.itemKey), items[i].itemKey);
+    m.writeI32(itemAddr + BigInt(INV_O.inventoryItem.isChaotic), items[i].isChaotic ? 1 : 0);
+    m.writeI32(itemAddr + BigInt(INV_O.inventoryItem.location), items[i].location);
   }
+
   return m;
 }
 
 describe("readRuntimeInventory", () => {
-  it("returns null when itemSaveDatas offset is 0 (not derived)", () => {
-    const patched = { ...O, player: { ...O.player, itemSaveDatas: 0 } };
-    expect(
-      readRuntimeInventory(seedInventoryChain(new FakeMemory(), []), GA_BASE, GA_SIZE, patched),
-    ).toBeNull();
+  it("returns null when localInventoryManager RVA is 0 (offset not derived)", () => {
+    expect(readRuntimeInventory(new FakeMemory(), GA_BASE, GA_SIZE, O)).toBeNull();
   });
 
-  it("reads items from the itemSaveDatas list", () => {
+  it("reads items from the inventory dict", () => {
     const m = seedInventoryChain(new FakeMemory(), [
-      { itemKey: 910151, isChaotic: false },
-      { itemKey: 920201, isChaotic: true },
+      { itemKey: 910151, isChaotic: false, location: 0 },
+      { itemKey: 920201, isChaotic: true, location: 1 },
     ]);
-    const result = readRuntimeInventory(m, GA_BASE, GA_SIZE, O);
+    const result = readRuntimeInventory(m, GA_BASE, GA_SIZE, INV_O);
     expect(result).toHaveLength(2);
-    expect(result![0]).toEqual({ itemKey: 910151, isChaotic: false });
-    expect(result![1]).toEqual({ itemKey: 920201, isChaotic: true });
+    expect(result![0]).toEqual({ itemKey: 910151, isChaotic: false, location: 0 });
+    expect(result![1]).toEqual({ itemKey: 920201, isChaotic: true, location: 1 });
   });
 
   it("skips entries with zero or negative itemKey", () => {
     const m = seedInventoryChain(new FakeMemory(), [
-      { itemKey: 0, isChaotic: false }, // skipped
-      { itemKey: 910152, isChaotic: false },
+      { itemKey: 0, isChaotic: false, location: 0 }, // skipped
+      { itemKey: 910152, isChaotic: false, location: 0 },
     ]);
-    const result = readRuntimeInventory(m, GA_BASE, GA_SIZE, O);
+    const result = readRuntimeInventory(m, GA_BASE, GA_SIZE, INV_O);
     expect(result).toHaveLength(1);
     expect(result![0].itemKey).toBe(910152);
   });
 
-  it("returns null when the player pointer is unreadable", () => {
-    expect(readRuntimeInventory(new FakeMemory(), GA_BASE, GA_SIZE, O)).toBeNull();
+  it("returns null when the dict is unreadable", () => {
+    // Seeds class→block but no dict — readStaticFieldPtr returns null for field 0
+    const m = new FakeMemory()
+      .writePtr(GA_BASE + INV_RVA, INV_CLASS)
+      .writePtr(INV_CLASS + BigInt(CAND), INV_BLOCK);
+    // INV_BLOCK + 0 not seeded → readPtr returns null → skip both dicts → results empty
+    expect(readRuntimeInventory(m, GA_BASE, GA_SIZE, INV_O)).toBeNull();
   });
 });
 

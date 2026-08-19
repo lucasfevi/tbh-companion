@@ -8,19 +8,6 @@ import { canonicalTrackerBoxId, loadStageBoxCatalogFile } from "./stageBoxTracke
 
 export type ChestDropCategory = "common" | "rare";
 
-/**
- * Live chest drops from the GetBox battle log carry no item key, only a
- * category. They are aggregated into these synthetic per-category buckets.
- */
-const LIVE_CHEST_KEY: Record<ChestDropCategory, number> = {
-  common: 900910,
-  rare: 900920,
-};
-const LIVE_CHEST_NAME: Record<ChestDropCategory, string> = {
-  common: "Common chest",
-  rare: "Stage boss chest",
-};
-
 export interface ResolvedStageBoxDrop {
   itemKey: number;
   name: string;
@@ -79,20 +66,21 @@ export class ChestDropTracker {
   }
 
   /**
-   * Record a live chest drop with an explicit category read from the GetBox
-   * battle log (`common` / `rare` = stage boss). Aggregated per
-   * category since the drop's item key is not carried in the log.
+   * Record a chest drop detected from a live box-count delta.
+   * Records as a common chest for the given stageKey; returns false when
+   * stageKey is invalid.
    */
-  recordLiveChestDrop(category: ChestDropCategory, wallTime = nowSeconds()): boolean {
-    const itemKey = LIVE_CHEST_KEY[category];
-    const key = String(itemKey);
-    const name = LIVE_CHEST_NAME[category];
+  recordLiveBoxDrop(stageKey: number, wallTime = nowSeconds()): boolean {
+    if (stageKey <= 0) return false;
+    const key = String(stageKey);
+    const name = `Common chest (stage ${stageKey})`;
+    const category: ChestDropCategory = "common";
 
     this.countsByKey.set(key, (this.countsByKey.get(key) ?? 0) + 1);
     this.namesByKey.set(key, name);
     this.categoriesByKey.set(key, category);
 
-    this.history.push({ wallTime, itemKey, name, category });
+    this.history.push({ wallTime, itemKey: stageKey, name, category });
     if (this.history.length > HISTORY_LIMIT) {
       this.history.splice(0, this.history.length - HISTORY_LIMIT);
     }
@@ -172,17 +160,9 @@ export class ChestDropTracker {
   }
 
   applySnapshot(data: ChestDropTrackerSnapshot): void {
-    const isTracked = (category: string): category is ChestDropCategory =>
-      category === "common" || category === "rare";
-
-    const categoriesByKey = new Map(
-      Object.entries(data.categoriesByKey).filter(([, category]) => isTracked(category)),
-    );
-    const keepKey = (key: string): boolean => categoriesByKey.has(key);
-
-    this.categoriesByKey = categoriesByKey;
-    this.countsByKey = new Map(Object.entries(data.countsByKey).filter(([key]) => keepKey(key)));
-    this.namesByKey = new Map(Object.entries(data.namesByKey).filter(([key]) => keepKey(key)));
-    this.history = (data.history ?? []).filter((entry) => isTracked(entry.category));
+    this.countsByKey = new Map(Object.entries(data.countsByKey));
+    this.namesByKey = new Map(Object.entries(data.namesByKey));
+    this.categoriesByKey = new Map(Object.entries(data.categoriesByKey));
+    this.history = data.history ?? [];
   }
 }

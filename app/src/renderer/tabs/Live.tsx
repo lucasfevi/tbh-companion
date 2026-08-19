@@ -52,9 +52,9 @@ const CHEST_TIP_NEED_READER =
   "and keep the game running.";
 const CHEST_TIP_PENDING =
   "Live chest drop tracking is not available for this game version yet — XP and gold still update from " +
-  "live memory.";
+  "live memory. Per-type drop rates (common, stage boss, act boss) ship in a future update.";
 const CHEST_TIP_LIVE =
-  "Drop rates from live memory this session. Common and stage boss chests are tracked " +
+  "Drop rates from live memory this session. Common, stage boss, and act boss chests are tracked " +
   "separately while the companion is running.";
 const INVENTORY_PREDICTION_TIP =
   "Estimates when your unlocked inventory slots fill up. For each chest type you've marked " +
@@ -115,7 +115,7 @@ export function Live() {
   const rateTip = liveActive ? RATE_TIP_LIVE : RATE_TIP_SAVE;
   const goldTip = liveActive ? GOLD_TIP_LIVE : GOLD_TIP_SAVE;
   const intro = liveActive
-    ? liveMemory?.chestDrops != null
+    ? liveMemory?.boxCount != null
       ? "Live memory is on — XP, gold, and chest stats update in real time from the running game."
       : "Live memory is on — XP and gold update in real time. Chest drop rates are not available for this game version yet."
     : "Reads your save on a timer. XP and gold rates update when the game writes new progress—often up to three minutes apart, sometimes longer.";
@@ -124,7 +124,7 @@ export function Live() {
   const { commonTotal, rareTotal, commonPerHour, rarePerHour, readerRequired } = stats.chestDrops;
   const chestReaderOff = readerRequired && !liveMemory?.connected;
   const chestDetectionPending =
-    readerRequired && liveMemory?.connected && liveMemory.chestDrops == null;
+    readerRequired && liveMemory?.connected && liveMemory.boxCount == null;
   const chestStatsInactive = chestReaderOff || chestDetectionPending;
   const chestRateTip = chestReaderOff
     ? CHEST_TIP_NEED_READER
@@ -222,24 +222,23 @@ export function Live() {
             </Tooltip>
             <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-xs text-muted">
               <span>
-                Map <b className="font-semibold text-fg">{stageName(stage.stageKey)}</b>
+                Map{" "}
+                <b className="font-semibold text-fg">
+                  {stageName(stage.stageKey, stage.stageWave)}
+                </b>
               </span>
-              {!liveActive ? (
-                <Tooltip
-                  underline
-                  trigger={
-                    <span tabIndex={0}>
-                      <b className="font-semibold text-fg">
-                        {fmtXpUpdated(stats.secondsSinceGain)}
-                      </b>
-                    </span>
-                  }
-                >
-                  {stats.secondsSinceGain === null
-                    ? "Connected and reading your save. Rates update when the game writes progress."
-                    : "When XP last changed in your save"}
-                </Tooltip>
-              ) : null}
+              <Tooltip
+                underline
+                trigger={
+                  <span tabIndex={0}>
+                    <b className="font-semibold text-fg">{fmtXpUpdated(stats.secondsSinceGain)}</b>
+                  </span>
+                }
+              >
+                {stats.secondsSinceGain === null
+                  ? "Connected and reading your save. Rates update when the game writes progress."
+                  : "When XP last changed in your save"}
+              </Tooltip>
             </div>
           </>
         }
@@ -385,7 +384,7 @@ export function Live() {
                 <span className="shrink-0 tabular-nums text-muted">{fmtClock(e.wallTime)}</span>
                 <span className="text-accent">+{fmtCompact(e.delta)}</span>
                 <span>{fmtCompact(e.rate)}/hr</span>
-                <span className="text-right text-muted">{stageName(e.stageKey)}</span>
+                <span className="text-right text-muted">{stageName(e.stageKey, e.stageWave)}</span>
               </DataListRow>
             ))}
           </LiveHistoryPanel>

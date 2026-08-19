@@ -108,11 +108,8 @@ export function LiveMemoryDiagnostics() {
           </p>
           <Row label="Stage key" value={snapshot?.stageKey ?? "—"} />
           <Row label="Stage wave" value={snapshot?.stageWave ?? "—"} />
-          <StatHealth label="Chest log" value={snapshot?.chestDrops} />
-          <Row
-            label="New chest drops (tick)"
-            value={snapshot?.chestDrops != null ? String(snapshot.chestDrops.length) : "—"}
-          />
+          <StatHealth label="Box count" value={snapshot?.boxCount} />
+          <Row label="Box count (raw)" value={snapshot?.boxCount ?? "—"} />
           <StatHealth
             label="Inventory"
             value={snapshot?.inventoryItems?.length ? snapshot.inventoryItems.length : null}
@@ -129,49 +126,6 @@ export function LiveMemoryDiagnostics() {
             label="Pets count"
             value={snapshot?.petData != null ? String(snapshot.petData.length) : "—"}
           />
-        </section>
-
-        {stats ? (
-          <section>
-            <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
-              Chest drops (per type)
-            </p>
-            <Row label="Common" value={String(stats.chestDrops.commonTotal)} />
-            <Row label="Stage boss" value={String(stats.chestDrops.rareTotal)} />
-            <Row label="Combined" value={String(stats.chestDrops.combinedTotal)} />
-          </section>
-        ) : null}
-
-        <section>
-          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
-            Offset extractor (self-healing)
-          </p>
-          <Row label="Offset source" value={status?.offsetHealth?.source ?? "—"} />
-          <Row
-            label="Extract attempts"
-            value={
-              status?.offsetHealth?.extractionAttempts != null
-                ? String(status.offsetHealth.extractionAttempts)
-                : "—"
-            }
-          />
-          <Row
-            label="Status"
-            value={status?.supported ? "active" : (status?.note ?? "unavailable")}
-          />
-          <Row
-            label="Offsets complete"
-            value={
-              status?.offsetHealth
-                ? status.offsetHealth.complete
-                  ? "✓ all mapped"
-                  : `${status.offsetHealth.missing.length} missing`
-                : "—"
-            }
-          />
-          {status?.offsetHealth && !status.offsetHealth.complete ? (
-            <Row label="Awaiting derivation" value={status.offsetHealth.missing.join(", ")} />
-          ) : null}
         </section>
       </div>
     </TabPage>

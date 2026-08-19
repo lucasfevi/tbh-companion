@@ -6,17 +6,14 @@ import { utilityProcess, type UtilityProcess } from "electron";
 import { join } from "node:path";
 import { IPC } from "../../../shared/ipc";
 import type { LiveMemorySnapshot, LiveMemoryStatus } from "../../../shared/types";
-import { LIVE_MEMORY_USER_DATA_ENV } from "../liveMemory/liveMemoryCacheDir";
 import { broadcast } from "./broadcast";
 import { createLogger } from "../log";
-import { resolveUserDataDir } from "./appData";
 
 const log = createLogger("liveMemory");
 
 type WorkerMessage =
   | { type: "snapshot"; snapshot: LiveMemorySnapshot }
-  | { type: "status"; status: LiveMemoryStatus }
-  | { type: "log"; message: string };
+  | { type: "status"; status: LiveMemoryStatus };
 
 export class LiveMemoryService {
   private child: UtilityProcess | null = null;
@@ -41,7 +38,6 @@ export class LiveMemoryService {
       this.child = utilityProcess.fork(workerPath, [], {
         serviceName: "tbh-live-memory",
         stdio: "ignore",
-        env: { ...process.env, [LIVE_MEMORY_USER_DATA_ENV]: resolveUserDataDir() },
       });
     } catch (err) {
       log.error(`Failed to fork live-memory worker: ${String(err)}`);
@@ -73,8 +69,6 @@ export class LiveMemoryService {
       } else if (msg.type === "status") {
         this.lastStatus = msg.status;
         broadcast(IPC.LIVE_MEMORY_STATUS, msg.status);
-      } else if (msg.type === "log") {
-        log.info(`[worker] ${msg.message}`);
       }
     });
 

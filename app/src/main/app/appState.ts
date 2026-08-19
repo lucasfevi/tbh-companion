@@ -86,9 +86,6 @@ const tracking = new TrackingService(
   (stageKey) => boxTimers.setCurrentStageKey(stageKey),
   sessionState,
   (events) => notifications.showHeroLevelUp(events),
-  (stageKey) => {
-    boxTimers.tryMarkDroppedFromLiveStage(stageKey);
-  },
 );
 
 let mainWindow: BrowserWindow | null = null;

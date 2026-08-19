@@ -103,60 +103,21 @@ describe("ChestDropTracker", () => {
     const tracker = new ChestDropTracker();
     expect(tracker.getStats(3600).readerRequired).toBe(true);
   });
-});
 
-describe("ChestDropTracker.recordLiveChestDrop", () => {
-  it("records a stage boss (rare) drop into the rare bucket", () => {
+  it("recordLiveBoxDrop increments commonTotal and returns true for a valid stage", () => {
     const tracker = new ChestDropTracker();
-    tracker.recordLiveChestDrop("rare", 1000);
-    const stats = tracker.getStats(3600);
-    expect(stats.rareTotal).toBe(1);
-    expect(stats.commonTotal).toBe(0);
-    expect(stats.combinedTotal).toBe(1);
-  });
-
-  it("records a common drop into the common bucket", () => {
-    const tracker = new ChestDropTracker();
-    tracker.recordLiveChestDrop("common", 1000);
-    const stats = tracker.getStats(3600);
-    expect(stats.commonTotal).toBe(1);
-    expect(stats.rareTotal).toBe(0);
-  });
-
-  it("aggregates repeated same-category drops under one breakdown row", () => {
-    const tracker = new ChestDropTracker();
-    tracker.recordLiveChestDrop("common", 1000);
-    tracker.recordLiveChestDrop("common", 1001);
-    tracker.recordLiveChestDrop("rare", 1002);
-    const stats = tracker.getStats(3600);
-    expect(stats.commonTotal).toBe(2);
-    expect(stats.rareTotal).toBe(1);
-    // Two categories → two breakdown rows.
-    expect(stats.breakdown).toHaveLength(2);
-    expect(stats.history).toHaveLength(3);
-  });
-
-  it("drops legacy act-boss rows when restoring an older snapshot", () => {
-    const tracker = new ChestDropTracker();
-    tracker.applySnapshot({
-      countsByKey: { "900910": 1, "900930": 2 },
-      namesByKey: { "900910": "Common chest", "900930": "Act boss chest" },
-      categoriesByKey: { "900910": "common", "900930": "actBoss" as "common" },
-      history: [
-        { wallTime: 1000, itemKey: 900910, name: "Common chest", category: "common" },
-        {
-          wallTime: 1001,
-          itemKey: 900930,
-          name: "Act boss chest",
-          category: "actBoss" as "common",
-        },
-      ],
-    });
-
+    expect(tracker.recordLiveBoxDrop(1001, 1000)).toBe(true);
     const stats = tracker.getStats(3600);
     expect(stats.commonTotal).toBe(1);
     expect(stats.combinedTotal).toBe(1);
     expect(stats.history).toHaveLength(1);
-    expect(tracker.captureSnapshot().countsByKey).toEqual({ "900910": 1 });
+    expect(stats.history[0]?.itemKey).toBe(1001);
+  });
+
+  it("recordLiveBoxDrop returns false for stageKey <= 0", () => {
+    const tracker = new ChestDropTracker();
+    expect(tracker.recordLiveBoxDrop(0)).toBe(false);
+    expect(tracker.recordLiveBoxDrop(-1)).toBe(false);
+    expect(tracker.getStats(3600).combinedTotal).toBe(0);
   });
 });

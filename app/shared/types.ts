@@ -874,6 +874,8 @@ export interface LiveHeroData {
 export interface LiveInventoryItem {
   itemKey: number;
   isChaotic: boolean;
+  /** Raw bag-id field from the IL2CPP struct (0 = inventory, 1 = stash, etc.). */
+  location: number;
 }
 
 /** Pet unlock state read from save-layer heap (PetSaveData). */
@@ -898,15 +900,11 @@ export interface LiveMemorySnapshot {
   gold: number | null;
   /** Live hero XP/level for all party members (null ⇒ fall back to save). */
   heroes: LiveHeroData[] | null;
-  /**
-   * Chest drops observed since the previous tick, classified from the GetBox
-   * battle log (common / rare = stage boss). `[]` = reader active, no
-   * new drops; `null` = chest log unavailable (offset not derived / no battle).
-   */
-  chestDrops: ("common" | "rare")[] | null;
-  /** Live inventory items from PlayerSaveData.itemSaveDatas snapshot (null ⇒ unavailable). */
+  /** Cumulative box-obtained counter from StageManager (null until derivation is complete). */
+  boxCount: number | null;
+  /** Live inventory items from LocalInventoryManager (null until T09 derivation). */
   inventoryItems: LiveInventoryItem[] | null;
-  /** Live pet unlock state from save-layer heap (null ⇒ unavailable). */
+  /** Live pet unlock state from save-layer heap (null until T10 derivation). */
   petData: LivePetData[] | null;
   /** Human-readable source, e.g. "memory v1.00.21". */
   source: string;
@@ -929,16 +927,6 @@ export interface LiveMemoryStatus {
   supported: boolean;
   /** e.g. "live stats unavailable for game v1.00.99". */
   note?: string;
-  /** Self-healing offset resolution health: whether every wanted field is mapped. */
-  offsetHealth?: {
-    complete: boolean;
-    /** Dotted paths of wanted offset fields still awaiting derivation. */
-    missing: string[];
-    /** Where the active offset table came from (bundled table, disk cache, extractor, …). */
-    source?: "bundled" | "cache" | "extracted" | "merged" | "none";
-    /** Extraction attempts used for this game version under the current app build. */
-    extractionAttempts?: number;
-  };
 }
 
 // API surface exposed on `window.tbh` by the preload via contextBridge.
