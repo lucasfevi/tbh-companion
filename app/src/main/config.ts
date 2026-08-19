@@ -10,12 +10,7 @@ import {
   sanitizeNotificationVolume,
   type LegacyChestSoundVariant,
 } from "../../shared/notificationCatalog";
-import type {
-  AppConfig,
-  ChestAutoOpenPrefs,
-  LiveMemoryPrefs,
-  NotificationPrefs,
-} from "../../shared/types";
+import type { AppConfig, ChestAutoOpenPrefs, NotificationPrefs } from "../../shared/types";
 import { DEFAULT_PASSWORD } from "../core/es3";
 
 export type { AppConfig };
@@ -34,11 +29,6 @@ const DEFAULT_CHEST_AUTO_OPEN: ChestAutoOpenPrefs = {
   stageBoss: false,
 };
 
-const DEFAULT_LIVE_MEMORY: LiveMemoryPrefs = {
-  enabled: false,
-  consentAccepted: false,
-};
-
 const DEFAULTS: AppConfig = {
   savePath: DEFAULT_SAVE,
   es3Password: DEFAULT_PASSWORD,
@@ -53,7 +43,6 @@ const DEFAULTS: AppConfig = {
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
   inventoryAlmostFullThresholdPercent: 90,
   chestAutoOpenEnabled: DEFAULT_CHEST_AUTO_OPEN,
-  liveMemory: DEFAULT_LIVE_MEMORY,
 };
 
 type RawConfig = Partial<AppConfig> & { chestSoundVariant?: LegacyChestSoundVariant };
@@ -67,13 +56,6 @@ function sanitizeChestAutoOpenPrefs(
   };
 }
 
-function sanitizeLiveMemoryPrefs(raw: Partial<LiveMemoryPrefs> | undefined): LiveMemoryPrefs {
-  return {
-    enabled: Boolean(raw?.enabled),
-    consentAccepted: Boolean(raw?.consentAccepted),
-  };
-}
-
 function normalizeConfig(raw: RawConfig): AppConfig {
   const {
     chestSoundVariant: _legacy,
@@ -81,7 +63,6 @@ function normalizeConfig(raw: RawConfig): AppConfig {
     notificationVolume: _volume,
     inventoryAlmostFullThresholdPercent: _threshold,
     chestAutoOpenEnabled: _autoOpen,
-    liveMemory: _liveMemory,
     ...rest
   } = raw;
   const notificationPrefs: NotificationPrefs = migrateNotificationPrefs(raw);
@@ -90,7 +71,6 @@ function normalizeConfig(raw: RawConfig): AppConfig {
     raw.inventoryAlmostFullThresholdPercent,
   );
   const chestAutoOpenEnabled = sanitizeChestAutoOpenPrefs(raw.chestAutoOpenEnabled);
-  const liveMemory = sanitizeLiveMemoryPrefs(raw.liveMemory);
   return {
     ...DEFAULTS,
     ...rest,
@@ -98,7 +78,6 @@ function normalizeConfig(raw: RawConfig): AppConfig {
     notificationVolume,
     inventoryAlmostFullThresholdPercent,
     chestAutoOpenEnabled,
-    liveMemory,
   };
 }
 

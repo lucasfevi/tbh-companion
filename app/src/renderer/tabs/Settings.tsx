@@ -9,7 +9,6 @@ import { reportIpcError } from "../lib/reportError";
 import { cn } from "../lib/cn";
 import { Accordion } from "../design-system/primitives/Accordion/Accordion";
 import { NotificationSoundAccordion } from "../components/NotificationKindRow";
-import { LiveMemorySettings } from "../components/LiveMemorySettings";
 import { Button } from "../design-system/primitives/Button/Button";
 import { Card } from "../design-system/primitives/Card/Card";
 import { Checkbox } from "../design-system/primitives/Checkbox/Checkbox";
@@ -361,7 +360,7 @@ export function Settings() {
           </div>
         </Section>
 
-        <Section title="Save file polling">
+        <Section title="Live stats">
           <div className="flex flex-col gap-3">
             <Field label="Poll interval (seconds)">
               <NumberInput
@@ -413,12 +412,6 @@ export function Settings() {
             />
           </div>
         </Section>
-
-        <LiveMemorySettings
-          prefs={cfg.liveMemory}
-          disabled={saveBusy}
-          onChange={(next) => void savePartial({ liveMemory: next })}
-        />
 
         <Section title="Steam Market">
           <Field label="Market currency">

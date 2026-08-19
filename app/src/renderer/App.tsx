@@ -14,9 +14,6 @@ const Lookup = lazy(() => import("./tabs/Lookup").then((m) => ({ default: m.Look
 const Market = lazy(() => import("./tabs/Market").then((m) => ({ default: m.Market })));
 const Settings = lazy(() => import("./tabs/Settings").then((m) => ({ default: m.Settings })));
 const About = lazy(() => import("./tabs/About").then((m) => ({ default: m.About })));
-const LiveMemoryDiagnostics = lazy(() =>
-  import("./tabs/LiveMemoryDiagnostics").then((m) => ({ default: m.LiveMemoryDiagnostics })),
-);
 
 function TabFallback() {
   return (
@@ -47,7 +44,6 @@ export function App() {
               {tab === "market" && <Market />}
               {tab === "settings" && <Settings />}
               {tab === "about" && <About />}
-              {tab === "debug" && import.meta.env.DEV && <LiveMemoryDiagnostics />}
             </Suspense>
           </ErrorBoundary>
         </main>

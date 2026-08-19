@@ -1,7 +1,6 @@
 allowBuilds:
   electron-winstaller: true
   esbuild: true
-  koffi: true
 
 overrides:
   esbuild: ^0.28.1
