@@ -157,7 +157,6 @@ describe("TrackingService.onLiveMemoryToggled", () => {
       heroes: [{ heroKey: 101, level: 5, exp: 500 }],
       chestDrops: null,
       inventoryItems: null,
-      stageClears: null,
       petData: null,
       source: "memory test",
       readMs: 1,
@@ -187,7 +186,6 @@ describe("TrackingService.onLiveMemoryToggled", () => {
       heroes: null,
       chestDrops: ["common", "rare"],
       inventoryItems: null,
-      stageClears: null,
       petData: null,
       source: "memory test",
       readMs: 1,
@@ -223,7 +221,6 @@ describe("TrackingService.onLiveMemoryToggled", () => {
       heroes: null,
       chestDrops: ["common", "rare"],
       inventoryItems: null,
-      stageClears: null,
       petData: null,
       source: "memory test",
       readMs: 1,
@@ -234,124 +231,6 @@ describe("TrackingService.onLiveMemoryToggled", () => {
 
     expect(onLiveStageBossDrop).toHaveBeenCalledTimes(1);
     expect(onLiveStageBossDrop).toHaveBeenCalledWith(4103);
-    svc.stop();
-  });
-
-  it("seeds the baseline on the first clear (unknown true start) without firing onLiveStageClear", () => {
-    const onLiveStageClear = vi.fn();
-    const svc = new TrackingService(
-      vi.fn(),
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      onLiveStageClear,
-    );
-    svc.start(baseConfig);
-    onSnapshot?.(snap(5, 1000, 0));
-
-    const frame: LiveMemorySnapshot = {
-      connected: true,
-      stageKey: 4103,
-      stageWave: 1,
-      gold: 1000,
-      heroes: [{ heroKey: 101, level: 5, exp: 500 }],
-      chestDrops: null,
-      inventoryItems: null,
-      stageClears: [42],
-      petData: null,
-      source: "memory test",
-      readMs: 1,
-      at: 2000,
-    };
-    svc.ingestLiveFrame(frame);
-
-    expect(onLiveStageClear).not.toHaveBeenCalled();
-    svc.stop();
-  });
-
-  it("fires onLiveStageClear from the second clear onward with XP/gold gained since the previous clear", () => {
-    const onLiveStageClear = vi.fn();
-    const svc = new TrackingService(
-      vi.fn(),
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      onLiveStageClear,
-    );
-    svc.start(baseConfig);
-    onSnapshot?.(snap(5, 1000, 0));
-
-    svc.ingestLiveFrame({
-      connected: true,
-      stageKey: 4103,
-      stageWave: 1,
-      gold: 1000,
-      heroes: [{ heroKey: 101, level: 5, exp: 500 }],
-      chestDrops: null,
-      inventoryItems: null,
-      stageClears: [42],
-      petData: null,
-      source: "memory test",
-      readMs: 1,
-      at: 2000,
-    });
-
-    svc.ingestLiveFrame({
-      connected: true,
-      stageKey: 4103,
-      stageWave: 1,
-      gold: 1400,
-      heroes: [{ heroKey: 101, level: 5, exp: 900 }],
-      chestDrops: null,
-      inventoryItems: null,
-      stageClears: [85, 63],
-      petData: null,
-      source: "memory test",
-      readMs: 1,
-      at: 3000,
-    });
-
-    // Two clears in one frame split the frame's XP/gold delta evenly (one sample per tick).
-    expect(onLiveStageClear).toHaveBeenCalledTimes(2);
-    expect(onLiveStageClear).toHaveBeenNthCalledWith(1, 4103, 85, 200, 200);
-    expect(onLiveStageClear).toHaveBeenNthCalledWith(2, 4103, 63, 200, 200);
-    svc.stop();
-  });
-
-  it("does not fire onLiveStageClear when no stageKey is resolved", () => {
-    const onLiveStageClear = vi.fn();
-    const svc = new TrackingService(
-      vi.fn(),
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      onLiveStageClear,
-    );
-    svc.start(baseConfig);
-
-    const frame: LiveMemorySnapshot = {
-      connected: true,
-      stageKey: null,
-      stageWave: null,
-      gold: null,
-      heroes: null,
-      chestDrops: null,
-      inventoryItems: null,
-      stageClears: [85],
-      petData: null,
-      source: "memory test",
-      readMs: 1,
-      at: 2000,
-    };
-    svc.ingestLiveFrame(frame);
-
-    expect(onLiveStageClear).not.toHaveBeenCalled();
     svc.stop();
   });
 });
@@ -376,7 +255,6 @@ describe("TrackingService live-frame broadcast throttling", () => {
       heroes: [{ heroKey: 101, level: 5, exp: 500 }],
       chestDrops: null,
       inventoryItems: null,
-      stageClears: null,
       petData: null,
       source: "memory test",
       readMs: 1,

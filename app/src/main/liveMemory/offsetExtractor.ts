@@ -31,17 +31,14 @@ import type { WinProcess } from "./winProcess";
  * older, weaker extractor try again without waiting for an app version bump.
  * Rev 3: static-class anchors (vb.tp / vb.uu) + full readable GA scan; v1.00.23
  * renamed uz.tm/uz.us and uses vb.StageCache — singleton-only scan failed live.
- * Rev 4: stage-clear log offsets (runtime.log.stageClearTypeKey, stageClearLog).
  */
-export const EXTRACTOR_REVISION = 4;
+export const EXTRACTOR_REVISION = 3;
 
 // Structural offsets whose field names ARE obfuscated but whose byte offsets are
 // stable across patches. Emitted as constants rather than derived by name.
 const STRUCT_LOG_BY_TYPE = 0x28;
 const STRUCT_GETBOX_TYPE = 0x50;
 const STRUCT_GETBOX_KEY = 3; // ELogType.GetBox
-const STRUCT_STAGE_CLEAR_KEY = 1; // ELogType.StageClear
-const STRUCT_STAGE_CLEAR_TIME = 0x48;
 const STRUCT_RUNTIME_WAVE = 0x138;
 
 const GOLD_KEY = 100001;
@@ -207,13 +204,8 @@ export function extractOffsets(
       },
       currencyInfoKey: 0x30,
       heroList: sm.heroList,
-      log: {
-        logByType: STRUCT_LOG_BY_TYPE,
-        getBoxTypeKey: STRUCT_GETBOX_KEY,
-        stageClearTypeKey: STRUCT_STAGE_CLEAR_KEY,
-      },
+      log: { logByType: STRUCT_LOG_BY_TYPE, getBoxTypeKey: STRUCT_GETBOX_KEY },
       getBoxLog: { monsterType: STRUCT_GETBOX_TYPE },
-      stageClearLog: { clearTimeSec: STRUCT_STAGE_CLEAR_TIME },
     },
 
     container: STRUCT_CONTAINER,

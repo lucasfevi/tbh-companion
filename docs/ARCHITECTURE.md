@@ -119,18 +119,11 @@ When **live memory** is enabled (`config.liveMemory.enabled` + consent), a paral
 
 1. `LiveMemoryService` forks a `utilityProcess` worker that attaches read-only to `TaskBarHero.exe`.
 2. The worker resolves offsets (bundled table → disk cache → runtime extractor → degraded) and polls
-   ~25 Hz, posting `LiveMemorySnapshot` frames to main. The extractor carries a revision counter
-   (`EXTRACTOR_REVISION`); bumps invalidate stale per-version attempt markers and reopen completeness
-   checks when new offset fields ship (e.g. stage-clear log fields at rev 4).
+   ~25 Hz, posting `LiveMemorySnapshot` frames to main.
 3. `TrackingService.ingestLiveFrame` feeds `XpTracker.updateLive` (XP/gold rates from wall-time
    samples; per-hero exp deltas with plausibility guards) and `ChestDropTracker.recordLiveChestDrop`
    (GetBox log categories). Stage-boss drops call `BoxTimerService.tryMarkDroppedFromLiveStage` when
-   the drop stage maps to an **enabled** tracker route. `StageClearLog` events feed
-   `StageRunService.recordClear` with the run's duration and XP/gold gained (delta of
-   `XpTracker.currentTotalXp`/`currentGold` since the previous clear; multiple clears in one tick split
-   the frame delta evenly) — persisted independently of session state in `stage_run_history.json`
-   (restore validates entries, caps at 200 rows; UI shows last 20), shown as the Live tab's
-   "Stage clear history" while the reader is on.
+   the drop stage maps to an **enabled** tracker route.
 4. `buildStats` blends live-preferred / save-fallback per stat; session snapshots persist every 15s with
    implausible totals discarded on restore.
 

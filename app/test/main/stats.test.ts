@@ -46,7 +46,6 @@ describe("buildStats", () => {
       heroes: [{ heroKey: 101, level: 12, exp: 200 }],
       chestDrops: null,
       inventoryItems: null,
-      stageClears: null,
       petData: null,
       source: "test",
       readMs: 1,

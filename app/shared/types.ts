@@ -418,7 +418,6 @@ export type AppDataClearTarget =
   | "prices"
   | "lookup-prices"
   | "box-timers"
-  | "stage-runs"
   | "session"
   | "all-except-config";
 
@@ -468,28 +467,6 @@ export interface ClearAppDataResult {
   ok: boolean;
   cleared: string[];
   error?: string;
-}
-
-// --- Stage runs (live stage clear history: per-run duration + XP/gold) ---
-
-export interface StageRunHistoryEntry {
-  wallTime: number;
-  stageKey: number;
-  clearTimeSec: number;
-  /** XP/gold gained since the previous recorded clear (this run's take). */
-  xpGained: number;
-  goldGained: number;
-}
-
-export interface StageRunStats {
-  history: StageRunHistoryEntry[];
-  /** True when this feature has no save-file fallback — requires the live reader. */
-  readerRequired: boolean;
-}
-
-/** Serialized StageRunTracker internals for stage_run_history.json persistence. */
-export interface StageRunTrackerSnapshot {
-  history: StageRunHistoryEntry[];
 }
 
 // --- Chests (BoxData holdings) ---
@@ -929,14 +906,6 @@ export interface LiveMemorySnapshot {
   chestDrops: ("common" | "rare")[] | null;
   /** Live inventory items from PlayerSaveData.itemSaveDatas snapshot (null ⇒ unavailable). */
   inventoryItems: LiveInventoryItem[] | null;
-  /**
-   * Stage clear times (whole seconds, as recorded by the game) observed since
-   * the previous tick, read from the StageClear battle log. `[]` = reader
-   * active, no new clears; `null` = unavailable (offset not derived / no
-   * battle). Attribution to a stage key happens in `main/` using the current
-   * live/save stageKey — the log entry itself doesn't carry difficulty.
-   */
-  stageClears: number[] | null;
   /** Live pet unlock state from save-layer heap (null ⇒ unavailable). */
   petData: LivePetData[] | null;
   /** Human-readable source, e.g. "memory v1.00.21". */
@@ -1030,6 +999,4 @@ export interface TbhApi {
   getLiveMemoryStatus(): Promise<LiveMemoryStatus | null>;
   onLiveMemory(cb: (snapshot: LiveMemorySnapshot) => void): () => void;
   onLiveMemoryStatus(cb: (status: LiveMemoryStatus) => void): () => void;
-  getStageRuns(): Promise<StageRunStats>;
-  onStageRuns(cb: (stats: StageRunStats) => void): () => void;
 }

@@ -13,7 +13,6 @@ import { InventoryService } from "../services/InventoryService";
 import { ChestService } from "../services/ChestService";
 import { PetService } from "../services/PetService";
 import { BoxTimerService } from "../services/BoxTimerService";
-import { StageRunService } from "../services/StageRunService";
 import { SessionStateService } from "../services/SessionStateService";
 import { LookupService } from "../services/LookupService";
 import { LookupPriceService } from "../services/LookupPriceService";
@@ -44,7 +43,6 @@ const inventory = new InventoryService();
 const chests = new ChestService();
 const pets = new PetService();
 const boxTimers = new BoxTimerService();
-const stageRuns = new StageRunService();
 const lookup = new LookupService();
 const lookupPrices = new LookupPriceService();
 const liveMemory = new LiveMemoryService();
@@ -90,9 +88,6 @@ const tracking = new TrackingService(
   (events) => notifications.showHeroLevelUp(events),
   (stageKey) => {
     boxTimers.tryMarkDroppedFromLiveStage(stageKey);
-  },
-  (stageKey, clearTimeSec, xpGained, goldGained) => {
-    stageRuns.recordClear(stageKey, clearTimeSec, xpGained, goldGained);
   },
 );
 
@@ -287,13 +282,11 @@ export function getAppServices() {
       const reloadPrices = target === "prices" || target === "all-except-config";
       const reloadLookupPrices = target === "lookup-prices" || target === "all-except-config";
       const reloadTimers = target === "box-timers" || target === "all-except-config";
-      const reloadStageRuns = target === "stage-runs" || target === "all-except-config";
       const reloadSession = target === "session" || target === "all-except-config";
 
       if (reloadPrices) inventory.reloadPriceCache();
       if (reloadLookupPrices) lookupPrices.reloadFromDisk();
       if (reloadTimers) boxTimers.resetStorage();
-      if (reloadStageRuns) stageRuns.resetStorage();
       if (reloadSession) {
         tracking.onSessionFileDeleted();
         tracking.reset();
@@ -354,7 +347,6 @@ export function getAppServices() {
     getLookupPrices: () => lookupPrices.getSnapshot(),
     getLiveMemory: () => liveMemory.getSnapshot(),
     getLiveMemoryStatus: () => liveMemory.getStatus(),
-    getStageRuns: () => stageRuns.getStats(),
   };
 }
 
